@@ -9,7 +9,7 @@ from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel,
                                       UserInCasestudy)
 from repair.apps.asmfa.models import (Activity, KeyflowInCasestudy,
-                                      Material, Process)
+                                      Material, Process, FractionFlow)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
@@ -73,6 +73,16 @@ class ImplementationQuestion(GDSEModel):
     max_value = models.FloatField(default=1)
     # value is absolute or relative (defining fraction)
     is_absolute = models.BooleanField(default=False)
+
+
+class SolutionFractionFlow(GDSEModel):
+    solution = models.ForeignKey(Solution,
+                             on_delete=PROTECT_CASCADE,
+                             related_name='f_solution') 
+    fractionflow = models.ForeignKey(FractionFlow,
+                             on_delete=PROTECT_CASCADE,
+                             related_name='f_fractionflow')
+    amount = models.FloatField(default=0) # in tons
 
 
 class SolutionPart(GDSEModel):

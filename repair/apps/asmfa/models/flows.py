@@ -235,3 +235,4 @@ class FractionFlow(Flow):
     # composition related information
     nace = models.CharField(max_length=255, blank=True)
     composition_name = models.CharField(max_length=255, blank=True)
+    

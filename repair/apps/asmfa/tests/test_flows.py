@@ -14,7 +14,6 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
-                                         ProductFractionFactory,
                                          PublicationInCasestudyFactory,
                                          ProcessFactory
                                          )

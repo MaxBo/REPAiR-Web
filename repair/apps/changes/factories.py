@@ -6,7 +6,7 @@ from repair.apps.login.factories import UserInCasestudyFactory, UserFactory
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActivityFactory, MaterialFactory,
-                                         ProcessFactory)
+                                         ProcessFactory, FractionFlowFactory)
 
 from . import models
 
@@ -53,6 +53,13 @@ class SolutionPartFactory(DjangoModelFactory):
     question = factory.SubFactory(ImplementationQuestionFactory)
     a = 0
     b = 1
+
+class SolutionFractionFlowFactory(DjangoModelFactory):
+    class Meta:
+        model = models.SolutionFractionFlow
+    solution = factory.SubFactory(SolutionFactory)
+    fractionflow = factory.SubFactory(FractionFlowFactory)
+    amount = 0.0
 
 
 class StrategyFactory(DjangoModelFactory):

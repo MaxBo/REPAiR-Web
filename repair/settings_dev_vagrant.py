@@ -5,26 +5,20 @@ DEBUG = True
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-DATABASES = {
-#'default': {
+DB_NAME = os.environ['DB_NAME']
+DB_USER = os.environ['DB_USER']
+DB_PASS = os.environ['DB_PASS']
 
-        #'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        #'NAME': '',
-        #'USER': '',
-        #'PASSWORD': '',
-        #'HOST': '',
-        #'PORT': '',
-        #'OPTIONS': {
-            #'sslmode': 'require',
-            #},
-    #},
-   'default': {
-       'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-       'NAME': os.path.join(PROJECT_DIR, 'db.sqlite3'),
-       'OPTIONS': {
-            'timeout': 20,
-        }
-   },
+DATABASES = {
+    'default': {
+
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': '10.0.2.2',
+        'PORT': '5432'
+    },
 }
 
 SPATIALITE_LIBRARY_PATH = 'mod_spatialite.so'
