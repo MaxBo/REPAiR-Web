@@ -2,7 +2,8 @@ from rest_framework import serializers
 from repair.apps.statusquo.models import (FlowIndicator, IndicatorFlow,
                                           KeyflowInCasestudy,
                                           IndicatorType, SpatialChoice,
-                                          FlowType, NodeLevel, SpatialType)
+                                          FlowType, NodeLevel, SpatialType,
+                                          TriState)
 from repair.apps.utils.serializers import EnumField
 
 
@@ -11,6 +12,8 @@ class IndicatorFlowSerializer(serializers.ModelSerializer):
     spatial_application = EnumField(enum=SpatialChoice)
     origin_node_level = EnumField(enum=NodeLevel)
     destination_node_level = EnumField(enum=NodeLevel)
+    hazardous = EnumField(enum=TriState)
+    avoidable = EnumField(enum=TriState)
 
     class Meta:
         model = IndicatorFlow
@@ -21,7 +24,10 @@ class IndicatorFlowSerializer(serializers.ModelSerializer):
                   'destination_node_ids',
                   'materials',
                   'spatial_application',
-                  'flow_type')
+                  'flow_type',
+                  'process_ids',
+                  'hazardous',
+                  'avoidable')
 
 
 class FlowIndicatorSerializer(serializers.ModelSerializer):
