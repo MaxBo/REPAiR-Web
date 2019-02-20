@@ -10,8 +10,6 @@ from repair.apps.changes.factories import (
 from repair.apps.changes.models import Solution
 from repair.apps.login.factories import UserInCasestudyFactory
 
-from repair.apps.asmfa.models.flows import FractionFlow
-from repair.apps.changes.factories import SolutionFractionFlowFactory
 
 class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
 
