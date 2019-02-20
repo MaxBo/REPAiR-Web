@@ -101,7 +101,9 @@ div.fullscreen{
   z-index: 10000;
 }
 
-.tooltip {
+// everyone calls class of their tooltips 'tooltip', kind of problematic
+// exclude the slider tooltips
+.tooltip:not(.top, .bottom) {
   position: relative;
   padding: 3px;
   background: @main-color;
@@ -109,6 +111,11 @@ div.fullscreen{
   white-space: nowrap;
   font: 10pt sans-serif;
   color: white;
+}
+
+.layer-tree .slider-horizontal, #layer-tree .slider-horizontal {
+  float: right;
+  margin-right: 20px;
 }
 
 /*summernote tooltip*/
@@ -119,8 +126,8 @@ div.fullscreen{
 
 #wrapper {
   /*transition: all .4s ease 0s;*/
-  height: 100%;
   padding-left: 60px;
+  overflow: hidden;
 }
 
 #page-content-wrapper {
@@ -130,10 +137,12 @@ div.fullscreen{
   height: auto;
   padding-top: 120px;
   background-color: #fdfdfd;
+  overflow: hidden;
 }
 
 #tab-content {
   background-color: white;
+  overflow: auto;
 }
 
 .tab-pane{

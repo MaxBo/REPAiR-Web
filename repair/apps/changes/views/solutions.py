@@ -1,27 +1,19 @@
 from repair.apps.changes.models import (
-    Unit,
     SolutionCategory,
     Solution,
-    SolutionQuantity,
-    SolutionRatioOneUnit,
+    ImplementationQuestion,
+    SolutionPart
     )
 
 from repair.apps.changes.serializers import (
-    UnitSerializer,
     SolutionSerializer,
     SolutionCategorySerializer,
-    SolutionQuantitySerializer,
-    SolutionRatioOneUnitSerializer,
+    ImplementationQuestionSerializer,
+    SolutionPartSerializer
     )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
-
-
-class UnitViewSet(ModelPermissionViewSet):
-    queryset = Unit.objects.all()
-    serializer_class = UnitSerializer
-    pagination_class = None
 
 
 class SolutionCategoryViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
@@ -34,12 +26,14 @@ class SolutionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = Solution.objects.all()
 
 
-class SolutionQuantityViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
-    serializer_class = SolutionQuantitySerializer
-    queryset = SolutionQuantity.objects.all()
+class SolutionPartViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    serializer_class = SolutionPartSerializer
+    queryset = SolutionPart.objects.all()
 
 
-class SolutionRatioOneUnitViewSet(CasestudyViewSetMixin,
-                                  ModelPermissionViewSet):
-    serializer_class = SolutionRatioOneUnitSerializer
-    queryset = SolutionRatioOneUnit.objects.all()
+class ImplementationQuestionViewSet(CasestudyViewSetMixin,
+                                    ModelPermissionViewSet):
+    serializer_class = ImplementationQuestionSerializer
+    queryset = ImplementationQuestion.objects.all()
+
+

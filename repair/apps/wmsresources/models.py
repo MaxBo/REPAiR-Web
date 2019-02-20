@@ -14,3 +14,10 @@ class WMSResourceInCasestudy(GDSEModel):
 
     def __str__(self):
         return '{} ({})'.format(self.wmsresource, self.casestudy)
+
+    def save(self, *args, **kwargs):
+        obj = WMSResourceInCasestudy.objects.filter(
+                wmsresource=self.wmsresource,
+                casestudy=self.casestudy)
+        if not obj:
+            super().save(*args, **kwargs)

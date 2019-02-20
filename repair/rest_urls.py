@@ -62,17 +62,6 @@ from repair.apps.statusquo.views import (
 from repair.apps.conclusions.views import (ConclusionViewSet, SectionViewSet,
                                            ConsensusViewSet)
 
-from repair.apps.changes.views import (
-    UnitViewSet,
-    SolutionCategoryViewSet,
-    SolutionViewSet,
-    StrategyViewSet,
-    SolutionInStrategyViewSet,
-    SolutionQuantityViewSet,
-    SolutionRatioOneUnitViewSet,
-    SolutionInStrategyQuantityViewSet,
-)
-
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
 from repair.apps.wmsresources.views import (WMSResourceInCasestudyViewSet, )

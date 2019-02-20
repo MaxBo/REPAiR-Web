@@ -158,6 +158,10 @@ var SetupMapsView = BaseMapView.extend(
         this.applyCheckState(data.node);
     },
 
+    nodeExpanded: function(event, data){
+
+    },
+
     renderAvailableServices: function(){
         var _this = this;
         this.wmsResources.fetch({ success: function(){
@@ -241,6 +245,7 @@ var SetupMapsView = BaseMapView.extend(
                 catNode.children.push(layerNode);
                 _this.addNode(layerNode, _this.selectedNode);
                 _this.addServiceLayer(layer);
+                _this.setMapZIndices();
             })
         }
 

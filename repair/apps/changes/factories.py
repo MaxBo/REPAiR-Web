@@ -4,15 +4,11 @@ import factory
 from factory.django import DjangoModelFactory
 from repair.apps.login.factories import UserInCasestudyFactory, UserFactory
 from repair.apps.studyarea.factories import StakeholderFactory
-from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
+from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
+                                         ActivityFactory, MaterialFactory,
+                                         ProcessFactory)
 
 from . import models
-
-
-class UnitFactory(DjangoModelFactory):
-    class Meta:
-        model = models.Unit
-    name = 'meter'
 
 
 class SolutionCategoryFactory(DjangoModelFactory):
@@ -30,24 +26,33 @@ class SolutionFactory(DjangoModelFactory):
     solution_category = factory.SubFactory(SolutionCategoryFactory)
     user = factory.SubFactory(UserInCasestudyFactory)
     description = 'This is the best Solution'
-    one_unit_equals = 'One Unit'
 
 
-class SolutionQuantityFactory(DjangoModelFactory):
+class ImplementationQuestionFactory(DjangoModelFactory):
     class Meta:
-        model = models.SolutionQuantity
-    name = 'Number of Collectors'
-    solution = factory.SubFactory(SolutionFactory)
-    unit = factory.SubFactory(UnitFactory)
+        model = models.ImplementationQuestion
+    question = 'How many percent are going to be saved?'
+    min_value = 0.1
+    max_value = 0.5
+    step = 0.2
+    is_absolute = False
 
 
-class SolutionRatioOneUnitFactory(DjangoModelFactory):
+class SolutionPartFactory(DjangoModelFactory):
     class Meta:
-        model = models.SolutionRatioOneUnit
+        model = models.SolutionPart
     solution = factory.SubFactory(SolutionFactory)
-    name = 'tons'
-    value = 42
-    unit = factory.SubFactory(UnitFactory)
+    implements_new_flow = False
+    implementation_flow_origin_activity = factory.SubFactory(ActivityFactory)
+    implementation_flow_destination_activity = \
+        factory.SubFactory(ActivityFactory)
+    implementation_flow_material = factory.SubFactory(MaterialFactory)
+    implementation_flow_process = factory.SubFactory(ProcessFactory)
+    implementation_flow_spatial_application = 1
+
+    question = factory.SubFactory(ImplementationQuestionFactory)
+    a = 0
+    b = 1
 
 
 class StrategyFactory(DjangoModelFactory):
@@ -75,23 +80,3 @@ class SolutionInStrategyFactory(DjangoModelFactory):
             # A list of participants were passed in, use them
             for participant in extracted:
                 self.participants.add(participant)
-
-
-class StrategyWithOneSolutionFactory(StrategyFactory):
-    membership = factory.RelatedFactory(SolutionInStrategyFactory,
-                                        'solution')
-
-
-class StrategyWithTwoSolutionsFactory(UserFactory):
-    membership1 = factory.RelatedFactory(SolutionInStrategyFactory,
-                                        'solution', solution__name='MySolution1')
-    membership2 = factory.RelatedFactory(SolutionInStrategyFactory,
-                                        'solution', solution__name='MySolution2')
-
-
-class SolutionInStrategyQuantityFactory(DjangoModelFactory):
-    class Meta:
-        model = models.SolutionInStrategyQuantity
-    sii = factory.SubFactory(SolutionInStrategyFactory)
-    quantity = factory.SubFactory(SolutionQuantityFactory)
-    value = 24.3

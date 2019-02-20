@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='casestudy',
             name='focusarea',
-            field=django.contrib.gis.db.models.fields.MultiPolygonField(null=True, srid=4326),
+            field=django.contrib.gis.db.models.fields.MultiPolygonField(null=True, blank=True, srid=4326),
         ),
     ]

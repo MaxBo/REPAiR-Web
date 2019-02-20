@@ -48,13 +48,17 @@ var FlowAssessmentSetupView = BaseView.extend(
             apiTag: 'flowIndicators',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
+        this.processes = new GDSECollection([], {
+            apiTag: 'processes'
+        });
 
         this.loader.activate();
         var promises = [
             this.activities.fetch(),
             this.indicators.fetch(),
             this.activityGroups.fetch(),
-            this.materials.fetch()
+            this.materials.fetch(),
+            this.processes.fetch()
         ]
         Promise.all(promises).then(function(){
             _this.activityGroups.sort();
@@ -138,6 +142,7 @@ var FlowAssessmentSetupView = BaseView.extend(
             activityGroups: this.activityGroups,
             activities: this.activities,
             materials: this.materials,
+            processes: this.processes,
             template: tmpltId
         };
         var optA = Object.assign({
