@@ -514,7 +514,7 @@ var FilterFlowsView = BaseView.extend(
         filter.set('direction', direction);
         filter.set('aggregate_materials', this.aggregateCheck.checked)
 
-        process_ids = null;
+        var process_ids = null;
         if (this.processSelect.value != "-1"){
             var values = [];
             var options = this.processSelect.selectedOptions;

@@ -9,6 +9,27 @@ function(BaseView, _, GDSECollection, FlowSankeyView, utils){
 * @name module:views/IndicatorFlowEditView
 * @augments module:views/BaseView
 */
+
+function multiCheck(evt, clickedIndex, checked){
+    var select = evt.target;
+    if(checked){
+        // 'All' clicked -> deselect other options
+        if (clickedIndex == 0){
+           $(select).selectpicker('deselectAll');
+            select.value = -1;
+        }
+        // other option clicked -> deselect 'All'
+        else {
+            select.options[0].selected = false;
+        }
+    }
+    // nothing selected anymore -> select 'All'
+    if (select.value == null || select.value == ''){
+        select.value = -1;
+    }
+    $(select).selectpicker('refresh');
+}
+
 var IndicatorFlowEditView = BaseView.extend(
     /** @lends module:views/FlowsView.prototype */
     {
@@ -30,6 +51,7 @@ var IndicatorFlowEditView = BaseView.extend(
         this.activityGroups = options.activityGroups;
         this.activities = options.activities;
         this.materials = options.materials;
+        this.processes = options.processes;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.indicatorFlow = options.indicatorFlow;
@@ -59,9 +81,11 @@ var IndicatorFlowEditView = BaseView.extend(
         var _this = this;
         var html = document.getElementById(this.template).innerHTML
         var template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ processes: this.processes});
 
         this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
+        this.hazardousSelect = this.el.querySelector('select[name="hazardous"]');
+        this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         this.originSelects = {
             levelSelect: this.el.querySelector('select[name="origin-level-select"]'),
             groupSelect: this.el.querySelector('select[name="origin-group"]'),
@@ -77,6 +101,10 @@ var IndicatorFlowEditView = BaseView.extend(
         }
 
         this.typeSelect = this.el.querySelector('select[name="waste"]');
+        this.processSelect = this.el.querySelector('select[name="process-select"]')
+
+        $(this.processSelect).selectpicker();
+        $(this.processSelect).on('changed.bs.select', multiCheck);
 
         $(this.originSelects.groupSelect).selectpicker();
         $(this.originSelects.activitySelect).selectpicker();
@@ -93,8 +121,6 @@ var IndicatorFlowEditView = BaseView.extend(
             _this.resetNodeSelects('origin'); _this.resetNodeSelects('destination')
         })
 
-        //this.addEventListeners('origin');
-        //this.addEventListeners('destination');
         this.renderMatFilter();
 
         this.materialTags = this.el.querySelector('input[name="material-tags"]');
@@ -145,26 +171,6 @@ var IndicatorFlowEditView = BaseView.extend(
     addEventListeners: function(tag){
         var _this = this;
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects;
-
-        function multiCheck(evt, clickedIndex, checked){
-            var select = evt.target;
-            if(checked){
-                // 'All' clicked -> deselect other options
-                if (clickedIndex == 0){
-                   $(select).selectpicker('deselectAll');
-                    select.value = -1;
-                }
-                // other option clicked -> deselect 'All'
-                else {
-                    select.options[0].selected = false;
-                }
-            }
-            // nothing selected anymore -> select 'All'
-            if (select.value == null || select.value == ''){
-                select.value = -1;
-            }
-            $(select).selectpicker('refresh');
-        }
         // ToDo: for some reason they 'changed.bs.select' is always fired twice
         $(selectGroup.groupSelect).on('changed.bs.select', function(evt, index, val){
             multiCheck(evt, index, val);
@@ -191,7 +197,6 @@ var IndicatorFlowEditView = BaseView.extend(
     // reset the options of the selects
     // tag indicates the select group ('origin' or 'destination')
     resetNodeSelects: function(tag){
-
         var selectGroup = (tag == 'origin') ? this.originSelects : this.destinationSelects,
             level = selectGroup.levelSelect.value,
             hide = [],
@@ -413,10 +418,31 @@ var IndicatorFlowEditView = BaseView.extend(
             (destinationLevel == 'activity') ? this.activities:
             this.activityGroups;
 
-        var filterParams = {},
-            waste = (this.typeSelect.value == 'waste') ? true :
-                    (this.typeSelect.value == 'product') ? false : '';
-        if (waste) filterParams.waste = waste;
+        var filterParams = {};
+
+        var flowFilters = filterParams['filters'] = [];
+        var typeFilterFunctions = {};
+        if (flowType != 'both') {
+            var is_waste = (flowType == 'waste') ? true : false;
+            typeFilterFunctions['waste'] = is_waste;
+        }
+        if (hazardous != 'both') {
+            var is_hazardous = (hazardous == 'yes') ? true : false;
+            typeFilterFunctions['hazardous'] = is_hazardous;
+        }
+        if (avoidable != 'both') {
+            var is_avoidable = (avoidable == 'yes') ? true : false;
+            typeFilterFunctions['avoidable'] = is_avoidable
+        }
+        var processIds = filter.get('process_ids');
+        if (processIds) {
+            typeFilterFunctions['process_id__in'] = processIds.split(',');
+        }
+
+        if (Object.keys(typeFilterFunctions).length > 0) {
+            typeFilterFunctions['link'] = 'and';
+            flowFilters.push(typeFilterFunctions);
+        }
 
         var materialIds = this.selectedMaterials();
 
@@ -435,23 +461,14 @@ var IndicatorFlowEditView = BaseView.extend(
                 (destinationLevel == 'activity') ? 'activity__id__in': 'id__in';
 
         // flow origins and destinations have to be in selected subsets (AND linked, in contrast to FlowsView where you have directions to/from the selected nodes)
-        var id_filter = {
-                link: 'and',
-                functions: []
-            }
+        var id_filter = { link: 'and' }
         if (originNodeIds.length > 0)
-            id_filter.functions.push({
-                'function': 'origin__' + originSuffix,
-                values: originNodeIds
-            });
+            id_filter['origin__' + originSuffix] = originNodeIds;
 
         if (destinationNodeIds.length > 0)
-            id_filter.functions.push({
-                'function': 'destination__' + destinationSuffix,
-                values: destinationNodeIds
-            });
+            id_filter['destination__' + destinationSuffix] = values;
 
-        filterParams['filters'] = [id_filter];
+        flowFilters.push(id_filter);
 
         var flows = new GDSECollection([], {
             apiTag: 'flows',
@@ -503,7 +520,10 @@ var IndicatorFlowEditView = BaseView.extend(
             originLevel = flow.origin_node_level || 'activitygroup',
             destinationLevel = flow.destination_node_level || 'activitygroup',
             flowType = flow.flow_type || 'both',
-            spatial = flow.spatial_application || 'both';
+            spatial = flow.spatial_application || 'both',
+            process_ids = flow.process_ids,
+            hazardous = flow.hazardous.toLowerCase(),
+            avoidable = flow.avoidable.toLowerCase();
 
         this.originSelects.levelSelect.value = originLevel.toLowerCase();
         this.destinationSelects.levelSelect.value = destinationLevel.toLowerCase();
@@ -514,6 +534,17 @@ var IndicatorFlowEditView = BaseView.extend(
         this.typeSelect.value = flowType.toLowerCase();
         this.setSelectedMaterials(materialIds);
         this.el.querySelector('input[name="spatial-filtering"][value="' + spatial.toLowerCase() + '"]').checked = true;
+
+        var process_ids = flow.process_ids;
+        if (process_ids == null)
+            this.processSelect.value = -1;
+        else {
+            $(this.processSelect).selectpicker('val', process_ids.split(','))
+        }
+         $(this.processSelect).selectpicker('refresh');
+
+        this.hazardousSelect.value = hazardous;
+        this.avoidableSelect.value = avoidable;
     },
 
     // get the flow with currently set values
@@ -524,7 +555,20 @@ var IndicatorFlowEditView = BaseView.extend(
             originLevel = this.originSelects.levelSelect.value,
             destinationLevel = this.destinationSelects.levelSelect.value,
             flowType = this.typeSelect.value,
-            spatial = this.el.querySelector('input[name="spatial-filtering"]:checked').value;
+            spatial = this.el.querySelector('input[name="spatial-filtering"]:checked').value,
+            hazardous = this.hazardousSelect.value;
+            avoidable = this.avoidableSelect.value;
+
+        var process_ids = null;
+        if (this.processSelect.value != "-1"){
+            var values = [];
+            var options = this.processSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            process_ids = values.join(',')
+        }
 
         var flow = {
             origin_node_level: originLevel,
@@ -533,7 +577,10 @@ var IndicatorFlowEditView = BaseView.extend(
             destination_node_ids: destinationNodeIds.join(','),
             materials: materialIds,
             flow_type: flowType,
-            spatial_application: spatial
+            spatial_application: spatial,
+            process_ids: process_ids,
+            hazardous: hazardous,
+            avoidable: avoidable
         }
 
         return flow;
