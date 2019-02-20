@@ -137,18 +137,16 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         body = {
             # prefilter flows
             # list of subfilters, subfilters are 'and' linked
+            # keys: django filter function (e.g. origin__id__in)
+            # values: values for filter function (e.g. [1,5,10])
             filters: [
                 {
-                    link : 'and' or 'or' (default 'or')
-                    functions: [
-                        {
-                             function: django filter function (e.g. origin__id__in)
-                             values: values for filter function (e.g. [1,5,10])
-                        },
-                        ...
-                    ]
+                    link : 'and' or 'or' (default 'or'),
+                    some-django-filter-function: value,
+                    another-django-filter-function: value
                 },
-                ...
+                { link: ... },
+                ....
             ],
 
             filter_link: and/or, # logical linking of filters, defaults to 'or'
@@ -396,11 +394,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     @staticmethod
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
-            filter_link = sub_filter.get('link', None)
+            filter_link = sub_filter.pop('link', None)
             filter_functions = []
-            for f in sub_filter['functions']:
-                func = f['function']
-                v = f['values']
+            for func, v in sub_filter.items():
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
                 filter_function = Q(**{func: v})
