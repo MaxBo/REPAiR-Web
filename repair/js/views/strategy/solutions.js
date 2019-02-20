@@ -28,8 +28,6 @@ var SolutionsView = BaseView.extend(
         SolutionsView.__super__.initialize.apply(this, [options]);
         var _this = this;
         _.bindAll(this, 'renderCategory');
-        _.bindAll(this, 'addSolutionQuanitityRow');
-        _.bindAll(this, 'addSolutionRatioOneUnitRow');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -48,9 +46,7 @@ var SolutionsView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
         var promises = [];
-        this.units = new GDSECollection([], { apiTag: 'units' });
         promises.push(this.categories.fetch());
-        promises.push(this.units.fetch());
         promises.push(this.activities.fetch());
 
         this.loader.activate();
@@ -106,86 +102,7 @@ var SolutionsView = BaseView.extend(
         });
     },
 
-    /*
-    * adds a "Ratio defining one unit" to the "Units/Ratios" tab inside
-    * the solution detail modal
-    */
-    addSolutionQuanitityRow: function(squantity){
-        var table = document.getElementById('required-ratios'),
-            row = table.insertRow(-1);
 
-        var nameInput = document.createElement('input');
-        row.insertCell(-1).appendChild(nameInput);
-        nameInput.value = squantity.get('name');
-        nameInput.classList.add('form-control');
-        nameInput.addEventListener('change', function(){ squantity.set('name', nameInput.value); })
-
-        var unitSelect = document.createElement('select');
-        row.insertCell(-1).appendChild(unitSelect);
-        this.units.forEach(function(unit){
-            var option = document.createElement('option');
-            option.value = unit.id;
-            option.text = unit.get('name');
-            unitSelect.appendChild(option);
-        })
-        unitSelect.value = squantity.get('unit');
-        unitSelect.classList.add('form-control');
-        unitSelect.addEventListener('change', function(){ squantity.set('unit', unitSelect.value); })
-
-        var checkbox = document.createElement("input");
-        checkbox.type = 'checkbox';
-        row.insertCell(-1).appendChild(checkbox);
-
-        checkbox.addEventListener('change', function() {
-            row.classList.toggle('strikeout');
-            row.classList.toggle('dsbld');
-            squantity.markedForDeletion = checkbox.checked;
-        });
-    },
-
-    /*
-    * adds a "Ratio to be set when implementing this solution" to the "Units/Ratios" tab inside
-    * the solution detail modal
-    */
-    addSolutionRatioOneUnitRow: function(sratio){
-        var table = document.getElementById('one-unit-ratios'),
-            row = table.insertRow(-1);
-
-        var nameInput = document.createElement('input');
-        row.insertCell(-1).appendChild(nameInput);
-        nameInput.value = sratio.get('name');
-        nameInput.classList.add('form-control');
-        nameInput.addEventListener('change', function(){ sratio.set('name', nameInput.value); })
-
-        var valueInput = document.createElement('input');
-        valueInput.type = 'number';
-        row.insertCell(-1).appendChild(valueInput);
-        valueInput.value = sratio.get('value');
-        valueInput.classList.add('form-control');
-        valueInput.addEventListener('change', function(){ sratio.set('value', valueInput.value); })
-
-        var unitSelect = document.createElement('select');
-        row.insertCell(-1).appendChild(unitSelect);
-        this.units.forEach(function(unit){
-            var option = document.createElement('option');
-            option.value = unit.id;
-            option.text = unit.get('name');
-            unitSelect.appendChild(option);
-        })
-        unitSelect.value = sratio.get('unit');
-        unitSelect.classList.add('form-control');
-        unitSelect.addEventListener('change', function(){ sratio.set('unit', unitSelect.value); })
-
-        var checkbox = document.createElement("input");
-        checkbox.type = 'checkbox';
-        row.insertCell(-1).appendChild(checkbox);
-
-        checkbox.addEventListener('change', function() {
-            row.classList.toggle('strikeout');
-            row.classList.toggle('dsbld');
-            sratio.markedForDeletion = checkbox.checked;
-        });
-    },
 
     /*
     * open a modal containing details about the solution
@@ -205,26 +122,6 @@ var SolutionsView = BaseView.extend(
                 changedImages[field] = input.files[0];
             }
         };
-        var squantities = new GDSECollection([], {
-                apiTag: 'solutionQuantities',
-                apiIds: [this.caseStudy.id, this.keyflowId,
-                         solution.get('solution_category'), solution.id]
-            }),
-
-            sratios = new GDSECollection([], {
-                apiTag: 'solutionRatioOneUnits',
-                apiIds: [this.caseStudy.id, this.keyflowId,
-                         solution.get('solution_category'), solution.id]
-            });
-
-        if (solution.id){
-            squantities.fetch({success: function(){
-                squantities.forEach(_this.addSolutionQuanitityRow)
-            }});
-            sratios.fetch({success: function(){
-                sratios.forEach(_this.addSolutionRatioOneUnitRow)
-            }});
-        }
 
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
@@ -234,7 +131,6 @@ var SolutionsView = BaseView.extend(
         modal.innerHTML = template({
             name: solution.get('name'),
             description: solution.get('description'),
-            unit: solution.get('one_unit_equals'),
             effectSrc: solution.get('effect_image'),
             stateSrc: solution.get('currentstate_image'),
             activitiesSrc: solution.get('activities_image'),
@@ -251,14 +147,11 @@ var SolutionsView = BaseView.extend(
         // add buttons and listeners for editing the solution in setup mode
         if (this.mode == 1){
             var nameInput = modal.querySelector('input[name="name"]'),
-                unitInput = modal.querySelector('input[name="unit"]'),
                 stateImgInput = modal.querySelector('input[name="state-file"]'),
                 effectImgInput = modal.querySelector('input[name="effect-file"]'),
                 activitiesImgInput = modal.querySelector('input[name="activities-file"]'),
                 descriptionArea = modal.querySelector('textarea[name="description"]'),
-                activityInputs = modal.querySelectorAll('input[name="activity"]'),
-                addRatioBtn = modal.querySelector('#add-one-unit-ratio'),
-                addQuantityBtn = modal.querySelector('#add-required-ratio');
+                activityInputs = modal.querySelectorAll('input[name="activity"]');
 
             stateImgInput.addEventListener('change', function(){
                 swapImage(stateImgInput, 'state-image', 'currentstate_image');
@@ -268,21 +161,6 @@ var SolutionsView = BaseView.extend(
             })
             activitiesImgInput.addEventListener('change', function(){
                 swapImage(activitiesImgInput, 'activities-image', 'activities_image');
-            })
-
-            addQuantityBtn.addEventListener('click', function(){
-                squantity = new squantities.model({
-                    name: '', unit: _this.units.first().id
-                })
-                squantities.add(squantity);
-                _this.addSolutionQuanitityRow(squantity);
-            })
-            addRatioBtn.addEventListener('click', function(){
-                sratio = new sratios.model({
-                    name: '', unit: _this.units.first().id, value: 0
-                })
-                sratios.add(sratio);
-                _this.addSolutionRatioOneUnitRow(sratio);
             })
 
             for(var i = 0; i < activityInputs.length; i++){
@@ -306,7 +184,6 @@ var SolutionsView = BaseView.extend(
                 }
                 var data = {
                     name: nameInput.value,
-                    one_unit_equals: unitInput.value,
                     description: descriptionArea.value,
                     solution_category: solution.get('solution_category'), // required by backend
                     activities: activities
@@ -317,21 +194,9 @@ var SolutionsView = BaseView.extend(
                 _this.loader.activate()
                 solution.save(data, {
                     success: function(){
-                        var ratioModels = [];
-                        squantities.forEach(function(m) {ratioModels.push(m)});
-                        sratios.forEach(function(m) {ratioModels.push(m)});
-
-                        utils.queuedUpload(ratioModels, {
-                            success: function(){
-                                $(modal).modal('hide');
-                                _this.loader.deactivate();
-                                if (onConfirm) onConfirm();
-                            },
-                            error: function(m, r){
-                                _this.loader.deactivate();
-                                _this.onError(r);
-                            }
-                        });
+                        $(modal).modal('hide');
+                        _this.loader.deactivate();
+                        if (onConfirm) onConfirm();
                     },
                     error: _this.onError,
                     patch: true
@@ -644,7 +509,6 @@ var SolutionsView = BaseView.extend(
                     name: name,
                     solution_category: category.id,
                     description: '-',
-                    one_unit_equals: '-',
                     activities: []
                 },
                 {
