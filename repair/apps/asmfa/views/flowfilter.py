@@ -141,7 +141,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             # values: values for filter function (e.g. [1,5,10])
             filters: [
                 {
-                    link : 'and' or 'or' (default 'or'),
+                    link : 'and' or 'or' (default 'and'),
                     some-django-filter-function: value,
                     another-django-filter-function: value
                 },
@@ -394,7 +394,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     @staticmethod
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
-            filter_link = sub_filter.pop('link', None)
+            filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
             for func, v in sub_filter.items():
                 if func.endswith('__areas'):
