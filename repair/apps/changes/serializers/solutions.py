@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
-from repair.apps.changes.models import (Unit,
-                                        SolutionCategory,
+from repair.apps.asmfa.models import Activity
+from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
-                                        SolutionQuantity,
-                                        SolutionRatioOneUnit,
-                                        Activity
+                                        ImplementationQuestion,
+                                        SolutionPart
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -15,12 +14,6 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            IDRelatedField)
-
-
-class UnitSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Unit
-        fields = ('url', 'id', 'name')
 
 
 class SolutionCategoryField(InCasestudyField):
@@ -70,11 +63,6 @@ class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
         fields = ('url', 'id', 'name')
 
 
-class UnitField(serializers.HyperlinkedRelatedField):
-    """A Unit Field"""
-    queryset = Unit.objects
-
-
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
                                  NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -120,8 +108,8 @@ class SolutionDetailCreateMixin:
         return obj
 
 
-class SolutionQuantitySerializer(SolutionDetailCreateMixin,
-                                 NestedHyperlinkedModelSerializer):
+class ImplementationQuestionSerializer(SolutionDetailCreateMixin,
+                                       NestedHyperlinkedModelSerializer):
     unit = IDRelatedField()
     solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
@@ -132,35 +120,11 @@ class SolutionQuantitySerializer(SolutionDetailCreateMixin,
     }
 
     class Meta:
-        model = SolutionQuantity
-        fields = ('url', 'id', 'name', 'unit', 'solution')
-
-
-class SolutionDetailListField(InCaseStudyIdentityField):
-    lookup_url_kwarg = 'solution_pk'
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution_category__id',
-        'solution_pk': 'id'
-    }
-
-
-class SolutionRatioOneUnitSerializer(SolutionDetailCreateMixin,
-                                     NestedHyperlinkedModelSerializer):
-    unit = IDRelatedField()
-    solution = IDRelatedField(read_only=True)
-    value = serializers.DecimalField(max_digits=10, decimal_places=3)
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution__solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution__solution_category__id',
-        'solution_pk': 'solution__id'
-    }
-
-    class Meta:
-        model = SolutionRatioOneUnit
-        fields = ('url', 'id', 'name', 'value', 'unit', 'solution')
+        model = ImplementationQuestion
+        fields = ('url', 'id', 'question', 'unit', 'select_values', 'steps',
+                  'min_value', 'max_value', 'is_absolute')
+        extra_kwargs = {'steps': {'required': False},
+                        'unit': {'required': False},}
 
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,
@@ -174,11 +138,6 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     user = UserInCasestudyField(view_name='userincasestudy-detail',
                                 read_only=True)
     solution_category = IDRelatedField()
-    solutionquantity_set = SolutionDetailListField(
-        view_name='solutionquantity-list')
-    solutionratiooneunit_set = SolutionDetailListField(
-        view_name='solutionratiooneunit-list')
-    activities = serializers.PrimaryKeyRelatedField(many=True, read_only=False, queryset=Activity.objects.all())
     currentstate_image = serializers.ImageField(required=False, allow_null=True)
     activities_image = serializers.ImageField(required=False, allow_null=True)
     effect_image = serializers.ImageField(required=False, allow_null=True)
@@ -186,10 +145,50 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     class Meta:
         model = Solution
         fields = ('url', 'id', 'name', 'user', 'description',
-                  'one_unit_equals', 'solution_category',
-                  'solutionquantity_set',
-                  'solutionratiooneunit_set',
-                  'activities', 'activities_image',
+                  'documentation', 'solution_category',
+                  'activities_image',
                   'currentstate_image', 'effect_image'
                   )
         read_only_fields = ('url', 'id', )
+        extra_kwargs = {
+            'possible_implementation_area': {
+                'allow_null': True,
+                'required': False,
+            },
+            'description': {'required': False},
+            'documentation': {'required': False},
+        }
+
+
+class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
+                             NestedHyperlinkedModelSerializer):
+    solution = IDRelatedField(read_only=True)
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution__solution_category__keyflow__id',
+        'solutioncategory_pk': 'solution__solution_category__id',
+        'solution_pk': 'solution__id'
+    }
+
+    # ToDo: serialize affected flows as part of this serializer
+
+    class Meta:
+        model = SolutionPart
+        fields = ('url', 'id', 'solution', 'documentation',
+                  'implements_new_flow',
+                  'implementation_flow_origin_activity',
+                  'implementation_flow_destination_activity',
+                  'implementation_flow_material',
+                  'implementation_flow_process',
+                  'implementation_flow_spatial_application',
+                  'implementation_question', 'a', 'b',
+                  'keep_origin', 'new_target', 'map_request'
+                  )
+        read_only_fields = ('url', 'id', 'solution')
+        extra_kwargs = {
+            'implementation_question': {'null': True, 'required': False},
+            'keep_origin': {'required': False},
+            'new_target': {'required': False},
+            'map_request': {'required': False},
+            'documentation': {'required': False}
+        }

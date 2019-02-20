@@ -4,13 +4,15 @@ from repair.apps.login.models import UserInCasestudy
 from repair.apps.changes.models import (
     Strategy,
     SolutionInStrategy,
-    SolutionInStrategyQuantity,
+    ImplementationQuantity,
+    SolutionPart
     )
 
 from repair.apps.changes.serializers import (
     StrategySerializer,
     SolutionInStrategySerializer,
-    SolutionInStrategyQuantitySerializer,
+    ImplementationQuantitySerializer,
+    SolutionPartSerializer
     )
 
 from repair.apps.utils.views import (ModelPermissionViewSet,
@@ -52,19 +54,18 @@ class StrategyViewSet(CasestudyViewSetMixin,
         return strategies
 
 
-
-class SolutionInStrategyViewSet(CasestudyViewSetMixin,
-                                ModelPermissionViewSet):
+class SolutionInStrategyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionInStrategySerializer
     queryset = SolutionInStrategy.objects.all()
 
 
-class SolutionInStrategyQuantityViewSet(CasestudyViewSetMixin,
-                                        ReadUpdatePermissionViewSet):
+class ImplementationQuantityViewSet(CasestudyViewSetMixin,
+                                    ReadUpdatePermissionViewSet):
     """
     Has to provide exactly one quantity value
     for each quantity defined for the solution
     So no PUT or DELETE is allowed
     """
-    serializer_class = SolutionInStrategyQuantitySerializer
-    queryset = SolutionInStrategyQuantity.objects.all()
+    serializer_class = ImplementationQuantitySerializer
+    queryset = ImplementationQuantity.objects.all()
+

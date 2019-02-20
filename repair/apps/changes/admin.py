@@ -4,32 +4,14 @@ from reversion.admin import VersionAdmin
 from . import models
 
 
-@admin.register(models.Unit)
-class SolutionCategoryAdmin(VersionAdmin):
-    """Unit Admin"""
-
-
 @admin.register(models.SolutionCategory)
 class SolutionCategoryAdmin(VersionAdmin):
     """SolutionCategory Admin"""
 
 
-@admin.register(models.SolutionRatioOneUnit)
-class SolutionRatioOneUnitAdmin(VersionAdmin):
-    """"""
-
-
-class SolutionRatioOneUnitInline(admin.StackedInline):
-    model = models.SolutionRatioOneUnit
-
-
 @admin.register(models.Solution)
 class SolutionAdmin(VersionAdmin):
     """Solution Admin"""
-    inlines = [
-        SolutionRatioOneUnitInline,
-    ]
-
 
 class SolutionsInline(admin.StackedInline):
     model = models.Strategy.solutions.through
@@ -41,19 +23,19 @@ class ImplementationAdmin(VersionAdmin):
     inlines = (SolutionsInline, )
 
 
-@admin.register(models.SolutionInStrategyQuantity)
-class SolutionInImplementationQuantityAdmin(VersionAdmin):
+@admin.register(models.ImplementationQuantity)
+class ImplementationQuantityAdmin(VersionAdmin):
     """"""
 
 
-class SolutionInImplementationQuantityInline(admin.StackedInline):
-    model = models.SolutionInStrategyQuantity
+class ImplementationQuantityInline(admin.StackedInline):
+    model = models.ImplementationQuantity
 
 
 @admin.register(models.SolutionInStrategy)
-class SolutionInImplementationAdmin(VersionAdmin):
+class SolutionInStrategyAdmin(VersionAdmin):
     """SolutionInImplementation Admin"""
-    inlines = (SolutionInImplementationQuantityInline,
+    inlines = (ImplementationQuantityInline,
                )
 
 
