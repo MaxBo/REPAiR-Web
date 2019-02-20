@@ -62,6 +62,14 @@ class SolutionFractionFlowFactory(DjangoModelFactory):
     amount = 0.0
 
 
+class SolutionFractionFlowFactory(DjangoModelFactory):
+    class Meta:
+        model = models.SolutionFractionFlow
+    solution = factory.SubFactory(SolutionFactory)
+    fractionflow = factory.SubFactory(FractionFlowFactory)
+    amount = 0.0
+
+
 class StrategyFactory(DjangoModelFactory):
     class Meta:
         model = models.Strategy
