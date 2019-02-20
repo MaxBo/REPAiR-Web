@@ -151,6 +151,8 @@ var FilterFlowsView = BaseView.extend(
         this.flowTypeSelect = this.el.querySelector('select[name="waste"]');
         this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
         this.processSelect = this.el.querySelector('select[name="process-select"]');
+        this.hazardousSelect = this.el.querySelector('select[name="hazardous"]');
+        this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
         $(this.actorSelect).selectpicker();
@@ -220,7 +222,7 @@ var FilterFlowsView = BaseView.extend(
     prepareAreas: function(levelId, onSuccess){
         var _this = this;
         var areas = this.areas[levelId];
-        if (areas){
+        if (areas && areas.size() > 0){
             this.drawAreas(areas)
             if (onSuccess) onSuccess();
         }
@@ -512,7 +514,7 @@ var FilterFlowsView = BaseView.extend(
         filter.set('direction', direction);
         filter.set('aggregate_materials', this.aggregateCheck.checked)
 
-        process_ids = null;
+        var process_ids = null;
         if (this.processSelect.value != "-1"){
             var values = [];
             var options = this.processSelect.selectedOptions;
@@ -524,6 +526,8 @@ var FilterFlowsView = BaseView.extend(
         }
         filter.set('process_ids', process_ids);
         filter.set('flow_type', this.flowTypeSelect.value);
+        filter.set('hazardous', this.hazardousSelect.value);
+        filter.set('avoidable', this.avoidableSelect.value);
 
         var areas = [];
         this.selectedAreas.forEach(function(area){
@@ -599,6 +603,9 @@ var FilterFlowsView = BaseView.extend(
             $(this.processSelect).selectpicker('val', process_ids.split(','))
         }
          $(this.processSelect).selectpicker('refresh');
+
+        this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
+        this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
 
         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
         var material = filter.get('material'),

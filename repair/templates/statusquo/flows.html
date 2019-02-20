@@ -526,6 +526,38 @@
       </form>
     </div>
   </div>
+  <div class="row" style="margin-top: 10px">
+    <div class="col-md-2">
+      <label>{% trans "Subprocess" %}</label>
+      <select name="process-select" multiple class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+        <option value="-1"> {% trans "All" %} </option>
+        <option data-divider="true"></option>
+        <% processes.forEach(function(process){ %>
+          <option value="<%= process.id %>"> <%= process.get('name') %> </option>
+        <% }); %>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <label>{% trans "Hazardous" %}</label>
+        <select name="hazardous" class="form-control">
+          <option value='both'> {% trans "ignore" %} </option>
+          <option value='no'> {% trans "not hazardous" %} </option>
+          <option value='yes'> {% trans "hazardous" %} </option>
+        </select>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="row">
+        <label>{% trans "Avoidable" %}</label>
+        <select name="avoidable" class="form-control">
+          <option value='both'> {% trans "ignore" %} </option>
+          <option value='no'> {% trans "unavoidable" %} </option>
+          <option value='yes'> {% trans "avoidable" %} </option>
+        </select>
+      </div>
+    </div>
+  </div>
   <div class="row" style="visibility: hidden;">
     <input type="checkbox" name="show-flow-only" style="transform: scale(1.5); float: left; margin-right: 10px;">
     <div>{% trans "hide activities/actors without flow data"%}</div>
