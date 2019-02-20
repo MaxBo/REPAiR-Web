@@ -409,6 +409,9 @@ var IndicatorFlowEditView = BaseView.extend(
         var el = this.el.querySelector('.sankey-wrapper'),
             originLevel = this.originSelects.levelSelect.value,
             destinationLevel = this.destinationSelects.levelSelect.value,
+            flowType = this.typeSelect.value,
+            hazardous = this.hazardousSelect.value,
+            avoidable = this.avoidableSelect.value,
             _this = this;
 
         var origins = (originLevel == 'actor') ? this.originActors:
@@ -434,9 +437,9 @@ var IndicatorFlowEditView = BaseView.extend(
             var is_avoidable = (avoidable == 'yes') ? true : false;
             typeFilterFunctions['avoidable'] = is_avoidable
         }
-        var processIds = filter.get('process_ids');
+        var processIds = this.getSelectedProcesses();
         if (processIds) {
-            typeFilterFunctions['process_id__in'] = processIds.split(',');
+            typeFilterFunctions['process_id__in'] = processIds;
         }
 
         if (Object.keys(typeFilterFunctions).length > 0) {
@@ -466,7 +469,7 @@ var IndicatorFlowEditView = BaseView.extend(
             id_filter['origin__' + originSuffix] = originNodeIds;
 
         if (destinationNodeIds.length > 0)
-            id_filter['destination__' + destinationSuffix] = values;
+            id_filter['destination__' + destinationSuffix] = destinationNodeIds;
 
         flowFilters.push(id_filter);
 
@@ -547,6 +550,19 @@ var IndicatorFlowEditView = BaseView.extend(
         this.avoidableSelect.value = avoidable;
     },
 
+    getSelectedProcesses: function(){
+        if (this.processSelect.value != "-1"){
+            var values = [];
+            var options = this.processSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            return values
+        }
+        return null;
+    },
+
     // get the flow with currently set values
     getInputs: function(){
         var materialIds = this.selectedMaterials(),
@@ -557,18 +573,9 @@ var IndicatorFlowEditView = BaseView.extend(
             flowType = this.typeSelect.value,
             spatial = this.el.querySelector('input[name="spatial-filtering"]:checked').value,
             hazardous = this.hazardousSelect.value;
-            avoidable = this.avoidableSelect.value;
+            avoidable = this.avoidableSelect.value,
+            process_ids = this.getSelectedProcesses();
 
-        var process_ids = null;
-        if (this.processSelect.value != "-1"){
-            var values = [];
-            var options = this.processSelect.selectedOptions;
-            for (var i = 0; i < options.length; i++) {
-                var option = options[i];
-                values.push(option.value);
-            }
-            process_ids = values.join(',')
-        }
 
         var flow = {
             origin_node_level: originLevel,
@@ -578,7 +585,7 @@ var IndicatorFlowEditView = BaseView.extend(
             materials: materialIds,
             flow_type: flowType,
             spatial_application: spatial,
-            process_ids: process_ids,
+            process_ids: (process_ids) ? process_ids.join(','): null,
             hazardous: hazardous,
             avoidable: avoidable
         }
