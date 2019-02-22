@@ -2,7 +2,6 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
          'openlayers', 'app-config', 'openlayers/css/ol.css', 'base'
 ], function (d3, _, CaseStudy, GeoLocations, ol, config) {
 
-    document.getElementById('wrapper').style.overflow = 'hidden';
     document.getElementById('content').style.padding = '0px';
     document.getElementById('page-content-wrapper').style.padding = '0px';
 
@@ -13,11 +12,19 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
             //}),
             new ol.layer.Tile({
                 source: new ol.source.XYZ({
-                    url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png'
+                    url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+                    attributions: [
+                        '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use" target="_blank">Wikimedia maps</a> | Map data © ',
+                        ol.source.OSM.ATTRIBUTION
+                    ],
                 })
             })
         ],
-        controls: [],
+        controls: ol.control.defaults({
+            attributionOptions: ({
+                collapsible: false
+            })
+        }),
         interactions: ol.interaction.defaults({
             doubleClickZoom :false,
             dragAndDrop: false,
@@ -30,10 +37,14 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
         }),
         target: 'welcome-map',
         view: new ol.View({
-            center: ol.proj.fromLonLat([9, 46]),
+            center: ol.proj.fromLonLat([9, 50]),
             zoom: 5
         })
     });
+
+    var viewport = document.querySelector('.ol-viewport');
+    viewport.style.position = 'absolute';
+    viewport.style.top = '0';
 
     var imgWidth = 0;
 

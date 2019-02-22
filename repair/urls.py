@@ -34,6 +34,14 @@ from repair.apps import admin
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='index'),
+    url(r'^privacy/', TemplateView.as_view(
+        template_name='about/privacy.html')),
+    url(r'^disclaimer/', TemplateView.as_view(
+        template_name='about/disclaimer.html')),
+    url(r'^legal-notice/', TemplateView.as_view(
+        template_name='about/legal.html')),
+    url(r'^contact/', TemplateView.as_view(
+        template_name='about/contact.html')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', admin.site.urls),
     url(r'^data-entry/', include('repair.apps.dataentry.urls')),

@@ -121,6 +121,28 @@
             {% endif %}
           </li>
           <li>
+            <div class="dropdown">
+              <button class="dropdown-button" type="button">
+                {% trans "About" %}
+                <span class="caret"></span>
+              </button>
+              <div class="dropdown-content" style="right: 0;">
+                <a href="/privacy"> <!--style="text-align: right;"-->{% trans "Privacy Policy" %}</a>
+                <a href="/disclaimer">{% trans "Disclaimer" %}</a>
+                <a href="/legal-notice">{% trans "Legal Notice" %}</a>
+                <a href="/contact">{% trans "Contact" %}</a>
+                <div style="padding: 1px 4px 1px 4px; background: #333333; color: white; min-width: 250px;">
+                  <p>
+                    <img src="/static/img/eu-logo.jpg" style="width: 70px; float: left; margin: 10px 8px 2px 3px;">
+                  </p>
+                  <p>
+                    {% trans "This project has received funding from the European Union’s Horizon 2020 research and innovation programme under Grant Agreement No 688920." %}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li>
             <form id="language-select" action="{% url 'set_language' %}" method="post">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.path }}" />
@@ -140,7 +162,7 @@
         </ul>
       </div>
     </div>
-    <a href="https://ec.europa.eu/programmes/horizon2020/" target="_blank" style="position: absolute; right: 17px; bottom: 15px;">
+    <a id="eu-logo" href="https://ec.europa.eu/programmes/horizon2020/" target="_blank">
       <img src="{{STATIC_URL}}img/eu-logo.jpg" style="width: 40px;">
     </a>
   </nav>
