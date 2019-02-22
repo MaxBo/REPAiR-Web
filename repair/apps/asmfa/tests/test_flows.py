@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from django.test import TestCase
+from django.db.models import Q
+from django.db.models.functions import Coalesce
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
 from repair.apps.asmfa.models.keyflows import Material
@@ -15,8 +18,14 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
                                          PublicationInCasestudyFactory,
-                                         ProcessFactory
+                                         ProcessFactory,
+                                         FractionFlowFactory
                                          )
+from repair.apps.login.factories import CaseStudyFactory
+from repair.apps.changes.models.solutions import SolutionFractionFlow
+from repair.apps.changes.factories import (SolutionFactory,
+                                           SolutionCategoryFactory,
+                                           SolutionFractionFlowFactory)
 import json
 
 
@@ -104,6 +113,7 @@ class Actor2ActorInMaterialInCaseStudyTest(BasicModelPermissionTest,
     material_3 = 12
     actor1id = 12
     actor2id = 20
+
     comp_data1 = {'name': 'testname', 'nace': 'testnace',
                  "fractions": [{ "material": material_1,
                                  "fraction": 0.4},
@@ -144,6 +154,7 @@ class Actor2ActorInMaterialInCaseStudyTest(BasicModelPermissionTest,
                               amount=50
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
+
 
     def setUp(self):
         super().setUp()
@@ -413,3 +424,119 @@ class MaterialTest(BasicModelPermissionTest, APITestCase):
         self.assertRaises(Exception, super().test_delete)
         x = 'breakpoint'
 
+class SolutionFractionFlowTest(TestCase):
+    csname = "Sandbox City"
+    keyflow_id = 3    
+    keyflowincasestudy = 45
+    material_1 = 10
+    material_2 = 11
+    actor1id = 12
+    actor2id = 20
+    actor3id = 30
+    flowid1 = 1
+    flowid2 = 2
+    flowid3 = 3
+    new_amount1 = 2.0
+    new_amount2 = 4.0
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+    def setUp(self):
+        super().setUp()
+        self.casestudy = CaseStudyFactory(name=self.csname)
+        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
+                                                 casestudy=self.casestudy,
+                                                 keyflow__id=self.keyflow_id)
+        self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
+        self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
+        self.activitygroup2 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity2 = ActivityFactory(activitygroup=self.activitygroup2)
+        self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
+        self.activitygroup3 = ActivityGroupFactory(keyflow=self.kic_obj)
+        self.activity3 = ActivityFactory(activitygroup=self.activitygroup3)
+        self.actor3 = ActorFactory(id=self.actor3id, activity=self.activity3)
+        
+        self.comp1 = CompositionFactory(name='composition1',
+                                        nace='nace1')
+        self.comp2 = CompositionFactory(name='composition2',
+                                        nace='nace2')
+        self.mat_obj_1 = MaterialFactory(id=self.material_1,
+                                         keyflow=self.kic_obj,
+                                         parent=None)
+        self.mat_obj_2 = MaterialFactory(id=self.material_2,
+                                         keyflow=self.kic_obj,
+                                         parent=self.mat_obj_1)
+        self.publicationic = PublicationInCasestudyFactory()
+
+        # flow attributes
+        #self.process = ProcessFactory(name='test-process')
+        
+        self.fractionflow1 = FractionFlowFactory(flow_id=self.flowid1,
+                                                 #process=self.process,
+                                                 stock=None,
+                                                 to_stock=False,
+                                                 origin=self.actor1,
+                                                 destination=self.actor2,
+                                                 material=self.mat_obj_1,
+                                                 nace=self.comp1.nace,
+                                                 composition_name=self.comp1.name,
+                                                 publication=self.publicationic,
+                                                 keyflow=self.kic_obj,
+                                                 amount=1.0)
+        self.fractionflow2 = FractionFlowFactory(flow_id=self.flowid2,
+                                                 stock=None,
+                                                 to_stock=False,
+                                                 origin=self.actor2,
+                                                 destination=self.actor3,
+                                                 material=self.mat_obj_2,
+                                                 nace=self.comp1.nace,
+                                                 composition_name=self.comp1.name,
+                                                 publication=self.publicationic,
+                                                 keyflow=self.kic_obj,
+                                                 amount=1.0)
+        self.fractionflow3 = FractionFlowFactory(flow_id=self.flowid3,
+                                                 stock=None,
+                                                 to_stock=False,
+                                                 origin=self.actor2,
+                                                 destination=self.actor3,
+                                                 material=self.mat_obj_1,
+                                                 nace=self.comp2.nace,
+                                                 composition_name=self.comp2.name,
+                                                 publication=self.publicationic,
+                                                 keyflow=self.kic_obj,
+                                                 amount=1.0)        
+
+
+    def test_solutionfractionflows(self):
+        solutioncategory_id = 21
+        solution_id = 1
+        
+        # generate a new solution category with a solution
+        solutioncategory = SolutionCategoryFactory(id=solutioncategory_id)
+        solution = SolutionFactory(id=solution_id,
+                                   solution_category=solutioncategory,
+                                   name='Test Solution')
+        
+        # generate 2 new solutionfractions
+        solutionfraction1 = SolutionFractionFlowFactory(solution=solution,
+                                                    fractionflow=self.fractionflow1,
+                                                    amount=self.new_amount1)
+        solutionfraction2 = SolutionFractionFlowFactory(solution=solution,
+                                                    fractionflow=self.fractionflow2,
+                                                    amount=self.new_amount2)
+        
+        flows = FractionFlow.objects.filter(
+            Q(keyflow=self.keyflowincasestudy) &
+            (
+                Q(f_fractionflow__isnull = True) | 
+                Q(f_fractionflow__solution=solution_id)
+            )
+        ).annotate(
+            actual_amount=Coalesce('f_fractionflow__amount', 'amount')
+        )
+        assert flows.get(flow_id=self.flowid1).actual_amount == self.new_amount1
+        assert flows.get(flow_id=self.flowid2).actual_amount == self.new_amount2
+        assert flows.get(flow_id=self.flowid3).actual_amount == FractionFlow.objects.get(flow_id=self.flowid3).amount
