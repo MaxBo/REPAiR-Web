@@ -41,6 +41,7 @@ define([
             var _this = this;
 
             this.showNodes = options.showNodes || false;
+            this.showFlows = options.showFlows || false;
             this.width = options.width || this.map.offsetWidth;
             this.bbox = options.bbox;
             this.height = options.height || this.width / 1.5;
@@ -210,23 +211,25 @@ define([
                         }
                     }
 
-                    var path = _this.drawPath(
-                        [
-                            {x: sourceCoords[0], y: sourceCoords[1]},
-                            {x: targetCoords[0], y: targetCoords[1]}
-                        ],
-                        flow.label, flow.color, strokeWidth,
-                        {
-                            xshift: xshift,
-                            yshift: yshift,
-                            animate: _this.animate,
-                            dash: dash,
-                            curve: curve,
-                            tag: flow.tag
-                        }
-                    );
-                    xshift -= shiftStep;
-                    yshift += shiftStep;
+                    if(!_this.hideTags[flow.tag]){
+                    console.log('path')
+                        var path = _this.drawPath(
+                            [
+                                {x: sourceCoords[0], y: sourceCoords[1]},
+                                {x: targetCoords[0], y: targetCoords[1]}
+                            ],
+                            flow.label, flow.color, strokeWidth,
+                            {
+                                xshift: xshift,
+                                yshift: yshift,
+                                animate: _this.animate,
+                                dash: dash,
+                                curve: curve
+                            }
+                        );
+                        xshift -= shiftStep;
+                        yshift += shiftStep;
+                    }
                 });
 
             };
@@ -346,8 +349,6 @@ define([
                 path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
                 path.attr("stroke-dashoffset", dash.offset);
             }
-            if(this.hideTags[options.tag])
-                path.style("opacity", 0);
             return path;
         }
 
@@ -359,8 +360,6 @@ define([
 
         toggleTag(tag, on){
             this.hideTags[tag] = !on;
-            var opacity = (on) ? 1: 0
-            d3.selectAll('path[tag="' + tag + '"]').style("opacity", opacity);
         }
 
     }

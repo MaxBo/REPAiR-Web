@@ -305,7 +305,6 @@ var FlowsView = BaseView.extend(
         var promises = [];
         this.loader.activate();
         data.forEach(function(d){
-            if (!d.get('destination')) return;
             // display level actor
             if (_this.nodeLevel === 'actor'){
                 _this.flowMapView.addFlows(d);
