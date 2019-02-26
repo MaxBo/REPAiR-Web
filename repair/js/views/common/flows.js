@@ -59,6 +59,11 @@ var FlowsView = BaseView.extend(
         this.renderSankeyMap();
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus" });
+
+        this.sankeyWrapper = this.el.querySelector('.sankey-wrapper');
+        this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
+        this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
+        this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
     },
     // render the empty sankey map
     renderSankeyMap: function(){
@@ -169,7 +174,7 @@ var FlowsView = BaseView.extend(
 
         this.nodeLevel = displayLevel.toLowerCase();
 
-        var el = this.el.querySelector('.sankey-wrapper'),
+        var el = this.sankeyWrapper,
             _this = this;
 
         // pass all known nodes to sankey (not only the filtered ones) to avoid
@@ -214,9 +219,6 @@ var FlowsView = BaseView.extend(
                     originLevel: displayLevel,
                     destinationLevel: displayLevel
                 })
-                el.addEventListener('linkSelected', _this.linkSelected);
-                el.addEventListener('linkDeselected', _this.linkDeselected);
-                el.addEventListener('allDeselected', _this.deselectAll);
             },
             error: function(){
                 _this.loader.deactivate();
@@ -225,7 +227,6 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    //
     addGroupedActors: function(flow){
         // put filter params defined by user in filter section into body
         var bodyParams = this.getFlowFilterParams(),
@@ -238,18 +239,23 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
-        var queryParams = {};
+        var queryParams = {},
+            is_stock = flow.get('stock');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
-        queryParams['destination__' + filterSuffix] = flow.get('destination').id;
+        if (!is_stock)
+            queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
+        queryParams['stock'] = (is_stock) ? 'True': 'False';
 
         var origin = flow.get('origin'),
             destination = flow.get('destination'),
+            destination_group = null;
             origin_group = {
                 color: origin.color,
                 name: origin.name,
                 id: origin.id
-            },
+            };
+        if (!is_stock)
             destination_group = {
                 color: destination.color,
                 name: destination.name,
@@ -260,7 +266,6 @@ var FlowsView = BaseView.extend(
             apiTag: 'flows',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
-
 
         var promise = new Promise(function(resolve, reject){
             var mem = _this.flowMem[flow.id];
@@ -277,8 +282,10 @@ var FlowsView = BaseView.extend(
                             o.group = origin_group;
                             o.color = origin.color;
                             var d = f.get('destination');
-                            d.group = destination_group;
-                            d.color = destination.color;
+                            if (d) {
+                                d.group = destination_group;
+                                d.color = destination.color;
+                            }
                             _this.flowMapView.addFlows(f);
                         })
                         _this.flowMem[flow.id] = flows;

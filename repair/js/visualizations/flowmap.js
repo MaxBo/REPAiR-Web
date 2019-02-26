@@ -115,7 +115,7 @@ define([
             this.g.selectAll("*").remove();
             this.nodesData = {};
             this.flowsData = {};
-            this.hideTags = {};
+            //this.hideTags = {};
         }
 
         addNodes(nodes){
@@ -174,7 +174,10 @@ define([
                     xshift = 0.4,
                     yshift = 0.1,
                     curve = (combinedFlows.length > 1) ? 'arc' : 'bezier';
+
                 combinedFlows.forEach(function(flow){
+                    // flow is hidden -> ignore
+                    if(_this.hideTags[flow.tag]) return;
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
                     // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
                     var sourceId = flow.source,
@@ -189,6 +192,7 @@ define([
                     //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
                     var calcWidth = (flow.value) / _this.maxFlowValue * _this.maxFlowWidth,
                         strokeWidth = Math.max(_this.minFlowWidth, calcWidth);
+
 
                     var sourceCoords = _this.projection([source['lon'], source['lat']]),
                         targetCoords = _this.projection([target['lon'], target['lat']]);
@@ -210,39 +214,36 @@ define([
                             };
                         }
                     }
+                    var path = _this.drawPath(
+                        [
+                            {x: sourceCoords[0], y: sourceCoords[1]},
+                            {x: targetCoords[0], y: targetCoords[1]}
+                        ],
+                        flow.label, flow.color, strokeWidth,
+                        {
+                            xshift: xshift,
+                            yshift: yshift,
+                            animate: _this.animate,
+                            dash: dash,
+                            curve: curve
+                        }
+                    );
+                    xshift -= shiftStep;
+                    yshift += shiftStep;
 
-                    if(!_this.hideTags[flow.tag]){
-                    console.log('path')
-                        var path = _this.drawPath(
-                            [
-                                {x: sourceCoords[0], y: sourceCoords[1]},
-                                {x: targetCoords[0], y: targetCoords[1]}
-                            ],
-                            flow.label, flow.color, strokeWidth,
-                            {
-                                xshift: xshift,
-                                yshift: yshift,
-                                animate: _this.animate,
-                                dash: dash,
-                                curve: curve
-                            }
-                        );
-                        xshift -= shiftStep;
-                        yshift += shiftStep;
-                    }
                 });
 
             };
 
-            if (_this.showNodes){
-                // use addpoint for each node in nodesDataFlow
-                Object.values(_this.nodesData).forEach(function (node) {
-                    var x = _this.projection([node.lon, node.lat])[0],
-                        y = _this.projection([node.lon, node.lat])[1],
-                        radius = node.radius / 2;// * scale / 2;
-                    _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
-                });
-            }
+            // use addpoint for each node in nodesDataFlow
+            Object.values(_this.nodesData).forEach(function (node) {
+                // ignore hidden nodes
+                if(_this.hideTags[node.tag]) return;
+                var x = _this.projection([node.lon, node.lat])[0],
+                    y = _this.projection([node.lon, node.lat])[1],
+                    radius = node.radius / 2;// * scale / 2;
+                _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
+            });
         }
 
         scale(){
