@@ -113,7 +113,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
             this.actorCheck = document.createElement('input');
+            this.actorCheck.type = 'radio';
             this.stockCheck = document.createElement('input');
+            this.stockCheck.type = 'radio';
             this.flowCheck = document.createElement('input');
             this.flowCheck.checked = true;
             this.stockCheck.checked = true;
@@ -144,6 +146,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 checkbox.style.pointerEvents = "none";
                 checkbox.style.marginRight = "10px";
             })
+            this.actorCheck.type = 'radio';
+            this.stockCheck.type = 'radio';
 
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
@@ -169,9 +173,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             stockDiv.appendChild(this.stockCheck);
             stockDiv.appendChild(stockLabel);
             stockDiv.style.cursor = 'pointer';
+            stockDiv.style.marginBottom = '-10px';
             flowDiv.appendChild(this.flowCheck);
             flowDiv.appendChild(flowLabel);
             flowDiv.style.cursor = 'pointer';
+            flowDiv.style.marginBottom = '-10px';
             clusterDiv.appendChild(this.clusterCheck);
             clusterDiv.appendChild(clusterLabel);
             clusterDiv.style.cursor = 'pointer';
@@ -213,6 +219,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             flowDiv.addEventListener("click", function(){
                 _this.flowCheck.checked = !_this.flowCheck.checked;
+                matDiv.style.display = (_this.flowCheck.checked) ? 'block': 'none';
                 _this.rerender();
             });
             stockDiv.addEventListener("click", function(){
@@ -244,11 +251,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this.rerender();
             });
 
-            div.appendChild(flowDiv);
-            div.appendChild(document.createElement('br'));
             div.appendChild(stockDiv);
             div.appendChild(document.createElement('br'));
             div.appendChild(actorDiv);
+            div.appendChild(document.createElement('br'));
+            div.appendChild(flowDiv);
             div.appendChild(document.createElement('br'));
             div.appendChild(matDiv);
             div.appendChild(document.createElement('br'));
@@ -309,7 +316,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     check.checked = !check.checked;
                     _this.hideMaterials[matId] = !check.checked;
                     _this.flowMap.toggleTag(matId, check.checked);
-                    _this.rerender();
                 })
                 _this.flowMap.toggleTag(matId, check.checked)
             });

@@ -225,7 +225,8 @@ define([
                             yshift: yshift,
                             animate: _this.animate,
                             dash: dash,
-                            curve: curve
+                            curve: curve,
+                            tag: flow.tag
                         }
                     );
                     xshift -= shiftStep;
@@ -350,6 +351,8 @@ define([
                 path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
                 path.attr("stroke-dashoffset", dash.offset);
             }
+            if(this.hideTags[options.tag])
+                path.style("opacity", 0);
             return path;
         }
 
@@ -361,6 +364,10 @@ define([
 
         toggleTag(tag, on){
             this.hideTags[tag] = !on;
+            // in case of paths hide them directly (faster)
+            var opacity = (on) ? 1: 0;
+            d3.selectAll('path[tag="' + tag + '"]').style("opacity", opacity);
+            console.log(tag)
         }
 
     }
