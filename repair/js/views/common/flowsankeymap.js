@@ -177,7 +177,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             flowDiv.appendChild(this.flowCheck);
             flowDiv.appendChild(flowLabel);
             flowDiv.style.cursor = 'pointer';
-            flowDiv.style.marginBottom = '-10px';
             clusterDiv.appendChild(this.clusterCheck);
             clusterDiv.appendChild(clusterLabel);
             clusterDiv.style.cursor = 'pointer';
@@ -219,7 +218,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             flowDiv.addEventListener("click", function(){
                 _this.flowCheck.checked = !_this.flowCheck.checked;
-                matDiv.style.display = (_this.flowCheck.checked) ? 'block': 'none';
                 _this.rerender();
             });
             stockDiv.addEventListener("click", function(){
@@ -316,6 +314,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     check.checked = !check.checked;
                     _this.hideMaterials[matId] = !check.checked;
                     _this.flowMap.toggleTag(matId, check.checked);
+                    _this.rerender();
                 })
                 _this.flowMap.toggleTag(matId, check.checked)
             });
@@ -696,8 +695,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         source: source.id,
                         target: target.id,
                         color: source.color,
-                        value: totalAmount,
-                        tag: 'flow'
+                        value: totalAmount
                     }]
                 }
             }
@@ -708,26 +706,50 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
                 var wasteLabel = (pFlow.waste) ? 'Waste' : 'Product',
                     totalAmount = Math.round(pFlow.amount),
-                    stockLabel = source.name + '<br>' + wasteLabel + ' ' + gettext('Stock'),
-                    label = stockLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
-
-                var amount = pFlow.amount;
-
-
-                //if(splitByComposition){
-
-                var stock = {
-                    id: 'stock' + pFlow.id,
-                    label: label,
-                    color: source.color,
-                    group: source.group,
-                    lon: source.lon,
-                    lat: source.lat,
-                    //radius: radius,
-                    value: totalAmount,
-                    tag: 'stock'
+                    stockLabel = source.name + '<br>' + wasteLabel + ' ' + gettext('Stock');
+                if(splitByComposition){
+                    var cs = [];
+                    fractions.forEach(function(material){
+                        var amount = Math.round(material.amount),
+                            label = stockLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
+                            color;
+                        if (!uniqueMaterials[material.material]){
+                            color = utils.colorByName(material.name)
+                            uniqueMaterials[material.material] = {
+                                color: color,
+                                name: material.name
+                            };
+                        }
+                        else
+                            color = uniqueMaterials[material.material].color;
+                        cs.push({
+                            id: 'stock' + pFlow.id,
+                            label: label,
+                            color: color,
+                            lon: source.lon,
+                            lat: source.lat,
+                            //radius: radius,
+                            value: amount,
+                            tag: material.material
+                        })
+                    })
+                    return cs;
                 }
-                return stock;
+                else {
+                    var label = stockLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
+                    var stock = [{
+                        id: 'stock' + pFlow.id,
+                        label: label,
+                        color: source.color,
+                        group: source.group,
+                        lon: source.lon,
+                        lat: source.lat,
+                        //radius: radius,
+                        value: totalAmount,
+                        tag: 'stock'
+                    }]
+                    return stock;
+                }
             }
 
             var stocks = [];
@@ -737,7 +759,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 if (!pFlow.is_stock)
                     links = links.concat(transformFlow(pFlow));
                 else
-                    stocks.push(transformStock(pFlow));
+                    stocks = stocks.concat(transformStock(pFlow));
             })
 
             return {

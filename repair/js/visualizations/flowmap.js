@@ -140,15 +140,6 @@ define([
             })
             this.resetBbox([topLeft, bottomRight]);
 
-            //// measure range of values of same positioned nodes for later aggregation
-            //var totalValues = [];
-            //Object.values(this.nodesPos).forEach(function(nodes){
-                //var totalValue = 0;
-                //nodes.forEach(function(n){ totalValue += n.value || 0 });
-                //totalValues.push(totalValue)
-            //})
-            //this.maxNodeValue = Math.max(...totalValues);
-            //this.minNodeValue = Math.min(...totalValues);
         }
 
         zoomToFit(){
@@ -243,27 +234,55 @@ define([
                             yshift: yshift,
                             animate: _this.animate,
                             dash: dash,
-                            curve: curve,
-                            tag: flow.tag
+                            curve: curve
                         }
                     );
                     xshift -= shiftStep;
                     yshift += shiftStep;
                 });
             };
-
             // use addpoint for each node in nodesDataFlow
-            Object.values(_this.nodesData).forEach(function (node) {
+            Object.values(_this.nodesPos).forEach(function (nodes) {
+
                 // ignore hidden nodes
-                if(_this.hideTags[node.tag]) return;
-                var x = _this.projection([node.lon, node.lat])[0],
-                    y = _this.projection([node.lon, node.lat])[1],
-                    radius = node.radius;
-                // calculate radius by value, if radius is not given
-                if (!radius) {
-                    radius = 5 + 50 * Math.pow(node.value / _this.totalNodeValue, 0.5);
+                var nodesToShow = [];
+                nodes.forEach(function(node){
+                    if(!_this.hideTags[node.tag]) nodesToShow.push(node);
+                })
+                // no visible nodes
+                if (nodesToShow.length === 0) return;
+
+                var first = nodesToShow[0];
+                var x = _this.projection([first.lon, first.lat])[0],
+                    y = _this.projection([first.lon, first.lat])[1];
+
+                function calcRadius(value){
+                    return 5 + 50 * Math.pow(value / _this.totalNodeValue, 0.5);
                 }
-                _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
+                // only one node at this position
+                if (nodesToShow.length === 1){
+                    if(_this.hideTags[first.tag]) return;
+                    // calculate radius by value, if radius is not given
+                    var radius = first.radius || calcRadius(first.value);
+                    _this.addPoint(x, y, first.label, first.innerLabel, first.color, radius);
+                }
+                // multiple nodes at same position -> piechart
+                else {
+                    var data = [], label = '',
+                        radius = 0,
+                        total = 0;
+                    nodesToShow.forEach(function(node){
+                        total += node.value;
+                        radius += node.radius || 0;
+                        label += node.label + '<br><br>';
+                        data.push({
+                            'color': node.color,
+                            'value': node.value || 1
+                        })
+                    })
+                    radius = radius + calcRadius(total);
+                    _this.addPieChart(x, y, label, radius, data)
+                }
             });
         }
 
@@ -272,6 +291,52 @@ define([
                 d = zoomLevel - this.initialZoom,
                 scale = Math.pow(2, d);
             return scale;
+        }
+
+        // draw pie chart at given position
+        addPieChart(x, y, label, radius, data) {
+            var _this = this;
+
+            var pie = d3.layout.pie().value(function(d) { return d.value; });
+
+            var arc = d3.svg.arc()
+                .outerRadius(radius)
+                .innerRadius(0);
+            var point = this.g.append("g").attr("class", "node")
+                .attr("transform","translate("+x+"," + y+")");
+            var arcs = point.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc")
+            //var arcg = selection.attr("transform","translate("+x+"," + y+")")
+                    //.selectAll(".arc")
+                    //.data(pie(d.children))
+                    //.enter().append("g")
+                    //.attr("class", "arc");
+            arcs.append("path")
+                .attr("d", arc)
+                .style("fill", function(d, i) {
+                    return d.data.color;
+                })
+                .style("stroke", 'lightgrey')
+                .style("stroke-width", 1)
+                .style("pointer-events", 'all')
+                .on("mouseover", function (d) {
+                    d3.select(this).style("cursor", "pointer");
+                    var rect = _this.overlay.getBoundingClientRect();
+                    _this.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    _this.tooltip.html(label)
+                        .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
+                        .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
+                })
+                .on("mouseout", function (d) {
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                    }
+                );
         }
 
         //function to add source nodes to the map
@@ -310,7 +375,6 @@ define([
                  .style("font-size", "14px")
                  .attr('fill','white')
                  .text(innerLabel || "");
-
         }
 
         // function to draw actual paths for the directed quantity flows
@@ -343,7 +407,6 @@ define([
                 .attr("stroke", color)
                 .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
-                .attr("tag", options.tag)
                 //.attr("stroke-linecap", "round")
                 .style("pointer-events", 'all')
                 .on("mouseover", function () {
@@ -371,8 +434,6 @@ define([
                 path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
                 path.attr("stroke-dashoffset", dash.offset);
             }
-            if(this.hideTags[options.tag])
-                path.style("opacity", 0);
             return path;
         }
 
@@ -384,10 +445,6 @@ define([
 
         toggleTag(tag, on){
             this.hideTags[tag] = !on;
-            // in case of paths hide them directly (faster)
-            var opacity = (on) ? 1: 0;
-            d3.selectAll('path[tag="' + tag + '"]').style("opacity", opacity);
-            console.log(tag)
         }
 
     }
