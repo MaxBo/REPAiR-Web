@@ -79,11 +79,11 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 height = (isFullScreen) ? this.el.clientHeight : this.height,
                 div = this.el.querySelector('.sankey'),
                 _this = this;
-            if (div == null){
-                div = document.createElement('div');
-                div.classList.add('sankey', 'bordered');
-                this.el.appendChild(div);
-            }
+            if (div != null)
+                this.el.removeChild(div); // this removes the event listeners as well
+            div = document.createElement('div');
+            div.classList.add('sankey', 'bordered');
+            this.el.appendChild(div);
             if (data.links.length === 0){
                 div.innerHTML = gettext("No flow data found for applied filters.");
                 this.el.classList.add('disabled');
