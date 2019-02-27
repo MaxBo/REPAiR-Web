@@ -560,6 +560,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     radius: 10,
                     tag: 'actor'
                 }
+                nodes[id] = transNode;
                 return transNode;
             }
 
@@ -613,11 +614,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 var source = transformNode(origin),
                     target = (!is_stock) ? transformNode(destination): source; // set target to source in case of stocks just for convenience, doesn't matter
 
-                nodes[source.id] = source;
-                if (!is_stock){
-                    nodes[target.id] = target;
-                }
-                else
+                if (is_stock)
                     maxStock = Math.max(maxStock, amount);
 
                 // one node might have no geom (in case of stocks same node) -> cannot shown on map
@@ -640,10 +637,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 }
                 i += 1;
             })
-
+            var maxClusterStock = 0;
             // posproc the aggregation (just dict to list)
             Object.values(aggMap).forEach(function(flow){
                 flow.fractions = Object.values(flow.fractions);
+                if (flow.is_stock)
+                    maxClusterStock = Math.max(maxClusterStock, flow.amount)
             })
 
             function transformFlow(pFlow){
@@ -706,7 +705,15 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     stockLabel = source.name + '<br>' + wasteLabel + ' ' + gettext('Stock'),
                     label = stockLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
 
-                var radius = 10 + 30 * pFlow.amount / maxStock;
+                var amount = pFlow.amount;
+
+                // max radius 40 for unclustered stocks
+                if (amount <= maxStock)
+                    radius = 10 + 30 * amount / maxStock
+                // amount exceeding maximum due to clustering -> reduce the exceeding sizes
+                // to max radius 70
+                else
+                   radius = 40 + 30 * (amount - maxStock) / (maxClusterStock - maxStock);
 
                 var stock = {
                     id: 'stock' + pFlow.id,
