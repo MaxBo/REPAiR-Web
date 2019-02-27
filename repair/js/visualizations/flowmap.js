@@ -81,6 +81,7 @@ define([
 
             this.nodesData = {};
             this.flowsData = {};
+            this.nodesPos = {};
             this.hideTags = {};
         }
 
@@ -114,6 +115,7 @@ define([
         clear(){
             this.g.selectAll("*").remove();
             this.nodesData = {};
+            this.nodesPos = {};
             this.flowsData = {};
             //this.hideTags = {};
         }
@@ -124,13 +126,29 @@ define([
                 topLeft = [10000, 0],
                 bottomRight = [0, 10000];
             nodes.forEach(function(node){
+                // collect nodes with same position
+                var pos = node.lat + '-' + node.lon;
+                if (_this.nodesPos[pos] == null) _this.nodesPos[pos] = [];
+                _this.nodesPos[pos].push(node);
                 _this.nodesData[node.id] = node;
             })
-            Object.values(_this.nodesData).forEach(function(node){
+            this.totalNodeValue = 0;
+            Object.values(this.nodesData).forEach(function(node){
                 topLeft = [Math.min(topLeft[0], node.lon), Math.max(topLeft[1], node.lat)];
                 bottomRight = [Math.max(bottomRight[0], node.lon), Math.min(bottomRight[1], node.lat)];
+                _this.totalNodeValue += node.value || 0;
             })
             this.resetBbox([topLeft, bottomRight]);
+
+            //// measure range of values of same positioned nodes for later aggregation
+            //var totalValues = [];
+            //Object.values(this.nodesPos).forEach(function(nodes){
+                //var totalValue = 0;
+                //nodes.forEach(function(n){ totalValue += n.value || 0 });
+                //totalValues.push(totalValue)
+            //})
+            //this.maxNodeValue = Math.max(...totalValues);
+            //this.minNodeValue = Math.min(...totalValues);
         }
 
         zoomToFit(){
@@ -231,9 +249,7 @@ define([
                     );
                     xshift -= shiftStep;
                     yshift += shiftStep;
-
                 });
-
             };
 
             // use addpoint for each node in nodesDataFlow
@@ -242,7 +258,11 @@ define([
                 if(_this.hideTags[node.tag]) return;
                 var x = _this.projection([node.lon, node.lat])[0],
                     y = _this.projection([node.lon, node.lat])[1],
-                    radius = node.radius / 2;// * scale / 2;
+                    radius = node.radius;
+                // calculate radius by value, if radius is not given
+                if (!radius) {
+                    radius = 5 + 50 * Math.pow(node.value / _this.totalNodeValue, 0.5);
+                }
                 _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
             });
         }

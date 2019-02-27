@@ -561,9 +561,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     label: name,
                     color: node.color,
                     group: node.group,
-                    lon: coords[0],
-                    lat: coords[1],
-                    radius: 10,
+                    lon: coords[0].toFixed(4),
+                    lat: coords[1].toFixed(4),
+                    radius: 5,
                     tag: 'actor'
                 }
                 nodes[id] = transNode;
@@ -713,13 +713,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
                 var amount = pFlow.amount;
 
-                // max radius 40 for unclustered stocks
-                if (amount <= maxStock)
-                    radius = 10 + 30 * amount / maxStock
-                // amount exceeding maximum due to clustering -> reduce the exceeding sizes
-                // to max radius 70
-                else
-                   radius = 40 + 30 * (amount - maxStock) / (maxClusterStock - maxStock);
+
+                //if(splitByComposition){
 
                 var stock = {
                     id: 'stock' + pFlow.id,
@@ -728,7 +723,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     group: source.group,
                     lon: source.lon,
                     lat: source.lat,
-                    radius: radius,
+                    //radius: radius,
                     value: totalAmount,
                     tag: 'stock'
                 }
@@ -739,9 +734,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             var uniqueMaterials = {};
             pFlows.forEach(function(pFlow) {
-                if (!pFlow.is_stock){
+                if (!pFlow.is_stock)
                     links = links.concat(transformFlow(pFlow));
-                }
                 else
                     stocks.push(transformStock(pFlow));
             })
