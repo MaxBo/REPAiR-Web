@@ -72,6 +72,9 @@ div.sankeymaptooltip {
 .leaflet-control{
     max-width: 100%;
 }
+.leaflet-control label{
+    pointer-events: none;
+}
 
 .leaflet-control-zoom {
     top: 50px;

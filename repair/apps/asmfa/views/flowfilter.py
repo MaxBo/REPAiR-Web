@@ -128,6 +128,14 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
         flows = FractionFlow.objects.filter(keyflow__id=keyflow_pk)
+        # rename filter for stock, as this relates to field with stock pk
+        # but serializer returns boolean in this field (if it is stock)
+        tmp = self.request.query_params._mutable
+        self.request.query_params._mutable = True
+        stock_filter = self.request.query_params.pop('stock', None)
+        if stock_filter is not None:
+            self.request.query_params['to_stock'] = stock_filter[0]
+        self.request.query_params._mutable = tmp
         return flows.order_by('origin', 'destination')
 
     # POST is used to send filter parameters not to create
