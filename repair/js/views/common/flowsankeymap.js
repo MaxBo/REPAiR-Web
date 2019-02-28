@@ -270,6 +270,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.legend.style.visibility = 'hidden';
             legendControl.onAdd = function () { return _this.legend; };
             legendControl.addTo(this.leafletMap);
+            this.el.querySelector('.leaflet-right.leaflet-bottom').classList.add('leaflet-legend');
         },
 
         toggleMaterials(){
