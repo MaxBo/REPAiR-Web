@@ -69,6 +69,20 @@ div.sankeymaptooltip {
     max-width: 50%;
 }
 
+/*legend tends to get really big (bottom right)*/
+.leaflet-right.leaflet-legend {
+    overflow: auto;
+    max-height: 50%;
+    pointer-events: all;
+}
+.leaflet-fullscreen-on .leaflet-right.leaflet-legend {
+    max-width: 20%;
+}
+.leaflet-right.leaflet-legend .leaflet-control {
+    margin-right: 0px;
+}
+
+
 .leaflet-control{
     max-width: 100%;
 }
