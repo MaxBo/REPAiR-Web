@@ -125,8 +125,20 @@ function (CaseStudy, ActorsFlowsView, EditMaterialsView, BulkUploadView,
             createKeyflow(createKeyflowSelect.value)
         });
 
-        refreshFlowsBtn.addEventListener('click', function(){ renderActorsFlows(getKeyflow()) });
-        refreshMaterialsBtn.addEventListener('click', function(){ renderEditMaterials(getKeyflow()) });
+        refreshFlowsBtn.addEventListener('click', function(){
+            loader.activate();
+             Promise.all([materials.fetch(), activities.fetch()]).then(function(){
+                renderActorsFlows(getKeyflow())
+                loader.deactivate();
+            })
+        });
+        refreshMaterialsBtn.addEventListener('click', function(){
+            loader.activate();
+            materials.fetch({success: function(){
+                renderEditMaterials(getKeyflow());
+                loader.deactivate();
+            }})
+        });
         document.getElementById('keyflow-select').disabled = false;
     }
 

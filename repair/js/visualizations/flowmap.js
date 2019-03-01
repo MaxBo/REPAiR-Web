@@ -138,6 +138,12 @@ define([
                 bottomRight = [Math.max(bottomRight[0], node.lon), Math.min(bottomRight[1], node.lat)];
                 _this.totalNodeValue += node.value || 0;
             })
+            this.maxNodeValue = 0;
+            Object.values(this.nodesPos).forEach(function(nodes){
+                nodes.forEach(function(node){
+                    _this.maxNodeValue = Math.max(_this.maxNodeValue, node.value || 0);
+                })
+            })
             this.resetBbox([topLeft, bottomRight]);
 
         }
@@ -241,6 +247,12 @@ define([
                     yshift += shiftStep;
                 });
             };
+
+            function calcRadius(value){
+                return 5 + 50 * Math.pow(value / _this.totalNodeValue, 0.5);
+            }
+            var maxNodeRadius = calcRadius(this.maxNodeValue);
+            var scaleFactor = (maxNodeRadius > 60) ? 60 / maxNodeRadius  : 1
             // use addpoint for each node in nodesDataFlow
             Object.values(_this.nodesPos).forEach(function (nodes) {
 
@@ -255,15 +267,11 @@ define([
                 var first = nodesToShow[0];
                 var x = _this.projection([first.lon, first.lat])[0],
                     y = _this.projection([first.lon, first.lat])[1];
-
-                function calcRadius(value){
-                    return 5 + 50 * Math.pow(value / _this.totalNodeValue, 0.5);
-                }
                 // only one node at this position
                 if (nodesToShow.length === 1){
                     if(_this.hideTags[first.tag]) return;
                     // calculate radius by value, if radius is not given
-                    var radius = first.radius || calcRadius(first.value);
+                    var radius = Math.max(5, first.radius || calcRadius(first.value));
                     _this.addPoint(x, y, first.label, first.innerLabel, first.color, radius);
                 }
                 // multiple nodes at same position -> piechart
@@ -280,7 +288,7 @@ define([
                             'value': node.value || 1
                         })
                     })
-                    radius = radius + calcRadius(total);
+                    radius = Math.max(5, (radius + calcRadius(total)) * scaleFactor);
                     _this.addPieChart(x, y, label, radius, data)
                 }
             });
