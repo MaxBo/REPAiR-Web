@@ -143,7 +143,6 @@ var FlowsSetupView = BaseView.extend(
         this.nameInput.value = filter.get('name');
         this.includedCheck.checked = filter.get('included');
         this.descriptionInput.value = filter.get('description');
-
         this.filterFlowsView.applyFilter(filter);
     },
 

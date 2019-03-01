@@ -375,7 +375,7 @@ var BaseMapsView = BaseView.extend(
 
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = new ol.geom.Polygon(focusarea.coordinates[0]);
+            var poly = new ol.geom.MultiPolygon(focusarea.coordinates);
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
         // get all layers and render them
@@ -386,6 +386,7 @@ var BaseMapsView = BaseView.extend(
         this.setMapZIndices();
     },
 
+    // update the z-indices in map to the current order in tree
     setMapZIndices: function(){
         // use get_json to get all nodes in a flat order
         var nodes = $(this.layerTree).jstree('get_json', '#', { flat: true }),
@@ -440,16 +441,22 @@ var BaseMapsView = BaseView.extend(
                     imageStr = arrayBufferToBase64(buffer);
                 img.src = base64Flag + imageStr;
             }
-            // fetch direct legend uri first
-            fetch(uri).then(function(response){
-                response.arrayBuffer().then(bufferToImg);
-            }).catch(function(error){
-                // try redirected uri on error
+
+            function fetchProxy(){
                 fetch(uri_proxy).then(function(response){
                     response.arrayBuffer().then(bufferToImg);
                 }).catch(function(error){
                     imgWrapper.innerHTML = gettext('legend not found')
                 });
+            }
+
+            fetch(uri).then(function(response){
+                if (response.status == 200)
+                    response.arrayBuffer().then(bufferToImg);
+                else
+                    fetchProxy();
+            }).catch(function(error){
+                fetchProxy();
             })
         }
     },

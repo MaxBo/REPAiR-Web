@@ -5,7 +5,7 @@ from enumfields import EnumIntegerField
 
 from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models import Material, KeyflowInCasestudy
-from repair.apps.statusquo.models.indicators import NodeLevel, FlowType
+from repair.apps.statusquo.models.indicators import NodeLevel, FlowType, TriState
 from repair.apps.studyarea.models import Area, AdminLevels
 
 
@@ -13,12 +13,6 @@ class Direction(Enum):
     BOTH = 1
     FROM = 2
     TO = 3
-
-
-class TriState(Enum):
-    BOTH = 1
-    NO = 2
-    YES = 3
 
 
 class FlowFilter(GDSEModel):
@@ -40,10 +34,13 @@ class FlowFilter(GDSEModel):
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
-    #hazardous = EnumIntegerField(
-        #enum=TriState, default=TriState.BOTH)
-    #avoidable = EnumIntegerField(
-        #enum=TriState, default=TriState.BOTH)
+    process_ids = models.CharField(
+        validators=[validate_comma_separated_integer_list],
+        blank=True, null=True, max_length=100)
+    hazardous = EnumIntegerField(
+        enum=TriState, default=TriState.BOTH)
+    avoidable = EnumIntegerField(
+        enum=TriState, default=TriState.BOTH)
     aggregate_materials = models.BooleanField(default=True)
     area_level = models.ForeignKey(AdminLevels,
                                    on_delete=models.SET_NULL,

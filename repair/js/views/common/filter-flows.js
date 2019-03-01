@@ -36,6 +36,9 @@ var FilterFlowsView = BaseView.extend(
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId ]
         });
+        this.processes = new GDSECollection([], {
+            apiTag: 'processes'
+        });
         this.activities = new GDSECollection([], {
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId ],
@@ -63,7 +66,8 @@ var FilterFlowsView = BaseView.extend(
             this.activities.fetch(),
             this.activityGroups.fetch(),
             this.materials.fetch(),
-            this.areaLevels.fetch()
+            this.areaLevels.fetch(),
+            this.processes.fetch()
         ]
         Promise.all(promises).then(function(){
             _this.activities.sort();
@@ -95,7 +99,7 @@ var FilterFlowsView = BaseView.extend(
         var _this = this,
             html = document.getElementById(this.template).innerHTML
             template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({ processes: this.processes });
 
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus" });
@@ -146,9 +150,13 @@ var FilterFlowsView = BaseView.extend(
         this.actorSelect = this.el.querySelector('select[name="actor"]');
         this.flowTypeSelect = this.el.querySelector('select[name="waste"]');
         this.aggregateCheck = this.el.querySelector('input[name="aggregateMaterials"]');
+        this.processSelect = this.el.querySelector('select[name="process-select"]');
+        this.hazardousSelect = this.el.querySelector('select[name="hazardous"]');
+        this.avoidableSelect = this.el.querySelector('select[name="avoidable"]');
         $(this.groupSelect).selectpicker();
         $(this.activitySelect).selectpicker();
         $(this.actorSelect).selectpicker();
+        $(this.processSelect).selectpicker();
         this.resetNodeSelects();
         this.renderMatFilter();
         this.addEventListeners();
@@ -214,7 +222,7 @@ var FilterFlowsView = BaseView.extend(
     prepareAreas: function(levelId, onSuccess){
         var _this = this;
         var areas = this.areas[levelId];
-        if (areas){
+        if (areas && areas.size() > 0){
             this.drawAreas(areas)
             if (onSuccess) onSuccess();
         }
@@ -444,6 +452,8 @@ var FilterFlowsView = BaseView.extend(
         })
 
         $(this.actorSelect).on('changed.bs.select', multiCheck);
+
+        $(this.processSelect).on('changed.bs.select', multiCheck);
     },
 
     renderMatFilter: function(){
@@ -503,7 +513,21 @@ var FilterFlowsView = BaseView.extend(
         var direction = this.el.querySelector('input[name="direction"]:checked').value;
         filter.set('direction', direction);
         filter.set('aggregate_materials', this.aggregateCheck.checked)
+
+        var process_ids = null;
+        if (this.processSelect.value != "-1"){
+            var values = [];
+            var options = this.processSelect.selectedOptions;
+            for (var i = 0; i < options.length; i++) {
+                var option = options[i];
+                values.push(option.value);
+            }
+            process_ids = values.join(',')
+        }
+        filter.set('process_ids', process_ids);
         filter.set('flow_type', this.flowTypeSelect.value);
+        filter.set('hazardous', this.hazardousSelect.value);
+        filter.set('avoidable', this.avoidableSelect.value);
 
         var areas = [];
         this.selectedAreas.forEach(function(area){
@@ -571,6 +595,17 @@ var FilterFlowsView = BaseView.extend(
         directionOption.checked = true;
         this.flowTypeSelect.value = filter.get('flow_type').toLowerCase();
         this.aggregateCheck.checked = filter.get('aggregate_materials');
+
+        var process_ids = filter.get('process_ids');
+        if (process_ids == null)
+            this.processSelect.value = -1;
+        else {
+            $(this.processSelect).selectpicker('val', process_ids.split(','))
+        }
+         $(this.processSelect).selectpicker('refresh');
+
+        this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
+        this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
 
         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
         var material = filter.get('material'),

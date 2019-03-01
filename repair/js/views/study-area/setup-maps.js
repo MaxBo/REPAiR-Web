@@ -245,6 +245,7 @@ var SetupMapsView = BaseMapView.extend(
                 catNode.children.push(layerNode);
                 _this.addNode(layerNode, _this.selectedNode);
                 _this.addServiceLayer(layer);
+                _this.setMapZIndices();
             })
         }
 
