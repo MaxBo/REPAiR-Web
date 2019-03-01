@@ -116,6 +116,9 @@ class SolutionPart(GDSEModel):
         related_name='new_target', null=True)
     map_request = models.TextField(default='') # tells user what to pick on map
 
+    # order of calculation, lowest first
+    priority = models.IntegerField(default=0)
+
 
 class AffectedFlow(GDSEModel):
     '''
