@@ -10,15 +10,12 @@ from repair.apps.changes.models import (ImplementationQuantity, SolutionPart,
 from repair.apps.asmfa.models import Actor
 
 from repair.apps.changes.factories import (
-    SolutionFactory,
-    StrategyFactory,
-    ImplementationQuestionFactory,
-    SolutionPartFactory,
-    SolutionInStrategyFactory,
+    SolutionFactory, StrategyFactory, ImplementationQuestionFactory,
+    SolutionPartFactory, SolutionInStrategyFactory
 )
 from repair.apps.asmfa.factories import (
-    ActivityFactory,
-    ActorFactory
+    ActivityFactory, ActivityGroupFactory, ActorFactory, MaterialFactory,
+    Actor2ActorFactory
 )
 
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -103,6 +100,174 @@ class ModelSolutionInStrategy(TestCase):
                 implementation=solution_in_strategy
             )
             # ToDo: test sth meaningful here?
+
+
+class ApplyStrategyTest(BasicModelPermissionTest, APITestCase):
+
+    casestudy = 17
+    keyflow = 23
+    solutioncategory = 21
+    user = 99
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        ### modelling the fungus solution ###
+
+        #  Materials
+
+        dummy_mat_1 = MaterialFactory(keyflow=self.keyflow)
+        dummy_mat_2 = MaterialFactory(keyflow=self.keyflow)
+        wool = MaterialFactory(name='wool', keyflow=self.keyflow)
+
+        # Activities and Activity groups
+
+        group_A = ActivityGroupFactory(name='A', code='A')
+        group_C = ActivityGroupFactory(name='C', code='C')
+        group_E = ActivityGroupFactory(name='E', code='E')
+        group_F = ActivityGroupFactory(name='F', code='F')
+        group_V = ActivityGroupFactory(name='V', code='V')
+
+        growing_activity = ActivityFactory(
+            name='A-0116 Growing of fibre crops',
+            nace='A-0116', activitygroup=group_A)
+        manufacture_activity = ActivityFactory(
+            name='C-2399 Manufacture of non-metallic mineral products',
+            nace='C-2399', activitygroup=group_C)
+        collection_activity = ActivityFactory(
+            name='E-3819 Collection of non-hazardous waste',
+            nace='E-3819', activitygroup=group_E
+        )
+        building_activity = ActivityFactory(
+            name='F-4110 Development of building projects',
+            nace='F-4110', activitygroup=group_E
+        )
+        consumption_activity = ActivityFactory(
+            name='V-0000 Consumption in households',
+            nace='V-0000', activitygroup=group_V)
+        dummy_activity_1 = ActivityFactory()
+        dummy_activity_2 = ActivityFactory()
+
+        # Actors
+
+        # random households
+        for i in range(1000):
+            ActorFactory(name='household{}'.format(i),
+                         activity=consumption_activity)
+
+        for i in range(2):
+            ActorFactory(name='buildingdev{}'.format(i),
+                         activity=building_activity)
+
+        for i in range(2):
+            ActorFactory(name='collection{}'.format(i),
+                         activity=collection_activity)
+
+        for i in range(2):
+            ActorFactory(name='manufacture{}'.format(i),
+                         activity=manufacture_activity)
+
+        treatment_insulation = ActorFactory(name='disposal',
+                                            activity=collection_activity)
+        treatment_compost = ActorFactory(name='compost',
+                                         activity=collection_activity)
+
+        # putting the fungus farms into "growing fibre crops" lacking better
+        # knowledge
+        fungus_farm_1 = ActorFactory(name='fungus1',
+                                     activity=growing_activity)
+        fungus_farm_2 = ActorFactory(name='fungus2',
+                                     activity=growing_activity)
+
+        # making stuff up going into the fungus farm
+
+
+        # fungus stock to derive from
+
+
+
+
+
+
+
+        #question_1 = ImplementationQuestionFactory(
+            #question="What is the answer to life, the universe and everything?",
+            #select_values='0.0,3.14,42,1234.4321',
+            #solution=cls.solution
+        #)
+        #question_2 = ImplementationQuestionFactory(
+            #question="What is 1 + 1?",
+            #min_value=1,
+            #max_value=1000,
+            #step=1,
+            #solution=cls.solution
+        #)
+
+        #part_1 = SolutionPartFactory(
+            #solution=cls.solution,
+            #question=question_1,
+            #a=0,
+            #b=1
+        #)
+        #part_2 = SolutionPartFactory(
+            #solution=cls.solution,
+            #question=question_2
+        #)
+
+        ## new target with new actors
+        #target_activity = ActivityFactory(name='target_activity')
+        #for i in range(3):
+            #ActorFactory(activity=target_activity)
+
+        #part_new_flow = SolutionPartFactory(
+            #solution=cls.solution,
+            #question=question_1,
+            #implements_new_flow=True,
+            #keep_origin=True,
+            #new_target_activity=target_activity,
+            #map_request="pick an actor"
+        #)
+
+
+    def setUp(self):
+        super().setUp()
+        self.obj = SolutionCategoryFactory(id=self.solutioncategory,
+                                           user=self.uic,
+                                           keyflow=self.kic
+                                           )
+
+    def test_protection_of_deletion(self):
+        """
+        Test if the protection of objects, that are referred to
+        by a foreign key using the view works and if the deletion on the model
+        with cascade works too.
+        """
+        # generate a new solution category with 2 solutions
+        solcat_id = 44
+        solcat2 = SolutionCategoryFactory(id=solcat_id)
+        solution2 = SolutionFactory(solution_category=solcat2,
+                                    name='Protected Solution')
+        solution3 = SolutionFactory(solution_category=solcat2,
+                                    name='Another Solution')
+
+        # try to delete using the view
+        url = self.url_key + '-detail'
+        kwargs = {**self.url_pks, 'pk': solcat2.pk, }
+        response = self.delete(url, **kwargs)
+
+        # this should raise an ProtectedError
+        self.response_403()
+        assert b'Cannot delete some instances of model' in response.content
+        assert b'Solution: Protected Solution' in response.content
+        assert b'Solution: Another Solution' in response.content
+
+        # deletion on the model will delete the solution category and
+        # cascadedly the referencing solution
+        qs = Solution.objects.filter(solution_category__id=solcat_id)
+        assert len(qs) == 2
+        solcat2.delete()
+        qs = Solution.objects.filter(solution_category__id=solcat_id)
+        assert not qs
 
 
 class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
