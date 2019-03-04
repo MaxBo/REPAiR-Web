@@ -688,6 +688,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             models that were updated
         """
         queryset = self.get_queryset()
+        dataframe = dataframe.reset_index()
         df_existing = read_frame(queryset, verbose=False)
         df = dataframe.copy()
 
