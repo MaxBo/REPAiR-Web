@@ -90,6 +90,14 @@ class FlowFactory(DjangoModelFactory):
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
+class FractionFlowFactory(DjangoModelFactory):
+    class Meta:
+        model = models.FractionFlow
+    amount = 1
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+
+
+
 class ProductFactory(DjangoModelFactory):
     class Meta:
         model = models.Product

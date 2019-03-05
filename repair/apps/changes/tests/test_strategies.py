@@ -6,8 +6,9 @@ from django.contrib.gis.geos import Point, MultiPoint, LineString
 from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 
 from repair.apps.changes.models import (ImplementationQuantity, SolutionPart,
-                                        ActorInSolutionPart)
-from repair.apps.asmfa.models import Actor
+                                        ActorInSolutionPart, AffectedFlow)
+from repair.apps.asmfa.models import Actor, Activity
+from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 
 from repair.apps.changes.factories import (
     SolutionFactory, StrategyFactory, ImplementationQuestionFactory,
@@ -15,8 +16,10 @@ from repair.apps.changes.factories import (
 )
 from repair.apps.asmfa.factories import (
     ActivityFactory, ActivityGroupFactory, ActorFactory, MaterialFactory,
-    Actor2ActorFactory
+    Actor2ActorFactory, FractionFlowFactory, KeyflowInCasestudyFactory,
+    ProcessFactory, AdministrativeLocationFactory
 )
+from repair.apps.statusquo.models import SpatialChoice
 
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
@@ -102,31 +105,37 @@ class ModelSolutionInStrategy(TestCase):
             # ToDo: test sth meaningful here?
 
 
-class ApplyStrategyTest(BasicModelPermissionTest, APITestCase):
-
-    casestudy = 17
-    keyflow = 23
-    solutioncategory = 21
-    user = 99
+class ApplyStrategyTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        ### modelling the fungus solution ###
 
-        #  Materials
+        ### Modeling the FUNGUS solution and the status quo it is based on ###
 
-        dummy_mat_1 = MaterialFactory(keyflow=self.keyflow)
-        dummy_mat_2 = MaterialFactory(keyflow=self.keyflow)
-        wool = MaterialFactory(name='wool', keyflow=self.keyflow)
+        cls.keyflow = KeyflowInCasestudyFactory()
 
-        # Activities and Activity groups
+        ##  Materials ##
 
-        group_A = ActivityGroupFactory(name='A', code='A')
-        group_C = ActivityGroupFactory(name='C', code='C')
-        group_E = ActivityGroupFactory(name='E', code='E')
-        group_F = ActivityGroupFactory(name='F', code='F')
-        group_V = ActivityGroupFactory(name='V', code='V')
+        dummy_mat_1 = MaterialFactory(keyflow=cls.keyflow)
+        dummy_mat_2 = MaterialFactory(keyflow=cls.keyflow)
+        wool = MaterialFactory(name='wool insulation',
+                                          keyflow=cls.keyflow)
+        fungus = MaterialFactory(name='fungus insulation',
+                                            keyflow=cls.keyflow)
+        # no idea about the processes, but the process of wool-insulation flow
+        # to E-3821 is supposed to be different to the fungus-insulation one
+        dummy_process = ProcessFactory(name='process')
+        compost = ProcessFactory(name='compost')
+
+        ## Activities and Activity groups ##
+
+        group_A = ActivityGroupFactory(name='A', code='A', keyflow=cls.keyflow)
+        group_C = ActivityGroupFactory(name='C', code='C', keyflow=cls.keyflow)
+        group_E = ActivityGroupFactory(name='E', code='E', keyflow=cls.keyflow)
+        group_F = ActivityGroupFactory(name='F', code='F', keyflow=cls.keyflow)
+        group_V = ActivityGroupFactory(name='V', code='V', keyflow=cls.keyflow)
+        dummy_group = ActivityGroupFactory(keyflow=cls.keyflow)
 
         growing_activity = ActivityFactory(
             name='A-0116 Growing of fibre crops',
@@ -136,138 +145,367 @@ class ApplyStrategyTest(BasicModelPermissionTest, APITestCase):
             nace='C-2399', activitygroup=group_C)
         collection_activity = ActivityFactory(
             name='E-3819 Collection of non-hazardous waste',
-            nace='E-3819', activitygroup=group_E
-        )
+            nace='E-3819', activitygroup=group_E)
+        treatment_activity = ActivityFactory(
+            name='E-3821 Treatment and disposal of non-hazardous waste',
+            nace='E-3821', activitygroup=group_E)
         building_activity = ActivityFactory(
             name='F-4110 Development of building projects',
-            nace='F-4110', activitygroup=group_E
-        )
+            nace='F-4110', activitygroup=group_E)
         consumption_activity = ActivityFactory(
             name='V-0000 Consumption in households',
             nace='V-0000', activitygroup=group_V)
-        dummy_activity_1 = ActivityFactory()
-        dummy_activity_2 = ActivityFactory()
+        dummy_activity_1 = ActivityFactory(activitygroup=dummy_group)
+        dummy_activity_2 = ActivityFactory(activitygroup=dummy_group)
 
-        # Actors
+        ## Actors ##
 
         # random households
-        for i in range(1000):
+        for i in range(100):
             ActorFactory(name='household{}'.format(i),
                          activity=consumption_activity)
 
         for i in range(2):
-            ActorFactory(name='buildingdev{}'.format(i),
-                         activity=building_activity)
+            building_dev = ActorFactory(name='buildingdev{}'.format(i),
+                                        activity=building_activity)
+            # this activity is set as spatial choice in the following solution
+            # parts -> they have to be geolocated (just putting it somewhere)
+            # Note CF: geolocate the other models as well?
+            location = AdministrativeLocationFactory(
+                actor=building_dev, geom=Point(x=5, y=52))
 
-        for i in range(2):
-            ActorFactory(name='collection{}'.format(i),
-                         activity=collection_activity)
+        collection_insulation = ActorFactory(name='collection',
+                                             activity=collection_activity)
 
-        for i in range(2):
-            ActorFactory(name='manufacture{}'.format(i),
-                         activity=manufacture_activity)
+        manufacturer = ActorFactory(name='manufacturer'.format(i),
+                                    activity=manufacture_activity)
+
+        # put some dummy actors into the dummy activities
+        for i in range(10):
+            ActorFactory(activity=dummy_activity_1)
+            ActorFactory(activity=dummy_activity_2)
 
         treatment_insulation = ActorFactory(name='disposal',
-                                            activity=collection_activity)
-        treatment_compost = ActorFactory(name='compost',
-                                         activity=collection_activity)
+                                            activity=treatment_activity)
+        cls.treatment_compost = ActorFactory(name='compost',
+                                             activity=treatment_activity)
 
         # putting the fungus farms into "growing fibre crops" lacking better
         # knowledge
-        fungus_farm_1 = ActorFactory(name='fungus1',
-                                     activity=growing_activity)
-        fungus_farm_2 = ActorFactory(name='fungus2',
-                                     activity=growing_activity)
+        fungus_input = ActorFactory(name='chungus',
+                                    activity=growing_activity)
+        cls.fungus_farm_1 = ActorFactory(name='fungus1',
+                                         activity=growing_activity)
+        cls.fungus_farm_2 = ActorFactory(name='fungus2',
+                                         activity=growing_activity)
+
+        ## status quo flows and stocks ##
 
         # making stuff up going into the fungus farm
+        FractionFlowFactory(origin=fungus_input, destination=cls.fungus_farm_1,
+                            material=dummy_mat_1,
+                            amount=20)
+        FractionFlowFactory(origin=fungus_input, destination=cls.fungus_farm_2,
+                            material=dummy_mat_2,
+                            amount=10)
+
+        # fungus stock to possibly derive from
+        # (Note CF: is there a stock? better: put the output to the treatment)
+        FractionFlowFactory(origin=cls.fungus_farm_1, material=fungus,
+                            amount=10)
+        FractionFlowFactory(origin=cls.fungus_farm_2, material=fungus,
+                            amount=10)
+        # (Note CF: set stocks as affected flows?)
+
+        households = Actor.objects.filter(activity=consumption_activity)
+        # every household gets same share of 200,000 t/y activity stock
+        stock_share = 200000 / len(households)
+        # Note CF: no idea how much should go in per year
+        input_share = 10 / len(households)
+        builders = Actor.objects.filter(activity=building_activity)
+        step = len(households) / len(builders)
+
+        # household stock and input
+        for i, household in enumerate(households):
+            # stock
+            FractionFlowFactory(origin=household, material=wool,
+                                amount=stock_share)
+            # equally distribute the inputs from the building developers
+            builder = builders[int(i/step)]
+            FractionFlowFactory(origin=builder, destination=household,
+                                material=wool,
+                                amount=input_share)
+
+        input_share = 5 / len(builders)  # Note CF: how much goes in?
+        # inputs and outputs of builders
+        for builder in builders:
+            # from manufacturer
+            FractionFlowFactory(origin=manufacturer,
+                                destination=builder,
+                                material=wool,
+                                amount=input_share)
+            # to collection
+            FractionFlowFactory(origin=builder,
+                                destination=collection_insulation,
+                                material=wool,
+                                amount=1)
+            # to treatment
+            FractionFlowFactory(origin=builder,
+                                destination=treatment_insulation,
+                                material=wool,
+                                amount=3)
+
+        # collection to treatment
+        FractionFlowFactory(origin=collection_insulation,
+                            destination=treatment_insulation,
+                            material=wool,
+                            amount=2)
+
+        # manufacturer to treatment
+        FractionFlowFactory(origin=manufacturer,
+                            destination=treatment_insulation,
+                            material=wool,
+                            amount=2)
+
+        ## solution definition ##
+
+        cls.solution = SolutionFactory(name='Fungus Isolation')
+
+        cls.fungus_question = ImplementationQuestionFactory(
+            question=("How many tonnes per year of fungus should be used as "
+                      "insulation material when developing new "
+                      "living quarters?"),
+            solution=cls.solution,
+            min_value=0,
+            is_absolute=True # Note CF: is it?
+        )
+
+        ## solution parts ##
+
+        # the new flow based on flows from c-2399 to f-4110
+        # Note CF: optional it could also be derived from flows out of the farms
+        cls.new_fungus_insulation = SolutionPartFactory(
+            solution=cls.solution,
+            question=cls.fungus_question,
+            implements_new_flow = True,
+            implementation_flow_origin_activity = manufacture_activity,
+            implementation_flow_destination_activity = building_activity,
+            implementation_flow_material = wool,
+            implementation_flow_process = dummy_process,
+            # Note CF: where does it apply? actually it would make more sense to
+            # let the user decide about the households (not possible this way)
+            implementation_flow_spatial_application = SpatialChoice.DESTINATION,
+
+            a = 1,
+            b = 0,
+
+            keep_origin = False,
+            new_target_activity = growing_activity,
+            # Note CF: does picking even make sense? why not take all actors from
+            # new activity??? (only affects flows with fungus in it anyway)
+            map_request = 'Pick a fungus farm that produces the ',
+            # Note CF: no possibility to define that the material changed from
+            # wool to fungus!!!!
+
+            priority=1
+        )
+
+        # you have to subtract the derived amounts from the original one
+        # (Note CF: at least i guess you have to,
+        # would be easier to already mark this in the part defining the new
+        # flow, this is almost the same definition)
+        reduction_existing_flow = SolutionPartFactory(
+            solution=cls.solution,
+            question=cls.fungus_question,
+            implements_new_flow = False,
+            implementation_flow_origin_activity = manufacture_activity,
+            implementation_flow_destination_activity = building_activity,
+            implementation_flow_material = wool,
+            implementation_flow_process = dummy_process,
+            implementation_flow_spatial_application = SpatialChoice.DESTINATION,
+
+            a = -1,
+            b = 0,
+
+            priority=2
+        )
+
+        # the new flow based on flows from c-2399 to f-4110
+        # Note CF: optional it could also be derived from flows out of the farms
+        new_fungus_stock = SolutionPartFactory(
+            solution=cls.solution,
+            question=cls.fungus_question,
+            implements_new_flow = True,
+            implementation_flow_origin_activity = consumption_activity,
+            # Note CF: is this enough to tell that the implementation flow
+            # is a stock?
+            implementation_flow_destination_activity = None,
+            implementation_flow_material = wool,
+            implementation_flow_process = dummy_process,
+            implementation_flow_spatial_application = SpatialChoice.ORIGIN,
+
+            a = 1,
+            b = 0,
+
+            keep_origin = True,
+
+            # Note CF: there is no new origin, stays same
+            new_target_activity = None,
+            # Note CF: there is nothing to pick, bool for picking or not or nullable?
+            map_request = '',
+            # Note CF: again: no possibility to define new material
+
+            priority=3
+        )
+
+        # Note CF: do we have to define the reduction of the existing wool
+        # stock? (same as reduction_existing_flow)
+
+        # new flow from F-4110 development to E-3821 treatment
+        # Note CF: deriving it from existing F4110 to E3821, just guessing
+        cls.new_building_disposal = SolutionPartFactory(
+            solution=cls.solution,
+            # Note CF: i guess we need different numbers than asked for in this
+            # question, or do we even need a question??
+            question=cls.fungus_question,
+            implements_new_flow = True,
+            implementation_flow_origin_activity = building_activity,
+            implementation_flow_destination_activity = treatment_activity,
+            implementation_flow_material = wool,
+            implementation_flow_process = dummy_process,
+            implementation_flow_spatial_application = SpatialChoice.ORIGIN,
+
+            a = 1,
+            b = 0,
+
+            # actually both activities stay the same
+            keep_origin = True,
+
+            # Note CF: both activities actually stay the same, but a new
+            # destination has to be picked for composting
+            new_target_activity = treatment_activity,
+            map_request = ('Pick a treatment and disposal facility to '
+                           'compost the fungus'),
+
+            # Note CF: how to mark that the process changes to compost???
+
+            priority=4
+        )
+
+        # Note CF: reduce existing implementation flow?
+
+        # new flow from fungus farms to E-3821 treatment
+        # Note CF: most likely this should already be modelled in the status quo
+        # deriving it from fungus stock
+        new_fungus_disposal = SolutionPartFactory(
+            solution=cls.solution,
+            # Note CF: is there a question???
+            question=None,
+            implements_new_flow = True,
+            implementation_flow_origin_activity = growing_activity,
+            implementation_flow_destination_activity = None,
+            implementation_flow_material = fungus,
+            implementation_flow_process = compost,  #  Note CF: ??
+            implementation_flow_spatial_application = SpatialChoice.DESTINATION,
+
+            a = 1,
+            b = 0,
+
+            # actually both activities stay the same
+            keep_origin = True,
+
+            # if it is to be picked, is it the same as in new_building_disposal?
+            new_target_activity = treatment_activity,
+            map_request = ('Pick a treatment and disposal facility to '
+                           'compost the fungus'),
+
+            # Note CF: how to mark that the process changes to compost???
+
+            priority=5
+        )
+
+        # Note CF: reduce stock of fungus? (maybe we don't need previous
+        # solution part anyway)
+
+        ## affected flows ##
+
+        # Note CF: poor pull leader has to define the affected flows for
+        # every part, just taking the same ones for all parts
+        # (marking the implementation flows as well, i guess that doesn't matter)
+
+        parts = [cls.new_fungus_insulation, reduction_existing_flow,
+                 new_fungus_stock, cls.new_building_disposal,
+                 new_fungus_disposal]
+
+        for part in parts:
+            # F-4110 to V-0000
+            AffectedFlow(origin_activity=building_activity,
+                         destination_activity=consumption_activity,
+                         material=wool, solution_part=part)
+
+            # Note CF: insulation stock of V-0000 affected as well?
+
+            # inputs of fungus farm, origin and destination are in same activity
+            # Note CF: might not be this way in reality, maybe inputs come from
+            # different activity? stock missing
+            AffectedFlow(origin_activity=growing_activity,
+                         destination_activity=growing_activity,
+                         material=dummy_mat_1, solution_part=part)
+            AffectedFlow(origin_activity=growing_activity,
+                         destination_activity=growing_activity,
+                         material=dummy_mat_2, solution_part=part)
+
+            # F-4110 to E-3821
+            AffectedFlow(origin_activity=building_activity,
+                         destination_activity=treatment_activity,
+                         material=wool, solution_part=part)
+            # F-4110 to E-3819
+            AffectedFlow(origin_activity=building_activity,
+                         destination_activity=collection_activity,
+                         material=wool, solution_part=part)
+
+            # C-2399 to F-4110
+            AffectedFlow(origin_activity=manufacture_activity,
+                         destination_activity=building_activity,
+                         material=wool, solution_part=part)
+
+            # E-3819 to E-3821
+            AffectedFlow(origin_activity=collection_activity,
+                         destination_activity=treatment_activity,
+                         material=wool, solution_part=part)
 
 
-        # fungus stock to derive from
+    def test_01_implementation(self):
 
+        ## implement the solution as a user would ##
 
+        implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))
 
+        user = UserInCasestudyFactory(casestudy=self.keyflow.casestudy,
+                                      user__user__username='Hans Herbert')
+        strategy = StrategyFactory(keyflow=self.keyflow, user=user)
+        implementation = SolutionInStrategyFactory(
+            solution=self.solution, strategy=strategy,
+            geom=GeometryCollection(implementation_area))
 
+        # pick a farm (Note CF: necessary?)
+        # Note: too lazy to make factories for everything, model does the same
+        ActorInSolutionPart(solutionpart=self.new_fungus_insulation,
+                            actor=self.fungus_farm_1,
+                            implementation=implementation)
 
+        # pick a treatment facility for the fungus
+        ActorInSolutionPart(solutionpart=self.new_building_disposal,
+                            actor=self.treatment_compost,
+                            implementation=implementation)
 
-
-        #question_1 = ImplementationQuestionFactory(
-            #question="What is the answer to life, the universe and everything?",
-            #select_values='0.0,3.14,42,1234.4321',
-            #solution=cls.solution
-        #)
-        #question_2 = ImplementationQuestionFactory(
-            #question="What is 1 + 1?",
-            #min_value=1,
-            #max_value=1000,
-            #step=1,
-            #solution=cls.solution
-        #)
-
-        #part_1 = SolutionPartFactory(
-            #solution=cls.solution,
-            #question=question_1,
-            #a=0,
-            #b=1
-        #)
-        #part_2 = SolutionPartFactory(
-            #solution=cls.solution,
-            #question=question_2
-        #)
-
-        ## new target with new actors
-        #target_activity = ActivityFactory(name='target_activity')
-        #for i in range(3):
-            #ActorFactory(activity=target_activity)
-
-        #part_new_flow = SolutionPartFactory(
-            #solution=cls.solution,
-            #question=question_1,
-            #implements_new_flow=True,
-            #keep_origin=True,
-            #new_target_activity=target_activity,
-            #map_request="pick an actor"
-        #)
-
-
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionCategoryFactory(id=self.solutioncategory,
-                                           user=self.uic,
-                                           keyflow=self.kic
-                                           )
-
-    def test_protection_of_deletion(self):
-        """
-        Test if the protection of objects, that are referred to
-        by a foreign key using the view works and if the deletion on the model
-        with cascade works too.
-        """
-        # generate a new solution category with 2 solutions
-        solcat_id = 44
-        solcat2 = SolutionCategoryFactory(id=solcat_id)
-        solution2 = SolutionFactory(solution_category=solcat2,
-                                    name='Protected Solution')
-        solution3 = SolutionFactory(solution_category=solcat2,
-                                    name='Another Solution')
-
-        # try to delete using the view
-        url = self.url_key + '-detail'
-        kwargs = {**self.url_pks, 'pk': solcat2.pk, }
-        response = self.delete(url, **kwargs)
-
-        # this should raise an ProtectedError
-        self.response_403()
-        assert b'Cannot delete some instances of model' in response.content
-        assert b'Solution: Protected Solution' in response.content
-        assert b'Solution: Another Solution' in response.content
-
-        # deletion on the model will delete the solution category and
-        # cascadedly the referencing solution
-        qs = Solution.objects.filter(solution_category__id=solcat_id)
-        assert len(qs) == 2
-        solcat2.delete()
-        qs = Solution.objects.filter(solution_category__id=solcat_id)
-        assert not qs
+        # answer the question
+        # Note CF: the diagram says 250 * 5 cubic meters, don't know what fungus
+        # insulation weighs
+        answer = ImplementationQuantity(question=self.fungus_question,
+                                        implementation=implementation,
+                                        value=25)
 
 
 class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
