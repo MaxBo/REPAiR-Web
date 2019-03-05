@@ -92,7 +92,7 @@ class SolutionPart(GDSEModel):
         related_name='implementation_origin')
     implementation_flow_destination_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
-        related_name='implementation_destination')
+        related_name='implementation_destination', null=True)
     implementation_flow_material = models.ForeignKey(
         Material, on_delete=PROTECT_CASCADE,
         related_name='implementation_material')
