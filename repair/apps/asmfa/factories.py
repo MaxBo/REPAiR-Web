@@ -218,11 +218,9 @@ class ProductFractionFactory(DjangoModelFactory):
 class FractionFlowFactory(FlowFactory):
     class Meta:
         model = models.FractionFlow
-    stock = factory.SubFactory(StockFactory)
     origin = factory.SubFactory(ActorFactory)
     destination = factory.SubFactory(ActorFactory)
     material = factory.SubFactory(MaterialFactory)
     composition_name = factory.Sequence(lambda n: "Composition #%s" % n)
     nace = '52.Retail'
-    publication = factory.SubFactory(PublicationInCasestudyFactory)
     amount = 0.0
