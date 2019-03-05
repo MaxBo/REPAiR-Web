@@ -42,12 +42,26 @@ class ComputeIndicator(metaclass=ABCMeta):
         '''
         materials = indicator_flow.materials.all()
         flow_type = indicator_flow.flow_type.name
+        hazardous = indicator_flow.hazardous.name
+        avoidable = indicator_flow.avoidable.name
 
         # filter flows by type (waste/product/both)
         flows = FractionFlow.objects.filter()
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
+        if hazardous != 'BOTH':
+            is_hazardous = True if hazardous == 'YES' else False
+            flows = flows.filter(hazardous=is_hazardous)
+        if avoidable != 'BOTH':
+            is_avoidable = True if avoidable == 'YES' else False
+            flows = flows.filter(avoidable=is_avoidable)
+
+        # filter flows by processes
+        process_ids = indicator_flow.process_ids
+        if (process_ids):
+            process_ids = process_ids.split(',')
+            flows.filter(process__id__in=process_ids)
 
         # filter flows by origin/destination nodes
         origin_node_ids = indicator_flow.origin_node_ids

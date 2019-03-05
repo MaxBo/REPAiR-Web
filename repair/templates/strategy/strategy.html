@@ -62,10 +62,6 @@
   <div class="row handle" style="font-size: 0.9em;">
     <table style="margin: 0px; table-layout: fixed; width: 100%;" class="entry-table">
       <tr>
-        <td><label> {% trans "Quantity" %}:&nbsp; </label></td>
-        <td class="quantity" style="overflow: hidden; text-overflow: ellipsis;"></td>
-      </tr>
-      <tr>
         <td><label> {% trans "Implemented by" %}:&nbsp; </label></td>
         <td class="implemented-by" style="overflow: hidden; text-overflow: ellipsis;">
           <%= stakeholderNames %>
@@ -90,7 +86,6 @@
       <div class="row">
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#strategy-area-tab">{% trans "Implementation Area" %}</a></li>
-          <li><a data-toggle="tab" href="#quantities-tab">{% trans "Quantities" %}</a></li>
           <li><a data-toggle="tab" href="#strategy-by-tab">{% trans "Implementation by" %}</a></li>
           <li><a data-toggle="tab" href="#notes-tab">{% trans "Notes" %}</a></li>
         </ul>
@@ -132,21 +127,6 @@
                   <label style="text-shadow: 0 0 0.2em #fff, 0 0 0.2em #fff, 0 0 0.2em #fff;">{% trans "freehand" %}</label>
                   <button class="remove btn btn-danger round" style="margin-left: 10px; display: none;"> <span class="glyphicon glyphicon-remove-sign" ></span> {% trans "selection" %} </button>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane fade in" id="quantities-tab">
-            <div class="col-md-12 bordered">
-              <div class="row">
-                <h4> {% trans "General definition" %} </h4>
-                {% trans "For the solution" %} <i> <%= solution.get('name') %> </i>{% trans "one unit equals" %}: <b> <%= solution.get('one_unit_equals') %> </b> <br><br>
-                {% trans "This unit is defined by the following ratios" %}
-                <div id="ratios"></div>
-              </div>
-              <div class="row">
-                <h4> {% trans "Your strategy" %} </h4>
-                {% trans "In the strategy area, this quantities shall be implemented:" %}
-                <table id="implemented-quantities" class="entry-table"></table>
               </div>
             </div>
           </div>

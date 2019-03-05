@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "REPAiR | Legal Notice" %}{% endblock %}
+
+{% block content %}
+  {% render_bundle 'Base' %}
+  <div class="col-md-6">
+    <h2> {% trans "Legal Notice" %} </h2>
+    <p class=" text-justify">
+    {% blocktrans %}
+      The content of this web-site reflects the views of the authors only.
+      The European Commission is not liable for any use that may be made of
+      the information contained herein.
+    {% endblocktrans %}
+    </p>
+  </div>
+{% endblock %}

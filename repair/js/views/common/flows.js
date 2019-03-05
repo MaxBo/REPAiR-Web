@@ -60,6 +60,11 @@ var FlowsView = BaseView.extend(
         this.renderSankeyMap();
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus" });
+
+        this.sankeyWrapper = this.el.querySelector('.sankey-wrapper');
+        this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
+        this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
+        this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
     },
     // render the empty sankey map
     renderSankeyMap: function(){
@@ -82,8 +87,11 @@ var FlowsView = BaseView.extend(
         if(!filter) return filterParams;
 
         var flowType = filter.get('flow_type') || 'both',
+            hazardous = filter.get('hazardous').toLowerCase(),
+            avoidable = filter.get('avoidable').toLowerCase(),
             nodeLevel = filter.get('filter_level') || 'activitygroup',
             direction = filter.get('direction') || 'both';
+
         nodeLevel = nodeLevel.toLowerCase();
         flowType = flowType.toLowerCase();
         direction = direction.toLowerCase();
@@ -92,6 +100,7 @@ var FlowsView = BaseView.extend(
         filterParams.materials = {
             aggregate: filter.get('aggregate_materials')
         }
+
         var material = filter.get('material');
         // material -> filter/aggregate by this material and its direct children
         if (material != null) {
@@ -109,34 +118,37 @@ var FlowsView = BaseView.extend(
 
         var flowFilters = filterParams['filters'] = [];
 
+        var typeFilterFunctions = {};
         if (flowType != 'both') {
             var is_waste = (flowType == 'waste') ? true : false;
-            flowFilters.push({functions: [{'waste': is_waste}]})
+            typeFilterFunctions['waste'] = is_waste;
+        }
+        if (hazardous != 'both') {
+            var is_hazardous = (hazardous == 'yes') ? true : false;
+            typeFilterFunctions['hazardous'] = is_hazardous;
+        }
+        if (avoidable != 'both') {
+            var is_avoidable = (avoidable == 'yes') ? true : false;
+            typeFilterFunctions['avoidable'] = is_avoidable
+        }
+        var processIds = filter.get('process_ids');
+        if (processIds) {
+            typeFilterFunctions['process_id__in'] = processIds.split(',');
+        }
+
+        if (Object.keys(typeFilterFunctions).length > 0) {
+            typeFilterFunctions['link'] = 'and';
+            flowFilters.push(typeFilterFunctions);
         }
 
         // filter origins/destinations by ids
-        if (nodeIds && nodeIds.length > 0){
-            var origin_id_filter = {
-                    'function': 'origin__'+ levelFilterMidSec + 'id__in',
-                    values: nodeIds
-                },
-                destination_id_filter = {
-                    'function': 'destination__'+ levelFilterMidSec + 'id__in',
-                    values: nodeIds
-                };
-            var id_filter = {
-                link: 'or',
-                functions: []
+        if (nodeIds && nodeIds.length > 0) {
+            var id_filter = { link: 'or' };
+            if (direction == 'to' || direction == 'both'){
+                id_filter['destination__'+ levelFilterMidSec + 'id__in'] = nodeIds;
             }
-            if (direction == 'to'){
-                id_filter['functions'].push(destination_id_filter);
-            }
-            else if (direction == 'from') {
-                id_filter['functions'].push(origin_id_filter);
-            }
-            else if (direction == 'both') {
-                id_filter['functions'].push(origin_id_filter);
-                id_filter['functions'].push(destination_id_filter);
+            if (direction == 'from' || direction == 'both') {
+                id_filter['origin__'+ levelFilterMidSec + 'id__in'] = nodeIds;
             }
             flowFilters.push(id_filter);
         }
@@ -145,27 +157,12 @@ var FlowsView = BaseView.extend(
 
         // filter origins/destinations by areas
         if (areas && areas.length > 0){
-            var area_filter = {
-                link: 'or',
-                functions: []
+            var area_filter = { link: 'or' }
+            if (direction == 'to' || direction == 'both'){
+                area_filter['destination__areas'] = areas;
             }
-            var origin_area_filter = {
-                'function': 'origin__areas',
-                values: areas
-            }
-            var destination_area_filter = {
-                'function': 'destination__areas',
-                values: areas
-            }
-            if (direction == 'to'){
-                area_filter['functions'].push(destination_area_filter);
-            }
-            else if (direction == 'from'){
-                area_filter['functions'].push(origin_area_filter);
-            }
-            else if (direction == 'both') {
-                area_filter['functions'].push(origin_area_filter);
-                area_filter['functions'].push(destination_area_filter);
+            if (direction == 'from' || direction == 'both'){
+                area_filter['origin__areas'] = areas;
             }
             flowFilters.push(area_filter);
         }
@@ -180,7 +177,7 @@ var FlowsView = BaseView.extend(
 
         this.nodeLevel = displayLevel.toLowerCase();
 
-        var el = this.el.querySelector('.sankey-wrapper'),
+        var el = this.sankeyWrapper,
             _this = this;
 
         // pass all known nodes to sankey (not only the filtered ones) to avoid
@@ -225,9 +222,6 @@ var FlowsView = BaseView.extend(
                     originLevel: displayLevel,
                     destinationLevel: displayLevel
                 })
-                el.addEventListener('linkSelected', _this.linkSelected);
-                el.addEventListener('linkDeselected', _this.linkDeselected);
-                el.addEventListener('allDeselected', _this.deselectAll);
             },
             error: function(){
                 _this.loader.deactivate();
@@ -236,7 +230,6 @@ var FlowsView = BaseView.extend(
         })
     },
 
-    //
     addGroupedActors: function(flow){
         // put filter params defined by user in filter section into body
         var bodyParams = this.getFlowFilterParams(),
@@ -249,18 +242,23 @@ var FlowsView = BaseView.extend(
         // put filtering by clicked flow origin/destination into query params
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
-        var queryParams = {};
+        var queryParams = {},
+            is_stock = flow.get('stock');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
-        queryParams['destination__' + filterSuffix] = flow.get('destination').id;
+        if (!is_stock)
+            queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
+        queryParams['stock'] = (is_stock) ? 'True': 'False';
 
         var origin = flow.get('origin'),
             destination = flow.get('destination'),
+            destination_group = null;
             origin_group = {
                 color: origin.color,
                 name: origin.name,
                 id: origin.id
-            },
+            };
+        if (!is_stock)
             destination_group = {
                 color: destination.color,
                 name: destination.name,
@@ -271,7 +269,6 @@ var FlowsView = BaseView.extend(
             apiTag: 'flows',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
-
 
         var promise = new Promise(function(resolve, reject){
             var mem = _this.flowMem[flow.id];
@@ -288,8 +285,10 @@ var FlowsView = BaseView.extend(
                             o.group = origin_group;
                             o.color = origin.color;
                             var d = f.get('destination');
-                            d.group = destination_group;
-                            d.color = destination.color;
+                            if (d) {
+                                d.group = destination_group;
+                                d.color = destination.color;
+                            }
                             _this.flowMapView.addFlows(f);
                         })
                         _this.flowMem[flow.id] = flows;
@@ -316,7 +315,6 @@ var FlowsView = BaseView.extend(
         var promises = [];
         this.loader.activate();
         data.forEach(function(d){
-            if (!d.get('destination')) return;
             // display level actor
             if (_this.nodeLevel === 'actor'){
                 _this.flowMapView.addFlows(d);

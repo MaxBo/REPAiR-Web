@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load render_bundle from webpack_loader %}
+
+{% block title %}{% trans "REPAiR | Privacy Policy" %}{% endblock %}
+
+{% block content %}
+  {% render_bundle 'Base' %}
+  <div class="col-md-6">
+    <h2> {% trans "Privacy Policy" %} </h2>
+    <p class=" text-justify">
+    {% blocktrans %}
+      -
+    {% endblocktrans %}
+    </p>
+  </div>
+{% endblock %}

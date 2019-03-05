@@ -7,6 +7,12 @@ from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models import Material, KeyflowInCasestudy
 
 
+class TriState(Enum):
+    BOTH = 1
+    NO = 2
+    YES = 3
+
+
 class SpatialChoice(Enum):
     BOTH = 1
     ORIGIN = 2
@@ -49,6 +55,13 @@ class IndicatorFlow(GDSEModel):
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
     materials = models.ManyToManyField(Material, blank=True)
+    process_ids = models.CharField(
+        validators=[validate_comma_separated_integer_list],
+        blank=True, null=True, max_length=100)
+    hazardous = EnumIntegerField(
+        enum=TriState, default=TriState.BOTH)
+    avoidable = EnumIntegerField(
+        enum=TriState, default=TriState.BOTH)
 
     spatial_application = EnumIntegerField(
         enum=SpatialChoice, default=SpatialChoice.BOTH)

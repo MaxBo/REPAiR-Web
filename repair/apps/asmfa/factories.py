@@ -77,7 +77,7 @@ class ActorFactory(NodeFactory):
     turnover = 100000
     employees = 100
     BvDid = 'whatever'
-    BvDii = 'BvDii99'
+    BvDii = 'something'
     website = 'www.example.com'
     activity = factory.SubFactory(ActivityFactory)
     reason = factory.SubFactory(ReasonFactory)
@@ -88,6 +88,14 @@ class FlowFactory(DjangoModelFactory):
         model = models.Flow
     amount = 1234
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+
+
+class FractionFlowFactory(DjangoModelFactory):
+    class Meta:
+        model = models.FractionFlow
+    amount = 1
+    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+
 
 
 class ProductFactory(DjangoModelFactory):

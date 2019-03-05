@@ -1,7 +1,7 @@
 from typing import Type
 import pandas as pd
 from django_pandas.io import read_frame
-from django.db.utils import IntegrityError
+from django.db.utils import Error
 from django.contrib.gis.geos.error import GEOSException
 from django.contrib.gis.db.models.functions import GeoFunc
 from django.db.models.fields import NOT_PROVIDED
@@ -688,6 +688,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             models that were updated
         """
         queryset = self.get_queryset()
+        dataframe = dataframe.reset_index()
+        dataframe = dataframe.drop(['index'], axis=1)
         df_existing = read_frame(queryset, verbose=False)
         df = dataframe.copy()
 
@@ -750,7 +752,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             else:
                 new_models = self._create_models(df_new)
             updated_models = self._update_models(df_update)
-        except IntegrityError as e:
+        except Error as e:
             # ToDo: formatted message
             raise ValidationError(str(e))
 
@@ -773,6 +775,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         update the models with the data in dataframe
         '''
+        if len(dataframe) == 0:
+            return []
         model = self.Meta.model
         queryset = self.get_queryset()
         # only fields defined in field_map will be written to database
@@ -810,6 +814,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         create models as described in dataframe
         '''
+        if len(dataframe) == 0:
+            return []
         model = self.Meta.model
         # skip columns, that are not needed
         field_names = [f.name for f in model._meta.fields]
@@ -841,7 +847,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             for m in bulk:
                 m.save()
             created = bulk
-        except IntegrityError as e:
+        except Error as e:
             raise ValidationError(str(e))
         # only postgres returns ids after bulk creation
         # workaround for non postgres: create queryset based on index_columns

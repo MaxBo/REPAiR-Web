@@ -113,11 +113,19 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
             this.actorCheck = document.createElement('input');
+            this.actorCheck.type = 'radio';
+            this.stockCheck = document.createElement('input');
+            this.stockCheck.type = 'radio';
+            this.flowCheck = document.createElement('input');
+            this.flowCheck.checked = true;
+            this.stockCheck.checked = true;
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
                 aniLabel = document.createElement('label'),
                 actorLabel = document.createElement('label'),
+                stockLabel = document.createElement('label'),
+                flowLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
                 _this = this;
 
@@ -125,22 +133,30 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             aniLabel.innerHTML = gettext('Animate flows');
             clusterLabel.innerHTML = gettext('Cluster locations');
             actorLabel.innerHTML = gettext('Show actors');
+            flowLabel.innerHTML = gettext('Show flows');
+            stockLabel.innerHTML = gettext('Show stocks');
 
-            [this.materialCheck, this.clusterCheck,
-            this.animationCheck, this.actorCheck].forEach(function(checkbox){
+            [
+                this.materialCheck, this.clusterCheck,
+                this.animationCheck, this.actorCheck,
+                this.flowCheck, this.stockCheck
+            ].forEach(function(checkbox){
                 checkbox.type = "checkbox";
                 checkbox.style.transform = "scale(2)";
                 checkbox.style.pointerEvents = "none";
                 checkbox.style.marginRight = "10px";
             })
+            this.actorCheck.type = 'radio';
+            this.stockCheck.type = 'radio';
 
-            this.actorCheck.checked = true;
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
             div.style.cursor = "pointer";
 
             var matDiv = document.createElement('div'),
                 actorDiv = document.createElement('div'),
+                stockDiv = document.createElement('div'),
+                flowDiv = document.createElement('div'),
                 aniDiv = document.createElement('div'),
                 aniCheckWrap = document.createElement('div'),
                 aniToggleDiv = document.createElement('div'),
@@ -154,6 +170,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             actorDiv.appendChild(this.actorCheck);
             actorDiv.appendChild(actorLabel);
             actorDiv.style.cursor = 'pointer';
+            stockDiv.appendChild(this.stockCheck);
+            stockDiv.appendChild(stockLabel);
+            stockDiv.style.cursor = 'pointer';
+            stockDiv.style.marginBottom = '-10px';
+            flowDiv.appendChild(this.flowCheck);
+            flowDiv.appendChild(flowLabel);
+            flowDiv.style.cursor = 'pointer';
             clusterDiv.appendChild(this.clusterCheck);
             clusterDiv.appendChild(clusterLabel);
             clusterDiv.style.cursor = 'pointer';
@@ -193,6 +216,20 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             };
             customControls.addTo(this.leafletMap);
 
+            flowDiv.addEventListener("click", function(){
+                _this.flowCheck.checked = !_this.flowCheck.checked;
+                _this.rerender();
+            });
+            stockDiv.addEventListener("click", function(){
+                _this.stockCheck.checked = !_this.stockCheck.checked;
+                if (_this.stockCheck.checked) _this.actorCheck.checked = false;
+                _this.rerender();
+            });
+            actorDiv.addEventListener("click", function(){
+                _this.actorCheck.checked = !_this.actorCheck.checked;
+                if (_this.actorCheck.checked) _this.stockCheck.checked = false;
+                _this.rerender();
+            });
             matDiv.addEventListener("click", function(){
                 _this.materialCheck.checked = !_this.materialCheck.checked;
                 _this.rerender();
@@ -211,12 +248,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             aniToggleDiv.addEventListener("click", function(){
                 _this.rerender();
             });
-            actorDiv.addEventListener("click", function(){
-                _this.actorCheck.checked = !_this.actorCheck.checked;
-                _this.rerender();
-            });
 
+            div.appendChild(stockDiv);
+            div.appendChild(document.createElement('br'));
             div.appendChild(actorDiv);
+            div.appendChild(document.createElement('br'));
+            div.appendChild(flowDiv);
             div.appendChild(document.createElement('br'));
             div.appendChild(matDiv);
             div.appendChild(document.createElement('br'));
@@ -233,6 +270,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.legend.style.visibility = 'hidden';
             legendControl.onAdd = function () { return _this.legend; };
             legendControl.addTo(this.leafletMap);
+            this.el.querySelector('.leaflet-right.leaflet-bottom').classList.add('leaflet-legend');
         },
 
         toggleMaterials(){
@@ -277,6 +315,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     check.checked = !check.checked;
                     _this.hideMaterials[matId] = !check.checked;
                     _this.flowMap.toggleTag(matId, check.checked);
+                    _this.rerender();
                 })
                 _this.flowMap.toggleTag(matId, check.checked)
             });
@@ -312,16 +351,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 })
                 clusterPolygons = [];
                 _this.resetMapData(data, false);
-                //if (!_this.hullCheck.checked) return;
-                //Object.values(_this.clusterGroups).forEach(function(clusterGroup){
-                    //clusterGroup.instance._featureGroup.eachLayer(function(layer) {
-                        //if (layer instanceof L.MarkerCluster) {
-                            //var clusterPoly = L.polygon(layer.getConvexHull());
-                            //clusterPolygons.push(clusterPoly);
-                            //_this.leafletMap.addLayer(clusterPoly);
-                        //}
-                    //})
-                //})
             }
 
             // add cluster layers
@@ -368,13 +397,21 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
         resetMapData: function(data, zoomToFit) {
             this.data = data;
             this.flowMap.clear();
+
             this.flowMap.addNodes(data.nodes);
-            this.flowMap.addFlows(data.flows);
-            this.flowMap.showNodes = (this.actorCheck.checked) ? true: false;
+
+            if (this.stockCheck.checked)
+                this.flowMap.addNodes(data.stocks);
+            if (this.flowCheck.checked)
+                this.flowMap.addFlows(data.flows);
+            //this.flowMap.showNodes = (this.actorCheck.checked) ? true: false;
+            this.flowMap.showFlows = (this.flowCheck.checked) ? true: false;
             this.flowMap.dottedLines = (this.aniDotsRadio.checked) ? true: false;
-            this.flowMap.resetView();
             this.updateLegend();
-            if (zoomToFit) this.flowMap.zoomToFit();
+            this.flowMap.toggleTag('actor', this.actorCheck.checked);
+
+            this.flowMap.resetView();
+            //if (zoomToFit) this.flowMap.zoomToFit();
         },
 
         rerender: function(zoomToFit){
@@ -474,7 +511,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 splitByComposition = options.splitByComposition,
                 clusterMap = {},
                 pFlows = [],
-                warnings = [];
+                warnings = [],
+                maxStock = 0;
 
             var i = 0;
 
@@ -491,7 +529,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     lat: cluster.lat,
                     radius: Math.min(40, 15 + nNodes / 2),
                     innerLabel: nNodes,
-                    cluster: cluster
+                    cluster: cluster,
+                    tag: 'actor'
                 }
                 nodes[clusterId] = clusterNode;
                 i++;
@@ -522,9 +561,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     label: name,
                     color: node.color,
                     group: node.group,
-                    lon: coords[0],
-                    lat: coords[1],
-                    radius: 10
+                    lon: coords[0].toFixed(4),
+                    lat: coords[1].toFixed(4),
+                    radius: 5,
+                    tag: 'actor'
                 }
                 nodes[id] = transNode;
                 return transNode;
@@ -532,8 +572,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             var aggMap = {};
             function aggregate(flow, source, target) {
-                var key = source.id + '-' + target.id + '-' + flow.get('waste'),
-                    mapped = aggMap[key];
+                var key = flow.get('waste') + source.id,
+                    is_stock = flow.get('stock');
+                if (!is_stock) key += + '-' + target.id;
+                var mapped = aggMap[key];
+                // not
                 if (!mapped){
                     mapped = {
                         id: key,
@@ -541,7 +584,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         target: target,
                         waste: flow.get('waste'),
                         amount: flow.get('amount'),
-                        fractions: {}
+                        fractions: {},
+                        is_stock: is_stock
                     }
                     fractions = mapped.fractions;
                     flow.get('materials').forEach(function(material){
@@ -565,50 +609,59 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 }
             }
 
+            i = 0;
             // add the flows that don't have to be aggregated, because origin and destination are not clustered
             flows.forEach(function(flow) {
                 var origin = flow.get('origin'),
-                    destination = flow.get('destination');
-                // ignore stocks
-                if (!destination) return;
+                    destination = flow.get('destination'),
+                    is_stock = flow.get('stock'),
+                    amount = flow.get('amount');
 
                 var source = transformNode(origin),
-                    target = transformNode(destination);
-                // one node might have no geom -> do not shown on map
+                    target = (!is_stock) ? transformNode(destination): source; // set target to source in case of stocks just for convenience, doesn't matter
+
+                if (is_stock)
+                    maxStock = Math.max(maxStock, amount);
+
+                // one node might have no geom (in case of stocks same node) -> cannot shown on map
                 if(!source || !target) return;
 
-                // one node is clustered -> aggregate
+                // one node is clustered (in case of stocks same node) -> aggregate
                 if (source.cluster || target.cluster) {
                     aggregate(flow, source, target);
                 }
                 else {
                     pFlows.push({
-                        id: flow.id,
+                        id: flow.id || i,
                         source: source,
                         target: target,
-                        amount: flow.get('amount'),
+                        is_stock: is_stock,
+                        amount: amount,
                         fractions: flow.get('materials'),
                         waste: flow.get('waste')
                     });
                 }
+                i += 1;
             })
-
+            var maxClusterStock = 0;
             // posproc the aggregation (just dict to list)
             Object.values(aggMap).forEach(function(flow){
                 flow.fractions = Object.values(flow.fractions);
+                if (flow.is_stock)
+                    maxClusterStock = Math.max(maxClusterStock, flow.amount)
             })
 
-            var uniqueMaterials = {};
-            pFlows.forEach(function(flow) {
-                var source = flow.source,
-                    target = flow.target,
-                    fractions = flow.fractions;
+            function transformFlow(pFlow){
+                var source = pFlow.source,
+                    target = pFlow.target,
+                    fractions = pFlow.fractions;
 
-                var wasteLabel = (flow.waste) ? 'Waste' : 'Product',
-                    totalAmount = Math.round(flow.amount),
+                var wasteLabel = (pFlow.waste) ? 'Waste' : 'Product',
+                    totalAmount = Math.round(pFlow.amount),
                     flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel;
 
                 if(splitByComposition){
+                    var cl = []
                     fractions.forEach(function(material){
                         var amount = Math.round(material.amount),
                             label = flowLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
@@ -622,8 +675,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         }
                         else
                             color = uniqueMaterials[material.material].color;
-                        links.push({
-                            id: flow.id,
+                        cl.push({
+                            id: pFlow.id,
                             label: label,
                             source: source.id,
                             target: target.id,
@@ -633,30 +686,86 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             color: color
                         })
                     })
+                    return cl;
                 }
                 else {
                     var label = flowLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
-                    links.push({
-                        id: flow.id,
+                    return [{
+                        id: pFlow.id,
                         label: label,
                         source: source.id,
                         target: target.id,
                         color: source.color,
                         value: totalAmount
-                    })
+                    }]
                 }
-            })
+            }
 
-            var matAmount = 0, amount= 0;
-            pFlows.forEach(function(flow){
-                amount += flow.amount;
-                flow.fractions.forEach(function(f){
-                    matAmount += f.amount;
-                })
+            function transformStock(pFlow){
+                var source = pFlow.source,
+                    fractions = pFlow.fractions;
+
+                var wasteLabel = (pFlow.waste) ? 'Waste' : 'Product',
+                    totalAmount = Math.round(pFlow.amount),
+                    stockLabel = source.name + '<br>' + wasteLabel + ' ' + gettext('Stock');
+                if(splitByComposition){
+                    var cs = [];
+                    fractions.forEach(function(material){
+                        var amount = Math.round(material.amount),
+                            label = stockLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
+                            color;
+                        if (!uniqueMaterials[material.material]){
+                            color = utils.colorByName(material.name)
+                            uniqueMaterials[material.material] = {
+                                color: color,
+                                name: material.name
+                            };
+                        }
+                        else
+                            color = uniqueMaterials[material.material].color;
+                        cs.push({
+                            id: 'stock' + pFlow.id,
+                            label: label,
+                            color: color,
+                            lon: source.lon,
+                            lat: source.lat,
+                            //radius: radius,
+                            value: amount,
+                            tag: material.material
+                        })
+                    })
+                    return cs;
+                }
+                else {
+                    var label = stockLabel + '<br><b>Amount: </b>' + _this.format(totalAmount) + ' t/year';
+                    var stock = [{
+                        id: 'stock' + pFlow.id,
+                        label: label,
+                        color: source.color,
+                        group: source.group,
+                        lon: source.lon,
+                        lat: source.lat,
+                        //radius: radius,
+                        value: totalAmount,
+                        tag: 'stock'
+                    }]
+                    return stock;
+                }
+            }
+
+            var stocks = [];
+
+            var uniqueMaterials = {};
+            pFlows.forEach(function(pFlow) {
+                if (!pFlow.is_stock)
+                    links = links.concat(transformFlow(pFlow));
+                else
+                    stocks = stocks.concat(transformStock(pFlow));
             })
 
             return {
                 flows: links,
+                stocks: stocks,
                 nodes: Object.values(nodes),
                 materials: uniqueMaterials,
                 warnings: warnings

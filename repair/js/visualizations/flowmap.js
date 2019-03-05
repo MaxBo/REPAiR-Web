@@ -41,6 +41,7 @@ define([
             var _this = this;
 
             this.showNodes = options.showNodes || false;
+            this.showFlows = options.showFlows || false;
             this.width = options.width || this.map.offsetWidth;
             this.bbox = options.bbox;
             this.height = options.height || this.width / 1.5;
@@ -80,6 +81,7 @@ define([
 
             this.nodesData = {};
             this.flowsData = {};
+            this.nodesPos = {};
             this.hideTags = {};
         }
 
@@ -113,8 +115,9 @@ define([
         clear(){
             this.g.selectAll("*").remove();
             this.nodesData = {};
+            this.nodesPos = {};
             this.flowsData = {};
-            this.hideTags = {};
+            //this.hideTags = {};
         }
 
         addNodes(nodes){
@@ -123,13 +126,26 @@ define([
                 topLeft = [10000, 0],
                 bottomRight = [0, 10000];
             nodes.forEach(function(node){
+                // collect nodes with same position
+                var pos = node.lat + '-' + node.lon;
+                if (_this.nodesPos[pos] == null) _this.nodesPos[pos] = [];
+                _this.nodesPos[pos].push(node);
                 _this.nodesData[node.id] = node;
             })
-            Object.values(_this.nodesData).forEach(function(node){
+            this.totalNodeValue = 0;
+            Object.values(this.nodesData).forEach(function(node){
                 topLeft = [Math.min(topLeft[0], node.lon), Math.max(topLeft[1], node.lat)];
                 bottomRight = [Math.max(bottomRight[0], node.lon), Math.min(bottomRight[1], node.lat)];
+                _this.totalNodeValue += node.value || 0;
+            })
+            this.maxNodeValue = 0;
+            Object.values(this.nodesPos).forEach(function(nodes){
+                nodes.forEach(function(node){
+                    _this.maxNodeValue = Math.max(_this.maxNodeValue, node.value || 0);
+                })
             })
             this.resetBbox([topLeft, bottomRight]);
+
         }
 
         zoomToFit(){
@@ -173,7 +189,10 @@ define([
                     xshift = 0.4,
                     yshift = 0.1,
                     curve = (combinedFlows.length > 1) ? 'arc' : 'bezier';
+
                 combinedFlows.forEach(function(flow){
+                    // flow is hidden -> ignore
+                    if(_this.hideTags[flow.tag]) return;
                     // define source and target by combining nodes and flows data --> flow has source and target that are connected to nodes by IDs
                     // multiple flows belong to each node, storing source and target coordinates for each flow wouldn't be efficient
                     var sourceId = flow.source,
@@ -188,6 +207,7 @@ define([
                     //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
                     var calcWidth = (flow.value) / _this.maxFlowValue * _this.maxFlowWidth,
                         strokeWidth = Math.max(_this.minFlowWidth, calcWidth);
+
 
                     var sourceCoords = _this.projection([source['lon'], source['lat']]),
                         targetCoords = _this.projection([target['lon'], target['lat']]);
@@ -209,7 +229,6 @@ define([
                             };
                         }
                     }
-
                     var path = _this.drawPath(
                         [
                             {x: sourceCoords[0], y: sourceCoords[1]},
@@ -221,25 +240,58 @@ define([
                             yshift: yshift,
                             animate: _this.animate,
                             dash: dash,
-                            curve: curve,
-                            tag: flow.tag
+                            curve: curve
                         }
                     );
                     xshift -= shiftStep;
                     yshift += shiftStep;
                 });
-
             };
 
-            if (_this.showNodes){
-                // use addpoint for each node in nodesDataFlow
-                Object.values(_this.nodesData).forEach(function (node) {
-                    var x = _this.projection([node.lon, node.lat])[0],
-                        y = _this.projection([node.lon, node.lat])[1],
-                        radius = node.radius / 2;// * scale / 2;
-                    _this.addPoint(x, y, node.label, node.innerLabel, node.color, radius);
-                });
+            function calcRadius(value){
+                return 5 + 50 * Math.pow(value / _this.totalNodeValue, 0.5);
             }
+            var maxNodeRadius = calcRadius(this.maxNodeValue);
+            var scaleFactor = (maxNodeRadius > 60) ? 60 / maxNodeRadius  : 1
+            // use addpoint for each node in nodesDataFlow
+            Object.values(_this.nodesPos).forEach(function (nodes) {
+
+                // ignore hidden nodes
+                var nodesToShow = [];
+                nodes.forEach(function(node){
+                    if(!_this.hideTags[node.tag]) nodesToShow.push(node);
+                })
+                // no visible nodes
+                if (nodesToShow.length === 0) return;
+
+                var first = nodesToShow[0];
+                var x = _this.projection([first.lon, first.lat])[0],
+                    y = _this.projection([first.lon, first.lat])[1];
+                // only one node at this position
+                if (nodesToShow.length === 1){
+                    if(_this.hideTags[first.tag]) return;
+                    // calculate radius by value, if radius is not given
+                    var radius = Math.max(5, first.radius || calcRadius(first.value));
+                    _this.addPoint(x, y, first.label, first.innerLabel, first.color, radius);
+                }
+                // multiple nodes at same position -> piechart
+                else {
+                    var data = [], label = '',
+                        radius = 0,
+                        total = 0;
+                    nodesToShow.forEach(function(node){
+                        total += node.value;
+                        radius += node.radius || 0;
+                        label += node.label + '<br><br>';
+                        data.push({
+                            'color': node.color,
+                            'value': node.value || 1
+                        })
+                    })
+                    radius = Math.max(5, (radius + calcRadius(total)) * scaleFactor);
+                    _this.addPieChart(x, y, label, radius, data)
+                }
+            });
         }
 
         scale(){
@@ -247,6 +299,52 @@ define([
                 d = zoomLevel - this.initialZoom,
                 scale = Math.pow(2, d);
             return scale;
+        }
+
+        // draw pie chart at given position
+        addPieChart(x, y, label, radius, data) {
+            var _this = this;
+
+            var pie = d3.layout.pie().value(function(d) { return d.value; });
+
+            var arc = d3.svg.arc()
+                .outerRadius(radius)
+                .innerRadius(0);
+            var point = this.g.append("g").attr("class", "node")
+                .attr("transform","translate("+x+"," + y+")");
+            var arcs = point.selectAll(".arc")
+                .data(pie(data))
+                .enter().append("g")
+                .attr("class", "arc")
+            //var arcg = selection.attr("transform","translate("+x+"," + y+")")
+                    //.selectAll(".arc")
+                    //.data(pie(d.children))
+                    //.enter().append("g")
+                    //.attr("class", "arc");
+            arcs.append("path")
+                .attr("d", arc)
+                .style("fill", function(d, i) {
+                    return d.data.color;
+                })
+                .style("stroke", 'lightgrey')
+                .style("stroke-width", 1)
+                .style("pointer-events", 'all')
+                .on("mouseover", function (d) {
+                    d3.select(this).style("cursor", "pointer");
+                    var rect = _this.overlay.getBoundingClientRect();
+                    _this.tooltip.transition()
+                        .duration(200)
+                        .style("opacity", 0.9);
+                    _this.tooltip.html(label)
+                        .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
+                        .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
+                })
+                .on("mouseout", function (d) {
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                    }
+                );
         }
 
         //function to add source nodes to the map
@@ -285,7 +383,6 @@ define([
                  .style("font-size", "14px")
                  .attr('fill','white')
                  .text(innerLabel || "");
-
         }
 
         // function to draw actual paths for the directed quantity flows
@@ -318,7 +415,6 @@ define([
                 .attr("stroke", color)
                 .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
-                .attr("tag", options.tag)
                 //.attr("stroke-linecap", "round")
                 .style("pointer-events", 'all')
                 .on("mouseover", function () {
@@ -346,8 +442,6 @@ define([
                 path.attr("stroke-dasharray", [dash.length, dash.gap].join(','));
                 path.attr("stroke-dashoffset", dash.offset);
             }
-            if(this.hideTags[options.tag])
-                path.style("opacity", 0);
             return path;
         }
 
@@ -359,8 +453,6 @@ define([
 
         toggleTag(tag, on){
             this.hideTags[tag] = !on;
-            var opacity = (on) ? 1: 0
-            d3.selectAll('path[tag="' + tag + '"]').style("opacity", opacity);
         }
 
     }

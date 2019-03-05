@@ -128,6 +128,14 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
         flows = FractionFlow.objects.filter(keyflow__id=keyflow_pk)
+        # rename filter for stock, as this relates to field with stock pk
+        # but serializer returns boolean in this field (if it is stock)
+        tmp = self.request.query_params._mutable
+        self.request.query_params._mutable = True
+        stock_filter = self.request.query_params.pop('stock', None)
+        if stock_filter is not None:
+            self.request.query_params['to_stock'] = stock_filter[0]
+        self.request.query_params._mutable = tmp
         return flows.order_by('origin', 'destination')
 
     # POST is used to send filter parameters not to create
@@ -137,18 +145,16 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         body = {
             # prefilter flows
             # list of subfilters, subfilters are 'and' linked
+            # keys: django filter function (e.g. origin__id__in)
+            # values: values for filter function (e.g. [1,5,10])
             filters: [
                 {
-                    link : 'and' or 'or' (default 'or')
-                    functions: [
-                        {
-                             function: django filter function (e.g. origin__id__in)
-                             values: values for filter function (e.g. [1,5,10])
-                        },
-                        ...
-                    ]
+                    link : 'and' or 'or' (default 'and'),
+                    some-django-filter-function: value,
+                    another-django-filter-function: value
                 },
-                ...
+                { link: ... },
+                ....
             ],
 
             filter_link: and/or, # logical linking of filters, defaults to 'or'
@@ -396,11 +402,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     @staticmethod
     def filter_chain(queryset, filters, keyflow):
         for sub_filter in filters:
-            filter_link = sub_filter.get('link', None)
+            filter_link = sub_filter.pop('link', 'and')
             filter_functions = []
-            for f in sub_filter['functions']:
-                func = f['function']
-                v = f['values']
+            for func, v in sub_filter.items():
                 if func.endswith('__areas'):
                     func, v = build_area_filter(func, v, keyflow)
                 filter_function = Q(**{func: v})

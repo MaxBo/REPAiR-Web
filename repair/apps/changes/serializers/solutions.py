@@ -182,7 +182,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                   'implementation_flow_process',
                   'implementation_flow_spatial_application',
                   'implementation_question', 'a', 'b',
-                  'keep_origin', 'new_target', 'map_request'
+                  'keep_origin', 'new_target', 'map_request',
+                  'priority'
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
