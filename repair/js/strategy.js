@@ -47,7 +47,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
         var btn = document.getElementById('calculate-strategy'),
             note = document.getElementById('graph-note'),
             clone = btn.cloneNode(true);
-        note.innerHTML = keyflow.get('graph_build') || '-';
+        note.innerHTML = strategy.get('graph_build') || '-';
         btn.parentNode.replaceChild(clone, btn);
         clone.addEventListener('click', function(){
             loader.activate();
