@@ -688,6 +688,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
             models that were updated
         """
         queryset = self.get_queryset()
+        dataframe = dataframe.reset_index()
+        dataframe = dataframe.drop(['index'], axis=1)
         df_existing = read_frame(queryset, verbose=False)
         df = dataframe.copy()
 
@@ -773,6 +775,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         update the models with the data in dataframe
         '''
+        if len(dataframe) == 0:
+            return []
         model = self.Meta.model
         queryset = self.get_queryset()
         # only fields defined in field_map will be written to database
@@ -810,6 +814,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
         '''
         create models as described in dataframe
         '''
+        if len(dataframe) == 0:
+            return []
         model = self.Meta.model
         # skip columns, that are not needed
         field_names = [f.name for f in model._meta.fields]
