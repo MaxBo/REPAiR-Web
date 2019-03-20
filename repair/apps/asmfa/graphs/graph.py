@@ -1,4 +1,4 @@
-from repair.apps.asmfa.models import (Actor2Actor, Actor,
+from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 import graph_tool as gt
@@ -53,7 +53,9 @@ class BaseGraph:
         self.graph.save(self.filename)
 
     def build(self):
-        actorflows = Actor2Actor.objects.filter(keyflow=self.keyflow)
+        actorflows = FractionFlow.objects.filter(keyflow=self.keyflow)
+        # B: getting confused with using FractionFlow and Actor2Actor
+        # actorflows = Actor2Actor.objects.filter(keyflow=self.keyflow)
         stockflows = ActorStock.objects.filter(keyflow=self.keyflow)
         actors = Actor.objects.filter(
             Q(id__in=actorflows.values('origin_id')) |
@@ -89,12 +91,12 @@ class BaseGraph:
         for i in range(len(flows)):
             # get the start and and actor id's
             v0 = actorids.get(flows[i].origin.id)
-            if(isinstance(flows[i], Actor2Actor)):
+            if(isinstance(flows[i], Actor2Actor) or isinstance(flows[i], FractionFlow)):
                 v1 = actorids.get(flows[i].destination.id)
             else:
                 v1 = v0
                 
-            if(v0 != None and v1 != None):
+            if (v0 != None and v1 != None and isinstance(flows[i], Actor2Actor)):
                 # the fractions relate to the composition, not the other
                 # way around,
                 # so a reverse manager is used, that one can't be iterated
@@ -120,6 +122,14 @@ class BaseGraph:
                         self.graph.ep.id[e] = flows[i].id
                         self.graph.ep.material[e] = fraction.material.name
                         self.graph.ep.amount[e] = int(flows[i].amount * fraction.fraction)
+            # B: this is just a hack to use the FractionFlow models instead of
+            # Actor2Actor. There probably should be either FractionFlow or Actor2Actor.
+            elif (v0 != None and v1 != None and isinstance(flows[i], FractionFlow)):
+                e = self.graph.add_edge(
+                    self.graph.vertex(v0), self.graph.vertex(v1))
+                self.graph.ep.id[e] = flows[i].id
+                self.graph.ep.material[e] = flows[i].material
+                self.graph.ep.amount[e] = flows[i].amount
 
         self.save()
         # save graph image

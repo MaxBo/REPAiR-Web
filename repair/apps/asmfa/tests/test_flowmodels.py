@@ -4,7 +4,9 @@ from repair.apps.asmfa.tests.flowmodeltestdata import (
     GenerateTestDataMixin,
     GenerateBigTestDataMixin,
     GenerateBreadToBeerData)
-from repair.apps.asmfa.models import Actor, Actor2Actor, ActorStock
+from repair.apps.asmfa.models import (
+    Actor, Actor2Actor, ActorStock, FractionFlow, Material
+)
 from repair.apps.asmfa.graphs.graph import BaseGraph, GraphWalker
 from django.test import TestCase
 from os import path
@@ -13,7 +15,12 @@ from graph_tool import util as gt_util
 
 class BreadToBeerTestWalker(GenerateBreadToBeerData):
     """Bread to Beer case with dummy data"""
+    def setUp(self):
+        self.graphbase = BaseGraph(self.keyflow)
+        self.graph = self.graphbase.build()
+
     def test_data_setup(self):
+        print(self.keyflow)
         assert "brewery_1" == self.brewery_1.name
         assert "brewery_2" == self.brewery_2.name
 

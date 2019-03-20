@@ -25,8 +25,8 @@ class GenerateBreadToBeerData(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
-        cls.keyflow = KeyflowInCasestudyFactory()
+        cls.keyflow = KeyflowInCasestudyFactory(id=2)
+        cls.pub = PublicationInCasestudyFactory(casestudy=cls.keyflow.casestudy)
 
         ## Materials ##
 
@@ -102,39 +102,47 @@ class GenerateBreadToBeerData(TestCase):
         input_incinerator_bread = 500 / len(households)
         input_incinerator_other = 1500 / len(households)
         input_brewery_barley = 900 / len(farms)
-        input_supermarket_beer = 4000 / len(supermarkets) * len(breweries)
+        input_supermarket_beer = 4000 / (len(supermarkets) * len(breweries))
 
+        # B: or whats with the FractionFlows?
         for i, household in enumerate(households):
             FractionFlowFactory(origin=household,
                                 destination=digester,
                                 material=bread,
-                                amount=input_digester)
+                                amount=input_digester,
+                                keyflow=cls.keyflow)
         for i, household in enumerate(households):
             FractionFlowFactory(origin=household,
                                 destination=incinerator,
                                 material=bread,
-                                amount=input_incinerator_bread)
+                                amount=input_incinerator_bread,
+                                keyflow=cls.keyflow)
             FractionFlowFactory(origin=household,
                                 destination=incinerator,
                                 material=other_waste,
-                                amount=input_incinerator_other)
+                                amount=input_incinerator_other,
+                                keyflow=cls.keyflow)
         for i, farm in enumerate(farms):
             brewery = breweries[i]
             FractionFlowFactory(origin=farm,
                                 destination=brewery,
                                 material=barley,
-                                amount=input_brewery_barley)
-        for i, supermarket in enumerate(supermarkets):
-            for j, brewery in enumerate(breweries):
+                                amount=input_brewery_barley,
+                                keyflow=cls.keyflow)
+        for supermarket in supermarkets:
+            for brewery in breweries:
+                print(brewery, supermarket, input_supermarket_beer)
                 FractionFlowFactory(origin=brewery,
                                     destination=supermarket,
                                     material=beer,
-                                    amount=input_supermarket_beer)
+                                    amount=input_supermarket_beer,
+                                    keyflow=cls.keyflow)
         for brewery in breweries:
             FractionFlowFactory(origin=brewery,
                                 destination=digester,
                                 material=sludge,
-                                amount=1000)
+                                amount=1000,
+                                keyflow=cls.keyflow)
 
 
 class GenerateTestDataMixin:
