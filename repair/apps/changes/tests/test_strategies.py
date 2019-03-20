@@ -7,7 +7,7 @@ from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 
 from repair.apps.changes.models import (ImplementationQuantity, SolutionPart,
                                         ActorInSolutionPart, AffectedFlow)
-from repair.apps.asmfa.models import Actor, Activity
+from repair.apps.asmfa.models import Actor, Activity, Material
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 
 from repair.apps.changes.factories import (
@@ -19,6 +19,7 @@ from repair.apps.asmfa.factories import (
     Actor2ActorFactory, FractionFlowFactory, KeyflowInCasestudyFactory,
     ProcessFactory, AdministrativeLocationFactory
 )
+from repair.apps.asmfa.tests.flowmodeltestdata import GenerateBreadToBeerData
 from repair.apps.statusquo.models import SpatialChoice
 
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -104,150 +105,42 @@ class ModelSolutionInStrategy(TestCase):
             )
             # ToDo: test sth meaningful here?
 
-class BreadToBeerTest(TestCase):
+class BreadToBeerTestSolution(GenerateBreadToBeerData, TestCase):
+    """Test the Solution definition for the Bread to Beer case"""
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUp(self):
+        """Solution definition"""
+        self.solution = SolutionFactory(name='Bread to Beer')
 
-        cls.keyflow = KeyflowInCasestudyFactory()
-
-        ## Materials ##
-
-        bread = MaterialFactory(name='bread',
-                                keyflow=cls.keyflow)
-        beer = MaterialFactory(name='beer',
-                                keyflow=cls.keyflow)
-        barley = MaterialFactory(name='barley',
-                                keyflow=cls.keyflow)
-        sludge = MaterialFactory(name='sludge',
-                                keyflow=cls.keyflow)
-        other_waste = MaterialFactory(name='other waste',
-                                keyflow=cls.keyflow)
-
-        ## Processes ##
-        dummy_process = ProcessFactory(name='process')
-
-        ## Activities and Activity groups ##
-
-        group_A = ActivityGroupFactory(name='A', code='A', keyflow=cls.keyflow)
-        group_C = ActivityGroupFactory(name='C', code='C', keyflow=cls.keyflow)
-
-        brewing_activity = ActivityFactory(
-            name='Brewery',
-            nace='A-0000', activitygroup=group_A)
-        household_activity = ActivityFactory(
-            name='Household',
-            nace='A-0001', activitygroup=group_A)
-        digester_activity = ActivityFactory(
-            name='Digester',
-            nace='A-0002', activitygroup=group_A)
-        supermarket_activity = ActivityFactory(
-            name='Supermarket',
-            nace='A-0003', activitygroup=group_A)
-        farming_activity = ActivityFactory(
-            name='Farming',
-            nace='C-0000', activitygroup=group_C)
-        inciterator_activity = ActivityFactory(
-            name='Incineration',
-            nace='C-0001', activitygroup=group_C)
-
-        ## Actors ##
-
-        # random households
-        for i in range(100):
-            ActorFactory(name='household{}'.format(i),
-                         activity=household_activity)
-        # random supermarkets
-        for i in range(10):
-            ActorFactory(name='supermarket{}'.format(i),
-                         activity=supermarket_activity)
-        # random farms
-        for i in range(2):
-            ActorFactory(name='farm{}'.format(i),
-                         activity=farming_activity)
-
-        cls.brewery_1 = ActorFactory(name='brewery_1',
-                                     activity=brewing_activity)
-        cls.brewery_2 = ActorFactory(name='brewery_2',
-                                     activity=brewing_activity)
-        digester = ActorFactory(name='digester Amsterdam',
-                                activity=digester_activity)
-        incinerator = ActorFactory(name='incinerator Amsterdam',
-                                activity=inciterator_activity)
-
-        ## status quo flows ##
-        households = Actor.objects.filter(activity=household_activity)
-        farms = Actor.objects.filter(activity=farming_activity)
-        breweries = Actor.objects.filter(activity=brewing_activity)
-        supermarkets = Actor.objects.filter(activity=supermarket_activity)
-
-        input_digester = 1000 / len(households)
-        input_incinerator_bread = 500 / len(households)
-        input_incinerator_other = 1500 / len(households)
-        input_brewery_barley = 900 / len(farms)
-        input_supermarket_beer = 4000 / len(supermarkets) * len(breweries)
-
-        for i, household in enumerate(households):
-            FractionFlowFactory(origin=household,
-                                destination=digester,
-                                material=bread,
-                                amount=input_digester)
-        for i, household in enumerate(households):
-            FractionFlowFactory(origin=household,
-                                destination=incinerator,
-                                material=bread,
-                                amount=input_incinerator_bread)
-            FractionFlowFactory(origin=household,
-                                destination=incinerator,
-                                material=other_waste,
-                                amount=input_incinerator_other)
-        for i, farm in enumerate(farms):
-            brewery = breweries[i]
-            FractionFlowFactory(origin=farm,
-                                destination=brewery,
-                                material=barley,
-                                amount=input_brewery_barley)
-        for i, supermarket in enumerate(supermarkets):
-            for j, brewery in enumerate(breweries):
-                FractionFlowFactory(origin=brewery,
-                                    destination=supermarket,
-                                    material=beer,
-                                    amount=input_supermarket_beer)
-        for brewery in breweries:
-            FractionFlowFactory(origin=brewery,
-                                destination=digester,
-                                material=sludge,
-                                amount=1000)
-
-        ## Solution definition ##
-
-        cls.solution = SolutionFactory(name='Bread to Beer')
-
-        cls.beer_question = ImplementationQuestionFactory(
+        self.beer_question = ImplementationQuestionFactory(
             question=("How much of the incinerated bread is sent to the Brewery?"),
-            solution=cls.solution,
+            solution=self.solution,
             min_value=0,
             max_value=1,
             is_absolute=False
         )
 
         ## Solution Parts ##
+        brewing_activity = Activity.objects.filter(name='Brewery', nace='A-0000')
+        household_activity = Activity.objects.filter(name='Household', nace='A-0001')
+        incinerator_activity = Activity.objects.filter(name='Incineration', nace='C-0001')
+        farming_activity = Activity.objects.filter(name='Farming', nace='C-0000')
+        bread = Material.objects.filter(name='bread', keyflow=self.keyflow)
+        barley = Material.objects.filter(name='barley', keyflow=self.keyflow)
 
-        cls.bread_to_brewery = SolutionPartFactory(
-            solution=cls.solution,
-            question=cls.beer_question,
+        self.bread_to_brewery = SolutionPartFactory(
+            solution=self.solution,
+            question=self.beer_question,
             implements_new_flow=True,
-            implementation_flow_origin_activity = household_activity,
-            implementation_flow_destination_activity = inciterator_activity,
-            implementation_flow_material = bread,
-            implementation_flow_process = dummy_process,
+            implementation_flow_origin_activity = household_activity[0],
+            implementation_flow_destination_activity = incinerator_activity[0],
+            implementation_flow_material = bread[0],
 
             a = 1,
             b = 0,
 
             keep_origin = True,
-            new_target_activity = brewing_activity,
+            new_target_activity = brewing_activity[0],
 
             map_request = 'Pick a brewery which will process the waste bread',
 
@@ -255,10 +148,15 @@ class BreadToBeerTest(TestCase):
         )
 
         ## Affected flows ##
-        AffectedFlow(origin_activity=farming_activity,
-                     destination_activity=brewing_activity,
-                     material=barley,
-                     solution_part=cls.bread_to_brewery)
+        AffectedFlow(origin_activity=farming_activity[0],
+                     destination_activity=brewing_activity[0],
+                     material=barley[0],
+                     solution_part=self.bread_to_brewery)
+
+    def test_setup(self):
+        assert self.bread_to_brewery.new_target_activity.name == 'Brewery'
+        assert self.bread_to_brewery.new_target_activity.nace == 'A-0000'
+
 
     def test_01_implementation(self):
 

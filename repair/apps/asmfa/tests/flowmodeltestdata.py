@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
 import numpy as np
-
+from django.test import TestCase
 
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Actor2ActorFactory,
@@ -12,10 +12,129 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          WasteFactory,
                                          ProductFactory,
                                          ActorStockFactory,
+                                         ProcessFactory,
+                                         ActivityGroupFactory,
+                                         FractionFlowFactory
                                          )
 from repair.apps.publications.factories import PublicationInCasestudyFactory
 
 from repair.apps.asmfa.models import Actor, Material, Actor2Actor
+
+class GenerateBreadToBeerData(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.keyflow = KeyflowInCasestudyFactory()
+
+        ## Materials ##
+
+        bread = MaterialFactory(name='bread',
+                                keyflow=cls.keyflow)
+        beer = MaterialFactory(name='beer',
+                               keyflow=cls.keyflow)
+        barley = MaterialFactory(name='barley',
+                                 keyflow=cls.keyflow)
+        sludge = MaterialFactory(name='sludge',
+                                 keyflow=cls.keyflow)
+        other_waste = MaterialFactory(name='other waste',
+                                      keyflow=cls.keyflow)
+
+        ## Processes ##
+        dummy_process = ProcessFactory(name='process')
+
+        ## Activities and Activity groups ##
+
+        group_A = ActivityGroupFactory(name='A', code='A', keyflow=cls.keyflow)
+        group_C = ActivityGroupFactory(name='C', code='C', keyflow=cls.keyflow)
+
+        brewing_activity = ActivityFactory(
+            name='Brewery',
+            nace='A-0000', activitygroup=group_A)
+        household_activity = ActivityFactory(
+            name='Household',
+            nace='A-0001', activitygroup=group_A)
+        digester_activity = ActivityFactory(
+            name='Digester',
+            nace='A-0002', activitygroup=group_A)
+        supermarket_activity = ActivityFactory(
+            name='Supermarket',
+            nace='A-0003', activitygroup=group_A)
+        farming_activity = ActivityFactory(
+            name='Farming',
+            nace='C-0000', activitygroup=group_C)
+        inciterator_activity = ActivityFactory(
+            name='Incineration',
+            nace='C-0001', activitygroup=group_C)
+
+        ## Actors ##
+
+        # random households
+        for i in range(100):
+            ActorFactory(name='household{}'.format(i),
+                         activity=household_activity)
+        # random supermarkets
+        for i in range(10):
+            ActorFactory(name='supermarket{}'.format(i),
+                         activity=supermarket_activity)
+        # random farms
+        for i in range(2):
+            ActorFactory(name='farm{}'.format(i),
+                         activity=farming_activity)
+
+        cls.brewery_1 = ActorFactory(name='brewery_1',
+                                     activity=brewing_activity)
+        cls.brewery_2 = ActorFactory(name='brewery_2',
+                                     activity=brewing_activity)
+        digester = ActorFactory(name='digester Amsterdam',
+                                activity=digester_activity)
+        incinerator = ActorFactory(name='incinerator Amsterdam',
+                                activity=inciterator_activity)
+
+        ## status quo flows ##
+        households = Actor.objects.filter(activity=household_activity)
+        farms = Actor.objects.filter(activity=farming_activity)
+        breweries = Actor.objects.filter(activity=brewing_activity)
+        supermarkets = Actor.objects.filter(activity=supermarket_activity)
+
+        input_digester = 1000 / len(households)
+        input_incinerator_bread = 500 / len(households)
+        input_incinerator_other = 1500 / len(households)
+        input_brewery_barley = 900 / len(farms)
+        input_supermarket_beer = 4000 / len(supermarkets) * len(breweries)
+
+        for i, household in enumerate(households):
+            FractionFlowFactory(origin=household,
+                                destination=digester,
+                                material=bread,
+                                amount=input_digester)
+        for i, household in enumerate(households):
+            FractionFlowFactory(origin=household,
+                                destination=incinerator,
+                                material=bread,
+                                amount=input_incinerator_bread)
+            FractionFlowFactory(origin=household,
+                                destination=incinerator,
+                                material=other_waste,
+                                amount=input_incinerator_other)
+        for i, farm in enumerate(farms):
+            brewery = breweries[i]
+            FractionFlowFactory(origin=farm,
+                                destination=brewery,
+                                material=barley,
+                                amount=input_brewery_barley)
+        for i, supermarket in enumerate(supermarkets):
+            for j, brewery in enumerate(breweries):
+                FractionFlowFactory(origin=brewery,
+                                    destination=supermarket,
+                                    material=beer,
+                                    amount=input_supermarket_beer)
+        for brewery in breweries:
+            FractionFlowFactory(origin=brewery,
+                                destination=digester,
+                                material=sludge,
+                                amount=1000)
 
 
 class GenerateTestDataMixin:
