@@ -104,6 +104,181 @@ class ModelSolutionInStrategy(TestCase):
             )
             # ToDo: test sth meaningful here?
 
+class BreadToBeerTest(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.keyflow = KeyflowInCasestudyFactory()
+
+        ## Materials ##
+
+        bread = MaterialFactory(name='bread',
+                                keyflow=cls.keyflow)
+        beer = MaterialFactory(name='beer',
+                                keyflow=cls.keyflow)
+        barley = MaterialFactory(name='barley',
+                                keyflow=cls.keyflow)
+        sludge = MaterialFactory(name='sludge',
+                                keyflow=cls.keyflow)
+        other_waste = MaterialFactory(name='other waste',
+                                keyflow=cls.keyflow)
+
+        ## Processes ##
+        dummy_process = ProcessFactory(name='process')
+
+        ## Activities and Activity groups ##
+
+        group_A = ActivityGroupFactory(name='A', code='A', keyflow=cls.keyflow)
+        group_C = ActivityGroupFactory(name='C', code='C', keyflow=cls.keyflow)
+
+        brewing_activity = ActivityFactory(
+            name='Brewery',
+            nace='A-0000', activitygroup=group_A)
+        household_activity = ActivityFactory(
+            name='Household',
+            nace='A-0001', activitygroup=group_A)
+        digester_activity = ActivityFactory(
+            name='Digester',
+            nace='A-0002', activitygroup=group_A)
+        supermarket_activity = ActivityFactory(
+            name='Supermarket',
+            nace='A-0003', activitygroup=group_A)
+        farming_activity = ActivityFactory(
+            name='Farming',
+            nace='C-0000', activitygroup=group_C)
+        inciterator_activity = ActivityFactory(
+            name='Incineration',
+            nace='C-0001', activitygroup=group_C)
+
+        ## Actors ##
+
+        # random households
+        for i in range(100):
+            ActorFactory(name='household{}'.format(i),
+                         activity=household_activity)
+        # random supermarkets
+        for i in range(10):
+            ActorFactory(name='supermarket{}'.format(i),
+                         activity=supermarket_activity)
+        # random farms
+        for i in range(2):
+            ActorFactory(name='farm{}'.format(i),
+                         activity=farming_activity)
+
+        cls.brewery_1 = ActorFactory(name='brewery_1',
+                                     activity=brewing_activity)
+        cls.brewery_2 = ActorFactory(name='brewery_2',
+                                     activity=brewing_activity)
+        digester = ActorFactory(name='digester Amsterdam',
+                                activity=digester_activity)
+        incinerator = ActorFactory(name='incinerator Amsterdam',
+                                activity=inciterator_activity)
+
+        ## status quo flows ##
+        households = Actor.objects.filter(activity=household_activity)
+        farms = Actor.objects.filter(activity=farming_activity)
+        breweries = Actor.objects.filter(activity=brewing_activity)
+        supermarkets = Actor.objects.filter(activity=supermarket_activity)
+
+        input_digester = 1000 / len(households)
+        input_incinerator_bread = 500 / len(households)
+        input_incinerator_other = 1500 / len(households)
+        input_brewery_barley = 900 / len(farms)
+        input_supermarket_beer = 4000 / len(supermarkets) * len(breweries)
+
+        for i, household in enumerate(households):
+            FractionFlowFactory(origin=household,
+                                destination=digester,
+                                material=bread,
+                                amount=input_digester)
+        for i, household in enumerate(households):
+            FractionFlowFactory(origin=household,
+                                destination=incinerator,
+                                material=bread,
+                                amount=input_incinerator_bread)
+            FractionFlowFactory(origin=household,
+                                destination=incinerator,
+                                material=other_waste,
+                                amount=input_incinerator_other)
+        for i, farm in enumerate(farms):
+            brewery = breweries[i]
+            FractionFlowFactory(origin=farm,
+                                destination=brewery,
+                                material=barley,
+                                amount=input_brewery_barley)
+        for i, supermarket in enumerate(supermarkets):
+            for j, brewery in enumerate(breweries):
+                FractionFlowFactory(origin=brewery,
+                                    destination=supermarket,
+                                    material=beer,
+                                    amount=input_supermarket_beer)
+        for brewery in breweries:
+            FractionFlowFactory(origin=brewery,
+                                destination=digester,
+                                material=sludge,
+                                amount=1000)
+
+        ## Solution definition ##
+
+        cls.solution = SolutionFactory(name='Bread to Beer')
+
+        cls.beer_question = ImplementationQuestionFactory(
+            question=("How much of the incinerated bread is sent to the Brewery?"),
+            solution=cls.solution,
+            min_value=0,
+            max_value=1,
+            is_absolute=False
+        )
+
+        ## Solution Parts ##
+
+        cls.bread_to_brewery = SolutionPartFactory(
+            solution=cls.solution,
+            question=cls.beer_question,
+            implements_new_flow=True,
+            implementation_flow_origin_activity = household_activity,
+            implementation_flow_destination_activity = inciterator_activity,
+            implementation_flow_material = bread,
+            implementation_flow_process = dummy_process,
+
+            a = 1,
+            b = 0,
+
+            keep_origin = True,
+            new_target_activity = brewing_activity,
+
+            map_request = 'Pick a brewery which will process the waste bread',
+
+            priority=1
+        )
+
+        ## Affected flows ##
+        AffectedFlow(origin_activity=farming_activity,
+                     destination_activity=brewing_activity,
+                     material=barley,
+                     solution_part=cls.bread_to_brewery)
+
+    def test_01_implementation(self):
+
+        ## implement the solution as the user would ##
+        implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))
+
+        user = UserInCasestudyFactory(casestudy=self.keyflow.casestudy,
+                                      user__user__username='Hans Norbert')
+        strategy = StrategyFactory(keyflow=self.keyflow, user=user)
+        implementation = SolutionInStrategyFactory(
+            solution=self.solution, strategy=strategy,
+            geom=GeometryCollection(implementation_area))
+
+        ActorInSolutionPart(solutionpart=self.bread_to_brewery,
+                            actor=self.brewery_1,
+                            implementation=implementation)
+        answer = ImplementationQuantity(question=self.beer_question,
+                                        implementation=implementation,
+                                        value=1)
 
 class ApplyStrategyTest(TestCase):
 
@@ -432,6 +607,7 @@ class ApplyStrategyTest(TestCase):
         # Note CF: poor pull leader has to define the affected flows for
         # every part, just taking the same ones for all parts
         # (marking the implementation flows as well, i guess that doesn't matter)
+        # B: who cares about the pull leader?!
 
         parts = [cls.new_fungus_insulation, reduction_existing_flow,
                  new_fungus_stock, cls.new_building_disposal,
