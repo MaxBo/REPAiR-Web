@@ -105,16 +105,18 @@ class ModelSolutionInStrategy(TestCase):
             )
             # ToDo: test sth meaningful here?
 
-class BreadToBeerTestSolution(GenerateBreadToBeerData, TestCase):
-    """Test the Solution definition for the Bread to Beer case"""
+class BreadToBeerSolution(GenerateBreadToBeerData):
+    """Define the Solution for the Bread to Beer case"""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         """Solution definition"""
-        self.solution = SolutionFactory(name='Bread to Beer')
+        super().setUpClass()
+        cls.solution = SolutionFactory(name='Bread to Beer')
 
-        self.beer_question = ImplementationQuestionFactory(
+        cls.beer_question = ImplementationQuestionFactory(
             question=("How much of the incinerated bread is sent to the Brewery?"),
-            solution=self.solution,
+            solution=cls.solution,
             min_value=0,
             max_value=1,
             is_absolute=False
@@ -125,12 +127,12 @@ class BreadToBeerTestSolution(GenerateBreadToBeerData, TestCase):
         household_activity = Activity.objects.filter(name='Household', nace='A-0001')
         incinerator_activity = Activity.objects.filter(name='Incineration', nace='C-0001')
         farming_activity = Activity.objects.filter(name='Farming', nace='C-0000')
-        bread = Material.objects.filter(name='bread', keyflow=self.keyflow)
-        barley = Material.objects.filter(name='barley', keyflow=self.keyflow)
+        bread = Material.objects.filter(name='bread', keyflow=cls.keyflow)
+        barley = Material.objects.filter(name='barley', keyflow=cls.keyflow)
 
-        self.bread_to_brewery = SolutionPartFactory(
-            solution=self.solution,
-            question=self.beer_question,
+        cls.bread_to_brewery = SolutionPartFactory(
+            solution=cls.solution,
+            question=cls.beer_question,
             implements_new_flow=True,
             implementation_flow_origin_activity = household_activity[0],
             implementation_flow_destination_activity = incinerator_activity[0],
@@ -151,7 +153,10 @@ class BreadToBeerTestSolution(GenerateBreadToBeerData, TestCase):
         AffectedFlow(origin_activity=farming_activity[0],
                      destination_activity=brewing_activity[0],
                      material=barley[0],
-                     solution_part=self.bread_to_brewery)
+                     solution_part=cls.bread_to_brewery)
+
+class BreadToBeerSolutionTest(BreadToBeerSolution):
+    """Test the Solution definition for the Bread to Beer case"""
 
     def test_setup(self):
         assert self.bread_to_brewery.new_target_activity.name == 'Brewery'

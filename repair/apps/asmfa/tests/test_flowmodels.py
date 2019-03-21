@@ -2,27 +2,34 @@
 
 from repair.apps.asmfa.tests.flowmodeltestdata import (
     GenerateTestDataMixin,
-    GenerateBigTestDataMixin,
-    GenerateBreadToBeerData)
+    GenerateBigTestDataMixin)
+from repair.apps.changes.tests.test_strategies import BreadToBeerSolution
 from repair.apps.asmfa.models import (
-    Actor, Actor2Actor, ActorStock, FractionFlow, Material
+    Actor, Actor2Actor, ActorStock
 )
+from repair.apps.changes.models.solutions import Solution
 from repair.apps.asmfa.graphs.graph import BaseGraph, GraphWalker
 from django.test import TestCase
 from os import path
 
 from graph_tool import util as gt_util
 
-class BreadToBeerTestWalker(GenerateBreadToBeerData):
+# B: nice back-and-forth referencing here with BreadToBeerSolution...
+# B: this test requires the output of another test
+class BreadToBeerTestWalker(BreadToBeerSolution):
     """Bread to Beer case with dummy data"""
     def setUp(self):
         self.graphbase = BaseGraph(self.keyflow)
         self.graph = self.graphbase.build()
 
     def test_data_setup(self):
-        print(self.keyflow)
         assert "brewery_1" == self.brewery_1.name
         assert "brewery_2" == self.brewery_2.name
+
+    def test_shift_flows(self):
+        gwalker = GraphWalker(self.graph)
+        solution_object = Solution.objects.filter(name='Bread to Beer')
+        gwalker.shift_flows(solution_object)
 
 class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     """

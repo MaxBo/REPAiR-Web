@@ -131,7 +131,6 @@ class GenerateBreadToBeerData(TestCase):
                                 keyflow=cls.keyflow)
         for supermarket in supermarkets:
             for brewery in breweries:
-                print(brewery, supermarket, input_supermarket_beer)
                 FractionFlowFactory(origin=brewery,
                                     destination=supermarket,
                                     material=beer,
