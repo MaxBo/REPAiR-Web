@@ -29,7 +29,9 @@ class BreadToBeerTestWalker(BreadToBeerSolution):
     def test_shift_flows(self):
         gwalker = GraphWalker(self.graph)
         solution_object = Solution.objects.filter(name='Bread to Beer')
-        gwalker.shift_flows(solution_object)
+        gwalker.shift_flows(solution_object[0],
+                            self.bread_to_brewery,
+                            self.keyflow)
 
 class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     """

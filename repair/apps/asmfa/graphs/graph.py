@@ -54,7 +54,7 @@ class BaseGraph:
 
     def build(self):
         actorflows = FractionFlow.objects.filter(keyflow=self.keyflow)
-        # B: getting confused with using FractionFlow and Actor2Actor
+        # BD: getting confused with using FractionFlow and Actor2Actor
         # actorflows = Actor2Actor.objects.filter(keyflow=self.keyflow)
         stockflows = ActorStock.objects.filter(keyflow=self.keyflow)
         actors = Actor.objects.filter(

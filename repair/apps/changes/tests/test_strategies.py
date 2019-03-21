@@ -132,6 +132,7 @@ class BreadToBeerSolution(GenerateBreadToBeerData):
 
         cls.bread_to_brewery = SolutionPartFactory(
             solution=cls.solution,
+            documentation='Bread goes to Brewery instead of Incineration',
             question=cls.beer_question,
             implements_new_flow=True,
             implementation_flow_origin_activity = household_activity[0],

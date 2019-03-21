@@ -1,11 +1,59 @@
 import graph_tool as gt
+from graph_tool import util
 import copy
 import numpy as np
+from django.db.models import Q
+
+from repair.apps.asmfa.models.flows import FractionFlow
+from repair.apps.asmfa.models import Actor
 
 class GraphWalker:
     def __init__(self, G):
         self.graph = gt.Graph(G)
         self.edge_mask = self.graph.new_edge_property("bool")
+
+    def shift_flows(self, solution_object, solution_part, keyflow):
+        """Shift the flows if necessary in each SolutionPart
+
+        BD: this is just a hack hardcoded for the bread to beer case to test
+        if the whole flow computation works. The SolutionPart shouldn't be
+        passed as a parameter but retrieved from the DB, using the solution_object
+        """
+        print(solution_object.name)
+        # solution_parts = SolutionPart.objects.filter(solution=solution_object)
+
+        # BD: this should be done for each SolutionPart and then return the
+        # altered graph (only one graph per solution!)
+        if solution_part.implements_new_flow:
+            g = copy.deepcopy(self.graph)
+            print("SolutionPart implementing new flow")
+            actors_origin = Actor.objects.filter(activity=solution_part.implementation_flow_origin_activity)
+            actors_destination = Actor.objects.filter(activity=solution_part.implementation_flow_destination_activity)
+            actorflows = FractionFlow.objects.filter(
+                Q(origin__in=actors_origin.values('id')) &
+                Q(destination__in=actors_destination.values('id')),
+                material=solution_part.implementation_flow_material)
+            if solution_part.keep_origin:
+                print("keeping origin of flow")
+                new_destinations = Actor.objects.filter(
+                    activity=solution_part.new_target_activity)
+                destinations = [util.find_vertex(g, g.ep['id'], actor.id)
+                                for actor in new_destinations]
+                for flow in actorflows:
+                    print(flow.id)
+                    edge_del = util.find_edge(g, g.ep['id'], flow.id)
+                    origin = edge_del.source()
+                    amount_flow = g.ep.amount[edge_del]
+                    amount_new = amount_flow / len(destinations)
+                    for dest in destinations:
+                        e = g.add_edge(origin, dest)
+                        g.ep.amount[e] = amount_new
+                        g.ep.material[e] = solution_part.implementation_flow_material
+                    g.remove_edge(edge_del)
+            return g
+
+        else:
+            return self.graph
 
     def filter_flows(self, solution_object):
         """Keep only the affected_flows and solution_flows in the graph"""
