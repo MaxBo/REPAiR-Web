@@ -20,7 +20,7 @@ from django.template import loader
 from django.conf import settings
 from django.conf.urls.static import static
 from repair.views import HomeView
-from django.contrib.auth.views import logout
+from django.contrib.auth import logout
 from repair.apps.login.views import (SessionView, LoginView,
                                      PasswordChangeView)
 from django.views.i18n import JavaScriptCatalog
