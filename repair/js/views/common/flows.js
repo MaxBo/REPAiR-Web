@@ -220,9 +220,9 @@ var FlowsView = BaseView.extend(
                     destinationLevel: displayLevel
                 })
             },
-            error: function(){
+            error: function(error){
                 _this.loader.deactivate();
-                _this.onError;
+                _this.onError(error);
             }
         })
     },

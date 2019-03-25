@@ -7,6 +7,10 @@ from django.http import HttpResponse
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from rest_framework.decorators import action
+from owslib.util import ServiceException
+from owslib.map.wms111 import CapabilitiesError
+from requests.exceptions import ReadTimeout, ConnectionError
 
 from repair.apps.utils.views import ModelReadPermissionMixin
 from repair.apps.wmsresources.models import WMSResourceInCasestudy
@@ -14,7 +18,6 @@ from repair.apps.studyarea.models import Layer, LayerStyle
 from repair.apps.wmsresources.serializers import (
     WMSResourceInCasestudySerializer,
 )
-
 from repair.apps.utils.views import CasestudyReadOnlyViewSetMixin
 
 
@@ -41,6 +44,23 @@ class WMSResourceInCasestudyViewSet(RevisionMixin,
                                     ReadOnlyModelViewSet):
     queryset = WMSResourceInCasestudy.objects.all()
     serializer_class = WMSResourceInCasestudySerializer
+
+    @action(methods=['get', 'post'], detail=False)
+    def populate(self, request, **kwargs):
+        self.check_permission(request, 'view')
+        queryset = self.get_queryset()
+        for resource in queryset:
+            try:
+                resource.wmsresource.populate_wms_resource()
+            except (ServiceException, CapabilitiesError,
+                    ReadTimeout, ConnectionError) as e:
+                print(e)
+        return self.list(request, **kwargs)
+
+    def get_queryset(self):
+        casestudy_pk = self.kwargs.get('casestudy_pk')
+        queryset = WMSResourceInCasestudy.objects.filter(casestudy=casestudy_pk)
+        return queryset
 
 
 class WMSProxyView(View):
