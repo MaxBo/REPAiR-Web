@@ -2,7 +2,7 @@ from collections import defaultdict, OrderedDict
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
 from rest_framework.response import Response
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum, F
 import time
 import numpy as np
@@ -226,9 +226,13 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             queryset = queryset.filter(material__id__in=mats)
 
         agg_map = None
-        if aggregate_materials:
-            agg_map = self.map_aggregation(
-                queryset, materials, unaltered_materials=unaltered_materials)
+        try:
+            if aggregate_materials:
+                agg_map = self.map_aggregation(
+                    queryset, materials,
+                    unaltered_materials=unaltered_materials)
+        except RecursionError as e:
+            return HttpResponse(content=str(e), status=500)
 
         data = self.serialize(queryset, origin_model=origin_level,
                               destination_model=destination_level,
