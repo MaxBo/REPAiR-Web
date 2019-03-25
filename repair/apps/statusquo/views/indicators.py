@@ -276,6 +276,7 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
 
     @action(methods=['get', 'post'], detail=True)
     def compute(self, request, **kwargs):
+        self.check_permission(request, 'view')
         indicator = self.get_queryset().get(id=kwargs.get('pk', None))
         query_params = request.query_params
         body_params = request.data
