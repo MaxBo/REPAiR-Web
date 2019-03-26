@@ -74,7 +74,7 @@ class CommaSeparatedValueFilter(Filter):
 
 
 class ProductFilter(FilterSet):
-    nace = CommaSeparatedValueFilter(name='nace')
+    nace = CommaSeparatedValueFilter(field_name='nace')
 
     class Meta:
         model = Product
@@ -82,7 +82,7 @@ class ProductFilter(FilterSet):
 
 
 class WasteFilter(FilterSet):
-    nace = CommaSeparatedValueFilter(name='nace')
+    nace = CommaSeparatedValueFilter(field_name='nace')
 
     class Meta:
         model = Waste
