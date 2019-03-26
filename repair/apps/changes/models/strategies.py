@@ -3,7 +3,7 @@ from django.db.models import signals
 from django.contrib.gis.db import models
 from repair.apps.login.models import (GDSEModel,
                                       UserInCasestudy)
-from repair.apps.asmfa.models import KeyflowInCasestudy, Actor
+from repair.apps.asmfa.models import KeyflowInCasestudy, Actor, FractionFlow
 
 from repair.apps.studyarea.models import Stakeholder
 from repair.apps.changes.models.solutions import (Solution,
@@ -98,4 +98,19 @@ signals.post_save.connect(
     dispatch_uid='models.trigger_implementationquantity_sii')
 
 
-
+class StrategyFractionFlow(GDSEModel):
+    strategy = models.ForeignKey(Strategy,
+                             on_delete=PROTECT_CASCADE,
+                             related_name='f_fractionflowstrategy')
+    fractionflow = models.ForeignKey(FractionFlow,
+                             on_delete=PROTECT_CASCADE,
+                             related_name='f_strategyfractionflow')
+    amount = models.FloatField(default=0) # in tons
+    origin = models.ForeignKey(Actor,
+                               null=True,
+                               on_delete=PROTECT_CASCADE,
+                               related_name='f_strategyfractionflowoutputs')
+    destination = models.ForeignKey(Actor,
+                                    null=True,
+                                    on_delete=PROTECT_CASCADE,
+                                    related_name='f_strategyfractionflowinputs')

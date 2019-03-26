@@ -11,6 +11,7 @@ from repair.apps.asmfa.models.nodes import (
     Activity,
     Actor
 )
+
 from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
@@ -208,11 +209,12 @@ class FractionFlow(Flow):
                               on_delete=models.CASCADE,
                               null=True,
                               related_name='f_stock')
-
+    # origin can be null in case of solution_part
     origin = models.ForeignKey(Actor,
+                               null=True,
                                on_delete=PROTECT_CASCADE,
                                related_name='f_outputs')
-    # destinations can be null in case of stocks
+    # destinations can be null in case of stocks or solution_part
     destination = models.ForeignKey(Actor,
                                     null=True,
                                     on_delete=PROTECT_CASCADE,
@@ -236,3 +238,6 @@ class FractionFlow(Flow):
     nace = models.CharField(max_length=255, blank=True)
     composition_name = models.CharField(max_length=255, blank=True)
     
+    #solution_part = models.ForeignKey(SolutionPart, null=True,
+    #                                on_delete=models.SET_NULL,
+    #                               related_name='f_solution_part_fraction_flow')
