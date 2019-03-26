@@ -53,10 +53,10 @@ class BaseGraph:
         self.graph.save(self.filename)
 
     def build(self):
-        actorflows = FractionFlow.objects.filter(keyflow=self.keyflow)
+        actorflows = FractionFlow.objects.filter(keyflow=self.keyflow, to_stock=False)
         # BD: getting confused with using FractionFlow and Actor2Actor
         # actorflows = Actor2Actor.objects.filter(keyflow=self.keyflow)
-        stockflows = ActorStock.objects.filter(keyflow=self.keyflow)
+        stockflows = FractionFlow.objects.filter(keyflow=self.keyflow, to_stock=True)
         actors = Actor.objects.filter(
             Q(id__in=actorflows.values('origin_id')) |
             Q(id__in=actorflows.values('destination_id')) |
@@ -91,40 +91,12 @@ class BaseGraph:
         for i in range(len(flows)):
             # get the start and and actor id's
             v0 = actorids.get(flows[i].origin.id)
-            if(isinstance(flows[i], Actor2Actor) or isinstance(flows[i], FractionFlow)):
+            if(isinstance(flows[i], FractionFlow)):
                 v1 = actorids.get(flows[i].destination.id)
             else:
                 v1 = v0
                 
-            if (v0 != None and v1 != None and isinstance(flows[i], Actor2Actor)):
-                # the fractions relate to the composition, not the other
-                # way around,
-                # so a reverse manager is used, that one can't be iterated
-                # you can get the reverse related models this way
-                composition = flows[i].composition
-                fractions = composition.fractions.all()
-                # if there are no fractions create a single edge
-                if(len(fractions) == 0):
-                    # create the flow in the graph and set the 
-                    # edge id, material and amount
-                    e = self.graph.add_edge(
-                        self.graph.vertex(v0), self.graph.vertex(v1))
-                    self.graph.ep.id[e] = flows[i].id
-                    self.graph.ep.material[e] = flows[i].composition.name
-                    self.graph.ep.amount[e] = flows[i].amount
-                else:
-                    # create a new edge for each fraction
-                    for fraction in fractions:
-                        # create the flow in the graph and set the 
-                        # edge id, material and amount
-                        e = self.graph.add_edge(
-                            self.graph.vertex(v0), self.graph.vertex(v1))
-                        self.graph.ep.id[e] = flows[i].id
-                        self.graph.ep.material[e] = fraction.material.name
-                        self.graph.ep.amount[e] = int(flows[i].amount * fraction.fraction)
-            # B: this is just a hack to use the FractionFlow models instead of
-            # Actor2Actor. There probably should be either FractionFlow or Actor2Actor.
-            elif (v0 != None and v1 != None and isinstance(flows[i], FractionFlow)):
+            if (v0 != None and v1 != None and isinstance(flows[i], FractionFlow)):
                 e = self.graph.add_edge(
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[e] = flows[i].id
