@@ -3,11 +3,12 @@ from django.contrib.auth.models import Group, User
 
 from publications_bootstrap.models import Publication
 from django.utils.translation import ugettext_lazy as _
+from django.shortcuts import redirect
 
 from rest_framework import viewsets, mixins
 from rest_framework.response import Response
 from reversion.views import RevisionMixin
-from django.contrib.auth import views as auth_views
+from django.contrib.auth import views as auth_views, logout
 from django.views import View
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 import json
@@ -99,6 +100,10 @@ class LoginView(auth_views.LoginView):
             for k, v in json.loads(persist).items():
                 session[k] = v
         return response
+
+def logout_view(request):
+    logout(request)
+    return redirect('/')
 
 
 class SessionView(View):
