@@ -3035,8 +3035,8 @@ jsprim@^1.2.2:
     verror "1.10.0"
 
 jstree@^3.3.5:
-  version "3.3.5"
-  resolved "https://registry.yarnpkg.com/jstree/-/jstree-3.3.5.tgz#9c578db32d0a643775cddd8020ad5992f4119c13"
+  version "3.3.7"
+  resolved "https://registry.yarnpkg.com/jstree/-/jstree-3.3.7.tgz#41df485d66148836ac389603a3e12f4574b06251"
   dependencies:
     jquery ">=1.9.1"
 
