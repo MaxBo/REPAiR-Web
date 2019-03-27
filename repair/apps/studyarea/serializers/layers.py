@@ -13,13 +13,17 @@ class LayerCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LayerCategory
-        fields = ('id', 'name', 'order')
+        fields = ('id', 'name', 'order', 'tag')
+        extra_kwargs = {'tag': {'required': False,
+                                'allow_blank': True}}
 
     def create(self, validated_data):
         # if order is not passed, set it to current max value + 1
         if not validated_data.get('order'):
             categories = self.Meta.model.objects.filter(
-                casestudy_id=validated_data.get('casestudy_id'))
+                casestudy_id=validated_data.get('casestudy_id'),
+                tag=validated_data.get('tag', '')
+            )
             max_order = categories.aggregate(Max('order'))['order__max'] or 0
             validated_data['order'] = max_order + 1
         return super().create(validated_data)

@@ -12,7 +12,6 @@ from repair.apps.login.serializers import PublicationSerializer
 from abc import ABC
 
 from django.shortcuts import get_object_or_404
-from django.db.models.sql.constants import QUERY_TERMS
 
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnDict
