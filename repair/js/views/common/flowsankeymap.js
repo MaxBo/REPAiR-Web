@@ -113,9 +113,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.animationCheck = document.createElement('input');
             this.clusterCheck = document.createElement('input');
             this.actorCheck = document.createElement('input');
-            this.actorCheck.type = 'radio';
             this.stockCheck = document.createElement('input');
-            this.stockCheck.type = 'radio';
             this.flowCheck = document.createElement('input');
             this.flowCheck.checked = true;
             this.stockCheck.checked = true;
@@ -146,8 +144,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 checkbox.style.pointerEvents = "none";
                 checkbox.style.marginRight = "10px";
             })
-            this.actorCheck.type = 'radio';
-            this.stockCheck.type = 'radio';
 
             div.style.background = "rgba(255, 255, 255, 0.5)";
             div.style.padding = "10px";
