@@ -103,6 +103,7 @@ function(_, BaseView, GDSECollection, Muuri){
             this.renderTargetValues();
         },
 
+        // render Step 2
         renderIndicators: function(){
             var _this = this,
                 table = this.el.querySelector('#indicator-table'),
@@ -147,6 +148,7 @@ function(_, BaseView, GDSECollection, Muuri){
 
         },
 
+        // render Step 3
         renderTargetValues: function(){
             var _this = this,
                 table = this.el.querySelector('#target-values-table'),
