@@ -4,7 +4,7 @@ define(['d3', 'models/casestudy',
     'views/study-area/keyflows',
     'app-config', 'base',
     'static/css/study-area.css'
-], function(d3, CaseStudy, BaseMapsView, SetupMapsView, BaseChartsView,
+], function(d3, CaseStudy, BaseMapView, SetupMapView, BaseChartsView,
     StakeholdersView, KeyflowsView, appConfig) {
 
     /**
@@ -15,7 +15,7 @@ define(['d3', 'models/casestudy',
      */
 
     function renderWorkshop(caseStudy){
-        var mapsView = new BaseMapsView({
+        var mapsView = new BaseMapView({
             template: 'base-maps-template',
             el: document.getElementById('base-map-content'),
             caseStudy: caseStudy
@@ -38,7 +38,7 @@ define(['d3', 'models/casestudy',
     }
 
     function renderSetup(caseStudy){
-        var mapsView = new SetupMapsView({
+        var mapsView = new SetupMapView({
             template: 'setup-maps-template',
             el: document.getElementById('base-map-content'),
             caseStudy: caseStudy
