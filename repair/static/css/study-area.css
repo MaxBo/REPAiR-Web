@@ -8,32 +8,45 @@
     min-height: 600px;
     width: 100%;
     height: 100%;
+    left: 0px;
+    /*padding-left: 60px;*/
+}
+#base-map.workshop {
+    position: fixed;
+}
+
+.workshop .ol-control {
+    transform: scale(1.5);
+    margin: 20px 20px 20px 80px;
 }
 
 .layer-tree.workshop {
-    left: 20px;
+    left: 80px;
     z-index: 1000;
     float: left;
     position: absolute;
-    top: 80px;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 10px 20px 10px 5px;
-    border-radius: 5px;
+    top: 100px;
+    background: rgba(255, 255, 255, 1);
+    padding: 0px;
+    border-radius: 2px;
 }
 
-#legend {
+#layer-tree {
+    padding: 0px 20px 10px 20px;
+}
+
+#legend-items {
     overflow: auto;
-    max-height: 600px;
+    max-height: 50%;
 }
 
 #legend.workshop {
     position: absolute;
     right: 10px;
     z-index: 1000;
-    top: 50px;
-    max-height: 50%;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 5px;
+    top: 100px;
+    /*background: rgba(255, 255, 255, 1);*/
+    border-radius: 2px;
     padding: 0px;
 }
 

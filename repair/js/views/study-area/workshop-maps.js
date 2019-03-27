@@ -379,9 +379,10 @@ var BaseMapView = BaseView.extend(
     },
 
     renderMap: function(){
-        var _this = this;
+        var _this = this,
+            el = document.getElementById('base-map');
         this.map = new Map({
-            el: document.getElementById('base-map'),
+            el: el,
             renderOSM: false
         });
         this.map.map.on('singleclick', this.showFeatureInfo );
