@@ -91,6 +91,7 @@ var BaseChartsView = BaseView.extend(
         }
 
         this.renderChartTree();
+        this.initCharts();
 
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus" });
@@ -118,6 +119,7 @@ var BaseChartsView = BaseView.extend(
             chartList.push(charts);
             promises.push(charts.fetch());
         });
+
         // fetch prepared layers and put informations into the tree nodes
         Promise.all(promises).then(function(){
             chartList.forEach(function(charts){
@@ -135,6 +137,28 @@ var BaseChartsView = BaseView.extend(
             });
             _this.render();
         })
+    },
+
+    addChartImage: function(chart){
+        preview = document.createElement('img')
+        preview.src = chart.get('image');
+        preview.style.display = 'inline';
+        preview.alt = chart.get('name');
+        preview.id = 'chart-preview-' + chart.id;
+        preview.style.display = 'none';
+        this.imageWrapper.appendChild(preview);
+    },
+
+    initCharts: function(){
+        var _this = this;
+        this.imageWrapper = _this.el.querySelector('#chart-image-wrapper');
+        Object.values(this.categoryTree).forEach(function(catNode){
+            catNode.children.forEach(function(chartNode){
+                var chart = chartNode.chart;
+                _this.addChartImage(chart);
+            })
+        })
+        this.viewer = new Viewer.default(this.imageWrapper);
     },
 
     rerenderTree: function(){
@@ -200,20 +224,16 @@ var BaseChartsView = BaseView.extend(
             addBtn = this.buttonBox.querySelector('.add'),
             removeBtn = this.buttonBox.querySelector('.remove');
         this.selectedNode = node;
-        var preview = this.el.querySelector('#chart-view');
 
         if (node.type === 'chart'){
-            preview.src = node.original.chart.get('image');
-            preview.style.display = 'inline';
-            preview.alt = node.original.chart.get('name');
-            if (this.viewer) this.viewer.destroy();
-            this.viewer = new Viewer.default(preview);
+            if (this.preview) this.preview.style.display = 'none';
+            this.preview = this.imageWrapper.querySelector('#chart-preview-' + node.original.chart.id)
+            this.preview.style.display = 'inline';
         }
         else {
             // category selected in setup mode -> no image; keep previous one in workshop mode
             if (this.mode == 1) {
-                preview.src = '#';
-                preview.style.display = 'none';
+                if (this.preview) this.preview.style.display = 'none';
             }
             // expand category on single click in workshop mode
             if (this.mode == 0) {
@@ -303,6 +323,8 @@ var BaseChartsView = BaseView.extend(
                     if (!catNode.nodes) catNode.nodes = [];
                     catNode.nodes.push(chartNode);
                     _this.addNode(chartNode, _this.selectedNode);
+                    _this.addChartImage(chart);
+                    _this.viewer.update();
                 },
                 error: _this.onError
             });
@@ -345,6 +367,9 @@ var BaseChartsView = BaseView.extend(
                     else {
                         _this.getTreeChartNode(model, { pop : true })
                         selectCatId = model.get("chart_category");
+                        var preview = _this.imageWrapper.querySelector('#chart-preview-' + model.id);
+                        _this.imageWrapper.removeChild(preview);
+                        _this.viewer.update();
                     }
                     $(_this.chartTree).jstree("delete_node", _this.selectedNode);
                     _this.buttonBox.style.display = 'None';
