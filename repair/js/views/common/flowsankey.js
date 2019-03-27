@@ -236,7 +236,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         },
 
         deselectAll: function(){
-            var links = this.sankeyDiv.querySelectorAll('.link.selected');
+            var links = this.sankeyDiv.querySelectorAll('.selected');
             links.forEach(function(link){
                 link.classList.remove('selected');
             })
