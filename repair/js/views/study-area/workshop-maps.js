@@ -8,11 +8,11 @@ function(BaseView, Backbone, _, GDSECollection, Map, config, ol, Slider){
 /**
 *
 * @author Christoph Franke
-* @name module:views/BaseMapsView
+* @name module:views/BaseMapView
 * @augments module:views/BaseView
 */
-var BaseMapsView = BaseView.extend(
-    /** @lends module:views/BaseMapsView.prototype */
+var BaseMapView = BaseView.extend(
+    /** @lends module:views/BaseMapView.prototype */
     {
 
     // fetch only layers included by user in setup mode (set true for workshop mode)
@@ -26,12 +26,13 @@ var BaseMapsView = BaseView.extend(
     * @param {HTMLElement} options.el                          element the view will be rendered in
     * @param {string} options.template                         id of the script element containing the underscore template to render this view
     * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add layers to
+    * @param {string} [options.tag='']                         tag for seperating layer views (e.g. wastescapes), layer categories with this tag will be caught only
     *
     * @constructs
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        BaseMapsView.__super__.initialize.apply(this, [options]);
+        BaseMapView.__super__.initialize.apply(this, [options]);
         var _this = this;
         // make sure 'this' references to this view when functions are called
         // from different context
@@ -44,6 +45,9 @@ var BaseMapsView = BaseView.extend(
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
+
+        // tag for seperating layer views (e.g. distinguish study area maps and wastescapes)
+        this.tag = options.tag || '';
 
         this.projection = 'EPSG:4326';
 
@@ -63,10 +67,14 @@ var BaseMapsView = BaseView.extend(
         this.legendPrefix = 'layer-legend-';
 
         this.loader.activate();
-        this.layerCategories.fetch({ success: function(){
-            _this.loader.deactivate();
-            _this.initTree();
-        }})
+        this.layerCategories.fetch({
+            data: { tag : this.tag },
+            processData: true,
+            success: function(){
+                _this.loader.deactivate();
+                _this.initTree();
+            }
+        })
         this.lastNode = null;
     },
 
@@ -78,7 +86,7 @@ var BaseMapsView = BaseView.extend(
 
     // determines if a layer is checked on start (stored in session for workshop mode)
     isChecked: function(layer){
-        var checked = config.session.get('checkedMapLayers');
+        var checked = config.session.get(this.tag + 'checkedMapLayers');
         if (!checked) return false;
         return checked.includes(layer.id);
     },
@@ -139,11 +147,15 @@ var BaseMapsView = BaseView.extend(
             if(item.type === 'layer')
                 checkedIds.push(item.original.layer.id);
         })
-        config.session.save({ checkedMapLayers: checkedIds });
+        var state = {};
+        state[this.tag + 'checkedMapLayers'] = checkedIds;
+        config.session.save(state);
     },
 
     saveTransparencies(){
-        config.session.save({ layerTransparencies: this.transparencies });
+        var state = {};
+        state[this.tag + 'layerTransparencies'] = this.transparencies;
+        config.session.save(state);
     },
 
     saveOrder: function(){
@@ -159,12 +171,14 @@ var BaseMapsView = BaseView.extend(
             var catId = catNode.id.replace(_this.categoryPrefix, '');
             order.push({ category: catId, layers: layerNodes});
         })
-        config.session.save({ layerOrder: order });
+        var state = {};
+        state[this.tag + 'layerOrder'] = order;
+        config.session.save(state);
     },
 
     // restore order from session
     restoreOrder: function(){
-        var order = config.session.get('layerOrder'),
+        var order = config.session.get(this.tag + 'layerOrder'),
             _this = this;
         if (!order) return;
         order.forEach(function(item){
@@ -261,7 +275,7 @@ var BaseMapsView = BaseView.extend(
             plugins: ["dnd", "checkbox", "wholerow", "ui", "types", "themes"]
         });
         this.restoreOrder();
-        this.transparencies = config.session.get('layerTransparencies') || {};
+        this.transparencies = config.session.get(this.tag + 'layerTransparencies') || {};
         $(this.layerTree).on("select_node.jstree", this.nodeSelected);
         $(this.layerTree).on("check_node.jstree", this.nodeChecked);
         $(this.layerTree).on("uncheck_node.jstree", this.nodeUnchecked);
@@ -332,6 +346,7 @@ var BaseMapsView = BaseView.extend(
         this.renderSliders(children);
     },
 
+    // transparency sliders
     renderSliders(layernames){
         var _this = this;
         layernames.forEach(function(layername){
@@ -401,6 +416,7 @@ var BaseMapsView = BaseView.extend(
         })
     },
 
+    // add a service layer to map and legend
     addServiceLayer: function(layer){
         var layername = this.layerPrefix + layer.id,
             transparency = this.transparencies[layername] || 0;
@@ -461,12 +477,14 @@ var BaseMapsView = BaseView.extend(
         }
     },
 
+    // pop up info about feature on map click event
     showFeatureInfo: function(evt){
         var _this = this,
             checkedItems = $(this.layerTree).jstree('get_checked', { full: true });
         var tableWrapper = document.createElement('div'),
             promises = [];
         tableWrapper.style.overflow = 'auto';
+        // checked layers only
         checkedItems.forEach(function(item){
             if(item.type === 'layer'){
                 var layer = item.original.layer,
@@ -507,6 +525,6 @@ var BaseMapsView = BaseView.extend(
     }
 
 });
-return BaseMapsView;
+return BaseMapView;
 }
 );
