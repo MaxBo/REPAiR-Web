@@ -59,7 +59,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
         })
         var mapsView = new BaseMapView({
             template: 'base-maps-template',
-            el: document.getElementById('wastescapes'),
+            el: document.getElementById('base-map-content'),
             caseStudy: caseStudy,
             tag: 'wastescapes'
         });
@@ -78,7 +78,7 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
         })
         var mapsView = new SetupMapView({
             template: 'setup-maps-template',
-            el: document.getElementById('wastescapes'),
+            el: document.getElementById('base-map-content'),
             caseStudy: caseStudy,
             tag: 'wastescapes'
         });
