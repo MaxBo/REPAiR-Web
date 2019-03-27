@@ -199,7 +199,7 @@ var SetupMapsView = BaseMapView.extend(
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = _this.layerCategories.create( { name: name }, {
+            var category = _this.layerCategories.create( { name: name, tag: _this.tag }, {
                 success: function(){
                     var catNode = {
                         text: name,
