@@ -2,13 +2,13 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     'views/status-quo/setup-flows',
     'views/status-quo/challenges-aims',
     'views/status-quo/setup-flow-assessment',
+    'views/study-area/workshop-maps', 'views/study-area/setup-maps',
     'views/status-quo/workshop-flow-assessment',
     'app-config', 'utils/overrides', 'base',
     'static/css/status-quo.css'
 ], function (d3, CaseStudy, FlowsWorkshopView, FlowsSetupView,
-    ChallengesAimsView, FlowAssessmentSetupView,
-    FlowAssessmentWorkshopView,
-    appConfig) {
+    ChallengesAimsView, FlowAssessmentSetupView, BaseMapView, SetupMapView,
+    FlowAssessmentWorkshopView, appConfig) {
 
     /**
      * entry point for views on subpages of "StatusQuo" menu item
@@ -57,6 +57,12 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
             el: document.getElementById('challenges'),
             template: 'challenges-aims-template'
         })
+        var mapsView = new BaseMapView({
+            template: 'base-maps-template',
+            el: document.getElementById('wastescapes'),
+            caseStudy: caseStudy,
+            tag: 'wastescapes'
+        });
         renderFlowAssessmentView(caseStudy, FlowAssessmentWorkshopView,
                                  'workshop-flow-assessment-template');
         renderFlowsView(caseStudy, FlowsWorkshopView, 'workshop-flows-template');
@@ -70,6 +76,12 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
             template: 'challenges-aims-template',
             mode: 1
         })
+        var mapsView = new SetupMapView({
+            template: 'setup-maps-template',
+            el: document.getElementById('wastescapes'),
+            caseStudy: caseStudy,
+            tag: 'wastescapes'
+        });
         renderFlowAssessmentView(caseStudy, FlowAssessmentSetupView,
                                  'setup-flow-assessment-template');
         renderFlowsView(caseStudy, FlowsSetupView, 'setup-flows-template');
