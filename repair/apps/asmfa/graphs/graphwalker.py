@@ -6,6 +6,7 @@ from django.db.models import Q
 
 from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
+from repair.apps.changes.factories import StrategyFractionFlowFactory
 
 class GraphWalker:
     def __init__(self, G):
@@ -37,19 +38,32 @@ class GraphWalker:
                 print("keeping origin of flow")
                 new_destinations = Actor.objects.filter(
                     activity=solution_part.new_target_activity)
-                destinations = [util.find_vertex(g, g.ep['id'], actor.id)
-                                for actor in new_destinations]
+                destinations = []
+                for actor in new_destinations:
+                    destinations += util.find_vertex(g, g.vp['id'], actor.id)
+
                 for flow in actorflows:
                     print(flow.id)
-                    edge_del = util.find_edge(g, g.ep['id'], flow.id)
-                    origin = edge_del.source()
-                    amount_flow = g.ep.amount[edge_del]
-                    amount_new = amount_flow / len(destinations)
-                    for dest in destinations:
-                        e = g.add_edge(origin, dest)
-                        g.ep.amount[e] = amount_new
-                        g.ep.material[e] = solution_part.implementation_flow_material
-                    g.remove_edge(edge_del)
+                    x = util.find_edge(g, g.ep['id'], flow.id)
+                    if len(x) > 1:
+                        raise ValueError("FractionFlow ID", flow.id, "is not unique")
+                    elif len(x) == 0:
+                        print("Cannot find FractionFlow", flow.id, "in the graph")
+                    else:
+                        edge_del = x[0]
+                        origin = edge_del.source()
+                        amount_flow = g.ep.amount[edge_del]
+                        amount_new = amount_flow / len(destinations)
+                        for dest in destinations:
+                            e = g.add_edge(origin, dest)
+                            g.ep.amount[e] = amount_new
+                            g.ep.material[e] = solution_part.implementation_flow_material
+                        g.remove_edge(edge_del)
+                                # StrategyFractionFlowFactory(strategy=solution_object.strategy,
+                                #                             fractionflow=flow,
+                                #                             amount=amount_new,
+                                #                             origin=,
+                                #                             destination=)
             return g
 
         else:

@@ -29,9 +29,18 @@ class BreadToBeerTestWalker(BreadToBeerSolution):
     def test_shift_flows(self):
         gwalker = GraphWalker(self.graph)
         solution_object = Solution.objects.filter(name='Bread to Beer')
-        gwalker.shift_flows(solution_object[0],
+        shifted_flows = gwalker.shift_flows(solution_object[0],
                             self.bread_to_brewery,
                             self.keyflow)
+        # save graph for manual verification
+        shifted_flows.save('/home/vagrant/REPAiR-Web/keyflow-2-shifted.gt')
+        assert gwalker.graph.num_vertices() == shifted_flows.num_vertices()
+        assert gwalker.graph.num_edges() == shifted_flows.num_edges()
+        household0 = gt_util.find_vertex(shifted_flows,
+                                         shifted_flows.vp["name"], "household0")[0]
+        targets = household0.out_neighbors()
+        assert all(shifted_flows.vp.name[t] != "incinerator Amsterdam" for t in targets)
+
 
 class GenerateGraphTest(GenerateTestDataMixin, TestCase):
     """
