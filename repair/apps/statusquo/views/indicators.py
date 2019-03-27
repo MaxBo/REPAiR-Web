@@ -230,8 +230,6 @@ class IndicatorArea(ComputeIndicator):
         if not areas and not geom:
             return [OrderedDict({'area': -1, 'value': 0})]
         amounts = []
-        #  ToDo: how to calc for geometries?
-        #        inhabitant data is attached to the areas only
         if geom:
             sm = geom.transform(3035, clone=True).area
             ha = sm / 10000
