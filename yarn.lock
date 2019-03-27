@@ -470,8 +470,8 @@ bootstrap-select@^1.12.4:
     jquery ">=1.8"
 
 bootstrap-slider@^10.6.0:
-  version "10.6.0"
-  resolved "https://registry.yarnpkg.com/bootstrap-slider/-/bootstrap-slider-10.6.0.tgz#54926997ed7d86dd7887bb3f25581e79b2c0f911"
+  version "10.6.1"
+  resolved "https://registry.yarnpkg.com/bootstrap-slider/-/bootstrap-slider-10.6.1.tgz#d9e4b1c327fa4eafc34a52ec01fc4e58b5266889"
 
 bootstrap-tagsinput@^0.7.1:
   version "0.7.1"
