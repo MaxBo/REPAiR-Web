@@ -32,10 +32,11 @@ class Sankey{
         this.width = this.width - this.margin.left - this.margin.right;
         this.language = options.language || 'en-US';
         var alignment = options.alignment || 'justify';
+        this.stretchFactor = options.stretchFactor || 1;
         this.sankey = d3.sankey()
             .nodeWidth(15)
             .nodePadding(10)
-            .size([this.width, this.height])
+            .size([this.width * this.stretchFactor, this.height])
             .align(alignment);
         this.selectable = options.selectable;
         this.gradient = options.gradient;
@@ -56,9 +57,9 @@ class Sankey{
                 .attr("height", height);
     }
 
-    widen(factor) {
+    stretch(factor) {
+        this.stretchFactor = factor;
         this.sankey.size([this.width * factor, this.height]);
-        this.svg.attr("width", this.width * factor);
     }
 
     zoomToFit(duration) {
@@ -204,7 +205,7 @@ class Sankey{
 
         this.svg = this.div.append("svg")
             //.attr( "preserveAspectRatio", "xMinYMid meet" )
-            .attr("width", this.width)
+            .attr("width", this.width  * this.stretchFactor)
             .attr("height", this.height)
             .call(this.zoom)
             .call(tipLinks)

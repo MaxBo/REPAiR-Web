@@ -3,7 +3,7 @@ define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'file-saver', 'utils/utils'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
-         FileSaver, utils){
+         FileSaver, utils, Slider){
 
     /**
     *
@@ -50,11 +50,12 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.originLevel = options.originLevel;
             this.destinationLevel = options.destinationLevel;
             this.flows = options.flows;
-
-            this.transformedData = this.transformData(this.flows);
-            this.render(this.transformedData);
+            this.el.querySelector('#sankey-stretch').value = 1;
             this.onSelect = options.onSelect;
             this.onDeselect = options.onDeselect;
+            this.transformedData = this.transformData(this.flows);
+            this.render(this.transformedData);
+
         },
 
         /*
@@ -68,7 +69,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             'click .select-all': 'selectAll',
             'click .deselect-all': 'deselectAll',
             'change #sankey-alignment': 'alignSankey',
-            'change #sankey-scale': 'rerender'
+            'change #sankey-scale': 'scale',
+            'change #sankey-stretch': 'stretch'
         },
 
         /*
@@ -99,7 +101,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 title: '',
                 language: config.session.get('language'),
                 selectable: true,
-                gradient: false
+                gradient: false,
+                stretchFactor: this.el.querySelector('#sankey-stretch').value
             })
 
             // redirect the event with same properties
@@ -126,9 +129,16 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.sankey.render(this.transformedData);
         },
 
-        rerender: function(){
+        scale: function(){
             this.transformedData = this.transformData(this.flows);
             this.render(this.transformedData);
+        },
+
+        stretch: function(evt){
+            console.log('change')
+            this.sankey.stretch(evt.target.value)
+            this.sankey.render(this.transformedData)
+            console.log('done')
         },
 
         refresh: function(options){
@@ -217,7 +227,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 var crepr = compositionRepr(flow),
                     amount = flow.get('amount'),
                     value = (norm === 'log')? utils.logNormalize(amount, minAmount, maxAmount, 1, 10000): Math.round(amount);
-                console.log(amount + ' -> ' + value)
 
                 links.push({
                     id: flow.id,
