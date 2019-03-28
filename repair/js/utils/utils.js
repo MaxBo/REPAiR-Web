@@ -2,8 +2,20 @@
 * utility functions for frontend scripts
 * @author Christoph Franke
 */
+function log10(val) {
+  return Math.log(val) / Math.LN10;
+}
+
 var color = d3.scale.category20();
 module.exports = {
+
+    logNormalize(value, minValue, maxValue, min, max) {
+        if (value == minValue) return min;
+        var mx = (Math.log2((value - minValue)) / (Math.log2(maxValue - minValue)));
+        var preshiftNormalized = mx * (max - min);
+        var shiftedNormalized = preshiftNormalized + min;
+        return shiftedNormalized;
+    },
 
     colorByName: function(name){
         name = String(name);
