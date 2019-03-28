@@ -68,6 +68,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             'click .export-csv': 'exportCSV',
             'click .select-all': 'selectAll',
             'click .deselect-all': 'deselectAll',
+            'change #sankey-alignment': 'alignSankey'
         },
 
         /*
@@ -186,6 +187,10 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 return flow.get('waste') ? 'Waste': 'Product';
             }
 
+            var amounts = flows.pluck('amount'),
+                minAmount = Math.min(...amounts),
+                maxAmount = Math.max(...amounts);
+
             flows.forEach(function(flow){
                 var value = flow.get('amount');
                 if (value < 0.5) return;
@@ -198,11 +203,15 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 }
                 var source = mapNode(origin),
                     target = (!isStock) ? mapNode(destination) : addStock();
-                var crepr = compositionRepr(flow);
+                var crepr = compositionRepr(flow),
+                    amount = flow.get('amount'),
+                    norm = utils.logNormalize(amount, minAmount, maxAmount, 1, 10000);
+
                 links.push({
                     id: flow.id,
                     originalData: flow,
-                    value: Math.round(flow.get('amount')),
+                    amount: amount,
+                    value: norm,
                     units: gettext('t/year'),
                     source: source,
                     target: target,
