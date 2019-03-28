@@ -16,20 +16,22 @@ class GraphWalker:
     def shift_flows(self, solution_object, solution_part, keyflow):
         """Shift the flows if necessary in each SolutionPart
 
-        BD: this is just a hack hardcoded for the bread to beer case to test
+        # TODO B: this is just a hack hardcoded for the bread to beer case to test
         if the whole flow computation works. The SolutionPart shouldn't be
         passed as a parameter but retrieved from the DB, using the solution_object
         """
         print(solution_object.name)
         # solution_parts = SolutionPart.objects.filter(solution=solution_object)
 
-        # BD: this should be done for each SolutionPart and then return the
+        # TODO B: this should be done for each SolutionPart and then return the
         # altered graph (only one graph per solution!)
         if solution_part.implements_new_flow:
             # SolutionPart implementing new flow
             g = copy.deepcopy(self.graph)
-            actors_origin = Actor.objects.filter(activity=solution_part.implementation_flow_origin_activity)
-            actors_destination = Actor.objects.filter(activity=solution_part.implementation_flow_destination_activity)
+            actors_origin = Actor.objects.filter(
+                activity=solution_part.implementation_flow_origin_activity)
+            actors_destination = Actor.objects.filter(
+                activity=solution_part.implementation_flow_destination_activity)
             actorflows = FractionFlow.objects.filter(
                 Q(origin__in=actors_origin.values('id')) &
                 Q(destination__in=actors_destination.values('id')),
