@@ -43,6 +43,10 @@
     width: 100%;
 }
 
+.navbar-header > .container-fluid {
+    float: left;
+}
+
 .navbar-top {
     position: absolute;
     top: -10px;
@@ -226,10 +230,17 @@
         float: right;
     }
     #eu-logo {
-        bottom: 15px;
+        top: 10px;
+        right: 150px;
+        height: 20px;
     }
     #top-links {
         float: none;
     }
-
+    #top-collapse.in {
+        display: inline;
+    }
+    .navbar-header > .container-fluid {
+        float: none;
+    }
 }

@@ -146,13 +146,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 var id = node.id,
                     name = node.name,
                     level = node.level,
+                    code = node.code || node.nace || node.activity__nace;
                     key = level + id;
                 // we already got this one -> skip it
                 if(indices[key] != null)
                     return indices[key];
                 idx += 1;
                 var color = node.color || utils.colorByName(name);
-                nodes.push({ id: id, name: name, color: color });
+                nodes.push({ id: id, name: name, color: color, code: code });
                 indices[key] = idx;
                 return idx;
             }
@@ -251,16 +252,24 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         exportCSV: function(){
             if (!this.transformedData) return;
 
-            var header = [gettext('origin'), gettext('destination'), gettext('amount'), gettext('composition')],
+            var header = [gettext('origin'), gettext('origin_code'),
+                          gettext('destination'), gettext('destination_code'),
+                          gettext('amount'), gettext('composition')],
                 rows = [],
                 _this = this;
             rows.push(header.join('\t'));
             this.transformedData.links.forEach(function(link){
-                var origin = link.source.name,
-                    destination = (!link.isStock) ? link.target.name : gettext('Stock'),
+                var origin = link.source,
+                    destination = link.target,
+                    originName = origin.name,
+                    destinationName = (!link.isStock) ? destination.name : gettext('Stock'),
                     amount = _this.format(link.value) + ' ' + link.units,
                     composition = link.composition;
-                var row = [origin, destination, amount, composition];
+
+                var originCode = origin.code,
+                    destinationCode = (destination) ? destination.code: '';
+
+                var row = [originName, originCode, destinationName, destinationCode, amount, composition];
                 rows.push(row.join('\t'));
             });
             var text = rows.join('\r\n');
