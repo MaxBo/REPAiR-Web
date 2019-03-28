@@ -265,7 +265,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     destinationName = (!link.isStock) ? destination.name : gettext('Stock'),
                     amount = _this.format(link.value) + ' ' + link.units,
                     composition = link.composition;
-                console.log(origin)
 
                 var originCode = origin.code,
                     destinationCode = (destination) ? destination.code: '';
