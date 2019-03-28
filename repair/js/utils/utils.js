@@ -10,6 +10,7 @@ var color = d3.scale.category20();
 module.exports = {
 
     logNormalize(value, minValue, maxValue, min, max) {
+        if (value == minValue) return min;
         var mx = (Math.log2((value - minValue)) / (Math.log2(maxValue - minValue)));
         var preshiftNormalized = mx * (max - min);
         var shiftedNormalized = preshiftNormalized + min;

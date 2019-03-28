@@ -52,7 +52,6 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.flows = options.flows;
 
             this.transformedData = this.transformData(this.flows);
-
             this.render(this.transformedData);
             this.onSelect = options.onSelect;
             this.onDeselect = options.onDeselect;
@@ -68,7 +67,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             'click .export-csv': 'exportCSV',
             'click .select-all': 'selectAll',
             'click .deselect-all': 'deselectAll',
-            'change #sankey-alignment': 'alignSankey'
+            'change #sankey-alignment': 'alignSankey',
+            'change #sankey-scale': 'rerender'
         },
 
         /*
@@ -117,8 +117,18 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
         */
         toggleFullscreen: function(){
             this.el.classList.toggle('fullscreen');
-            this.refresh()
+            this.refresh();
             //this.render(this.transformedData);
+        },
+
+        alignSankey: function(evt){
+            this.sankey.align(evt.target.value);
+            this.sankey.render(this.transformedData);
+        },
+
+        rerender: function(){
+            this.transformedData = this.transformData(this.flows);
+            this.render(this.transformedData);
         },
 
         refresh: function(options){
@@ -139,7 +149,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 nodes = [],
                 links = [],
                 indices = {},
-                colorCat = d3.scale.category20();
+                colorCat = d3.scale.category20(),
+                norm = this.el.querySelector('#sankey-scale').value;
 
             var idx = -1;
 
@@ -205,13 +216,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     target = (!isStock) ? mapNode(destination) : addStock();
                 var crepr = compositionRepr(flow),
                     amount = flow.get('amount'),
-                    norm = utils.logNormalize(amount, minAmount, maxAmount, 1, 10000);
+                    value = (norm === 'log')? utils.logNormalize(amount, minAmount, maxAmount, 1, 10000): Math.round(amount);
+                console.log(amount + ' -> ' + value)
 
                 links.push({
                     id: flow.id,
                     originalData: flow,
                     amount: amount,
-                    value: norm,
+                    value: value,
                     units: gettext('t/year'),
                     source: source,
                     target: target,
