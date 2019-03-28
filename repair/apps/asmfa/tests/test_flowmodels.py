@@ -35,11 +35,13 @@ class BreadToBeerTestWalker(BreadToBeerSolution):
         # save graph for manual verification
         shifted_flows.save('/home/vagrant/REPAiR-Web/keyflow-2-shifted.gt')
         assert gwalker.graph.num_vertices() == shifted_flows.num_vertices()
-        assert gwalker.graph.num_edges() == shifted_flows.num_edges()
+        # because now we have two targets (the two breweries) instead of one (incinerator)
+        assert gwalker.graph.num_edges() + 100 == shifted_flows.num_edges()
         household0 = gt_util.find_vertex(shifted_flows,
                                          shifted_flows.vp["name"], "household0")[0]
-        targets = household0.out_neighbors()
-        assert all(shifted_flows.vp.name[t] != "incinerator Amsterdam" for t in targets)
+        targets = household0.out_edges()
+        bread_targets = [t for t in targets if shifted_flows.ep.material[t] == 'bread']
+        assert all(shifted_flows.vp.name[t.target()] != "incinerator Amsterdam" for t in bread_targets)
 
 
 class GenerateGraphTest(GenerateTestDataMixin, TestCase):

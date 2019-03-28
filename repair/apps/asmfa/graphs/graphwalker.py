@@ -26,8 +26,8 @@ class GraphWalker:
         # BD: this should be done for each SolutionPart and then return the
         # altered graph (only one graph per solution!)
         if solution_part.implements_new_flow:
+            # SolutionPart implementing new flow
             g = copy.deepcopy(self.graph)
-            print("SolutionPart implementing new flow")
             actors_origin = Actor.objects.filter(activity=solution_part.implementation_flow_origin_activity)
             actors_destination = Actor.objects.filter(activity=solution_part.implementation_flow_destination_activity)
             actorflows = FractionFlow.objects.filter(
@@ -35,7 +35,7 @@ class GraphWalker:
                 Q(destination__in=actors_destination.values('id')),
                 material=solution_part.implementation_flow_material)
             if solution_part.keep_origin:
-                print("keeping origin of flow")
+                # keeping origin of flow
                 new_destinations = Actor.objects.filter(
                     activity=solution_part.new_target_activity)
                 destinations = []
@@ -43,7 +43,6 @@ class GraphWalker:
                     destinations += util.find_vertex(g, g.vp['id'], actor.id)
 
                 for flow in actorflows:
-                    print(flow.id)
                     x = util.find_edge(g, g.ep['id'], flow.id)
                     if len(x) > 1:
                         raise ValueError("FractionFlow ID", flow.id, "is not unique")
