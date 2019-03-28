@@ -119,6 +119,24 @@
           <button class="select-all fas fa-vector-square btn btn-primary d3-overlay inverted" style="position: relative; float: left; margin-right: 10px; height: 30px;">&nbsp;{% trans "All" %}</button>
           <button class="deselect-all fas fa-ban btn btn-primary d3-overlay inverted" style="position: relative; height: 30px;">&nbsp;{% trans "None" %}</button>
         </div>
+        <div style="position: absolute; bottom: 15px; right: 10px;">
+          <label>{% trans "Scale" %}</label>
+          <select id="sankey-scale" style="float: right;">
+            <option value="linear">{% trans "Linear" %}</option>
+            <option value="log">{% trans "Logarithmic" %}</option>
+          </select>
+          <br>
+          <label>{% trans "Alignment" %}</label>
+          <select id="sankey-alignment" style="float: right;">
+            <option value="justify">{% trans "Justify" %}</option>
+            <option value="left">{% trans "Left" %}</option>
+            <option value="center">{% trans "Center" %}</option>
+            <option value="right">{% trans "Right" %}</option>
+          </select>
+          <br>
+          <label>{% trans "Stretch" %}</label>
+          <input id='sankey-stretch' type="number" value='1' min='1' max='10' style="width: 50px; float: right;"/>
+        </div>
         <div class="sankey" style="text-align: center;"></div>
       </div>
     </div>
