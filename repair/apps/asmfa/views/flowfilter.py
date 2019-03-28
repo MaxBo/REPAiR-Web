@@ -303,14 +303,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         return agg_map
 
     @staticmethod
-    def serialize_nodes(nodes, add_locations=False):
+    def serialize_nodes(nodes, add_locations=False, add_fields=[]):
         '''
         serialize actors, activities or groups in the same way
         add_locations works only for actors
         '''
-        args = ['id', 'name']
+        args = ['id', 'name'] + add_fields
         if add_locations:
             args.append('administrative_location__geom')
+
         node_dict = dict(
             zip(nodes.values_list('id', flat=True),
                 nodes.values(*args))
@@ -347,12 +348,21 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         groups = queryset.values(origin_filter, destination_filter,
                                  'waste', 'process', 'to_stock').distinct()
 
+        def get_code_field(model):
+            if model == Actor:
+                return 'activity__nace'
+            if model == Activity:
+                return 'nace'
+            return 'code'
+
         origin_dict = self.serialize_nodes(
-            origins, add_locations=True if origin_model == Actor else False
+            origins, add_locations=True if origin_model == Actor else False,
+            add_fields=[get_code_field(origin_model)]
         )
         destination_dict = self.serialize_nodes(
             destinations,
-            add_locations=True if destination_model == Actor else False
+            add_locations=True if destination_model == Actor else False,
+            add_fields=[get_code_field(destination_model)]
         )
 
         for group in groups:
