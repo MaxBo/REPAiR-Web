@@ -77,19 +77,32 @@
       <h4 class="modal-title">{% trans "Add Conclusion" %}</h4>
     </div>
     <div class="modal-body">
-      <label> {% trans "Consensus Level" %} </label>
-      <select class="consensus">
-        <% consensusLevels.each(posts, function(level){ %>
-          <option value=level.id> level.get("name") </option>
-        <% }); %>
-      </select>
-      <label> {% trans "Section" %} </label>
-      <select class="section">
-      </select>
-      <textarea class="comment" style="width: 100%; resize: vertical;" rows="4"></textarea>
+      <div class="row">
+        <label> {% trans "Section" %} </label>
+        <select class="section form-control">
+        </select>
+      </div>
+      <div class="row">
+        <label> {% trans "Consensus Level" %} </label>
+        <select class="consensus form-control">
+          <% consensusLevels.forEach(function(level){ %>
+            <option value="<%= level.id %>"> <%= level.get("name") %> </option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="row">
+        <label> {% trans "Description" %} </label>
+        <textarea class="comment form-control" style="width: 100%; resize: vertical;" rows="4"></textarea>
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <input type="checkbox" class="screenshot-check" style="transform: scale(1.5); margin-right: 5px;"/>
+        <label> {% trans "Append screenshot" %} </label>
+        <br>
+        <img class="bordered" src="<%= image %>" style="height: 200px; cursor: pointer;"/>
+      </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+      <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
       <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
     </div>
   </div>
