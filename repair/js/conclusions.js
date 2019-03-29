@@ -1,9 +1,10 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/setup-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets',
-         'collections/gdsecollection', 'app-config', 'utils/utils', 'base'
+         'collections/gdsecollection', 'app-config', 'utils/utils',
+         'underscore', 'base'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
-             EvalFlowTargetsView, GDSECollection, appConfig, utils) {
+             EvalFlowTargetsView, GDSECollection, appConfig, utils, _) {
     /**
      * entry point for views on subpages of "Recommendations" menu item
      *
@@ -11,7 +12,40 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      * @module Recommendations
      */
 
-     var objectivesView;
+    var objectivesView;
+    var aims = new GDSECollection([], {
+        apiTag: 'aims',
+        apiIds: [caseStudy.id]
+    });
+    var users = new GDSECollection([], {
+        apiTag: 'usersInCasestudy',
+        apiIds: [caseStudy.id]
+    });
+    var objectives = new GDSECollection([], {
+        apiTag: 'userObjectives',
+        apiIds: [caseStudy.id]
+    });
+    var consensusLevels = new GDSECollection([], {
+        apiTag: 'consensusLevels',
+        apiIds: [caseStudy.id],
+        comparator: 'priority'
+    });
+    var sections = new GDSECollection([], {
+        apiTag: 'sections',
+        apiIds: [caseStudy.id],
+        comparator: 'priority'
+    });
+
+    addConclusion = function(){
+        var html = document.getElementById('conclusion-template').innerHTML,
+            template = _.template(html);
+        var modal = document.getElementById('conclusion-modal');
+        modal.innerHTML = template({
+            consensusLevels: consensusLevels,
+            sections: sections
+        });
+         $(modal).modal('show');
+    }
 
     renderSetup = function(caseStudy){
         var usersView = new SetupUsersView({
@@ -24,8 +58,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         })
     };
 
-    renderWorkshop = function(caseStudy, keyflowId, keyflowName, users, aims, objectives){
-        if (users.size() === 0){
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName, participants){
+        if (participants.size() === 0){
             var warning = document.createElement('h3');
             warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
             document.getElementById('content').innerHTML = warning.outerHTML;
@@ -38,7 +72,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             template: 'objectives-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName,
-            users: users,
+            users: participants,
             aims: aims,
             objectives: objectives
         })
@@ -49,11 +83,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             template: 'flow-targets-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName,
-            users: users,
+            users: participants,
             aims: aims,
             objectives: objectives
         })
 
+        document.getElementById('add-conclusion').addEventListener('click', addConclusion);
     };
 
     function render(caseStudy, mode){
@@ -74,18 +109,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             var loader = new utils.Loader(document.getElementById('content'),
                                          { disable: true });
             loader.activate();
-            var aims = new GDSECollection([], {
-                apiTag: 'aims',
-                apiIds: [caseStudy.id]
-            });
-            var users = new GDSECollection([], {
-                apiTag: 'usersInCasestudy',
-                apiIds: [caseStudy.id]
-            });
-            var objectives = new GDSECollection([], {
-                apiTag: 'userObjectives',
-                apiIds: [caseStudy.id]
-            });
             var promises = [];
             promises.push(aims.fetch({
                 data: { keyflow: keyflowId },
@@ -95,12 +118,14 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 data: { keyflow: keyflowId, all: true },
                 error: alert
             }));
+            promises.push(consensusLevels.fetch({ error: alert }));
+            promises.push(sections.fetch({ error: alert }));
             promises.push(users.fetch({error: alert}));
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
                 var participants = users.filterBy({'gets_evaluated' : true});
-                renderWorkshop(caseStudy, keyflowId, keyflowName, participants, aims, objectives);
+                renderWorkshop(caseStudy, keyflowId, keyflowName, participants);
             });
         }
 

@@ -431,6 +431,25 @@ button.square, button.round, .btn.square, .btn.round {
   outline: none ~'!IMPORTANT';
 }
 
+.btn-secondary {
+  background-color: @main-color;
+  border: solid 1px @main-color;
+  min-height: 25px;
+  min-width: 25px;
+  color: white;
+}
+
+.btn-secondary.inverted {
+  background-color: white;
+  border: solid 1px @main-color;
+  color: @main-color;
+}
+
+.btn-secondary.inverted:hover, .btn-secondary.inverted:focus, .btn-secondary.inverted:active {
+  background-color: @main-color;
+  color: white;
+}
+
 .btn-primary {
   background-color: @secondary-color;
   border: solid 1px @secondary-color;

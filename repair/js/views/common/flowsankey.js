@@ -209,8 +209,10 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             }
 
             var amounts = flows.pluck('amount'),
-                minAmount = Math.min(...amounts),
-                maxAmount = Math.max(...amounts);
+                //minAmount = Math.min(...amounts),
+                maxAmount = Math.max(...amounts),
+                max = 10000,
+                normFactor = max / maxAmount;
 
             flows.forEach(function(flow){
                 var value = flow.get('amount');
@@ -222,11 +224,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     console.log('Warning: self referencing cycle at node ' + origin.name);
                     return;
                 }
+                function normalize(v){
+                    return Math.log2(1 + v * normFactor);
+                }
                 var source = mapNode(origin),
                     target = (!isStock) ? mapNode(destination) : addStock();
                 var crepr = compositionRepr(flow),
                     amount = flow.get('amount'),
-                    value = (norm === 'log')? utils.logNormalize(amount, minAmount, maxAmount, 1, 10000): Math.round(amount);
+                    value = (norm === 'log')? normalize(amount): Math.round(amount);
 
                 links.push({
                     id: flow.id,
@@ -293,7 +298,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     destination = link.target,
                     originName = origin.name,
                     destinationName = (!link.isStock) ? destination.name : gettext('Stock'),
-                    amount = _this.format(link.value) + ' ' + link.units,
+                    amount = _this.format(link.amount) + ' ' + link.units,
                     composition = link.composition;
 
                 var originCode = origin.code,

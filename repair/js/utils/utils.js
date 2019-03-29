@@ -11,9 +11,9 @@ module.exports = {
 
     logNormalize(value, minValue, maxValue, min, max) {
         if (value == minValue) return min;
-        var mx = (Math.log2((value - minValue)) / (Math.log2(maxValue - minValue)));
-        var preshiftNormalized = mx * (max - min);
-        var shiftedNormalized = preshiftNormalized + min;
+        var mx = (Math.log2((value - minValue)) / (Math.log2(maxValue - minValue))),
+            preshiftNormalized = mx * (max - min),
+            shiftedNormalized = preshiftNormalized + min;
         return shiftedNormalized;
     },
 
