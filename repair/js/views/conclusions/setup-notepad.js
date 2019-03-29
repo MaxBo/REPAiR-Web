@@ -32,16 +32,6 @@ function(_, BaseView, GDSECollection, Muuri){
             this.caseStudy = options.caseStudy;
 
             this.loader.activate();
-            this.consensusLevels = new GDSECollection([], {
-                apiTag: 'consensusLevels',
-                apiIds: [_this.caseStudy.id],
-                comparator: 'priority'
-            });
-            this.sections = new GDSECollection([], {
-                apiTag: 'sections',
-                apiIds: [_this.caseStudy.id],
-                comparator: 'priority'
-            });
             var promises = [this.consensusLevels.fetch(), this.sections.fetch()]
             Promise.all(promises).then(function(){
                 _this.loader.deactivate();

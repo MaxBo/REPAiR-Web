@@ -16,7 +16,7 @@
         <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
       {% endfor %}
       </select>
-      <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
+      <span class="sub-icon fa fa-cogs" style="margin-right: 8px; position: absolute;"></span>
     </div>
     <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon fas fa-puzzle-piece" style="margin-right: -5px"></span></a></li>
     {% if request.session.mode != 1 %}
