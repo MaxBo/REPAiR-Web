@@ -75,6 +75,9 @@ class ImplementationQuestion(GDSEModel):
     is_absolute = models.BooleanField(default=False)
 
 
+# TODO: ImplementationQuantity is missing
+
+
 class SolutionPart(GDSEModel):
     '''
     part of the solution definition, change a single implementation flow (or
