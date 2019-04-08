@@ -5,7 +5,7 @@ machine:
 jobs:
   django testing:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
+      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool
     steps:
       - checkout
       - run: mkdir test-reports
@@ -31,7 +31,7 @@ jobs:
 
   selenium testing:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
+      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool
     steps:
       - checkout
       - run:
@@ -74,7 +74,7 @@ jobs:
 
   setup database:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
+      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool
     steps:
       - checkout
       - run:
@@ -93,7 +93,7 @@ jobs:
 
   jasmine tests:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal
+      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool
     steps:
       - checkout
       - run: mkdir test-reports
