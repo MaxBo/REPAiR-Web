@@ -37,7 +37,8 @@
 
 #legend-items {
     overflow: auto;
-    max-height: 50%;
+    height: 500px;
+    resize: vertical;
 }
 
 #legend.workshop {
