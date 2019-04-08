@@ -27,18 +27,13 @@ function(_, BaseView, GDSECollection, Muuri){
         initialize: function(options){
             SetupNotepadView.__super__.initialize.apply(this, [options]);
             var _this = this;
-
             this.template = options.template;
             this.caseStudy = options.caseStudy;
 
             this.loader.activate();
-            var promises = [this.consensusLevels.fetch(), this.sections.fetch()]
-            Promise.all(promises).then(function(){
-                _this.loader.deactivate();
-                _this.consensusLevels.sort();
-                _this.sections.sort();
-                _this.render();
-            })
+            this.consensusLevels = options.consensusLevels;
+            this.sections = options.sections;
+            this.render();
         },
 
         /*

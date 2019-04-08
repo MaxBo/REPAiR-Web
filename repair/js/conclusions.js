@@ -1,5 +1,5 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
-         'views/conclusions/setup-notepad', 'views/conclusions/objectives',
+         'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets',
          'collections/gdsecollection', 'app-config', 'utils/utils',
          'underscore', 'html2canvas', 'viewerjs', 'base',
@@ -51,7 +51,9 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         })
         var setupNotepadView = new SetupNotepadView({
             caseStudy: caseStudy,
-            el: document.getElementById('notepad')
+            el: document.getElementById('notepad'),
+            consensusLevels: consensusLevels,
+            sections: sections
         })
     };
 

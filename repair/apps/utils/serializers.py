@@ -9,6 +9,7 @@ import numpy as np
 import os
 import re
 from django.utils.translation import ugettext as _
+from django.db.models import Q
 from tempfile import NamedTemporaryFile
 from rest_framework import serializers
 from django.db.models import Model
@@ -110,7 +111,7 @@ class Reference:
 
 
     def merge(self, dataframe: pd.DataFrame, referencing_column: str,
-              rel: object=None):
+              rel: object=None, keyflow=None):
         """
         merges the referenced models to the given data
 
@@ -147,6 +148,9 @@ class Reference:
             referenced_queryset = objects.filter(**filter_args)
         else:
             referenced_queryset = objects.all()
+        if keyflow and hasattr(self.referenced_model, 'keyflow'):
+            referenced_queryset = referenced_queryset.filter(
+                Q(keyflow=keyflow) | Q(keyflow__isnull=True))
         # find unique referenced values
         u_ref, counts = np.unique(np.array(referenced_queryset.values_list(
             self.referenced_column)).astype('str'), return_counts=True)
@@ -640,7 +644,8 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                     self.self_refs.append(column)
                     continue
                 data, missing = field.merge(
-                    data, referencing_column=column, rel=self)
+                    data, keyflow=self.keyflow, referencing_column=column,
+                    rel=self)
 
                 if len(missing) > 0:
                     missing_values = np.unique(missing[column].values)
