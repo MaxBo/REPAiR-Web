@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.db.models.functions import Coalesce
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
-from repair.apps.asmfa.models.keyflows import Material,
+from repair.apps.asmfa.models.keyflows import Material
 from repair.apps.asmfa.models.flows import (Actor2Actor, FractionFlow,
                                             StrategyFractionFlow)
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
