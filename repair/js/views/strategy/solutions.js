@@ -42,6 +42,12 @@ var SolutionsView = BaseView.extend(
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
         }),
+        
+        // ToDo: replace with collections fetched from server
+        this.materials = new GDSECollection([], {
+            apiTag: 'materials',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        }),
 
         this.activities = new GDSECollection([], {
             apiTag: 'activities',
@@ -50,6 +56,7 @@ var SolutionsView = BaseView.extend(
         var promises = [];
         promises.push(this.categories.fetch());
         promises.push(this.activities.fetch());
+        promises.push(this.materials.fetch());
 
         this.loader.activate();
         Promise.all(promises).then(function(){
@@ -142,6 +149,7 @@ var SolutionsView = BaseView.extend(
             mode: this.mode,
             activities: this.activities
         });
+        this.renderMatFilter();
         this.renderMap('actors-map', solution.get('activities') || []);
         var okBtn = modal.querySelector('.confirm');
         if (this.viewer) this.viewer.destroy();
@@ -467,6 +475,53 @@ var SolutionsView = BaseView.extend(
                 })
             }});
         })
+    },
+    
+    renderMatFilter: function(){
+        var _this = this;
+        this.selectedMaterial = null;
+        // select material
+        var matSelect = document.createElement('div');
+        matSelect.classList.add('materialSelect');
+        var select = this.el.querySelector('.hierarchy-select');
+
+        var compAttrBefore = this.materials.comparatorAttr;
+        this.materials.comparatorAttr = 'level';
+        this.materials.sort();
+        var flowsInChildren = {};
+        // count materials in parent, descending level (leafs first)
+        this.materials.models.reverse().forEach(function(material){
+            var parent = material.get('parent'),
+                count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
+            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+        })
+        this.materials.comparatorAttr = compAttrBefore;
+        this.materials.sort();
+
+        this.matSelect = this.hierarchicalSelect(this.materials, matSelect, {
+            onSelect: function(model){
+                 _this.selectedMaterial = model;
+            },
+            defaultOption: gettext('All materials'),
+            label: function(model, option){
+                var compCount = model.get('flow_count'),
+                    childCount = flowsInChildren[model.id] || 0,
+                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                return label;
+            }
+        });
+
+        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        matFlowless.forEach(function(material){
+            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]');
+            if (!li) return;
+            var a = li.querySelector('a'),
+                cls = (flowsInChildren[material.id] > 0) ? 'half': 'empty';
+            a.classList.add(cls);
+        })
+        this.el.querySelector('#material-filter').appendChild(matSelect);
     },
 
     /*
