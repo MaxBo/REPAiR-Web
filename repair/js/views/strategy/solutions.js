@@ -133,6 +133,7 @@ var SolutionsView = BaseView.extend(
         modal.innerHTML = template({
             name: solution.get('name'),
             description: solution.get('description'),
+            notes: solution.get('notes'),
             effectSrc: solution.get('effect_image'),
             stateSrc: solution.get('currentstate_image'),
             activitiesSrc: solution.get('activities_image'),
@@ -153,9 +154,15 @@ var SolutionsView = BaseView.extend(
                 effectImgInput = modal.querySelector('input[name="effect-file"]'),
                 activitiesImgInput = modal.querySelector('input[name="activities-file"]'),
                 descriptionArea = modal.querySelector('div[name="description"]'),
+                notesArea = modal.querySelector('div[name="notes"]'),
                 activityInputs = modal.querySelectorAll('input[name="activity"]');
 
             $(descriptionArea).summernote({
+                height: 300,
+                maxHeight: null,
+                //tooltip: false
+            });
+            $(notesArea).summernote({
                 height: 300,
                 maxHeight: null,
                 //tooltip: false
@@ -193,6 +200,7 @@ var SolutionsView = BaseView.extend(
                 var data = {
                     name: nameInput.value,
                     description: $(descriptionArea).summernote('code'),
+                    notes: $(notesArea).summernote('code'),
                     solution_category: solution.get('solution_category'), // required by backend
                     activities: activities
                 }
@@ -517,6 +525,7 @@ var SolutionsView = BaseView.extend(
                     name: name,
                     solution_category: category.id,
                     description: '-',
+                    notes: '-',
                     activities: []
                 },
                 {
