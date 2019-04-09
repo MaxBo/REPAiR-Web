@@ -1,8 +1,10 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
-        'utils/utils', 'bootstrap', 'viewerjs/dist/viewer.css'],
+        'utils/utils', 'summernote', 'summernote/dist/summernote.css',
+        'bootstrap', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config, utils){
+function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config,
+         utils, summernote){
 /**
 *
 * @author Christoph Franke
@@ -150,8 +152,14 @@ var SolutionsView = BaseView.extend(
                 stateImgInput = modal.querySelector('input[name="state-file"]'),
                 effectImgInput = modal.querySelector('input[name="effect-file"]'),
                 activitiesImgInput = modal.querySelector('input[name="activities-file"]'),
-                descriptionArea = modal.querySelector('textarea[name="description"]'),
+                descriptionArea = modal.querySelector('div[name="description"]'),
                 activityInputs = modal.querySelectorAll('input[name="activity"]');
+
+            $(descriptionArea).summernote({
+                height: 300,
+                maxHeight: null,
+                //tooltip: false
+            });
 
             stateImgInput.addEventListener('change', function(){
                 swapImage(stateImgInput, 'state-image', 'currentstate_image');
@@ -184,7 +192,7 @@ var SolutionsView = BaseView.extend(
                 }
                 var data = {
                     name: nameInput.value,
-                    description: descriptionArea.value,
+                    description: $(descriptionArea).summernote('code'),
                     solution_category: solution.get('solution_category'), // required by backend
                     activities: activities
                 }
@@ -529,6 +537,7 @@ var SolutionsView = BaseView.extend(
     toggleFullscreen: function(event){
         event.target.parentElement.classList.toggle('fullscreen');
     }
+
 });
 return SolutionsView;
 }

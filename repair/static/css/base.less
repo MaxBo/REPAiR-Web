@@ -251,12 +251,14 @@ div.fullscreen{
 .tab-pane {
   display: block ~'!IMPORTANT';
   position: fixed;
+  pointer-events: none;
   right: -9999px;
   width: 100%;
   min-height: 300px;
 }
 .tab-pane.active {
   position: relative;
+  pointer-events: auto;
   left: 0;
 }
 
