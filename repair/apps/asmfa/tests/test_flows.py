@@ -5,8 +5,9 @@ from django.db.models import Q
 from django.db.models.functions import Coalesce
 from test_plus import APITestCase
 from repair.tests.test import BasicModelPermissionTest
-from repair.apps.asmfa.models.keyflows import Material
-from repair.apps.asmfa.models.flows import Actor2Actor, FractionFlow
+from repair.apps.asmfa.models.keyflows import Material,
+from repair.apps.asmfa.models.flows import (Actor2Actor, FractionFlow,
+                                            StrategyFractionFlow)
 from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          Group2GroupFactory,
                                          Activity2ActivityFactory,
@@ -20,9 +21,8 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
                                          PublicationInCasestudyFactory,
                                          ProcessFactory,
                                          FractionFlowFactory)
-from repair.apps.login.factories import (CaseStudyFactory, 
+from repair.apps.login.factories import (CaseStudyFactory,
                                          UserInCasestudyFactory)
-from repair.apps.changes.models import StrategyFractionFlow
 from repair.apps.changes.factories import (SolutionFactory,
                                            SolutionCategoryFactory,
                                            StrategyFactory,
@@ -427,7 +427,7 @@ import json
 
 class StrategyFractionFlowTest(TestCase):
     csname = "Sandbox City"
-    keyflow_id = 3    
+    keyflow_id = 3
     keyflowincasestudy = 45
     material_1 = 10
     material_2 = 11
@@ -459,7 +459,7 @@ class StrategyFractionFlowTest(TestCase):
         self.activitygroup3 = ActivityGroupFactory(keyflow=self.kic_obj)
         self.activity3 = ActivityFactory(activitygroup=self.activitygroup3)
         self.actor3 = ActorFactory(id=self.actor3id, activity=self.activity3)
-        
+
         self.comp1 = CompositionFactory(name='composition1',
                                         nace='nace1')
         self.comp2 = CompositionFactory(name='composition2',
@@ -474,7 +474,7 @@ class StrategyFractionFlowTest(TestCase):
 
         # flow attributes
         #self.process = ProcessFactory(name='test-process')
-        
+
         self.fractionflow1 = FractionFlowFactory(flow_id=self.flowid1,
                                                  #process=self.process,
                                                  stock=None,
@@ -515,21 +515,21 @@ class StrategyFractionFlowTest(TestCase):
         #solutioncategory_id = 21
         #solution_id = 1
         strategy_id = 1
-        
+
         ## generate a new solution category with a solution
         #solutioncategory = SolutionCategoryFactory(id=solutioncategory_id)
         #solution = SolutionFactory(id=solution_id,
                                    #solution_category=solutioncategory,
                                    #name='Test Solution')
-        
+
         # generate a new strategy category with a solution
         user = UserInCasestudyFactory(casestudy=self.kic_obj.casestudy,
                                       user__user__username='Hans Norbert')
         strategy = StrategyFactory(id=strategy_id,
-                                   keyflow=self.kic_obj, 
-                                   user=user, 
+                                   keyflow=self.kic_obj,
+                                   user=user,
                                    name='Test Strategy')
-        
+
         # generate 2 new strategyfractions
         strategyfraction1 = StrategyFractionFlowFactory(strategy=strategy,
                                                     fractionflow=self.fractionflow1,
@@ -540,18 +540,19 @@ class StrategyFractionFlowTest(TestCase):
                                                     fractionflow=self.fractionflow2,
                                                     amount=self.new_amount2,
                                                     origin=self.actor2,
-                                                    destination=self.actor3)
-        
+                                                    destination=self.actor3
+                                                    )
+
         flows = FractionFlow.objects.filter(
             Q(keyflow=self.keyflowincasestudy) &
             (
-                Q(f_strategyfractionflow__isnull = True) | 
+                Q(f_strategyfractionflow__isnull = True) |
                 Q(f_strategyfractionflow__strategy = strategy_id)
             )
         ).annotate(
             actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
             actual_origin=Coalesce('f_strategyfractionflow__origin', 'origin'),
-            actual_destination=Coalesce('f_strategyfractionflow__destination', 'destination')            
+            actual_destination=Coalesce('f_strategyfractionflow__destination', 'destination')
         )
         assert flows.get(flow_id=self.flowid1).actual_amount == self.new_amount1
         assert flows.get(flow_id=self.flowid2).actual_amount == self.new_amount2
