@@ -42,7 +42,7 @@ var SolutionsView = BaseView.extend(
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
         }),
-        
+
         // ToDo: replace with collections fetched from server
         this.materials = new GDSECollection([], {
             apiTag: 'materials',
@@ -55,7 +55,6 @@ var SolutionsView = BaseView.extend(
         });
         var promises = [];
         promises.push(this.categories.fetch());
-        promises.push(this.activities.fetch());
         promises.push(this.materials.fetch());
 
         this.loader.activate();
@@ -140,16 +139,14 @@ var SolutionsView = BaseView.extend(
         modal.innerHTML = template({
             name: solution.get('name'),
             description: solution.get('description'),
-            notes: solution.get('notes'),
+            notes: solution.get('documentation'),
             effectSrc: solution.get('effect_image'),
             stateSrc: solution.get('currentstate_image'),
             activitiesSrc: solution.get('activities_image'),
-            checkedActivities: solution.get('activities') || [],
             category: category.get('name'),
-            mode: this.mode,
-            activities: this.activities
+            mode: this.mode
         });
-        this.renderMatFilter();
+        //this.renderMatFilter();
         this.renderMap('actors-map', solution.get('activities') || []);
         var okBtn = modal.querySelector('.confirm');
         if (this.viewer) this.viewer.destroy();
@@ -200,17 +197,11 @@ var SolutionsView = BaseView.extend(
             // on confirming the dialog save the solution and the ratios
             okBtn.addEventListener('click', function(){
 
-                var activities = [];
-                for (i = 0; i < activityInputs.length; i++) {
-                    var input = activityInputs[i];
-                    if (input.checked) activities.push(input.value)
-                }
                 var data = {
                     name: nameInput.value,
                     description: $(descriptionArea).summernote('code'),
-                    notes: $(notesArea).summernote('code'),
-                    solution_category: solution.get('solution_category'), // required by backend
-                    activities: activities
+                    documentation: $(notesArea).summernote('code'),
+                    solution_category: solution.get('solution_category')
                 }
                 for (file in changedImages){
                   data[file] = changedImages[file];
@@ -476,7 +467,7 @@ var SolutionsView = BaseView.extend(
             }});
         })
     },
-    
+
     renderMatFilter: function(){
         var _this = this;
         this.selectedMaterial = null;
@@ -580,8 +571,7 @@ var SolutionsView = BaseView.extend(
                     name: name,
                     solution_category: category.id,
                     description: '-',
-                    notes: '-',
-                    activities: []
+                    documentation: '-'
                 },
                 {
                     wait: true,

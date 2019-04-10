@@ -30,8 +30,8 @@
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
           <% if (mode == 1) { %>
-          <li><a data-toggle="tab" href="#notes-tab">{% trans "Internal Notes" %}</a></li>
-          <li><a data-toggle="tab" href="#flows-tab">{% trans "Flows" %}</a></li>
+          <li><a data-toggle="tab" href="#notes-tab">{% trans "Notes (internal)" %}</a></li>
+          <li><a data-toggle="tab" href="#solution-parts-tab">{% trans "Solution parts (internal)" %}</a></li>
           <% } %>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
@@ -46,10 +46,10 @@
             </div>
           </div>
           <% if (mode == 1) { %>
-          <div class="tab-pane fade in" id="flows-tab">
+          <div class="tab-pane fade in" id="solution-parts-tab">
             <div class="col-md-12 bordered">
-              <label>{% trans "Material" %}</label>
-              <div id="material-filter"></div>
+              <!--<label>{% trans "Select Material" %}</label>-->
+              <!--<div id="material-filter"></div>-->
             </div>
           </div>
           <div class="tab-pane fade in" id="notes-tab">
@@ -93,14 +93,7 @@
           <div class="tab-pane fade in" id="activities-tab">
             <div class="col-md-12 bordered">
               <h4>{% trans "Activities involved" %}</h4>
-              <% if (mode == 1) { %>
-                <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
-                    <% activities.forEach(function(activity){ %>
-                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
-                    <% }) %>
-                </div>
-              <% } %>
-              <div <% if (mode == 1) { %> class="col-md-8"  <% } %>>
+              <div class="col-md-8">>
                 <div class="row">
                   <% if (mode == 1) { %>
                     <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">

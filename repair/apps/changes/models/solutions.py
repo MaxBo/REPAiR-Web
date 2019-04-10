@@ -48,7 +48,6 @@ class Solution(GDSEModel):
                                            blank=True)
     effect_image = models.ImageField(upload_to='charts', null=True,
                                      blank=True)
-    activities = models.ManyToManyField(Activity)
     activities_image = models.ImageField(upload_to='charts', null=True,
                                          blank=True)
     possible_implementation_area = models.MultiPolygonField(
