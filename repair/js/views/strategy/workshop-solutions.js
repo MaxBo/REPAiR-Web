@@ -1,10 +1,9 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
-        'utils/utils', 'summernote', 'summernote/dist/summernote.css',
-        'bootstrap', 'viewerjs/dist/viewer.css'],
+        'utils/utils', 'bootstrap', 'viewerjs/dist/viewer.css'],
 
 function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config,
-         utils, summernote){
+         utils){
 /**
 *
 * @author Christoph Franke
@@ -40,8 +39,7 @@ var SolutionsWorkshopView = BaseView.extend(
         this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
-        }),
-
+        });
         this.activities = new GDSECollection([], {
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId]
