@@ -1,13 +1,8 @@
 {% load i18n %}
 {% block content %}
 
-<script type="text/template" id="solutions-template">
+<script type="text/template" id="solutions-workshop-template">
 <h3> {% trans "Solutions for the keyflow" %} <i><%= keyflowName %></i> </h3>
-<% if (mode == 1) { %>
-<button id="add-solution-category" class="btn btn-primary add" title="{% trans "add category" %}">
-  <span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}
-</button>
-<% } %>
 <div id="categories" class="row overflow">
 </div>
 <div id="solution-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
@@ -23,16 +18,9 @@
       <h4 class="modal-title"><%= category %> - <%= name %></h4>
     </div>
     <div class="modal-body">
-      <% if (mode == 1) { %>
-          {% trans "Name" %} <input name="name" value="<%= name %>" style="width: 70%; margin-bottom: 10px; margin-left: 5px;">
-      <% } %>
       <div class="row">
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
-          <% if (mode == 1) { %>
-          <li><a data-toggle="tab" href="#notes-tab">{% trans "Notes (internal)" %}</a></li>
-          <li><a data-toggle="tab" href="#solution-parts-tab">{% trans "Solution parts (internal)" %}</a></li>
-          <% } %>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
           <li><a data-toggle="tab" href="#actors-tab">{% trans "Actors" %}</a></li>
@@ -45,29 +33,11 @@
               </div>
             </div>
           </div>
-          <% if (mode == 1) { %>
-          <div class="tab-pane fade in" id="solution-parts-tab">
-            <div class="col-md-12 bordered">
-              <!--<label>{% trans "Select Material" %}</label>-->
-              <!--<div id="material-filter"></div>-->
-            </div>
-          </div>
-          <div class="tab-pane fade in" id="notes-tab">
-            <div class="col-md-12 bordered">
-              <div class="row" style="width: 900px; max-width: 100%;">
-                <div name="notes"><%= notes %></div>
-              </div>
-            </div>
-          </div>
-          <% } %>
           <div class="tab-pane fade in" id="ce-diagrams-tab">
             <div class="col-md-12 bordered">
               <div class="col-md-6">
                 <div class="row">
                   <h4>{% trans "Current state" %}</h4>
-                  <% if (mode == 1) { %>
-                    <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
-                  <% } %>
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
@@ -78,9 +48,6 @@
               <div class="col-md-6">
                 <div class="row">
                   <h4>{% trans "Effect of Solution" %}</h4>
-                  <% if (mode == 1) { %>
-                    <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
-                  <% } %>
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
@@ -93,12 +60,7 @@
           <div class="tab-pane fade in" id="activities-tab">
             <div class="col-md-12 bordered">
               <h4>{% trans "Activities involved" %}</h4>
-              <div class="col-md-8">>
-                <div class="row">
-                  <% if (mode == 1) { %>
-                    <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
-                  <% } %>
-                </div>
+              <div class="col-md-8">
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
                     <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%" alt="{% trans "Activities involved" %}">
@@ -127,10 +89,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <% if (mode == 1) { %>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-      <% } %>
-      <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
     </div>
   </div>
 </div>

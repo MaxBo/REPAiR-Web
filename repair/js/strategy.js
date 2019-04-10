@@ -1,6 +1,6 @@
-require(['models/casestudy', 'views/strategy/solutions',
+require(['models/casestudy', 'views/strategy/workshop-solutions',
     'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsView, StrategyView, appConfig) {
+], function (CaseStudy, SolutionsWorkshopView, StrategyView, appConfig) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -12,10 +12,10 @@ require(['models/casestudy', 'views/strategy/solutions',
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName){
         if (solutionsView) solutionsView.close();
-        solutionsView = new SolutionsView({
+        solutionsView = new SolutionsWorkshopView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
-            template: 'solutions-template',
+            template: 'solutions-workshop-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName
         });
@@ -31,14 +31,14 @@ require(['models/casestudy', 'views/strategy/solutions',
 
     renderSetup = function(caseStudy, keyflowId, keyflowName){
         if(solutionsView) solutionsView.close();
-        solutionsView = new SolutionsView({
-            caseStudy: caseStudy,
-            el: document.getElementById('solutions'),
-            template: 'solutions-template',
-            mode: 1,
-            keyflowId: keyflowId,
-            keyflowName: keyflowName
-        })
+        //solutionsView = new SolutionsView({
+            //caseStudy: caseStudy,
+            //el: document.getElementById('solutions'),
+            //template: 'solutions-template',
+            //mode: 1,
+            //keyflowId: keyflowId,
+            //keyflowName: keyflowName
+        //})
     };
 
     function render(caseStudy, mode){
