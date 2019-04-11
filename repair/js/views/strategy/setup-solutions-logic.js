@@ -1,0 +1,152 @@
+define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
+        'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
+        'utils/utils', 'summernote', 'summernote/dist/summernote.css',
+        'bootstrap', 'viewerjs/dist/viewer.css'],
+
+function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config,
+         utils, summernote){
+/**
+*
+* @author Christoph Franke
+* @name module:views/SolutionsLogicView
+* @augments BaseView
+*/
+var SolutionsLogicView = BaseView.extend(
+    /** @lends module:views/SolutionsLogicView.prototype */
+    {
+
+    /**
+    * render setup and workshop view on solutions
+    *
+    * @param {Object} options
+    * @param {HTMLElement} options.el                          element the view will be rendered in
+    * @param {string} options.template                         id of the script element containing the underscore template to render this view
+    * @param {module:models/CaseStudy} options.caseStudy       the casestudy to add solutions to
+    *
+    * @constructs
+    * @see http://backbonejs.org/#View
+    */
+    initialize: function(options){
+        SolutionsLogicView.__super__.initialize.apply(this, [options]);
+        var _this = this;
+        _.bindAll(this, 'showSolutionPart');
+
+        this.template = options.template;
+        this.caseStudy = options.caseStudy;
+        this.keyflowId = options.keyflowId;
+
+        // ToDo: replace with collections fetched from server
+        this.categories = new GDSECollection([], {
+            apiTag: 'solutionCategories',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        }),
+
+        // ToDo: replace with collections fetched from server
+        this.materials = new GDSECollection([], {
+            apiTag: 'materials',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        }),
+
+        this.activities = new GDSECollection([], {
+            apiTag: 'activities',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        });
+        var promises = [];
+        promises.push(this.categories.fetch());
+        promises.push(this.materials.fetch());
+
+        this.loader.activate();
+        Promise.all(promises).then(function(){
+            _this.loader.deactivate();
+            _this.render();
+        });
+    },
+
+    /*
+    * dom events (managed by jquery)
+    */
+    events: {
+        'click .chart-control.fullscreen-toggle ': 'toggleFullscreen',
+        'click #add-solution-category': 'addCategory'
+    },
+
+    /*
+    * render the view
+    */
+    render: function(){
+        var _this = this,
+            html = document.getElementById(this.template).innerHTML,
+            template = _.template(html);
+        this.el.innerHTML = template({});
+
+        var notes = this.el.querySelector('div[name="notes"]');
+
+        $(notes).summernote({
+            height: 150,
+            maxHeight: 500
+        });
+
+        var testItems = this.el.querySelectorAll('.panel-item');
+        testItems.forEach(function(item){
+            item.addEventListener('click', _this.showSolutionPart)
+        })
+    },
+
+    renderMatFilter: function(el){
+        var _this = this;
+        this.selectedMaterial = null;
+        // select material
+        var matSelect = document.createElement('div');
+        matSelect.classList.add('materialSelect');
+        var select = this.el.querySelector('.hierarchy-select');
+
+        var compAttrBefore = this.materials.comparatorAttr;
+        this.materials.comparatorAttr = 'level';
+        this.materials.sort();
+        var flowsInChildren = {};
+        // count materials in parent, descending level (leafs first)
+        this.materials.models.reverse().forEach(function(material){
+            var parent = material.get('parent'),
+                count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
+            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+        })
+        this.materials.comparatorAttr = compAttrBefore;
+        this.materials.sort();
+
+        this.matSelect = this.hierarchicalSelect(this.materials, matSelect, {
+            onSelect: function(model){
+                 _this.selectedMaterial = model;
+            },
+            defaultOption: gettext('All materials'),
+            label: function(model, option){
+                var compCount = model.get('flow_count'),
+                    childCount = flowsInChildren[model.id] || 0,
+                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                return label;
+            }
+        });
+
+        var matFlowless = this.materials.filterBy({'flow_count': 0});
+        // grey out materials not used in any flows in keyflow
+        // (do it afterwards, because hierarchical select is build in template)
+        matFlowless.forEach(function(material){
+            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]');
+            if (!li) return;
+            var a = li.querySelector('a'),
+                cls = (flowsInChildren[material.id] > 0) ? 'half': 'empty';
+            a.classList.add(cls);
+        })
+        el.appendChild(matSelect);
+    },
+
+    showSolutionPart: function(solutionPart, onConfirm){
+        var html = document.getElementById('solution-part-template').innerHTML,
+            template = _.template(html),
+            modal = this.el.querySelector('#solution-part-modal');
+        modal.innerHTML = template();
+        $(modal).modal('show');
+    },
+});
+return SolutionsLogicView;
+}
+);
