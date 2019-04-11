@@ -23,6 +23,8 @@
     <li><a href="#strategy" data-toggle="pill">{% trans "Define Strategy" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
     <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
     <li><a href="#flow-target-control" data-toggle="pill" style="font-size: 0.9em">{% trans "Flow Target Control" %} <span class="sub-icon fas fa-wrench"></span></a></li>
+    {% else %}
+    <li><a href="#solutions-logic" data-toggle="pill">{% trans "Solution Logic" %} <span class="sub-icon glyphicon glyphicon-flash" style="padding-top: 20px;"></span></a></li>
     {% endif %}
   </ul>
 {% endblock %}
@@ -41,6 +43,9 @@
   </div>
   <div class="tab-pane fade" id="flow-target-control">
     <h2>ToDo</h2>
+  </div>
+  {% else %}
+  <div class="tab-pane fade" id="solutions-logic">
   </div>
   {% endif %}
 </div>

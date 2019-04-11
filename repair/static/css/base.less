@@ -332,9 +332,12 @@ table.bordered td {
   animation: spin 2s linear infinite;
 }
 
-.disabled {
+.disabled{
+  opacity: 0.5 ~'!IMPORTANT';
+}
+
+.disabled * {
   pointer-events: none;
-  opacity: 0.7 ~'!IMPORTANT';
 }
 
 #to-top-anchor {

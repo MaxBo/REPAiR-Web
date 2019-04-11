@@ -1,7 +1,7 @@
 require(['models/casestudy', 'views/strategy/workshop-solutions',
-         'views/strategy/setup-solutions', 'views/strategy/strategy',
-         'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsWorkshopView, SolutionsSetupView,
+         'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
+         'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
+], function (CaseStudy, SolutionsWorkshopView, SolutionsSetupView, SolutionsLogicView,
              StrategyView, appConfig) {
     /**
      * entry point for views on subpages of "Changes" menu item
@@ -10,7 +10,7 @@ require(['models/casestudy', 'views/strategy/workshop-solutions',
      * @module Changes
      */
 
-    var solutionsView, strategyView;
+    var solutionsView, strategyView, solutionsLogicView;
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName){
         if (solutionsView) solutionsView.close();
@@ -37,6 +37,13 @@ require(['models/casestudy', 'views/strategy/workshop-solutions',
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-setup-template',
+            keyflowId: keyflowId
+        })
+        if(solutionsLogicView) solutionsLogicView.close();
+        solutionsLogicView = new SolutionsLogicView({
+            caseStudy: caseStudy,
+            el: document.getElementById('solutions-logic'),
+            template: 'solutions-logic-template',
             keyflowId: keyflowId
         })
     };

@@ -77,21 +77,12 @@ var SolutionsSetupView = BaseView.extend(
         var _this = this,
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
-        this.el.innerHTML = template({
-            mode: this.mode,
-            keyflowName: this.keyflowName
-        });
+        this.el.innerHTML = template();
 
-        var notes = this.el.querySelector('div[name="notes"]'),
-            description = this.el.querySelector('div[name="description"]');
-
-        $(notes).summernote({
-            height: 150,
-            maxHeight: 500
-        });
+        var description = this.el.querySelector('div[name="description"]');
 
         $(description).summernote({
-            height: 300,
+            height: 600,
             maxHeight: null
         });
         /*

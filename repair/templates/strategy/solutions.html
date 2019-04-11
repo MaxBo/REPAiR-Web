@@ -16,77 +16,80 @@
       <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
     </button>
   </div>
-  <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#presentation-tab">{% trans "Presentation" %}</a></li>
-    <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
-    <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
-    <li><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
-  </ul>
-  <div class="tab-content bordered">
-    <div class="tab-pane fade in active" id="presentation-tab">
+  <div class="row">
+    <div class="col-md-6">
       <div class="row">
-        <div class="col-md-4">
-          <div class="row">
-            <label>{% trans "Name" %} </label>
-            <input class="form-control" name="name">
-          </div>
-          <div class="row">
-            <label>{% trans "Category" %} </label>
-            <select id="solution-category" class="form-control"></select>
-          </div>
-          <button id="add-solution-category" class="btn btn-primary add" title="{% trans "add category" %}">
-            <span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}
-          </button>
-        </div>
-        <div class="col-md-8">
-          <label>{% trans "Description" %} </label>
-          <div name="description"></div>
-        </div>
+        <label>{% trans "Name" %} </label>
+        <input class="form-control" name="name">
       </div>
+      <!--<div class="row">-->
+        <!--<label>{% trans "Category" %} </label>-->
+        <!--<select id="solution-category" class="form-control"></select>-->
+      <!--</div>-->
+      <!--<button id="add-solution-category" class="btn btn-primary add" title="{% trans "add category" %}">-->
+        <!--<span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}-->
+      <!--</button>-->
+      <div class="row">
+        <label>{% trans "Description" %} </label>
+        <div name="description"></div>
+      </div>
+    </div>
+    <div class="col-md-6">
       <label>{% trans "Diagrams" %} </label>
       <div class="row bordered">
-        <div class="col-md-4">
-          <div class="row">
-            <h4>{% trans "Current state" %}</h4>
-            <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
-          </div>
-          <div style="position: relative; margin-top: 30px;">
-            <div class="row" style="background: white; overflow: auto; min-height: 200px;">
-              <img id="state-image" src='' style="width: 100%" alt="{% trans "Current state" %}">
-            </div>
+        <div class="row">
+          <h4>{% trans "Current process" %}</h4>
+          <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
+        </div>
+        <div style="position: relative; margin-top: 30px;">
+          <div class="row" style="background: white; overflow: auto; min-height: 200px;">
+            <img id="state-image" src='' style="width: 100%; max-height: 300px;" alt="{% trans "Current process" %}">
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="row">
-            <h4>{% trans "Effect of Solution" %}</h4>
-            <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
-          </div>
-          <div style="position: relative; margin-top: 30px;">
-            <div class="row" style="background: white; overflow: auto; min-height: 200px;">
-              <img id="effect-image" src='' style="width: 100%" alt="{% trans "Effect of Solution" %}">
-            </div>
+        <div class="row">
+          <h4>{% trans "Proposed process" %}</h4>
+          <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
+        </div>
+        <div style="position: relative; margin-top: 30px;">
+          <div class="row" style="background: white; overflow: auto; min-height: 200px;">
+            <img id="effect-image" src='' style="width: 100%; max-height: 300px;" alt="{% trans "Proposed process" %}">
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="row">
-            <h4>{% trans "Activities involved" %}</h4>
-            <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
-          </div>
-          <div style="position: relative; margin-top: 30px;">
-            <div class="row" style="background: white; overflow: auto; min-height: 200px;">
-              <img id="activities-image" src='' style="width: 100%" alt="{% trans "Activities involved" %}">
-            </div>
+        <div class="row">
+          <h4>{% trans "Activities involved" %}</h4>
+          <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
+        </div>
+        <div style="position: relative; margin-top: 30px;">
+          <div class="row" style="background: white; overflow: auto; min-height: 200px;">
+            <img id="activities-image" src='' style="width: 100%; max-height: 300px;" alt="{% trans "Activities involved" %}">
           </div>
         </div>
       </div>
     </div>
+  <div>
+</div>
+</script>
+
+<script type="text/template" id="solutions-logic-template">
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Solution" %}</h4>
+  <select name="filter" class="form-control" style="max-width: 500px; margin-right: 10px; float: left;">
+  </select>
+</div>
+<div class="row">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
+    <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
+    <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
+  </ul>
+  <div class="tab-content bordered">
     <div class="tab-pane fade in" id="area-tab">
     </div>
     <div class="tab-pane fade in" id="questions-tab">
     </div>
-    <div class="tab-pane fade in" id="parts-tab">
+    <div class="tab-pane fade in active" id="parts-tab">
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-6">
           <div>
             <div class="item-panel bordered"><label style="margin-bottom: 20px; width:100%">
               <label>Parts in computing order</label>
@@ -105,7 +108,7 @@
             </div>
           </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-6">
           <div>
             <label>{% trans "Notes (internal)" %} </label>
             <div name="notes"></div>
@@ -114,11 +117,12 @@
       </div>
     </div>
   <div>
+  <div id="solution-part-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
 </div>
 </script>
 
 <!-- modal for editing/viewing a solution part-->
-<script type="text/template" id="view-solution-template">
+<script type="text/template" id="solution-part-template">
 <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
   <!-- Modal content-->
   <div class="modal-content col-md-12">
@@ -250,21 +254,21 @@
             <div class="col-md-12 bordered">
               <div class="col-md-6">
                 <div class="row">
-                  <h4>{% trans "Current state" %}</h4>
+                  <h4>{% trans "Current process" %}</h4>
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "Current state" %}">
+                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "Current process" %}">
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="row">
-                  <h4>{% trans "Effect of Solution" %}</h4>
+                  <h4>{% trans "Proposed process" %}</h4>
                 </div>
                 <div style="position: relative; margin-top: 30px;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "Effect of Solution" %}">
+                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "Proposed process" %}">
                   </div>
                 </div>
               </div>

@@ -98,17 +98,6 @@ var SolutionsWorkshopView = BaseView.extend(
         var _this = this,
             changedImages = {};
 
-        function swapImage(input, imgId, field){
-            if (input.files && input.files[0]){
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById(imgId).src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-                changedImages[field] = input.files[0];
-            }
-        };
-
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
             template = _.template(html),
