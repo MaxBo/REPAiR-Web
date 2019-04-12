@@ -16,9 +16,6 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            IDRelatedField)
 
 
-from .solutions import SolutionField
-
-
 class SolutionInStrategySetField(InCasestudyField):
     """Returns a list of links to the solutions"""
     lookup_url_kwarg = 'strategy_pk'

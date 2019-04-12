@@ -16,82 +16,16 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            IDRelatedField)
 
 
-class SolutionCategoryField(InCasestudyField):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution_category__keyflow__id'
-    }
-
-
-class SolutionField(InCasestudyField):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution_category__id'
-    }
-
-
-class SolutionSetField(InCasestudyField):
-    """Returns a List of links to the solutions"""
-    lookup_url_kwarg = 'solutioncategory_pk'
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution_category__id'
-    }
-
-
-class SolutionListField(IdentityFieldMixin, SolutionSetField):
-    """Returns a Link to the solutions--list view"""
-    lookup_url_kwarg = 'solutioncategory_pk'
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'keyflow__casestudy__id',
-        'keyflow_pk': 'keyflow__id',
-        'solutioncategory_pk': 'id'
-    }
-
-
-class SolutionSetSerializer(NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution_category__id'
-    }
-
-    class Meta:
-        model = Solution
-        fields = ('url', 'id', 'name')
-
-
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
                                  NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
     }
-    solution_set = SolutionListField(
-        view_name='solution-list')
-    solution_list = SolutionSetField(
-        source='solution_set',
-        view_name='solution-detail',
-        many=True,
-        read_only=True,
-    )
-    user = UserInCasestudyField(
-        view_name='userincasestudy-detail', read_only=True
-    )
-    keyflow = IDRelatedField(required=False)
 
     class Meta:
         model = SolutionCategory
-        fields = ('url', 'id', 'name', 'user', 'keyflow', 'solution_set', 'solution_list')
-        read_only_fields = ('url', 'id')
-
-
-class SolutionCategoryPostSerializer(SolutionCategorySerializer):
-    class Meta:
-        model = SolutionCategory
-        fields = ('url', 'id', 'name', 'user', 'solution_set', 'solution_list')
+        fields = ('url', 'id', 'name')
         read_only_fields = ('url', 'id')
 
 
@@ -131,8 +65,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution_category__keyflow__casestudy__id',
-        'keyflow_pk': 'solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution_category__id',
+        'keyflow_pk': 'solution_category__keyflow__id'
     }
 
     user = UserInCasestudyField(view_name='userincasestudy-detail',

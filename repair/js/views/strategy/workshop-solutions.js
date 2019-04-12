@@ -35,17 +35,22 @@ var SolutionsWorkshopView = BaseView.extend(
         this.keyflowId = options.keyflowId;
         this.keyflowName = options.keyflowName;
 
-        // ToDo: replace with collections fetched from server
         this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
+
+        this.solutions = new GDSECollection([], {
+            apiTag: 'solutions',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        });
+
         this.activities = new GDSECollection([], {
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
         var promises = [];
-        promises.push(this.categories.fetch());
+        promises.push(this.categories.fetch(), this.solutions.fetch());
 
         this.loader.activate();
         Promise.all(promises).then(function(){
@@ -71,20 +76,9 @@ var SolutionsWorkshopView = BaseView.extend(
             keyflowName: this.keyflowName
         });
         var promises = [];
-        this.loader.activate();
         this.categories.forEach(function(category){
-            category.solutions = new GDSECollection([], {
-                apiTag: 'solutions',
-                apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
-            }),
-            promises.push(category.solutions.fetch());
-        });
-        // fetch all before rendering to keep the order
-        Promise.all(promises).then(function(){
-            _this.categories.forEach(function(category){
-                _this.renderCategory(category);
-            });
-            _this.loader.deactivate();
+            var solutions = _this.solutions.filterBy({solution_category: category.id})
+            _this.renderCategory(category, solutions);
         });
     },
 
@@ -262,7 +256,7 @@ var SolutionsWorkshopView = BaseView.extend(
     * render a solution category panel
     * adds buttons in setup mode only
     */
-    renderCategory: function(category){
+    renderCategory: function(category, solutions){
         var _this = this;
         var panelList = this.el.querySelector('#categories');
         // create the panel (ToDo: use template for panels instead?)
@@ -278,11 +272,9 @@ var SolutionsWorkshopView = BaseView.extend(
         div.appendChild(label);
         div.appendChild(panel);
         // add the items
-        if (category.solutions){
-            category.solutions.forEach(function(solution){
-                _this.renderSolutionItem(panel, solution);
-            });
-        }
+        solutions.forEach(function(solution){
+            _this.renderSolutionItem(panel, solution);
+        });
     },
 
     /*

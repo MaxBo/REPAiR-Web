@@ -35,13 +35,11 @@ var SolutionsSetupView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
 
-        // ToDo: replace with collections fetched from server
         this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
         }),
 
-        // ToDo: replace with collections fetched from server
         this.materials = new GDSECollection([], {
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId]
@@ -51,6 +49,7 @@ var SolutionsSetupView = BaseView.extend(
             apiTag: 'activities',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
+
         var promises = [];
         promises.push(this.categories.fetch());
         promises.push(this.materials.fetch());
@@ -85,7 +84,6 @@ var SolutionsSetupView = BaseView.extend(
             height: 600,
             maxHeight: null
         });
-        /*
         var promises = [];
         this.loader.activate();
         this.categories.forEach(function(category){
@@ -101,19 +99,8 @@ var SolutionsSetupView = BaseView.extend(
                 _this.renderCategory(category);
             });
             _this.loader.deactivate();
-
-            // lazy way to render workshop mode: just hide all buttons for editing
-            // you may make separate views as well
-            if (_this.mode == 0){
-                var btns = _this.el.querySelectorAll('button.add, button.edit, button.remove');
-                _.each(btns, function(button){
-                    button.style.display = 'none';
-                });
-            }
-        });*/
+        });
     },
-
-
 
     /*
     * open a modal containing details about the solution
