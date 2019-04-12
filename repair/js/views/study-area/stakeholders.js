@@ -112,11 +112,12 @@ var StakeholdersView = BaseView.extend(
             // create the panel (ToDo: use template for panels instead?)
             var div = document.createElement('div'),
                 panel = document.createElement('div');
-            div.classList.add('col-md-3', 'bordered');
+            div.classList.add('col-md-3', 'bordered', 'item-panel');
             div.style.margin = '5px';
             panelList.appendChild(div);
 
             var label = document.createElement('label'),
+                btnGroup = document.createElement('div'),
                 button = document.createElement('button'),
                 editBtn = document.createElement('button'),
                 removeBtn = document.createElement('button');
@@ -154,8 +155,12 @@ var StakeholdersView = BaseView.extend(
                 editBtn.addEventListener('click', function(){
                     _this.editCategory(category);
                 })
-                div.appendChild(removeBtn);
-                div.appendChild(editBtn);
+                btnGroup.appendChild(removeBtn);
+                btnGroup.appendChild(editBtn);
+                btnGroup.style.position = 'absolute';
+                btnGroup.style.right = '15px';
+                btnGroup.style.top = '15px';
+                div.appendChild(btnGroup);
             }
 
             div.appendChild(label);

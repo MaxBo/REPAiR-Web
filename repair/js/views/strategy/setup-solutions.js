@@ -1,7 +1,7 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
         'utils/utils', 'summernote', 'summernote/dist/summernote.css',
-        'bootstrap', 'viewerjs/dist/viewer.css'],
+        'bootstrap', 'viewerjs/dist/viewer.css', 'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config,
          utils, summernote){
@@ -38,21 +38,16 @@ var SolutionsSetupView = BaseView.extend(
         this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
-        }),
+        });
 
-        this.materials = new GDSECollection([], {
-            apiTag: 'materials',
-            apiIds: [this.caseStudy.id, this.keyflowId]
-        }),
-
-        this.activities = new GDSECollection([], {
-            apiTag: 'activities',
+        this.solutions = new GDSECollection([], {
+            apiTag: 'solutions',
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
 
         var promises = [];
         promises.push(this.categories.fetch());
-        promises.push(this.materials.fetch());
+        promises.push(this.solutions.fetch());
 
         this.loader.activate();
         Promise.all(promises).then(function(){
@@ -65,8 +60,7 @@ var SolutionsSetupView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click .chart-control.fullscreen-toggle ': 'toggleFullscreen',
-        'click #add-solution-category': 'addCategory'
+        'click #add-solution': 'addSolution'
     },
 
     /*
@@ -76,30 +70,129 @@ var SolutionsSetupView = BaseView.extend(
         var _this = this,
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
-        this.el.innerHTML = template();
+        this.el.innerHTML = template({solutions: this.solutions});
+        var promises = [];
+        this.solutionSelect = this.el.querySelector('#solution-select');
+        this.categorySelect = this.el.querySelector('#solution-category');
+        $(this.solutionSelect).selectpicker();
+        this.populateSolutions();
+        this.populateCategories();
 
-        var description = this.el.querySelector('div[name="description"]');
+        this.nameInput = this.el.querySelector('input[name="name"]');
+        this.descriptionArea = this.el.querySelector('div[name="description"]');
+        this.stateImgInput = this.el.querySelector('input[name="state-file"]');
+        this.effectImgInput = this.el.querySelector('input[name="effect-file"]');
+        this.activitiesImgInput = this.el.querySelector('input[name="activities-file"]');
+        this.stateImg = this.el.querySelector('#state-image');
+        this.effectImg = this.el.querySelector('#effect-image');
+        this.activitiesImg = this.el.querySelector('#activities-image');
 
-        $(description).summernote({
+        $(this.descriptionArea).summernote({
             height: 600,
             maxHeight: null
         });
-        var promises = [];
-        this.loader.activate();
+
+        this.el.querySelector('#edit-solution').addEventListener('click', function(){
+            _this.activeSolution = _this.solutions.get(_this.solutionSelect.value);
+            _this.renderSolution(_this.activeSolution);
+        });
+
+        this.el.querySelector('#save-solution').addEventListener('click', function(){
+            _this.saveSolution(_this.activeSolution);
+        });
+
+        this.swappedImages = {};
+
+        function swapImage(input, img, field){
+            if (input.files && input.files[0]){
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+                _this.swappedImages[field] = input.files[0];
+            }
+        }
+
+        this.stateImgInput.addEventListener('change', function(){
+            swapImage(_this.stateImgInput, _this.stateImg, 'currentstate_image');
+        })
+        this.effectImgInput.addEventListener('change', function(){
+            swapImage(_this.effectImgInput, _this.effectImg, 'effect_image');
+        })
+        this.activitiesImgInput.addEventListener('change', function(){
+            swapImage(_this.activitiesImgInput, _this.activitiesImg, 'activities_image');
+        })
+    },
+
+    /* fill selection with solutions */
+    populateSolutions: function(){
+        var _this = this,
+            prevSel = this.solutionSelect.value;
+        utils.clearSelect(this.solutionSelect);
         this.categories.forEach(function(category){
-            category.solutions = new GDSECollection([], {
-                apiTag: 'solutions',
-                apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
-            }),
-            promises.push(category.solutions.fetch());
-        });
-        // fetch all before rendering to keep the order
-        Promise.all(promises).then(function(){
-            _this.categories.forEach(function(category){
-                _this.renderCategory(category);
-            });
-            _this.loader.deactivate();
-        });
+            var group = document.createElement('optgroup'),
+                solutions = _this.solutions.filterBy({solution_category: category.id});
+            group.label = category.get('name');
+            solutions.forEach(function(solution){
+                var option = document.createElement('option');
+                option.value = solution.id;
+                option.text = solution.get('name');
+                group.appendChild(option);
+            })
+            _this.solutionSelect.appendChild(group);
+        })
+        if (prevSel != null) this.solutionSelect.value = prevSel;
+        $(this.solutionSelect).selectpicker('refresh');
+    },
+
+    /* fill selection with solutions */
+    populateCategories: function(){
+        var _this = this;
+        utils.clearSelect(this.categorySelect);
+        this.categories.forEach(function(category){
+            var option = document.createElement('option');
+            option.value = category.id;
+            option.text = category.get('name');
+            _this.categorySelect.appendChild(option);
+        })
+    },
+
+    renderSolution: function(solution){
+        var _this = this;
+        if (!solution) return;
+        this.el.querySelector('#solution-edit-content').style.display = 'block';
+        this.swappedImages = {};
+        this.nameInput.value = solution.get('name');
+        this.categorySelect.value = solution.get('solution_category');
+        $(this.descriptionArea).summernote("code", solution.get('description'));
+        this.effectImg.src = solution.get('effect_image');
+        this.stateImg.src = solution.get('currentstate_image');
+        this.activitiesImg.src = solution.get('activities_image');
+    },
+
+    saveSolution: function(solution){
+        var _this = this;
+        var data = {
+            name: this.nameInput.value,
+            description: $(this.descriptionArea).summernote('code'),
+            solution_category: this.categorySelect.value
+        }
+        for (var file in this.swappedImages){
+          data[file] = _this.swappedImages[file];
+        }
+        _this.loader.activate()
+        solution.save(data, {
+            success: function(){
+                _this.loader.deactivate();
+                // group might have changed -> update solution list
+                _this.populateSolutions();
+                _this.alert(gettext('Upload successful'), gettext('Success'));
+            },
+            error: _this.onError,
+            patch: true
+        })
+
     },
 
     /*
@@ -110,16 +203,6 @@ var SolutionsSetupView = BaseView.extend(
         var _this = this,
             changedImages = {};
 
-        function swapImage(input, imgId, field){
-            if (input.files && input.files[0]){
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    document.getElementById(imgId).src = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
-                changedImages[field] = input.files[0];
-            }
-        };
 
         var category = this.categories.get(solution.get('solution_category'));
         var html = document.getElementById('view-solution-template').innerHTML,
@@ -219,144 +302,6 @@ var SolutionsSetupView = BaseView.extend(
     },
 
     /*
-    * render a map containing the administrative locations of actors of the given
-    * activities
-    */
-    renderMap: function(divid, activities){
-        var _this = this;
-        // remove old map
-        if (this.map){
-            this.map.close();
-            this.map = null;
-        }
-        var el = document.getElementById(divid),
-            height = document.body.clientHeight * 0.6;
-        el.style.height = height + 'px';
-        this.map = new Map({
-            el: el,
-        });
-        var focusarea = this.caseStudy.get('properties').focusarea;
-
-        this.map.addLayer('background', {
-            stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
-            strokeWidth: 1,
-            zIndex: 0
-        });
-        // add polygon of focusarea to both maps and center on their centroid
-        if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], {
-                projection: this.projection,
-                layername: 'background',
-                tooltip: gettext('Focus area')
-            });
-            this.map.centerOnPolygon(poly, { projection: this.projection });
-        };
-        var deferreds = [];
-
-        activities.forEach(function(activityId){
-            _this.renderActivityOnMap(activityId);
-        })
-    },
-
-    addToLegend: function(activityId, color){
-        var legend = this.el.querySelector('#legend'),
-            itemsDiv = legend.querySelector('.items'),
-            legendDiv = document.createElement('li'),
-            square = document.createElement('div'),
-            textDiv = document.createElement('div'),
-            head = document.createElement('b'),
-            img = document.createElement('img'),
-            activity = this.activities.get(activityId);
-        legendDiv.dataset['id'] = activityId;
-        textDiv.innerHTML = activity.get('name');
-        textDiv.style.overflow = 'hidden';
-        textDiv.style.textOverflow = 'ellipsis';
-        legendDiv.appendChild(square);
-        legendDiv.appendChild(textDiv);
-        square.style.backgroundColor = color;
-        square.style.float = 'left';
-        square.style.width = '20px';
-        square.style.height = '20px';
-        square.style.marginRight = '5px';
-        itemsDiv.appendChild(legendDiv);
-    },
-
-    removeFromLegend: function(activityId){
-        var legend = this.el.querySelector('#legend'),
-            itemsDiv = legend.querySelector('.items');
-            entry = itemsDiv.querySelector('li[data-id="' + activityId + '"]');
-        itemsDiv.removeChild(entry);
-    },
-
-    // render the administrative locations of all actors of activity with given id
-    renderActivityOnMap: function(activityId){
-        var _this = this,
-            activity = this.activities.get(activityId);
-        if (!activity) return;
-        var activityName = activity.get('name'),
-            checkList = document.getElementById('activities-checks');
-        if (checkList){
-            var loader = new utils.Loader(document.getElementById('activities-checks'), {disable: true});
-            loader.activate();
-        }
-        var actors = new GDSECollection([], {
-            apiTag: 'actors',
-            apiIds: [this.caseStudy.id, this.keyflowId]
-        })
-        var color = utils.colorByName(activity.get('name')),
-            layername = 'actors' + activityId;
-        _this.map.addLayer(layername, {
-            stroke: 'black',
-            fill: color,
-            strokeWidth: 1,
-            zIndex: 1
-        });
-        actors.fetch({
-            data: { activity: activityId, included: "True" },
-            success: function(){
-                if (actors.length === 0) {
-                    if(loader) loader.deactivate();
-                    return;
-                }
-                var actorIds = actors.pluck('id'),
-                    locations = new GeoLocations([],{
-                        apiTag: 'adminLocations',
-                        apiIds: [_this.caseStudy.id, _this.keyflowId]
-                    });
-                var data = {};
-                data['actor__in'] = actorIds.toString();
-                locations.fetch({
-                    data: data,
-                    success: function(){
-                        locations.forEach(function(loc){
-                            var properties = loc.get('properties'),
-                                actor = actors.get(properties.actor),
-                                geom = loc.get('geometry');
-                            if (geom) {
-                                _this.map.addGeometry(geom.get('coordinates'), {
-                                    projection: _this.projection,
-                                    layername: layername,
-                                    tooltip: activityName + '<br>' + actor.get('name'),
-                                    type: 'Point'
-                                });
-                            }
-                        })
-                        if(loader) loader.deactivate();
-                    }
-                })
-            }
-        })
-        this.addToLegend(activityId, color);
-    },
-
-    // remove the actors of activity with given id from map
-    removeActivityFromMap: function(activityId){
-        this.map.removeLayer('actors' + activityId);
-        this.removeFromLegend(activityId);
-    },
-
-    /*
     * render a solution category panel
     * adds buttons in setup mode only
     */
@@ -426,83 +371,6 @@ var SolutionsSetupView = BaseView.extend(
                 _this.renderSolutionItem(panel, solution);
             });
         }
-    },
-
-    /*
-    * render a solution item in the panel
-    */
-    renderSolutionItem: function(panel, solution){
-        var _this = this;
-        // render panel item from template (in templates/common.html)
-        var html = document.getElementById('panel-item-template').innerHTML,
-            template = _.template(html);
-        var panelItem = document.createElement('div');
-        panelItem.classList.add('panel-item');
-        panelItem.classList.add('noselect');
-        panelItem.innerHTML = template({ name: solution.get('name') });
-        panel.appendChild(panelItem);
-        // in workshop mode show solution on click on panel, else on click on edit
-        var editBtn = (this.mode == 0) ? panelItem: panelItem.querySelector('.edit'),
-            removeBtn = panelItem.querySelector('.remove');
-        editBtn.addEventListener('click', function(){
-            _this.showSolution(solution);
-        })
-        removeBtn.addEventListener('click', function(){
-            var message = gettext('Do you really want to delete the solution?');
-            _this.confirm({ message: message, onConfirm: function(){
-                solution.destroy({
-                    success: function() { panel.removeChild(panelItem); },
-                    error: _this.onError
-                })
-            }});
-        })
-    },
-
-    renderMatFilter: function(){
-        var _this = this;
-        this.selectedMaterial = null;
-        // select material
-        var matSelect = document.createElement('div');
-        matSelect.classList.add('materialSelect');
-        var select = this.el.querySelector('.hierarchy-select');
-
-        var compAttrBefore = this.materials.comparatorAttr;
-        this.materials.comparatorAttr = 'level';
-        this.materials.sort();
-        var flowsInChildren = {};
-        // count materials in parent, descending level (leafs first)
-        this.materials.models.reverse().forEach(function(material){
-            var parent = material.get('parent'),
-                count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
-            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
-        })
-        this.materials.comparatorAttr = compAttrBefore;
-        this.materials.sort();
-
-        this.matSelect = this.hierarchicalSelect(this.materials, matSelect, {
-            onSelect: function(model){
-                 _this.selectedMaterial = model;
-            },
-            defaultOption: gettext('All materials'),
-            label: function(model, option){
-                var compCount = model.get('flow_count'),
-                    childCount = flowsInChildren[model.id] || 0,
-                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
-                return label;
-            }
-        });
-
-        var matFlowless = this.materials.filterBy({'flow_count': 0});
-        // grey out materials not used in any flows in keyflow
-        // (do it afterwards, because hierarchical select is build in template)
-        matFlowless.forEach(function(material){
-            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]');
-            if (!li) return;
-            var a = li.querySelector('a'),
-                cls = (flowsInChildren[material.id] > 0) ? 'half': 'empty';
-            a.classList.add(cls);
-        })
-        this.el.querySelector('#material-filter').appendChild(matSelect);
     },
 
     /*
