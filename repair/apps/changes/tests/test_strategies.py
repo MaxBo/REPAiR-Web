@@ -548,8 +548,6 @@ class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def setUp(self):
         super().setUp()
         self.obj = SolutionInStrategyFactory(
-            solution__user=self.uic,
-            solution__solution_category__user=self.uic,
             solution__id=self.solution,
             strategy__user=self.uic,
             strategy__id=self.strategy,
