@@ -34,6 +34,7 @@ var SolutionsSetupView = BaseView.extend(
         this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.keyflowName = options.keyflowName;
 
         this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories',
@@ -60,7 +61,8 @@ var SolutionsSetupView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #add-solution': 'addSolution'
+        'click #add-solution': 'addSolution',
+        'click #edit-solution-categories': 'showCategoryModal'
     },
 
     /*
@@ -123,6 +125,15 @@ var SolutionsSetupView = BaseView.extend(
         this.activitiesImgInput.addEventListener('change', function(){
             swapImage(_this.activitiesImgInput, _this.activitiesImg, 'activities_image');
         })
+
+        this.viewer = new Viewer.default(this.el);
+
+        // rerender categories after editing
+        this.catModal = this.el.querySelector('#categories-modal');
+        $(this.catModal).on('hidden.bs.modal', function () {
+            _this.populateSolutions();
+            _this.populateCategories();
+        })
     },
 
     /* fill selection with solutions */
@@ -148,7 +159,8 @@ var SolutionsSetupView = BaseView.extend(
 
     /* fill selection with solutions */
     populateCategories: function(){
-        var _this = this;
+        var _this = this,
+            prevSel = this.categorySelect.value;
         utils.clearSelect(this.categorySelect);
         this.categories.forEach(function(category){
             var option = document.createElement('option');
@@ -156,6 +168,7 @@ var SolutionsSetupView = BaseView.extend(
             option.text = category.get('name');
             _this.categorySelect.appendChild(option);
         })
+        if (prevSel != null) this.categorySelect.value = prevSel;
     },
 
     renderSolution: function(solution){
@@ -196,109 +209,70 @@ var SolutionsSetupView = BaseView.extend(
     },
 
     /*
-    * open a modal containing details about the solution
-    * onConfirm is called when user confirms modal by clicking OK button
+    * open a modal for editing the categories
     */
-    showSolution: function(solution, onConfirm){
-        var _this = this,
-            changedImages = {};
+    showCategoryModal: function(){
+        var _this = this;
+            html = document.getElementById('categories-template').innerHTML,
+            template = _.template(html);
 
-
-        var category = this.categories.get(solution.get('solution_category'));
-        var html = document.getElementById('view-solution-template').innerHTML,
-            template = _.template(html),
-            modal = this.el.querySelector('#solution-modal');
-
-        modal.innerHTML = template({
-            name: solution.get('name'),
-            description: solution.get('description'),
-            notes: solution.get('documentation'),
-            effectSrc: solution.get('effect_image'),
-            stateSrc: solution.get('currentstate_image'),
-            activitiesSrc: solution.get('activities_image'),
-            category: category.get('name'),
-            mode: this.mode
+        this.catModal.innerHTML = template({
+            keyflowName: this.keyflowName
         });
-        //this.renderMatFilter();
-        this.renderMap('actors-map', solution.get('activities') || []);
-        var okBtn = modal.querySelector('.confirm');
-        if (this.viewer) this.viewer.destroy();
-        this.viewer = new Viewer.default(modal);
 
-        // add buttons and listeners for editing the solution in setup mode
-        if (this.mode == 1){
-            var nameInput = modal.querySelector('input[name="name"]'),
-                stateImgInput = modal.querySelector('input[name="state-file"]'),
-                effectImgInput = modal.querySelector('input[name="effect-file"]'),
-                activitiesImgInput = modal.querySelector('input[name="activities-file"]'),
-                descriptionArea = modal.querySelector('div[name="description"]'),
-                notesArea = modal.querySelector('div[name="notes"]'),
-                activityInputs = modal.querySelectorAll('input[name="activity"]');
+        var catList = this.catModal.querySelector('.category-list');
 
-            $(descriptionArea).summernote({
-                height: 300,
-                maxHeight: null,
-                //tooltip: false
-            });
-            $(notesArea).summernote({
-                height: 300,
-                maxHeight: null,
-                //tooltip: false
-            });
 
-            stateImgInput.addEventListener('change', function(){
-                swapImage(stateImgInput, 'state-image', 'currentstate_image');
-            })
-            effectImgInput.addEventListener('change', function(){
-                swapImage(effectImgInput, 'effect-image', 'effect_image');
-            })
-            activitiesImgInput.addEventListener('change', function(){
-                swapImage(activitiesImgInput, 'activities-image', 'activities_image');
-            })
-
-            for(var i = 0; i < activityInputs.length; i++){
-                var checkbox = activityInputs[i];
-                checkbox.addEventListener('change', function(event){
-                    var id = event.target.value;
-                    if (event.target.checked)
-                        _this.renderActivityOnMap(id);
-                    else
-                        _this.removeActivityFromMap(id);
-                })
-            }
-
-            // on confirming the dialog save the solution and the ratios
-            okBtn.addEventListener('click', function(){
-
-                var data = {
-                    name: nameInput.value,
-                    description: $(descriptionArea).summernote('code'),
-                    documentation: $(notesArea).summernote('code'),
-                    solution_category: solution.get('solution_category')
+        function editCategory(category, catItem){
+            _this.getName({
+                name: category.get('name'),
+                onConfirm: function(name){
+                    category.save(
+                        {
+                            name: name
+                        },
+                        {
+                            error: _this.onError,
+                            success: function(){
+                                catItem.querySelector('label').innerHTML = name;
+                            },
+                            patch: true
+                        }
+                    )
                 }
-                for (file in changedImages){
-                  data[file] = changedImages[file];
-                }
-                _this.loader.activate()
-                solution.save(data, {
-                    success: function(){
-                        $(modal).modal('hide');
-                        _this.loader.deactivate();
-                        if (onConfirm) onConfirm();
-                    },
-                    error: _this.onError,
-                    patch: true
-                })
-            });
+            })
         }
-        else okBtn.addEventListener('click', function(){ $(modal).modal('hide'); });
 
-        // update map, when tab 'Actors' becomes active, else you won't see any map
-        var actorsLink = modal.querySelector('a[href="#actors-tab"]');
-        $(actorsLink).on('shown.bs.tab', function () {
-            _this.map.map.updateSize();
-        });
-        $(modal).modal('show');
+        function removeCategory(category, catItem){
+        }
+
+        function addCategoryItem(category){
+            var catItem = document.createElement('div'),
+                html = document.getElementById('panel-item-template').innerHTML,
+                template = _.template(html);
+            catItem.classList.add('panel-item');
+            catItem.classList.add('noselect');
+            catItem.innerHTML = template({ name: category.get('name') });
+            catList.appendChild(catItem);
+            catItem.querySelector('.edit').addEventListener('click', function(){
+                editCategory(category, catItem);
+            })
+            catItem.querySelector('.remove').addEventListener('click', function(){
+                removeCategory(category, catItem);
+            })
+        }
+
+        function addCategory(){
+            _this.getName({
+                onConfirm: function(){}
+            })
+        }
+
+
+        this.categories.forEach(addCategoryItem);
+
+        this.catModal.querySelector('.add').addEventListener('click', addCategory)
+        $(this.catModal).modal('show');
     },
 
     /*

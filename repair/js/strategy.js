@@ -37,7 +37,8 @@ require(['models/casestudy', 'views/strategy/workshop-solutions',
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-setup-template',
-            keyflowId: keyflowId
+            keyflowId: keyflowId,
+            keyflowName: keyflowName
         })
         if(solutionsLogicView) solutionsLogicView.close();
         solutionsLogicView = new SolutionsLogicView({
