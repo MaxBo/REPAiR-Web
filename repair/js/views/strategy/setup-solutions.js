@@ -43,7 +43,8 @@ var SolutionsSetupView = BaseView.extend(
 
         this.solutions = new GDSECollection([], {
             apiTag: 'solutions',
-            apiIds: [this.caseStudy.id, this.keyflowId]
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
         });
 
         var promises = [];
@@ -52,6 +53,7 @@ var SolutionsSetupView = BaseView.extend(
 
         this.loader.activate();
         Promise.all(promises).then(function(){
+            _this.solutions.sort();
             _this.loader.deactivate();
             _this.render();
         });
@@ -76,7 +78,7 @@ var SolutionsSetupView = BaseView.extend(
         var promises = [];
         this.solutionSelect = this.el.querySelector('#solution-select');
         this.categorySelect = this.el.querySelector('#solution-category');
-        $(this.solutionSelect).selectpicker();
+        $(this.solutionSelect).selectpicker({size: 10});
         this.populateSolutions();
         this.populateCategories();
 
