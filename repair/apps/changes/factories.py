@@ -15,7 +15,6 @@ class SolutionCategoryFactory(DjangoModelFactory):
     class Meta:
         model = models.SolutionCategory
     name = 'Financial'
-    user = factory.SubFactory(UserInCasestudyFactory)
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
@@ -24,7 +23,6 @@ class SolutionFactory(DjangoModelFactory):
         model = models.Solution
     name = 'Super Solution'
     solution_category = factory.SubFactory(SolutionCategoryFactory)
-    user = factory.SubFactory(UserInCasestudyFactory)
     description = 'This is the best Solution'
 
 

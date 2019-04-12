@@ -6,8 +6,7 @@ import re
 from enumfields import EnumIntegerField
 
 from repair.apps.login.models import (GDSEUniqueNameModel,
-                                      GDSEModel,
-                                      UserInCasestudy)
+                                      GDSEModel)
 from repair.apps.asmfa.models import (Activity, KeyflowInCasestudy,
                                       Material, Process)
 from repair.apps.statusquo.models import SpatialChoice
@@ -20,15 +19,9 @@ double_list_validator = RegexValidator(
 
 
 class SolutionCategory(GDSEModel):
-    # note CF: why does this have a user??????
-    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
-
-    @property
-    def casestudy(self):
-        return self.user.casestudy
 
 
 class Solution(GDSEModel):
@@ -36,9 +29,6 @@ class Solution(GDSEModel):
     definition of a solution to be implemented by user, may affect multiple
     flows as defined in its solution-parts
     '''
-    # note CF: this user relation makes no sense either, the SolutionInStrategy
-    # is supposed to be the user related one via Strategy
-    user = models.ForeignKey(UserInCasestudy, on_delete=PROTECT_CASCADE)
     solution_category = models.ForeignKey(SolutionCategory,
                                           on_delete=PROTECT_CASCADE)
     name = models.TextField()
@@ -52,10 +42,6 @@ class Solution(GDSEModel):
                                          blank=True)
     possible_implementation_area = models.MultiPolygonField(
         null=True, srid=4326, blank=True)
-
-    @property
-    def casestudy(self):
-        return self.user.casestudy
 
 
 class ImplementationQuestion(GDSEModel):

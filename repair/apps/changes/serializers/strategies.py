@@ -9,7 +9,6 @@ from repair.apps.changes.models import (Strategy,
 
 from repair.apps.login.serializers import (InCasestudyField,
                                            UserInCasestudyField,
-                                           InSolutionField,
                                            InCaseStudyIdentityField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
@@ -109,16 +108,6 @@ class StrategyField(InCasestudyField):
     parent_lookup_kwargs = {
         'casestudy_pk': 'strategy__keyflow__casestudy__id',
         'keyflow_pk': 'strategy__keyflow__id'
-    }
-
-
-class SolutionInStrategyDetailListField(InCaseStudyIdentityField):
-    lookup_url_kwarg = 'solution_pk'
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'strategy__keyflow__casestudy__id',
-        'keyflow_pk': 'strategy__keyflow__id',
-        'strategy_pk': 'strategy__id',
-        'solution_pk': 'id'
     }
 
 

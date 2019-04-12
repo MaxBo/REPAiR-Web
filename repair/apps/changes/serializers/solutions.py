@@ -68,8 +68,6 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         'keyflow_pk': 'solution_category__keyflow__id'
     }
 
-    user = UserInCasestudyField(view_name='userincasestudy-detail',
-                                read_only=True)
     solution_category = IDRelatedField()
     currentstate_image = serializers.ImageField(required=False, allow_null=True)
     activities_image = serializers.ImageField(required=False, allow_null=True)
@@ -77,7 +75,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
 
     class Meta:
         model = Solution
-        fields = ('url', 'id', 'name', 'user', 'description',
+        fields = ('url', 'id', 'name', 'description',
                   'documentation', 'solution_category',
                   'activities_image',
                   'currentstate_image', 'effect_image'

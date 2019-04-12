@@ -524,7 +524,6 @@ class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.solution_url = cls.baseurl + \
             reverse('solution-detail',
                     kwargs=dict(casestudy_pk=cls.casestudy,
-                                solutioncategory_pk=cls.solutioncategory,
                                 keyflow_pk=cls.keyflow,
                                 pk=cls.solution))
         cls.strategy_url = cls.baseurl + \
