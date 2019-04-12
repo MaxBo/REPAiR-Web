@@ -596,7 +596,7 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
 
 .panel-item {
   font-size: 1em;
-  background-color: white;
+  background-image: linear-gradient(to bottom right, white, #ececec);
   border-style: solid;
   border-width: 1px;
   border-color: @main-color;
@@ -657,9 +657,9 @@ div.panel-item{
 
 div.panel-item:hover{
   /*font-size: 1.1em;*/
-  background: @main-color;
+  background-image: linear-gradient(to bottom right, lighten(@main-color, 3%), darken(@main-color, 3%));
   box-shadow: 1px 3px 10px 1px rgba(0,0,0,0.2);
-  border-width: 3px;
+  border-width: 1px;
   height: 56px;
   line-height: 50px;
   margin-left: -3px;
