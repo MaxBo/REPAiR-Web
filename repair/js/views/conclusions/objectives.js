@@ -129,6 +129,7 @@ function(_, BaseView, GDSECollection, Muuri){
                     if (rank) {
                         var item = _this.panelItem('#' + rank);
                         item.style.width = '50px';
+                        item.style.backgroundImage = 'none';
                         cell.appendChild(item);
                         var sat = 30 + colorStep * (rank -1),
                             hsl = 'hsla(90, 50%, ' + sat + '%, 1)';
