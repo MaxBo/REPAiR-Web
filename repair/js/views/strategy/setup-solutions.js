@@ -29,7 +29,6 @@ var SolutionsSetupView = BaseView.extend(
     initialize: function(options){
         SolutionsSetupView.__super__.initialize.apply(this, [options]);
         var _this = this;
-        _.bindAll(this, 'renderCategory');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
@@ -246,6 +245,14 @@ var SolutionsSetupView = BaseView.extend(
         }
 
         function removeCategory(category, catItem){
+            var message = gettext('Do you really want to delete the category and all its solutions?');
+            _this.confirm({ message: message, onConfirm: function(){
+                category.destroy({
+                    success: function() { catList.removeChild(catItem); },
+                    wait: true,
+                    error: _this.onError
+                })
+            }});
         }
 
         function addCategoryItem(category){
@@ -265,133 +272,26 @@ var SolutionsSetupView = BaseView.extend(
         }
 
         function addCategory(){
-            _this.getName({
-                onConfirm: function(){}
-            })
+            function onConfirm(name){
+                var category = _this.categories.create(
+                    { name: name }, {
+                        success: function(){
+                            addCategoryItem(category);
+                        },
+                        error: _this.onError
+                    }
+                )
+            }
+            _this.getName({ onConfirm: onConfirm })
         }
 
 
         this.categories.forEach(addCategoryItem);
 
-        this.catModal.querySelector('.add').addEventListener('click', addCategory)
+        this.catModal.querySelector('.add').addEventListener('click', addCategory);
         $(this.catModal).modal('show');
     },
 
-    /*
-    * render a solution category panel
-    * adds buttons in setup mode only
-    */
-    renderCategory: function(category){
-        var _this = this;
-        var panelList = this.el.querySelector('#categories');
-        // create the panel (ToDo: use template for panels instead?)
-        var div = document.createElement('div'),
-            panel = document.createElement('div');
-        div.classList.add('item-panel', 'bordered');
-        div.style.minWidth = '300px';
-        var label = document.createElement('label'),
-            button = document.createElement('button'),
-            editBtn = document.createElement('button'),
-            removeBtn = document.createElement('button');
-        label.innerHTML = category.get('name');
-        label.style.marginBottom = '20px';
-
-        panelList.appendChild(div);
-        if (this.mode != 0){
-
-            removeBtn.classList.add("btn", "btn-warning", "square", "remove");
-            removeBtn.style.float = 'right';
-            var span = document.createElement('span');
-            removeBtn.title = gettext('Remove category')
-            span.classList.add('glyphicon', 'glyphicon-minus');
-            removeBtn.appendChild(span);
-            removeBtn.addEventListener('click', function(){
-                var message = gettext('Do you really want to delete the category and all its solutions?');
-                _this.confirm({ message: message, onConfirm: function(){
-                    category.destroy({
-                        success: function() { panelList.removeChild(div); },
-                        error: _this.onError
-                    })
-                }});
-            })
-
-            editBtn.classList.add("btn", "btn-primary", "square", "inverted");
-            editBtn.style.float = 'right';
-            editBtn.style.marginRight = '3px';
-            var span = document.createElement('span');
-            editBtn.title = gettext('Edit category')
-            span.classList.add('glyphicon', 'glyphicon-pencil');
-            editBtn.appendChild(span);
-            editBtn.addEventListener('click', function(){
-                _this.editCategory(category);
-            })
-
-            button.classList.add("btn", "btn-primary", "square", "add");
-            span = document.createElement('span');
-            span.classList.add('glyphicon', 'glyphicon-plus');
-            button.innerHTML = gettext('Solution');
-            button.title = gettext('Add solution to category');
-            button.insertBefore(span, button.firstChild);
-            button.addEventListener('click', function(){
-                _this.addSolution(panel, category);
-            })
-            div.appendChild(removeBtn);
-            div.appendChild(editBtn);
-        }
-        div.appendChild(label);
-        div.appendChild(panel);
-        if (this.mode != 0) div.appendChild(button);
-        // add the items
-        if (category.solutions){
-            category.solutions.forEach(function(solution){
-                _this.renderSolutionItem(panel, solution);
-            });
-        }
-    },
-
-    /*
-    * add a solution category and save it
-    */
-    addCategory: function(){
-        var _this = this;
-        function onConfirm(name){
-            var category = _this.categories.create(
-                { name: name }, {
-                success: function(){
-                    category.solutions = new GDSECollection([], {
-                        apiTag: 'solutions',
-                        apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
-                    });
-                        _this.categories.add(category);
-                        _this.renderCategory(category);
-                    },
-                    error: _this.onError
-                }
-            )
-        }
-        _this.getName({ onConfirm: onConfirm });
-    },
-
-    editCategory: function(category){
-        var _this = this;
-        function onConfirm(name){
-            category.save(
-                {
-                    name: name,
-                },
-                {
-                    success: _this.render,
-                    error: _this.onError,
-                    wait: true
-                }
-            );
-        }
-        this.getName({
-            title: gettext('Edit Category'),
-            name: category.get('name'),
-            onConfirm: onConfirm
-        })
-    },
 
     /*
     * add a solution and save it
