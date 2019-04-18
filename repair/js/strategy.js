@@ -1,7 +1,7 @@
-require(['models/casestudy', 'views/strategy/workshop-solutions',
+require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/workshop-solutions',
          'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
          'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsWorkshopView, SolutionsSetupView, SolutionsLogicView,
+], function (CaseStudy, GDSECollection, SolutionsWorkshopView, SolutionsSetupView, SolutionsLogicView,
              StrategyView, appConfig) {
     /**
      * entry point for views on subpages of "Changes" menu item
@@ -31,21 +31,23 @@ require(['models/casestudy', 'views/strategy/workshop-solutions',
         })
     }
 
-    renderSetup = function(caseStudy, keyflowId, keyflowName){
+    renderSetup = function(caseStudy, keyflowId, keyflowName, solutions){
         if(solutionsView) solutionsView.close();
         solutionsView = new SolutionsSetupView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
             template: 'solutions-setup-template',
             keyflowId: keyflowId,
-            keyflowName: keyflowName
+            keyflowName: keyflowName,
+            solutions: solutions
         })
         if(solutionsLogicView) solutionsLogicView.close();
         solutionsLogicView = new SolutionsLogicView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions-logic'),
             template: 'solutions-logic-template',
-            keyflowId: keyflowId
+            keyflowId: keyflowId,
+            solutions: solutions
         })
     };
 
@@ -57,8 +59,19 @@ require(['models/casestudy', 'views/strategy/workshop-solutions',
 
         function renderKeyflow(keyflowId, keyflowName){
             document.getElementById('keyflow-warning').style.display = 'none';
-            if (Number(mode) == 1)
-                renderSetup(caseStudy, keyflowId, keyflowName);
+            if (Number(mode) == 1){
+                solutions = new GDSECollection([], {
+                    apiTag: 'solutions',
+                    apiIds: [caseStudy.id, keyflowId],
+                    comparator: 'name'
+                });
+                solutions.fetch({
+                    success: function(){
+                        renderSetup(caseStudy, keyflowId, keyflowName, solutions);
+                    },
+                    error: alert
+                })
+            }
             else
                 renderWorkshop(caseStudy, keyflowId, keyflowName);
         }

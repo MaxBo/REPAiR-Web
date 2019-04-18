@@ -1,7 +1,7 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
         'utils/utils', 'summernote', 'summernote/dist/summernote.css',
-        'bootstrap', 'viewerjs/dist/viewer.css'],
+        'bootstrap', 'viewerjs/dist/viewer.css', 'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config,
          utils, summernote){
@@ -34,6 +34,8 @@ var SolutionsLogicView = BaseView.extend(
         this.template = options.template;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+
+        this.solutions = options.solutions;
 
         // ToDo: replace with collections fetched from server
         this.categories = new GDSECollection([], {
@@ -82,15 +84,49 @@ var SolutionsLogicView = BaseView.extend(
         var notes = this.el.querySelector('div[name="notes"]');
 
         $(notes).summernote({
-            height: 150,
-            maxHeight: 500
+            height: 400
         });
 
         var testItems = this.el.querySelectorAll('.panel-item');
         testItems.forEach(function(item){
             item.addEventListener('click', _this.showSolutionPart)
         })
+
+        this.solutionSelect = this.el.querySelector('select[name="solutions"]');
+        $(this.solutionSelect).selectpicker({size: 10});
+
+        this.el.querySelector('#edit-solution-logic').addEventListener('click', function(){
+            _this.activeSolution = _this.solutions.get(_this.solutionSelect.value);
+            _this.renderSolution(_this.activeSolution);
+        });
+
+        this.el.querySelector('#save-solution-logic').addEventListener('click', function(){
+            _this.saveSolution(_this.activeSolution);
+        });
+        this.populateSolutions();
     },
+
+    /* fill selection with solutions */
+    populateSolutions: function(){
+        var _this = this,
+            prevSel = this.solutionSelect.value;
+        utils.clearSelect(this.solutionSelect);
+        this.categories.forEach(function(category){
+            var group = document.createElement('optgroup'),
+                solutions = _this.solutions.filterBy({solution_category: category.id});
+            group.label = category.get('name');
+            solutions.forEach(function(solution){
+                var option = document.createElement('option');
+                option.value = solution.id;
+                option.text = solution.get('name');
+                group.appendChild(option);
+            })
+            _this.solutionSelect.appendChild(group);
+        })
+        if (prevSel != null) this.solutionSelect.value = prevSel;
+        $(this.solutionSelect).selectpicker('refresh');
+    },
+
 
     renderMatFilter: function(el){
         var _this = this;
@@ -146,6 +182,12 @@ var SolutionsLogicView = BaseView.extend(
         modal.innerHTML = template();
         $(modal).modal('show');
     },
+
+    renderSolution: function(solution){
+        var _this = this;
+        if (!solution) return;
+        this.el.querySelector('#solution-logic-content').style.display = 'block';
+    }
 });
 return SolutionsLogicView;
 }

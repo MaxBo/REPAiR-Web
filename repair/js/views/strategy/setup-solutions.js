@@ -35,15 +35,11 @@ var SolutionsSetupView = BaseView.extend(
         this.keyflowId = options.keyflowId;
         this.keyflowName = options.keyflowName;
 
+        this.solutions = options.solutions;
+
         this.categories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
-        });
-
-        this.solutions = new GDSECollection([], {
-            apiTag: 'solutions',
-            apiIds: [this.caseStudy.id, this.keyflowId],
-            comparator: 'name'
         });
 
         var promises = [];
@@ -75,7 +71,7 @@ var SolutionsSetupView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template({solutions: this.solutions});
         var promises = [];
-        this.solutionSelect = this.el.querySelector('#solution-select');
+        this.solutionSelect = this.el.querySelector('select[name="solutions"]');
         this.categorySelect = this.el.querySelector('#solution-category');
         $(this.solutionSelect).selectpicker({size: 10});
         this.populateSolutions();
