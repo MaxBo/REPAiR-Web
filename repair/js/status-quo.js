@@ -1,6 +1,6 @@
 require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     'views/status-quo/setup-flows',
-    'views/status-quo/challenges-aims',
+    'views/status-quo/objectives',
     'views/status-quo/setup-flow-assessment',
     'views/study-area/workshop-maps', 'views/study-area/setup-maps',
     'views/status-quo/workshop-flow-assessment',

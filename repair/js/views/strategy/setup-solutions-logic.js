@@ -1,10 +1,10 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
-        'utils/utils', 'summernote', 'summernote/dist/summernote.css',
+        'utils/utils', 'muuri', 'summernote', 'summernote/dist/summernote.css',
         'bootstrap', 'viewerjs/dist/viewer.css', 'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, GeoLocations, Map, Viewer, config,
-         utils, summernote){
+         utils, Muuri, summernote){
 /**
 *
 * @author Christoph Franke
@@ -68,8 +68,6 @@ var SolutionsLogicView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click .chart-control.fullscreen-toggle ': 'toggleFullscreen',
-        'click #add-solution-category': 'addCategory'
     },
 
     /*
@@ -95,15 +93,28 @@ var SolutionsLogicView = BaseView.extend(
         this.solutionSelect = this.el.querySelector('select[name="solutions"]');
         $(this.solutionSelect).selectpicker({size: 10});
 
-        this.el.querySelector('#edit-solution-logic').addEventListener('click', function(){
+        this.solutionSelect.addEventListener('change', function(){
             _this.activeSolution = _this.solutions.get(_this.solutionSelect.value);
             _this.renderSolution(_this.activeSolution);
         });
 
-        this.el.querySelector('#save-solution-logic').addEventListener('click', function(){
-            _this.saveSolution(_this.activeSolution);
-        });
         this.populateSolutions();
+        this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel')
+
+        //this.solutionPartsGrid = new Muuri(this.solutionPartsPanel, {
+            //items: '.panel-item',
+            //dragAxis: 'y',
+            //layoutDuration: 400,
+            //layoutEasing: 'ease',
+            //dragEnabled: true,
+            //dragSortInterval: 0,
+            //dragReleaseDuration: 400,
+            //dragReleaseEasing: 'ease'
+        //})
+
+        //this.renderPartItem({ name: 'remove flow'});
+        //this.renderPartItem({ name: 'redirect flow'});
+        //this.renderPartItem({ name: 'something else'});
     },
 
     /* fill selection with solutions */
@@ -111,6 +122,12 @@ var SolutionsLogicView = BaseView.extend(
         var _this = this,
             prevSel = this.solutionSelect.value;
         utils.clearSelect(this.solutionSelect);
+
+        var option = document.createElement('option');
+        option.value = -1;
+        option.text = gettext('Select');
+        option.disabled = true;
+        this.solutionSelect.appendChild(option);
         this.categories.forEach(function(category){
             var group = document.createElement('optgroup'),
                 solutions = _this.solutions.filterBy({solution_category: category.id});
@@ -127,6 +144,29 @@ var SolutionsLogicView = BaseView.extend(
         $(this.solutionSelect).selectpicker('refresh');
     },
 
+    renderPartItem(model){
+        var html = document.getElementById('panel-item-template').innerHTML,
+            template = _.template(html),
+            panelItem = document.createElement('div'),
+            itemContent = document.createElement('div'),
+            _this = this;
+        panelItem.classList.add('panel-item');
+        if (this.mode == 1) panelItem.classList.add('draggable');
+        panelItem.style.position = 'absolute';
+        panelItem.dataset.id = model.id;
+        itemContent.classList.add('noselect', 'item-content');
+        itemContent.innerHTML = template({ name: model.name });
+        var editBtn = itemContent.querySelector("button.edit");
+        var removeBtn = itemContent.querySelector("button.remove");
+        editBtn.addEventListener('click', function(){
+            _this.showSolutionPart();
+        });
+        //removeBtn.addEventListener('click', function(){
+            //_this.removePanelItem(panelItem, model, grid, type);
+        //});
+        panelItem.appendChild(itemContent);
+        this.solutionPartsGrid.add(panelItem);
+    },
 
     renderMatFilter: function(el){
         var _this = this;
