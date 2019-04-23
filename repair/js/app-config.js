@@ -44,6 +44,7 @@ function (Session) {
         stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
         stakeholders:           '/api/casestudies/{0}/stakeholdercategories/{1}/stakeholders/',
         solutions:              '/api/casestudies/{0}/keyflows/{1}/solutions/',
+        solutionparts:          '/api/casestudies/{0}/keyflows/{1}/solutions/{2}/parts',
         solutionCategories:     '/api/casestudies/{0}/keyflows/{1}/solutioncategories/',
         strategies:             '/api/casestudies/{0}/keyflows/{1}/strategies/',
         solutionsInStrategy:    '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/solutions/',

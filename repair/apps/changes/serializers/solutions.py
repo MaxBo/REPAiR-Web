@@ -97,9 +97,12 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
         'keyflow_pk': 'solution__solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution__solution_category__id',
         'solution_pk': 'solution__id'
     }
+    implementation_flow_origin_activity = IDRelatedField()
+    implementation_flow_destination_activity = IDRelatedField()
+    new_target_activity = IDRelatedField()
+
 
     # ToDo: serialize affected flows as part of this serializer
 
@@ -112,15 +115,15 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                   'implementation_flow_material',
                   'implementation_flow_process',
                   'implementation_flow_spatial_application',
-                  'implementation_question', 'a', 'b',
-                  'keep_origin', 'new_target', 'map_request',
-                  'priority'
+                  'question', 'a', 'b',
+                  'keep_origin', 'new_target_activity',
+                  'map_request', 'priority'
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
             'implementation_question': {'null': True, 'required': False},
             'keep_origin': {'required': False},
-            'new_target': {'required': False},
+            #'new_target': {'required': False},
             'map_request': {'required': False},
             'documentation': {'required': False}
         }
