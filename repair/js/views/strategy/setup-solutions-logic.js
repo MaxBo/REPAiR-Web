@@ -85,10 +85,10 @@ var SolutionsLogicView = BaseView.extend(
             height: 400
         });
 
-        var testItems = this.el.querySelectorAll('.panel-item');
-        testItems.forEach(function(item){
-            item.addEventListener('click', _this.showSolutionPart)
-        })
+        //var testItems = this.el.querySelectorAll('.panel-item');
+        //testItems.forEach(function(item){
+            //item.addEventListener('click', _this.showSolutionPart)
+        //})
 
         this.solutionSelect = this.el.querySelector('select[name="solutions"]');
         $(this.solutionSelect).selectpicker({size: 10});
@@ -99,22 +99,18 @@ var SolutionsLogicView = BaseView.extend(
         });
 
         this.populateSolutions();
-        this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel')
+        this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel');
 
-        //this.solutionPartsGrid = new Muuri(this.solutionPartsPanel, {
-            //items: '.panel-item',
-            //dragAxis: 'y',
-            //layoutDuration: 400,
-            //layoutEasing: 'ease',
-            //dragEnabled: true,
-            //dragSortInterval: 0,
-            //dragReleaseDuration: 400,
-            //dragReleaseEasing: 'ease'
-        //})
-
-        //this.renderPartItem({ name: 'remove flow'});
-        //this.renderPartItem({ name: 'redirect flow'});
-        //this.renderPartItem({ name: 'something else'});
+        this.solutionPartsGrid = new Muuri(this.solutionPartsPanel, {
+            items: '.panel-item',
+            dragAxis: 'y',
+            layoutDuration: 400,
+            layoutEasing: 'ease',
+            dragEnabled: true,
+            dragSortInterval: 0,
+            dragReleaseDuration: 400,
+            dragReleaseEasing: 'ease'
+        })
     },
 
     /* fill selection with solutions */
@@ -151,7 +147,7 @@ var SolutionsLogicView = BaseView.extend(
             itemContent = document.createElement('div'),
             _this = this;
         panelItem.classList.add('panel-item');
-        if (this.mode == 1) panelItem.classList.add('draggable');
+        panelItem.classList.add('draggable');
         panelItem.style.position = 'absolute';
         panelItem.dataset.id = model.id;
         itemContent.classList.add('noselect', 'item-content');
@@ -227,6 +223,10 @@ var SolutionsLogicView = BaseView.extend(
         var _this = this;
         if (!solution) return;
         this.el.querySelector('#solution-logic-content').style.display = 'block';
+
+        this.renderPartItem({ name: 'remove flow'});
+        this.renderPartItem({ name: 'redirect flow'});
+        this.renderPartItem({ name: 'something else'});
     }
 });
 return SolutionsLogicView;
