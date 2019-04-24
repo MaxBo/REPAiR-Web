@@ -30,7 +30,7 @@ var SolutionsLogicView = BaseView.extend(
     initialize: function(options){
         SolutionsLogicView.__super__.initialize.apply(this, [options]);
         var _this = this;
-        _.bindAll(this, 'renderSolutionPart');
+        _.bindAll(this, 'editSolutionPart');
         _.bindAll(this, 'renderSolution');
 
         this.template = options.template;
@@ -97,7 +97,12 @@ var SolutionsLogicView = BaseView.extend(
             _this.solutionPartView.close();
         })
 
-        var notes = this.el.querySelector('div[name="notes"]');
+        this.notesArea = this.el.querySelector('textarea[name="notes"]');
+        this.notesArea.addEventListener('change', function(){
+            _this.activeSolution.save({ documentation: this.value }, {
+                patch: true
+            })
+        })
 
         this.solutionSelect = this.el.querySelector('select[name="solutions"]');
         $(this.solutionSelect).selectpicker({size: 10});
@@ -113,6 +118,7 @@ var SolutionsLogicView = BaseView.extend(
             parts.fetch({
                 success: function(){
                     parts.sort();
+                    _this.solutionParts = parts;
                     _this.renderSolution(_this.activeSolution, parts)
                 },
                 error: _this.onError
@@ -121,22 +127,25 @@ var SolutionsLogicView = BaseView.extend(
 
         this.populateSolutions();
         this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel');
-
-        this.solutionPartsGrid = new Muuri(this.solutionPartsPanel, {
-            items: '.panel-item',
-            dragAxis: 'y',
-            layoutDuration: 400,
-            layoutEasing: 'ease',
-            dragEnabled: true,
-            dragSortInterval: 0,
-            dragReleaseDuration: 400,
-            dragReleaseEasing: 'ease'
-        })
     },
 
     addSolutionPart: function(){
-        var part = new GDSEModel();
-        this.renderSolutionPart(part);
+        var _this = this,
+            part = new GDSEModel({}, {
+                apiTag: 'solutionparts',
+                apiIds: [_this.caseStudy.id, _this.keyflowId, _this.activeSolution.id]
+            });
+        function onConfirm(part, affectedFlows){
+            part.save(null, {
+                success: function(){
+                    _this.solutionParts.add(part);
+                    $(_this.solutionPartModal).modal('hide');
+                    _this.renderPartItem(part);
+                },
+                error: _this.onError
+            });
+        }
+        this.editSolutionPart(part, onConfirm);
     },
 
     /* fill selection with solutions */
@@ -178,10 +187,19 @@ var SolutionsLogicView = BaseView.extend(
         panelItem.dataset.id = model.id;
         itemContent.classList.add('noselect', 'item-content');
         itemContent.innerHTML = template({ name: model.get('name') });
-        var editBtn = itemContent.querySelector("button.edit");
-        var removeBtn = itemContent.querySelector("button.remove");
+        var editBtn = itemContent.querySelector("button.edit"),
+            removeBtn = itemContent.querySelector("button.remove");
         editBtn.addEventListener('click', function(){
-            _this.renderSolutionPart(model);
+            function onConfirm(part, affectedFlows){
+                part.save(null, {
+                    success: function(){
+                        itemContent.querySelector('label[name="name"]').innerHTML = part.get('name');
+                        $(_this.solutionPartModal).modal('hide');
+                    },
+                    error: _this.onError
+                });
+            }
+            _this.editSolutionPart(model, onConfirm);
         });
         removeBtn.addEventListener('click', function(){
             _this.removePanelItem(panelItem, model, grid);
@@ -190,8 +208,10 @@ var SolutionsLogicView = BaseView.extend(
         this.solutionPartsGrid.add(panelItem);
     },
 
-    renderSolutionPart: function(solutionPart, onConfirm){
-        var el = this.solutionPartModal.querySelector('.modal-body')
+    editSolutionPart: function(solutionPart, onConfirm){
+        var _this = this,
+            el = this.solutionPartModal.querySelector('.modal-body'),
+            confirmBtn = this.solutionPartModal.querySelector('.confirm');
         $(this.solutionPartModal).modal('show');
         this.solutionPartView = new SolutionPartView({
             model: solutionPart,
@@ -201,16 +221,40 @@ var SolutionsLogicView = BaseView.extend(
             activityGroups: this.activityGroups,
             activities: this.activities
         })
+        confirmBtn = utils.removeEventListeners(confirmBtn);
+        confirmBtn.addEventListener('click', function(){
+            _this.solutionPartView.applyInputs();
+            onConfirm(solutionPart, _this.solutionPartView.affectedFlows);
+        })
+    },
+
+    renderSolutionParts: function(parts){
+        var _this = this;
+        parts.forEach(function(part){
+            _this.renderPartItem(part);
+        })
     },
 
     renderSolution: function(solution, parts){
         var _this = this;
         if (!solution) return;
+        if (this.solutionPartsGrid) this.solutionPartsGrid.destroy();
+
         this.solutionPartsPanel.innerHTML = '';
-        this.el.querySelector('#solution-logic-content').style.display = 'block';
-        parts.forEach(function(part){
-            _this.renderPartItem(part);
+
+        this.solutionPartsGrid = new Muuri(this.solutionPartsPanel, {
+            items: '.panel-item',
+            dragAxis: 'y',
+            layoutDuration: 400,
+            layoutEasing: 'ease',
+            dragEnabled: true,
+            dragSortInterval: 0,
+            dragReleaseDuration: 400,
+            dragReleaseEasing: 'ease'
         })
+        this.el.querySelector('#solution-logic-content').style.display = 'block';
+        this.renderSolutionParts(parts);
+        this.notesArea.value = solution.get('documentation');
     }
 });
 return SolutionsLogicView;

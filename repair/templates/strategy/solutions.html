@@ -145,7 +145,8 @@
         </div>
         <div class="modal-body"></div>
         <div class="modal-footer">
-          <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+          <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+          <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
         </div>
       </div>
     </div>
@@ -170,27 +171,28 @@
 </ul>
 <div class="tab-content bordered">
   <div class="tab-pane fade in active" id="solution-flow-tab">
+    <label>{% trans "Select the flow on activity level" %} </label>
     <div class="row">
-      <label>{% trans "Material" %} </label>
-      <div name="material"></div>
-    </div>
-    <div class="row">
-      {% trans "Select Activity flow" %}
-      {% trans "from" %}
+      {% trans "Flow from activity" %}
       <select name="from" style="width: 100px"></select>
-      {% trans "to" %}
+      {% trans "to activity" %}
       <select name="to" style="width: 100px"></select>
     </div>
+    <div class="row" style="margin-bottom: 30px;">
+      {% trans "with material" %}
+      <div name="material" style="display: inline-block;"></div>
+    </div>
     <div class="row">
-      <label>{% trans "Who needs to be in the implementation area?" %} </label>
-      <select class="form-control">
-        <option> Origin </option>
-        <option> Destination </option>
-        <option> both </option>
+      <label>{% trans "Whose actors need to be in the implementation area?" %} </label>
+      <select name='spatial-application' class="form-control" style="max-width: 200px;">
+        <option value='origin'> Origin </option>
+        <option value='destination'> Destination </option>
+        <option value='both'> both </option>
       </select>
     </div>
   </div>
   <div class="tab-pane fade in" id="affected-flows-tab">
+    <label>{% trans "Select the affected flows on activity level" %} </label>
     <div class="row bordered">
       {% trans "Material" %}
       <select style="width: 100px"></select>
@@ -213,19 +215,16 @@
   </div>
   <div class="tab-pane fade in" id="formula-tab">
     <div class="row">
-      <input type="checkbox"> absolute change
-    </div>
-    <div class="row">
       <label>a</label>
-      <input class="form-control">
+      <input name='a' class="form-control">
     </div>
     <div class="row">
       <label>b</label>
-      <input class="form-control">
+      <input name='b' class="form-control">
     </div>
     <div class="row">
       <label>Question</label>
-      <select class="form-control"></select>
+      <select name='question' class="form-control"></select>
       <button class="btn btn-primary add square">
         <span class="glyphicon glyphicon-plus"></span> {% trans "Add question" %}
       </button>

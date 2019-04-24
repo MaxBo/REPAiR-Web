@@ -67,6 +67,7 @@ class SolutionPart(GDSEModel):
     '''
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
                                  related_name='solution_part')
+    name = models.TextField()
     documentation = models.TextField(default='')
     implements_new_flow = models.BooleanField(default=False)
 
@@ -83,13 +84,13 @@ class SolutionPart(GDSEModel):
         related_name='implementation_material')
     implementation_flow_process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE,
-        related_name='implementation_process')
+        related_name='implementation_process', null=True)
     implementation_flow_spatial_application = EnumIntegerField(
         enum=SpatialChoice, default=SpatialChoice.BOTH)
 
     # parameters for formula changing the implementation flow
     question = models.ForeignKey(ImplementationQuestion, null=True,
-                                 on_delete=models.CASCADE)
+                                 on_delete=PROTECT_CASCADE)
     a = models.FloatField()
     b = models.FloatField()
 

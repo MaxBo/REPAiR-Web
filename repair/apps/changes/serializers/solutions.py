@@ -14,6 +14,8 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            IdentityFieldMixin,
                                            CreateWithUserInCasestudyMixin,
                                            IDRelatedField)
+from repair.apps.statusquo.models import SpatialChoice
+from repair.apps.utils.serializers import EnumField
 
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
@@ -101,14 +103,15 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     }
     implementation_flow_origin_activity = IDRelatedField()
     implementation_flow_destination_activity = IDRelatedField()
-    new_target_activity = IDRelatedField()
-
+    implementation_flow_material = IDRelatedField()
+    new_target_activity = IDRelatedField(required=False, allow_null=True)
+    implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
 
     # ToDo: serialize affected flows as part of this serializer
 
     class Meta:
         model = SolutionPart
-        fields = ('url', 'id', 'solution', 'documentation',
+        fields = ('url', 'id', 'name', 'solution', 'documentation',
                   'implements_new_flow',
                   'implementation_flow_origin_activity',
                   'implementation_flow_destination_activity',
@@ -123,7 +126,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
         extra_kwargs = {
             'implementation_question': {'null': True, 'required': False},
             'keep_origin': {'required': False},
-            #'new_target': {'required': False},
+            #'new_target_activity': {'null': True, 'required': False},
             'map_request': {'required': False},
-            'documentation': {'required': False}
+            'documentation': {'required': False, 'allow_blank': True},
+            'map_request': {'required': False, 'allow_blank': True}
         }

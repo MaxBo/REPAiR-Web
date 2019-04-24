@@ -28,6 +28,7 @@ var SolutionPartView = BaseView.extend(
     initialize: function(options){
         SolutionPartView.__super__.initialize.apply(this, [options]);
         var _this = this;
+        _.bindAll(this, 'toggleNewFlow');
 
         this.template = options.template;
 
@@ -59,21 +60,64 @@ var SolutionPartView = BaseView.extend(
         this.materialSelect = this.el.querySelector('div[name="material"]');
         this.fromSelect = this.el.querySelector('select[name="from"]');
         this.toSelect = this.el.querySelector('select[name="to"]');
+        this.spatialSelect = this.el.querySelector('select[name="spatial-application"]');
+        this.aInput = this.el.querySelector('input[name="a"]');
+        this.bInput = this.el.querySelector('input[name="b"]');
 
         $(this.fromSelect).selectpicker({size: 10});
         $(this.toSelect).selectpicker({size: 10});
         this.populateActivityFilter(this.fromSelect);
+        // ToDo: null allowed for stocks?
         this.populateActivityFilter(this.toSelect);
 
         this.renderMatFilter(this.materialSelect);
 
-        this.implNewFlowInput.addEventListener('change', function(){
-            var showTarget = _this.implNewFlowInput.checked,
-                flowLi = _this.el.querySelector('a[href="#solution-flow-tab"]'),
-                targetLi = _this.el.querySelector('a[href="#target-tab"]');
-            flowLi.click();
-            targetLi.style.display = (showTarget) ? 'block' :'none';
-        })
+        this.implNewFlowInput.addEventListener('change', this.toggleNewFlow)
+        this.setInputs(this.model);
+    },
+
+    toggleNewFlow: function(){
+        var showTarget = this.implNewFlowInput.checked,
+            flowLi = this.el.querySelector('a[href="#solution-flow-tab"]'),
+            targetLi = this.el.querySelector('a[href="#target-tab"]');
+        flowLi.click();
+        targetLi.style.display = (showTarget) ? 'block' :'none';
+    },
+
+    setInputs: function(){
+        this.nameInput.value = this.model.get('name') || '';
+        this.implNewFlowInput.checked = this.model.get('implements_new_flow');
+        this.fromSelect.value = this.model.get('implementation_flow_origin_activity') || null;
+        this.toSelect.value = this.model.get('implementation_flow_destination_activity') || null;
+        var spatial = this.model.get('implementation_flow_spatial_application') || 'both';
+        this.spatialSelect.value = spatial.toLowerCase()
+        this.aInput.value = this.model.get('a') || 0;
+        this.bInput.value = this.model.get('b') || 0;
+
+        // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
+        var material = this.model.get('implementation_flow_material'),
+            li = this.materialSelect.querySelector('li[data-value="' + material + '"]');
+        if(li){
+            var matItem = li.querySelector('a');
+            matItem.click();
+        }
+        $(this.fromSelect).selectpicker('refresh');
+        $(this.toSelect).selectpicker('refresh');
+        this.toggleNewFlow();
+    },
+
+    applyInputs: function(){
+        this.model.set('name', this.nameInput.value);
+        this.model.set('implements_new_flow', this.implNewFlowInput.checked);
+        this.model.set('implementation_flow_origin_activity', (this.fromSelect.value != "-1") ? this.fromSelect.value: null);
+        this.model.set('implementation_flow_destination_activity', (this.toSelect.value != "-1") ? this.toSelect.value: null);
+        this.model.set('implementation_flow_material', (this.selectedMaterial) ? this.selectedMaterial.id: null);
+        this.model.set('implementation_flow_spatial_application', this.spatialSelect.value);
+        this.model.set('new_target_activity', null);
+        this.model.set('documentation', '');
+        this.model.set('map_request', '');
+        this.model.set('a', this.aInput.value);
+        this.model.set('b', this.bInput.value);
     },
 
     populateActivityFilter: function(select){
@@ -107,7 +151,6 @@ var SolutionPartView = BaseView.extend(
         var matSelect = document.createElement('div');
         matSelect.classList.add('materialSelect');
         var select = this.el.querySelector('.hierarchy-select');
-        console.log(this.materials)
         var flowsInChildren = {};
         // count materials in parent, descending level (leafs first)
         this.materials.models.reverse().forEach(function(material){
