@@ -31,6 +31,7 @@ var SolutionsLogicView = BaseView.extend(
         SolutionsLogicView.__super__.initialize.apply(this, [options]);
         var _this = this;
         _.bindAll(this, 'editSolutionPart');
+        _.bindAll(this, 'uploadPriorities');
         _.bindAll(this, 'renderSolution');
 
         this.template = options.template;
@@ -202,10 +203,39 @@ var SolutionsLogicView = BaseView.extend(
             _this.editSolutionPart(model, onConfirm);
         });
         removeBtn.addEventListener('click', function(){
-            _this.removePanelItem(panelItem, model, grid);
+            _this.removeSolutionPart(panelItem, model);
         });
         panelItem.appendChild(itemContent);
         this.solutionPartsGrid.add(panelItem);
+    },
+
+    removeSolutionPart: function(item, model){
+        var _this = this,
+            message = gettext("Do you want to delete the selected solution part?");
+        function onConfirm(name){
+            model.destroy({
+                success: function(){
+                    _this.solutionPartsGrid.remove(item, { removeElements: true });
+                },
+                error: _this.onError
+            });
+        }
+        this.confirm({
+            message: message,
+            onConfirm: onConfirm
+        })
+    },
+
+    uploadPriorities: function(){
+        var _this = this,
+            items = this.solutionPartsGrid.getItems(),
+            priority = 0;
+        items.forEach(function(item){
+            var id = item.getElement().dataset.id,
+                model = _this.solutionParts.get(id);
+            model.save({ priority: priority }, { patch: true });
+            priority++;
+        })
     },
 
     editSolutionPart: function(solutionPart, onConfirm){
@@ -252,6 +282,7 @@ var SolutionsLogicView = BaseView.extend(
             dragReleaseDuration: 400,
             dragReleaseEasing: 'ease'
         })
+        this.solutionPartsGrid.on('dragReleaseEnd', this.uploadPriorities);
         this.el.querySelector('#solution-logic-content').style.display = 'block';
         this.renderSolutionParts(parts);
         this.notesArea.value = solution.get('documentation');

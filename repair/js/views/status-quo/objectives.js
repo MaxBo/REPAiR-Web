@@ -341,7 +341,6 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         removePanelItem: function(item, model, grid, type){
             var _this = this,
                 message = gettext("Do you want to delete the selected item?");
-            this.confirmationModal.querySelector('.modal-body').innerHTML = message;
             this.activeModel = model;
             function onConfirm(name){
                 model.destroy({
@@ -352,7 +351,7 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
                 });
             }
             this.confirm({
-                message: gettext("Do you want to delete the selected item?"),
+                message: message,
                 onConfirm: onConfirm
             })
         }
