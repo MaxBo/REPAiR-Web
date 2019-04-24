@@ -104,50 +104,68 @@
     <span class="glyphicon glyphicon-refresh"></span>
   </button>
 </div>
-<div class="row sunken" id="solution-logic-content" style="display: none;">
-  <ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
-    <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
-    <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
-  </ul>
-  <div class="tab-content bordered">
-    <div class="tab-pane fade in" id="area-tab">
-    </div>
-    <div class="tab-pane fade in" id="questions-tab">
-    </div>
-    <div class="tab-pane fade in active" id="parts-tab">
-      <div class="row">
-        <div class="col-md-6">
-          <h4 style="margin-bottom: 20px">Parts in computing order</h4>
-          <div class="row">
-            <div id="solution-parts-panel" style="min-height: 100px;" class="item-panel bordered">
+<div class="row sunken" id="solution-logic-content" style="visibility: hidden;">
+  <div class="col-md-8">
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
+      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
+      <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
+    </ul>
+    <div class="tab-content bordered" style="min-height: 500px;">
+      <div class="tab-pane fade in" id="area-tab">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>{% trans "Map View" %}</h4>
+            <div name="area-map" style="min-height: 600px;"></div>
+          </div>
+          <div class="col-md-6">
+            <h4>{% trans "Implementation Area as GeoJSON" %}</h4>
+            <div class="row">
+              <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
             </div>
+            <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
+              Show
+              <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
+            </button>
+            <button style="float: right;" class="btn btn-primary upload" name="implementation-area" title="Upload GeoJSON">
+              Upload
+              <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade in" id="questions-tab">
+      </div>
+      <div class="tab-pane fade in active" id="parts-tab">
+        <div class="row">
+          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
+          <div class="row">
+            <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered">
+          </div>
           </div>
           <button id="add-solution-part" class="btn btn-primary add square" title="add part">
             <span class="glyphicon glyphicon-plus"></span> {% trans "Add part" %}
           </button>
         </div>
-        <div class="col-md-6">
-          <div>
-            <h4>{% trans "Notes (internal)" %} </h4>
-            <textarea class="sunken bordered" rows="20" name="notes" style="width: 100%; resize: vertical;"></textarea>
-          </div>
-        </div>
       </div>
     </div>
-  <div>
-  <div id="solution-part-modal" class="modal fade" role="dialog" style="z-index: 10000;">
-    <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
-      <div class="modal-content col-md-12">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">{% trans "Edit Solution Part" %}</h4>
-        </div>
-        <div class="modal-body"></div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
-          <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
-        </div>
+  </div>
+  <div class="col-md-4 bordered" style="margin-top: 10px; min-height: 550px;">
+    <h4>{% trans "Notes (internal)" %} </h4>
+    <textarea class="sunken bordered" rows="20" name="notes" style="width: 100%; resize: vertical;"></textarea>
+  </div>
+</div>
+<div id="solution-part-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Edit Solution Part" %}</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
       </div>
     </div>
   </div>

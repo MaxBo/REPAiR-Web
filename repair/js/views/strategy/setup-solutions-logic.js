@@ -1,11 +1,11 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'models/gdsemodel', 'views/strategy/setup-solution-part',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
-        'utils/utils', 'muuri', 'summernote', 'summernote/dist/summernote.css',
+        'utils/utils', 'muuri', 'visualizations/map',
         'bootstrap', 'viewerjs/dist/viewer.css', 'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, GDSEModel, SolutionPartView,
-         GeoLocations, Map, Viewer, config, utils, Muuri, summernote){
+         GeoLocations, Map, Viewer, config, utils, Muuri, Map){
 /**
 *
 * @author Christoph Franke
@@ -128,6 +128,11 @@ var SolutionsLogicView = BaseView.extend(
 
         this.populateSolutions();
         this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel');
+
+        var mapDiv = this.el.querySelector('div[name="area-map"]');
+        this.areaMap = new Map({
+            el: mapDiv
+        });
     },
 
     addSolutionPart: function(){
@@ -283,9 +288,10 @@ var SolutionsLogicView = BaseView.extend(
             dragReleaseEasing: 'ease'
         })
         this.solutionPartsGrid.on('dragReleaseEnd', this.uploadPriorities);
-        this.el.querySelector('#solution-logic-content').style.display = 'block';
+        this.el.querySelector('#solution-logic-content').style.visibility = 'visible';
         this.renderSolutionParts(parts);
         this.notesArea.value = solution.get('documentation');
+        this.areaMap.map.updateSize();
     }
 });
 return SolutionsLogicView;
