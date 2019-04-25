@@ -45,7 +45,7 @@ class Command(BaseCommand):
     help = "translates all flows and stocks to fraction-flows (removing old ones)"
 
     def add_arguments(self, parser):
-        parser.add_argument('casestudy_id', nargs='?', type=int, default=[])
+        parser.add_argument('--casestudy_id', action='append', type=int)
 
     def handle(self, *args, **options):
         casestudy_ids = options['casestudy_id']
