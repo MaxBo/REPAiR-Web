@@ -20,7 +20,7 @@
 </div>
 <div class="row bordered" id="filter-attributes">
   <button id='upload-flowfilter-button' title="{% trans "upload changes made to filter" %}" class="btn btn-danger btn-upload">
-    <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+    <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
   </button>
   <table class="entry-table">
     <tr>
@@ -292,7 +292,7 @@
         <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
             <label>{% trans "Subprocess" %}</label>
-            <select name="process-select" multiple class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+            <select name="process-select" multiple class="form-control" data-live-search="true" data-size="6" style="resize: vertical;">
               <option value="-1"> {% trans "All" %} </option>
               <option data-divider="true"></option>
               <% processes.forEach(function(process){ %>
@@ -433,7 +433,7 @@
 <div class="row bordered" id="flowindicator-edit" style="margin-top: 10px; display: none; background-color: #f7f7f7;">
   <div class="row">
     <button id='upload-flowindicator-button' title="{% trans "upload changes made to indicator" %}" class="btn btn-danger btn-upload">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
     </button>
   </div>
   <div class="row">

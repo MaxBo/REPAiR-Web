@@ -9,7 +9,13 @@ function log10(val) {
 var color = d3.scale.category20();
 module.exports = {
 
-    logNormalize(value, minValue, maxValue, min, max) {
+    removeEventListeners: function(el) {
+        var clone = el.cloneNode(true);
+        el.parentNode.replaceChild(clone, el);
+        return clone;
+    },
+
+    logNormalize: function(value, minValue, maxValue, min, max) {
         if (value == minValue) return min;
         var mx = (Math.log2((value - minValue)) / (Math.log2(maxValue - minValue))),
             preshiftNormalized = mx * (max - min),

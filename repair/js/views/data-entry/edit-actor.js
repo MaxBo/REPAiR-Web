@@ -58,7 +58,7 @@ var EditActorView = BaseView.extend(
 
         this.layers = {
             opLocations: {
-                pin: '/static/img/simpleicon-places/svg/map-marker-red.svg',
+                pin: '/static/img/map-marker-red.svg',
                 style: {
                     stroke: 'rgb(255, 51, 0)',
                     fill: 'rgba(255, 51, 0, 0.1)',
@@ -67,7 +67,7 @@ var EditActorView = BaseView.extend(
                 }
             },
             adminLocations: {
-                pin: '/static/img/simpleicon-places/svg/map-marker-blue.svg',
+                pin: '/static/img/map-marker-blue.svg',
                 style: {
                     stroke: 'rgb(51, 153, 255)',
                     fill: 'rgba(51, 153, 255, 0.1)',

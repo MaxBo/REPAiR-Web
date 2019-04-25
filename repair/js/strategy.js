@@ -1,6 +1,8 @@
-require(['models/casestudy', 'views/strategy/solutions',
-    'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
-], function (CaseStudy, SolutionsView, StrategyView, appConfig) {
+require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/workshop-solutions',
+         'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
+         'views/strategy/strategy', 'app-config', 'utils/utils', 'utils/overrides', 'base'
+], function (CaseStudy, GDSECollection, SolutionsWorkshopView, SolutionsSetupView, SolutionsLogicView,
+             StrategyView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -8,14 +10,14 @@ require(['models/casestudy', 'views/strategy/solutions',
      * @module Changes
      */
 
-    var solutionsView, strategyView;
+    var solutionsView, strategyView, solutionsLogicView;
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName){
         if (solutionsView) solutionsView.close();
-        solutionsView = new SolutionsView({
+        solutionsView = new SolutionsWorkshopView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
-            template: 'solutions-template',
+            template: 'solutions-workshop-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName
         });
@@ -29,15 +31,26 @@ require(['models/casestudy', 'views/strategy/solutions',
         })
     }
 
-    renderSetup = function(caseStudy, keyflowId, keyflowName){
+    renderSetup = function(caseStudy, keyflowId, keyflowName, solutions, categories){
         if(solutionsView) solutionsView.close();
-        solutionsView = new SolutionsView({
+        solutionsView = new SolutionsSetupView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
-            template: 'solutions-template',
-            mode: 1,
+            template: 'solutions-setup-template',
             keyflowId: keyflowId,
-            keyflowName: keyflowName
+            keyflowName: keyflowName,
+            solutions: solutions,
+            categories: categories
+        })
+        return;
+        if(solutionsLogicView) solutionsLogicView.close();
+        solutionsLogicView = new SolutionsLogicView({
+            caseStudy: caseStudy,
+            el: document.getElementById('solutions-logic'),
+            template: 'solutions-logic-template',
+            keyflowId: keyflowId,
+            solutions: solutions,
+            categories: categories
         })
     };
 
@@ -49,8 +62,25 @@ require(['models/casestudy', 'views/strategy/solutions',
 
         function renderKeyflow(keyflowId, keyflowName){
             document.getElementById('keyflow-warning').style.display = 'none';
-            if (Number(mode) == 1)
-                renderSetup(caseStudy, keyflowId, keyflowName);
+            if (Number(mode) == 1){
+                var loader = new utils.Loader(document.getElementById('content'),
+                                             { disable: true });
+                var solutions = new GDSECollection([], {
+                    apiTag: 'solutions',
+                    apiIds: [caseStudy.id, keyflowId],
+                    comparator: 'name'
+                });
+                var categories = new GDSECollection([], {
+                    apiTag: 'solutionCategories',
+                    apiIds: [caseStudy.id, keyflowId]
+                });
+                loader.activate();
+                Promise.all([solutions.fetch(), categories.fetch()]).then(function(){
+                    solutions.sort();
+                    renderSetup(caseStudy, keyflowId, keyflowName, solutions, categories);
+                    loader.deactivate();
+                })
+            }
             else
                 renderWorkshop(caseStudy, keyflowId, keyflowName);
         }
