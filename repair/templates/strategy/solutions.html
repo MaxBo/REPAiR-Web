@@ -31,12 +31,12 @@
         {% trans "Add/Edit Categories" %}
       </button>
       <div class="row" style="margin-top: 15px;">
-        <label>{% trans "Description" %} </label>
+        <label>{% trans "Description (visible in workshop mode)" %} </label>
         <div name="description"></div>
       </div>
     </div>
     <div class="col-md-6">
-      <label>{% trans "Diagrams" %} </label>
+      <label>{% trans "Diagrams (visible in workshop mode)" %} </label>
       <div class="row bordered">
         <div class="row">
           <h4>{% trans "Current process" %}</h4>
@@ -82,7 +82,7 @@
           <label>{% trans "Category" %}</label>
           <select name="solution-category" class="form-control" style="margin-bottom: 10px;"></select>
           <button name="edit-solution-categories" class="btn btn-primary add square" title="add part">
-            <span class="glyphicon glyphicon-plus"></span> Add part
+            <span class="glyphicon glyphicon-plus"></span> Add Category
           </button>
         </div>
       </div>
@@ -175,7 +175,7 @@
     </div>
   </div>
   <div class="col-md-4 bordered" style="margin-top: 10px; min-height: 550px;">
-    <h4>{% trans "Notes (internal)" %} </h4>
+    <h4>{% trans "Notes (visible in setup mode only)" %} </h4>
     <textarea class="sunken bordered" rows="20" name="notes" style="width: 100%; resize: vertical;"></textarea>
   </div>
 </div>
@@ -203,38 +203,53 @@
   <input class="form-control" name="name" value="remove flow">
 </div>
 <div class="row">
-  <input type="checkbox" name="impl-new-flow"> implements new flow
+  <input type="checkbox" name="impl-new-flow"> {% trans "implements new flow" %}
 </div>
 <ul class="nav nav-tabs" style="margin-top: 20px;">
-  <li class="active"><a data-toggle="tab" href="#solution-flow-tab">{% trans "Solution Flow" %}</a></li>
+  <li class="active"><a data-toggle="tab" href="#solution-flow-tab">{% trans "Initial Impact Flow" %}</a></li>
   <li><a data-toggle="tab" href="#affected-flows-tab">{% trans "Affected Flows" %}</a></li>
   <li><a data-toggle="tab" href="#formula-tab">{% trans "Formula" %}</a></li>
   <li><a data-toggle="tab" href="#target-tab">{% trans "New Flow" %}</a></li>
 </ul>
 <div class="tab-content bordered">
   <div class="tab-pane fade in active" id="solution-flow-tab">
-    <label>{% trans "Select the flow on activity level" %} </label>
+    <p style="max-width: 800px;">
+    {% blocktrans %}
+      The initial impact flow is the flow which the solution part modifies directly.
+      All indirect changes of flows derived from the change of this initial impact flow are described by the affected flows (see next tab).<br>
+      As the solution definition does not include the implementation area and affected actors,
+      the initial impact flow has to be defined on activity level.
+    {% endblocktrans %}
+    </p>
+    <br>
     <div class="row">
-      {% trans "Flow from activity" %}
-      <select name="from" style="width: 100px"></select>
-      {% trans "to activity" %}
-      <select name="to" style="width: 100px"></select>
-    </div>
-    <div class="row" style="margin-bottom: 30px;">
-      {% trans "with material" %}
+      {% trans "Material" %}
       <div name="material" style="display: inline-block;"></div>
     </div>
     <div class="row">
-      <label>{% trans "Whose actors need to be in the implementation area?" %} </label>
-      <select name='spatial-application' class="form-control" style="max-width: 200px;">
-        <option value='origin'> Origin </option>
-        <option value='destination'> Destination </option>
-        <option value='both'> both </option>
-      </select>
+      {% trans "going from activity" %}
+      <select name="origin" style="width: 100px"></select>
+      <input name="origin-in-area" type="checkbox">
+      {% trans " activity has to be in the implementation area *)" %}
     </div>
+    <div class="row">
+      {% trans "to activity" %}
+      <select name="destination" style="width: 100px; margin-right: 20px;"></select>
+      <input name="destination-in-area" type="checkbox">
+      {% trans " activity has to be in the implementation area *)" %}
+    </div>
+    <br>
+    {% trans "*) defined by the users in the workshop mode when implementing the solution" %}
   </div>
   <div class="tab-pane fade in" id="affected-flows-tab">
-    <label>{% trans "Select the affected flows on activity level" %} </label>
+    <p style="max-width: 800px;">
+    {% blocktrans %}
+      Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
+      Please include flows "downstream" as much as "upstream".<br>
+      Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and therefore not change their volume.<br>
+      All flow definitions in this list have to be on activity level.
+    {% endblocktrans %}
+    </p>
     <div class="row bordered">
       {% trans "Material" %}
       <select style="width: 100px"></select>
@@ -265,11 +280,8 @@
       <input name='b' class="form-control">
     </div>
     <div class="row">
-      <label>Question</label>
+      <label>{% trans "Question" %}</label>
       <select name='question' class="form-control"></select>
-      <button class="btn btn-primary add square">
-        <span class="glyphicon glyphicon-plus"></span> {% trans "Add question" %}
-      </button>
     </div>
   </div>
   <div class="tab-pane fade in" id="target-tab">

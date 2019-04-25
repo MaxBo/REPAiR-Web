@@ -58,22 +58,31 @@ var SolutionPartView = BaseView.extend(
         this.nameInput = this.el.querySelector('input[name="name"]');
         this.implNewFlowInput = this.el.querySelector('input[name="impl-new-flow"]');
         this.materialSelect = this.el.querySelector('div[name="material"]');
-        this.fromSelect = this.el.querySelector('select[name="from"]');
-        this.toSelect = this.el.querySelector('select[name="to"]');
-        this.spatialSelect = this.el.querySelector('select[name="spatial-application"]');
+        this.originSelect = this.el.querySelector('select[name="origin"]');
+        this.destinationSelect = this.el.querySelector('select[name="destination"]');
+        this.spatialOriginCheck = this.el.querySelector('input[name="origin-in-area"]');
+        this.spatialDestinationCheck = this.el.querySelector('input[name="destination-in-area"]');
         this.aInput = this.el.querySelector('input[name="a"]');
         this.bInput = this.el.querySelector('input[name="b"]');
 
-        $(this.fromSelect).selectpicker({size: 10});
-        $(this.toSelect).selectpicker({size: 10});
-        this.populateActivityFilter(this.fromSelect);
+        $(this.originSelect).selectpicker({size: 10});
+        $(this.destinationSelect).selectpicker({size: 10});
+        this.populateActivityFilter(this.originSelect);
         // ToDo: null allowed for stocks?
-        this.populateActivityFilter(this.toSelect);
+        this.populateActivityFilter(this.destinationSelect);
 
         this.renderMatFilter(this.materialSelect);
 
         this.implNewFlowInput.addEventListener('change', this.toggleNewFlow)
         this.setInputs(this.model);
+
+        // at least one checkbox has to be checked
+        this.spatialOriginCheck.addEventListener('change', function(){
+            if (!this.checked) _this.spatialDestinationCheck.checked = true;
+        })
+        this.spatialDestinationCheck.addEventListener('change', function(){
+            if (!this.checked) _this.spatialOriginCheck.checked = true;
+        })
     },
 
     toggleNewFlow: function(){
@@ -87,10 +96,14 @@ var SolutionPartView = BaseView.extend(
     setInputs: function(){
         this.nameInput.value = this.model.get('name') || '';
         this.implNewFlowInput.checked = this.model.get('implements_new_flow');
-        this.fromSelect.value = this.model.get('implementation_flow_origin_activity') || null;
-        this.toSelect.value = this.model.get('implementation_flow_destination_activity') || null;
+        this.originSelect.value = this.model.get('implementation_flow_origin_activity') || null;
+        this.destinationSelect.value = this.model.get('implementation_flow_destination_activity') || null;
         var spatial = this.model.get('implementation_flow_spatial_application') || 'both';
-        this.spatialSelect.value = spatial.toLowerCase()
+        spatial = spatial.toLowerCase();
+        this.spatialOriginCheck.checked = (spatial == 'origin' || spatial == 'both');
+        this.spatialDestinationCheck.checked = (spatial == 'destination' || spatial == 'both');
+
+        //this.spatialSelect.value = spatial.toLowerCase()
         this.aInput.value = this.model.get('a') || 0;
         this.bInput.value = this.model.get('b') || 0;
 
@@ -101,18 +114,20 @@ var SolutionPartView = BaseView.extend(
             var matItem = li.querySelector('a');
             matItem.click();
         }
-        $(this.fromSelect).selectpicker('refresh');
-        $(this.toSelect).selectpicker('refresh');
+        $(this.originSelect).selectpicker('refresh');
+        $(this.destinationSelect).selectpicker('refresh');
         this.toggleNewFlow();
     },
 
     applyInputs: function(){
         this.model.set('name', this.nameInput.value);
         this.model.set('implements_new_flow', this.implNewFlowInput.checked);
-        this.model.set('implementation_flow_origin_activity', (this.fromSelect.value != "-1") ? this.fromSelect.value: null);
-        this.model.set('implementation_flow_destination_activity', (this.toSelect.value != "-1") ? this.toSelect.value: null);
+        this.model.set('implementation_flow_origin_activity', (this.originSelect.value != "-1") ? this.originSelect.value: null);
+        this.model.set('implementation_flow_destination_activity', (this.destinationSelect.value != "-1") ? this.destinationSelect.value: null);
         this.model.set('implementation_flow_material', (this.selectedMaterial) ? this.selectedMaterial.id: null);
-        this.model.set('implementation_flow_spatial_application', this.spatialSelect.value);
+        var spatial = (this.spatialOriginCheck.checked && this.spatialDestinationCheck.checked) ? 'both':
+                      (this.spatialOriginCheck.checked) ? 'origin': 'destination';
+        this.model.set('implementation_flow_spatial_application', spatial);
         this.model.set('new_target_activity', null);
         this.model.set('documentation', '');
         this.model.set('map_request', '');
