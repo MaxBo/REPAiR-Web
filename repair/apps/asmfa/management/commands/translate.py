@@ -51,7 +51,7 @@ class Command(BaseCommand):
         casestudy_ids = options['casestudy_id']
         if casestudy_ids:
             for casestudy_id in casestudy_ids:
-                translate(casestudy=CaseStudy.objects.get(id=casestudy_id))
+                translate(casestudy_id=casestudy_id)
         else:
             translate()
 
