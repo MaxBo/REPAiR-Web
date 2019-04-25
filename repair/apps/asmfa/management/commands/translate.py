@@ -20,13 +20,15 @@ def translate(*args, casestudy_id=None,
             stocks = ActorStock.objects.filter(keyflow__casestudy__id=casestudy_id)
             length = len(stocks)
             print('\nTranslating actor-stocks to fraction-flows')
-            for i, stock in enumerate(stocks):
+            i = 1
+            forstock in stocks.iterator():
                 stock.save()
                 if i % 10 == 0:
                     end = time.time()
                     t = end - start
                     print(f'{i}/{length} stocks converted in {t}s')
                     start = time.time()
+                i += 1
             print('done')
 
         # convert flows
@@ -34,13 +36,15 @@ def translate(*args, casestudy_id=None,
             flows = Actor2Actor.objects.filter(keyflow__casestudy__id=casestudy_id)
             length = len(flows)
             print('\nTranslating actor2actor-flows to fraction-flows')
-            for i, flow in enumerate(flows):
+            i = 1
+            for flow in flows.iterator():
                 flow.save()
                 if i % 10 == 0:
                     end = time.time()
                     t = end - start
                     print(f'{i}/{length} flows converted in {t}s')
                     start = time.time()
+                i += 1
             print('done')
 
 
