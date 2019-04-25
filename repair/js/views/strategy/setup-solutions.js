@@ -58,8 +58,10 @@ var SolutionsSetupView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #add-solution': 'addSolution',
-        'click #edit-solution-categories': 'showCategoryModal'
+        'click #add-solution': 'showAddSolution',
+        'click #delete-solution': 'removeSolution',
+        'click #add-solution-modal .confirm': 'addSolution',
+        'click button[name="edit-solution-categories"]': 'showCategoryModal',
     },
 
     /*
@@ -71,11 +73,16 @@ var SolutionsSetupView = BaseView.extend(
             template = _.template(html);
         this.el.innerHTML = template({solutions: this.solutions});
         var promises = [];
+        this.content = this.el.querySelector('#solution-edit-content');
         this.solutionSelect = this.el.querySelector('select[name="solutions"]');
-        this.categorySelect = this.el.querySelector('#solution-category');
+        this.categorySelect = this.content.querySelector('select[name="solution-category"]');
+        this.newSolutionModal = this.el.querySelector('#add-solution-modal');
+        this.newSolutionCategorySelect = this.newSolutionModal.querySelector('select[name="solution-category"]');
         $(this.solutionSelect).selectpicker({size: 10});
         this.populateSolutions();
-        this.populateCategories();
+        this.populateCategories(this.categorySelect);
+        this.populateCategories(this.newSolutionCategorySelect);
+        this.editSolutionBtn = this.el.querySelector('#edit-solution')
 
         this.nameInput = this.el.querySelector('input[name="name"]');
         this.descriptionArea = this.el.querySelector('div[name="description"]');
@@ -91,7 +98,7 @@ var SolutionsSetupView = BaseView.extend(
             maxHeight: null
         });
 
-        this.el.querySelector('#edit-solution').addEventListener('click', function(){
+        this.editSolutionBtn.addEventListener('click', function(){
             _this.activeSolution = _this.solutions.get(_this.solutionSelect.value);
             _this.renderSolution(_this.activeSolution);
         });
@@ -125,18 +132,19 @@ var SolutionsSetupView = BaseView.extend(
 
         this.viewer = new Viewer.default(this.el);
 
-        // rerender categories after editing
         this.catModal = this.el.querySelector('#categories-modal');
+        // rerender categories after editing
         $(this.catModal).on('hidden.bs.modal', function () {
             _this.populateSolutions();
-            _this.populateCategories();
+            _this.populateCategories(_this.categorySelect);
+            _this.populateCategories(_this.newSolutionCategorySelect);
         })
     },
 
     /* fill selection with solutions */
-    populateSolutions: function(){
+    populateSolutions: function(selected){
         var _this = this,
-            prevSel = this.solutionSelect.value;
+            prevSel = selected || this.solutionSelect.value;
         utils.clearSelect(this.solutionSelect);
         this.categories.forEach(function(category){
             var group = document.createElement('optgroup'),
@@ -155,23 +163,23 @@ var SolutionsSetupView = BaseView.extend(
     },
 
     /* fill selection with solutions */
-    populateCategories: function(){
+    populateCategories: function(el){
         var _this = this,
-            prevSel = this.categorySelect.value;
-        utils.clearSelect(this.categorySelect);
+            prevSel = el.value;
+        utils.clearSelect(el);
         this.categories.forEach(function(category){
             var option = document.createElement('option');
             option.value = category.id;
             option.text = category.get('name');
-            _this.categorySelect.appendChild(option);
+            el.appendChild(option);
         })
-        if (prevSel != null) this.categorySelect.value = prevSel;
+        if (prevSel != null) el.value = prevSel;
     },
 
     renderSolution: function(solution){
         var _this = this;
         if (!solution) return;
-        this.el.querySelector('#solution-edit-content').style.display = 'block';
+        this.content.style.display = 'block';
         this.swappedImages = {};
         this.nameInput.value = solution.get('name');
         this.categorySelect.value = solution.get('solution_category');
@@ -241,7 +249,7 @@ var SolutionsSetupView = BaseView.extend(
         }
 
         function removeCategory(category, catItem){
-            var message = gettext('Do you really want to delete the category and all its solutions?');
+            var message = gettext('Do you want to delete the category?');
             _this.confirm({ message: message, onConfirm: function(){
                 category.destroy({
                     success: function() { catList.removeChild(catItem); },
@@ -292,30 +300,51 @@ var SolutionsSetupView = BaseView.extend(
     /*
     * add a solution and save it
     */
-    addSolution: function(panel, category){
+    showAddSolution: function(){
         var _this = this,
-            solutions = category.solutions;
-        function onConfirm(name){
-            var solution = solutions.create(
-                {
-                    name: name,
-                    solution_category: category.id,
-                    description: '-',
-                    documentation: '-'
+            confirmBtn = this.newSolutionModal.querySelector('.confirm');;
+        $(this.newSolutionModal).modal('show');
+    },
+
+    addSolution: function(){
+        var _this = this,
+            name = this.newSolutionModal.querySelector('input[name="name"]').value,
+            category = this.newSolutionCategorySelect.value;
+        var solution = _this.solutions.create(
+            {
+                name: name,
+                solution_category: category,
+                description: '-',
+                documentation: '-'
+            },
+            {
+                wait: true,
+                success: function(){
+                    $(_this.newSolutionModal).modal('hide');
+                    _this.populateSolutions(solution.id);
+                    _this.editSolutionBtn.click();
                 },
-                {
-                    wait: true,
-                    success: function(){
-                        _this.renderSolutionItem(panel, solution);
-                    },
-                    error: _this.onError
-                }
-            )
-        };
-        this.getName({
-            title: gettext('Add Solution'),
-            onConfirm: onConfirm
-        });
+                error: _this.onError
+            }
+        )
+    },
+
+    removeSolution: function(){
+        var _this = this,
+            solution = this.solutions.get(this.solutionSelect.value);
+        if (!solution) return;
+        var message = gettext('Do you want to delete the selected solution?');
+        this.confirm({ message: message, onConfirm: function(){
+            solution.destroy({
+                success: function() {
+                    if (_this.activeSolution == solution)
+                        _this.content.style.display = 'none';
+                    _this.populateSolutions();
+                },
+                wait: true,
+                error: _this.onError
+            })
+        }});
     },
 
     toggleFullscreen: function(event){
