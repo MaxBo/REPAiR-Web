@@ -1,8 +1,8 @@
 require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/workshop-solutions',
          'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
-         'views/strategy/strategy', 'app-config', 'utils/overrides', 'base'
+         'views/strategy/strategy', 'app-config', 'utils/utils', 'utils/overrides', 'base'
 ], function (CaseStudy, GDSECollection, SolutionsWorkshopView, SolutionsSetupView, SolutionsLogicView,
-             StrategyView, appConfig) {
+             StrategyView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -31,7 +31,7 @@ require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/works
         })
     }
 
-    renderSetup = function(caseStudy, keyflowId, keyflowName, solutions){
+    renderSetup = function(caseStudy, keyflowId, keyflowName, solutions, categories){
         if(solutionsView) solutionsView.close();
         solutionsView = new SolutionsSetupView({
             caseStudy: caseStudy,
@@ -39,7 +39,8 @@ require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/works
             template: 'solutions-setup-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName,
-            solutions: solutions
+            solutions: solutions,
+            categories: categories
         })
         if(solutionsLogicView) solutionsLogicView.close();
         solutionsLogicView = new SolutionsLogicView({
@@ -47,7 +48,8 @@ require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/works
             el: document.getElementById('solutions-logic'),
             template: 'solutions-logic-template',
             keyflowId: keyflowId,
-            solutions: solutions
+            solutions: solutions,
+            categories: categories
         })
     };
 
@@ -60,16 +62,22 @@ require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/works
         function renderKeyflow(keyflowId, keyflowName){
             document.getElementById('keyflow-warning').style.display = 'none';
             if (Number(mode) == 1){
-                solutions = new GDSECollection([], {
+                var loader = new utils.Loader(document.getElementById('content'),
+                                             { disable: true });
+                var solutions = new GDSECollection([], {
                     apiTag: 'solutions',
                     apiIds: [caseStudy.id, keyflowId],
                     comparator: 'name'
                 });
-                solutions.fetch({
-                    success: function(){
-                        renderSetup(caseStudy, keyflowId, keyflowName, solutions);
-                    },
-                    error: alert
+                var categories = new GDSECollection([], {
+                    apiTag: 'solutionCategories',
+                    apiIds: [caseStudy.id, keyflowId]
+                });
+                loader.activate();
+                Promise.all([solutions.fetch(), categories.fetch()]).then(function(){
+                    solutions.sort();
+                    renderSetup(caseStudy, keyflowId, keyflowName, solutions, categories);
+                    loader.deactivate();
                 })
             }
             else

@@ -39,11 +39,8 @@ var SolutionsLogicView = BaseView.extend(
         this.keyflowId = options.keyflowId;
 
         this.solutions = options.solutions;
+        this.categories = options.categories;
 
-        this.categories = new GDSECollection([], {
-            apiTag: 'solutionCategories',
-            apiIds: [this.caseStudy.id, this.keyflowId]
-        }),
         this.materials = new GDSECollection([], {
             apiTag: 'materials',
             apiIds: [this.caseStudy.id, this.keyflowId],
@@ -61,7 +58,6 @@ var SolutionsLogicView = BaseView.extend(
         });
 
         var promises = [];
-        promises.push(this.categories.fetch());
         promises.push(this.activities.fetch());
         promises.push(this.activityGroups.fetch());
         promises.push(this.materials.fetch());

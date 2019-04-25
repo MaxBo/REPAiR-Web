@@ -36,22 +36,11 @@ var SolutionsSetupView = BaseView.extend(
         this.keyflowName = options.keyflowName;
 
         this.solutions = options.solutions;
-
-        this.categories = new GDSECollection([], {
-            apiTag: 'solutionCategories',
-            apiIds: [this.caseStudy.id, this.keyflowId]
-        });
+        this.categories = options.categories;
 
         var promises = [];
-        promises.push(this.categories.fetch());
-        promises.push(this.solutions.fetch());
 
-        this.loader.activate();
-        Promise.all(promises).then(function(){
-            _this.solutions.sort();
-            _this.loader.deactivate();
-            _this.render();
-        });
+        this.render();
     },
 
     /*
