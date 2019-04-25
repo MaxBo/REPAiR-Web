@@ -162,18 +162,14 @@ kf_router.register(r'operationallocations', OperationalLocationViewSet)
 kf_router.register(r'flowindicators', FlowIndicatorViewSet)
 kf_router.register(r'flowfilters', FlowFilterViewSet)
 kf_router.register(r'solutioncategories', SolutionCategoryViewSet)
+kf_router.register(r'solutions', SolutionViewSet)
 kf_router.register(r'strategies', StrategyViewSet)
 kf_router.register(r'products', ProductViewSet)
 kf_router.register(r'wastes', WasteViewSet)
 kf_router.register(r'conclusions', ConclusionViewSet)
 
-# /casestudies/*/keyflows/*/solutioncategories/...
-scat_router = NestedSimpleRouter(kf_router, r'solutioncategories',
-                                 lookup='solutioncategory')
-scat_router.register(r'solutions', SolutionViewSet)
-
-# /casestudies/*/keyflows/*/solutioncategories/*/solutions...
-sol_router = NestedSimpleRouter(scat_router, r'solutions',
+# /casestudies/*/keyflows/*/solutions...
+sol_router = NestedSimpleRouter(kf_router, r'solutions',
                                  lookup='solution')
 sol_router.register(r'questions', ImplementationQuestionViewSet)
 sol_router.register(r'parts', SolutionPartViewSet)
@@ -206,7 +202,6 @@ urlpatterns = [
     url(r'^', include(sus_router.urls)),
     url(r'^', include(cs_router.urls)),
     url(r'^', include(shcat_router.urls)),
-    url(r'^', include(scat_router.urls)),
     url(r'^', include(chart_router.urls)),
     url(r'^', include(sol_router.urls)),
     url(r'^', include(strat_router.urls)),

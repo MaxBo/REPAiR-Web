@@ -8,7 +8,6 @@ from repair.apps.changes.factories import (
     SolutionFactory
 )
 from repair.apps.changes.models import Solution
-from repair.apps.login.factories import UserInCasestudyFactory
 
 
 class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
@@ -16,7 +15,6 @@ class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
     casestudy = 17
     keyflow = 23
     solutioncategory = 21
-    user = 99
 
     @classmethod
     def setUpClass(cls):
@@ -25,17 +23,12 @@ class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.solutioncategory)
-        cls.post_data = dict(
-            name='posttestname',
-            user=cls.baseurl + reverse(
-                'userincasestudy-detail',
-                kwargs=dict(pk=cls.uic.id, casestudy_pk=cls.casestudy)))
+        cls.post_data = dict(name='posttestname')
         cls.put_data = cls.post_data
 
     def setUp(self):
         super().setUp()
         self.obj = SolutionCategoryFactory(id=self.solutioncategory,
-                                           user=self.uic,
                                            keyflow=self.kic
                                            )
 
@@ -73,14 +66,12 @@ class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
         assert not qs
 
 
-class SolutionInSolutioncategoryInKeyflowTest(BasicModelPermissionTest,
-                                              APITestCase):
+class SolutionInKeyflowTest(BasicModelPermissionTest,
+                            APITestCase):
 
     casestudy = 17
     solutioncategory = 21
     solution = 36
-    userincasestudy = 67
-    user = 99
     keyflow = 23
 
     @classmethod
@@ -93,15 +84,10 @@ class SolutionInSolutioncategoryInKeyflowTest(BasicModelPermissionTest,
                                 keyflow_pk=cls.keyflow))
         cls.url_key = "solution"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           solutioncategory_pk=cls.solutioncategory,
                             keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.solution)
-        user = cls.baseurl + reverse('userincasestudy-detail',
-                                     kwargs=dict(pk=cls.uic.id,
-                                                 casestudy_pk=cls.casestudy))
         cls.post_data = dict(name='posttestname',
                              activities=[],
-                             user=user,
                              description="This is a description",
                              solution_category=cls.solutioncategory,
                              )
@@ -113,7 +99,5 @@ class SolutionInSolutioncategoryInKeyflowTest(BasicModelPermissionTest,
         self.obj = SolutionFactory(
             id=self.solution,
             solution_category__id=self.solutioncategory,
-            solution_category__keyflow=self.kic,
-            solution_category__user=self.uic,
-            user=self.uic,
+            solution_category__keyflow=self.kic
         )

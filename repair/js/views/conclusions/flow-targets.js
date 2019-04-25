@@ -136,6 +136,7 @@ function(_, BaseView, GDSECollection, Muuri){
                         cell = row.insertCell(-1);
                     if (count){
                         var item = _this.panelItem(count + ' x');
+                        item.style.backgroundImage = 'none';
                         item.style.width = '50px';
                         cell.appendChild(item);
                         var sat = 100 - colorStep * count,
