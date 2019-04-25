@@ -21,7 +21,7 @@ def translate(*args, casestudy_id=None,
             length = len(stocks)
             print('\nTranslating actor-stocks to fraction-flows')
             i = 1
-            forstock in stocks.iterator():
+            for stock in stocks.iterator():
                 stock.save()
                 if i % 10 == 0:
                     end = time.time()
