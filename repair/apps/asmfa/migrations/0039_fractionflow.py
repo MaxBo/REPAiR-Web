@@ -2,18 +2,10 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
+
 import repair.apps.login.models.bases
 import repair.apps.utils.protect_cascade
-from repair.apps.asmfa.models import Actor2Actor, ActorStock
-
-def translate(apps, schema_editor):
-    #Actor2Actor = apps.get_model('asmfa', 'Actor2Actor')
-    print('\nTranslating actor-stocks to fraction-flows')
-    for stock in ActorStock.objects.all():
-        stock.save()
-    print('\nTranslating actor2actor-flows to fraction-flows')
-    for flow in Actor2Actor.objects.all():
-        flow.save()
+from repair.apps.asmfa.management.commands.translate import translate
 
 
 class Migration(migrations.Migration):
