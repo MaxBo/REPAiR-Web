@@ -37,6 +37,7 @@ var SolutionPartView = BaseView.extend(
         this.materials = options.materials;
         this.activityGroups = options.activityGroups;
         this.activities = options.activities;
+        this.questions = options.questions;
         this.render();
     },
 
@@ -64,12 +65,14 @@ var SolutionPartView = BaseView.extend(
         this.spatialDestinationCheck = this.el.querySelector('input[name="destination-in-area"]');
         this.aInput = this.el.querySelector('input[name="a"]');
         this.bInput = this.el.querySelector('input[name="b"]');
+        this.questionSelect = this.el.querySelector('select[name="question"]');
 
         $(this.originSelect).selectpicker({size: 10});
         $(this.destinationSelect).selectpicker({size: 10});
-        this.populateActivityFilter(this.originSelect);
+        this.populateActivitySelect(this.originSelect);
         // ToDo: null allowed for stocks?
-        this.populateActivityFilter(this.destinationSelect);
+        this.populateActivitySelect(this.destinationSelect);
+        this.populateQuestionSelect();
 
         this.renderMatFilter(this.materialSelect);
 
@@ -82,6 +85,11 @@ var SolutionPartView = BaseView.extend(
         })
         this.spatialDestinationCheck.addEventListener('change', function(){
             if (!this.checked) _this.spatialOriginCheck.checked = true;
+        })
+
+        // forbid html escape codes in name
+        this.nameInput.addEventListener('keyup', function(){
+            this.value = this.value.replace(/<|>/g, '')
         })
     },
 
@@ -106,6 +114,7 @@ var SolutionPartView = BaseView.extend(
         //this.spatialSelect.value = spatial.toLowerCase()
         this.aInput.value = this.model.get('a') || 0;
         this.bInput.value = this.model.get('b') || 0;
+        this.questionSelect.value = this.model.get('question') || -1;
 
         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
         var material = this.model.get('implementation_flow_material'),
@@ -133,9 +142,28 @@ var SolutionPartView = BaseView.extend(
         this.model.set('map_request', '');
         this.model.set('a', this.aInput.value);
         this.model.set('b', this.bInput.value);
+        var question = this.questionSelect.value;
+        this.model.set('question', (question == "-1") ? null: question);
     },
 
-    populateActivityFilter: function(select){
+    populateQuestionSelect: function(){
+        var _this = this;
+        utils.clearSelect(this.questionSelect);
+
+        var option = document.createElement('option');
+        option.value = -1;
+        option.text = gettext('Select');
+        option.disabled = true;
+        this.questionSelect.appendChild(option);
+        this.questions.forEach(function(question){
+            var option = document.createElement('option');
+            option.value = question.id;
+            option.text = question.get('question');
+            _this.questionSelect.appendChild(option);
+        })
+    },
+
+    populateActivitySelect: function(select){
         var _this = this;
         utils.clearSelect(select);
 

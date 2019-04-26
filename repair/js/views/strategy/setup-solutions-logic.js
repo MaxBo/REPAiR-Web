@@ -180,7 +180,8 @@ var SolutionsLogicView = BaseView.extend(
         function onConfirm(question){
             question.save(null, {
                 success: function(){
-                    _this.questions.add(part);
+                    console.log(question)
+                    _this.questions.add(question);
                     $(_this.questionModal).modal('hide');
                     _this.renderItem(question);
                 },
@@ -229,7 +230,8 @@ var SolutionsLogicView = BaseView.extend(
         panelItem.style.position = 'absolute';
         panelItem.dataset.id = model.id;
         itemContent.classList.add('noselect', 'item-content');
-        itemContent.innerHTML = template({ name: model.get('name') });
+        var name = (type === 'questions') ? model.get('question') : model.get('name');
+        itemContent.innerHTML = template({ name: name });
 
         var grid = (type === 'solutionparts') ? this.solutionPartsGrid: this.questionsGrid,
             modal = (type === 'solutionparts') ? this.solutionPartModal: this.questionModal;
@@ -240,7 +242,8 @@ var SolutionsLogicView = BaseView.extend(
             function onConfirm(model){
                 model.save(null, {
                     success: function(){
-                        itemContent.querySelector('label[name="name"]').innerHTML = model.get('name');
+                        var name = (type === 'questions') ? model.get('question') : model.get('name');
+                        itemContent.querySelector('label[name="name"]').innerHTML = name;
                         $(modal).modal('hide');
                     },
                     error: _this.onError
@@ -300,7 +303,8 @@ var SolutionsLogicView = BaseView.extend(
             el: el,
             materials: this.materials,
             activityGroups: this.activityGroups,
-            activities: this.activities
+            activities: this.activities,
+            questions: this.questions
         })
         confirmBtn = utils.removeEventListeners(confirmBtn);
         confirmBtn.addEventListener('click', function(){

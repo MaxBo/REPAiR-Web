@@ -105,6 +105,7 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     implementation_flow_material = IDRelatedField()
     new_target_activity = IDRelatedField(required=False, allow_null=True)
     implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
+    question = IDRelatedField()
 
     # ToDo: serialize affected flows as part of this serializer
 
