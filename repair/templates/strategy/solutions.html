@@ -307,6 +307,22 @@
     </div>
   </div>
   <div class="tab-pane fade in" id="target-tab">
+    <p style="max-width: 800px;">
+      Put some explanations here (new flow is derived from initial impact flow, either keeps origin or destination etc.)
+    </p>
+    <div class="row">
+      The
+      <select name="keep-origin" style="width: 100px;">
+        <option value="false"> {% trans "Origin" %} </option>
+        <option value="true"> {% trans "Destination" %} </option>
+      </select>
+      activity of the initial impact flow is replaced with the activity
+      <select name="new-target" style="width: 100px;"></select>
+    </div>
+    <div class="row">
+      {% trans "When implementing this solution in workshop mode, the user is asked to pick an Actor with the following words (BETTER TEXT IS WELCOME):" %}
+      <textarea name="map-request" rows="2" style="width: 100%; resize: vertical;"></textarea>
+    </div>
   </div>
 </div>
 </script>

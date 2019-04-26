@@ -67,11 +67,17 @@ var SolutionPartView = BaseView.extend(
         this.bInput = this.el.querySelector('input[name="b"]');
         this.questionSelect = this.el.querySelector('select[name="question"]');
 
+        this.newTargetSelect = this.el.querySelector('select[name="new-target"]');
+        this.keepOriginInput = this.el.querySelector('select[name="keep-origin"]');
+        this.mapRequestArea = this.el.querySelector('textarea[name="map-request"]');
+
         $(this.originSelect).selectpicker({size: 10});
         $(this.destinationSelect).selectpicker({size: 10});
+        $(this.newTargetSelect).selectpicker({size: 10});
         this.populateActivitySelect(this.originSelect);
         // ToDo: null allowed for stocks?
         this.populateActivitySelect(this.destinationSelect);
+        this.populateActivitySelect(this.newTargetSelect);
         this.populateQuestionSelect();
 
         this.renderMatFilter(this.materialSelect);
@@ -111,6 +117,10 @@ var SolutionPartView = BaseView.extend(
         this.spatialOriginCheck.checked = (spatial == 'origin' || spatial == 'both');
         this.spatialDestinationCheck.checked = (spatial == 'destination' || spatial == 'both');
 
+        this.newTargetSelect.value = this.model.get('new_target_activity') || null;
+        this.mapRequestArea.value = this.model.get('map_request') || '';
+        this.keepOriginInput.value = this.model.get('keep_origin') || false;
+
         //this.spatialSelect.value = spatial.toLowerCase()
         this.aInput.value = this.model.get('a') || 0;
         this.bInput.value = this.model.get('b') || 0;
@@ -125,6 +135,7 @@ var SolutionPartView = BaseView.extend(
         }
         $(this.originSelect).selectpicker('refresh');
         $(this.destinationSelect).selectpicker('refresh');
+        $(this.newTargetSelect).selectpicker('refresh');
         this.toggleNewFlow();
     },
 
@@ -137,13 +148,16 @@ var SolutionPartView = BaseView.extend(
         var spatial = (this.spatialOriginCheck.checked && this.spatialDestinationCheck.checked) ? 'both':
                       (this.spatialOriginCheck.checked) ? 'origin': 'destination';
         this.model.set('implementation_flow_spatial_application', spatial);
-        this.model.set('new_target_activity', null);
         this.model.set('documentation', '');
         this.model.set('map_request', '');
         this.model.set('a', this.aInput.value);
         this.model.set('b', this.bInput.value);
         var question = this.questionSelect.value;
         this.model.set('question', (question == "-1") ? null: question);
+
+        this.model.set('new_target_activity', (this.newTargetSelect.value != "-1") ? this.newTargetSelect.value: null);
+        this.model.set('keep_origin', this.keepOriginInput.value);
+        this.model.set('map_request', this.mapRequestArea.value);
     },
 
     populateQuestionSelect: function(){
