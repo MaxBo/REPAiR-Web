@@ -77,7 +77,9 @@ var SolutionsLogicView = BaseView.extend(
     */
     events: {
         'click #reload-solution-list': 'populateSolutions',
-        'click #add-solution-part': 'addSolutionPart'
+        'click #add-solution-part': 'addSolutionPart',
+        'click button[name="implementation-area"]': 'uploadArea',
+        'click button[name="show-area"]': 'showArea'
     },
 
     /*
@@ -125,9 +127,20 @@ var SolutionsLogicView = BaseView.extend(
         this.populateSolutions();
         this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel');
 
+        this.implAreaText = this.el.querySelector('textarea[name="implementation-area"]');
         var mapDiv = this.el.querySelector('div[name="area-map"]');
         this.areaMap = new Map({
             el: mapDiv
+        });
+        // map is rendered with wrong size, when tab is not visible -> update size when accessing tab
+        $('a[href="#area-tab"]').on('shown.bs.tab', function (e) {
+            _this.areaMap.map.updateSize();
+        });
+        this.areaMap.addLayer('implementation-area', {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1,
+            zIndex: 0
         });
     },
 
@@ -287,7 +300,68 @@ var SolutionsLogicView = BaseView.extend(
         this.el.querySelector('#solution-logic-content').style.visibility = 'visible';
         this.renderSolutionParts(parts);
         this.notesArea.value = solution.get('documentation');
-        this.areaMap.map.updateSize();
+
+        this.areaMap.clearLayer('implementation-area');
+        var implArea = solution.get('possible_implementation_area') || '';
+        if(implArea) implArea = JSON.stringify(implArea);
+        this.implAreaText.value = implArea;
+        this.showArea();
+    },
+
+    checkGeoJSON: function(geoJSONTxt){
+        try {
+            var geoJSON = JSON.parse(geoJSONTxt);
+        }
+        catch(err) {
+            this.alert(err);
+            return;
+        }
+        if (!geoJSON.coordinates && !geoJSON.type) {
+            this.alert(gettext('GeoJSON needs attributes "type" and "coordinates"'));
+        }
+        if (!['multipolygon', 'polygon'].includes(geoJSON.type.toLowerCase())){
+            this.alert(gettext('type has to be MultiPolygon or Polygon'));
+            return;
+        }
+
+        return geoJSON;
+    },
+
+    showArea: function(){
+        var implArea = this.implAreaText.value;
+        if (!implArea) return;
+
+        var geoJSON = this.checkGeoJSON(implArea);
+        if (!geoJSON) return;
+
+        this.areaMap.clearLayer('implementation-area');
+        try {
+            var poly = this.areaMap.addPolygon(geoJSON.coordinates, {
+                projection: this.projection,
+                layername: 'implementation-area',
+                tooltip: gettext('Focus area'),
+                type: geoJSON.type.toLowerCase()
+            });
+        }
+        catch(err) {
+            this.alert(err);
+            return;
+        }
+        this.areaMap.centerOnPolygon(poly, { projection: this.projection });
+    },
+
+    uploadArea: function(){
+        var geoJSON = this.checkGeoJSON(this.implAreaText.value);
+        if (!geoJSON) return;
+        var _this = this;
+
+        this.activeSolution.save({ 'possible_implementation_area': geoJSON },{
+            success: function(){
+                _this.alert(gettext('Upload successful'), gettext('Success'));
+            },
+            error: _this.onError,
+            patch: true
+        })
     }
 });
 return SolutionsLogicView;

@@ -166,6 +166,7 @@ define([
         * @param {Object=} options.colorRange                       function to color feature by value (fill and stroke, options.stroke overrides stroke by colorRange)
         * @param {Object=} options.source                           source layer
         * @param {string=} options.source.projection                projection of the source
+        * @param {string=} options.source.url                       url of source
         * @param {Object=} options.select                           options for selectable features inside this layer
         * @param {Boolean=} [options.select.selectable=false]       enables selection of features on click
         * @param {string} [options.select.stroke='rgb(230, 230, 0)'] color of outline of selected feature
@@ -369,12 +370,20 @@ define([
 
         addGeometry(coordinates, options){
             var options = options || {},
-                type = options.type || 'Polygon',
+                type = options.type.toLowerCase() || 'polygon',
                 proj = options.projection || this.mapProjection;
-            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) :
-                           (type === 'Point') ? new ol.geom.Point(coordinates) :
-                           (type === 'LineString') ? new ol.geom.LineString(coordinates) :
-                           new ol.geom.Polygon(coordinates);
+            var geometry;
+            if (type === 'multipolygon') {
+                geometry = new ol.geom.MultiPolygon(coordinates);
+            } else if (type === 'point'){
+                geometry = new ol.geom.Point(coordinates)
+            } else if (type === 'linestring'){
+                geometry = new ol.geom.LineString(coordinates)
+            } else if (type === 'polygon'){
+                geometry = new ol.geom.Polygon(coordinates)
+            } else {
+                throw "Unknown type, supported: MultiPolygon, Polygon, Point, Linestring";
+            }
             var ret = geometry.clone();
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];

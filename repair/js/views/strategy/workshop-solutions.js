@@ -147,10 +147,11 @@ var SolutionsWorkshopView = BaseView.extend(
         });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], {
+            var poly = this.map.addPolygon(focusarea.coordinates, {
                 projection: this.projection,
                 layername: 'background',
-                tooltip: gettext('Focus area')
+                tooltip: gettext('Focus area'),
+                type: 'MultiPolygon'
             });
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };

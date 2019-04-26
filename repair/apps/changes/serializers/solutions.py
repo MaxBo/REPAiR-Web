@@ -80,7 +80,8 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         fields = ('url', 'id', 'name', 'description',
                   'documentation', 'solution_category',
                   'activities_image',
-                  'currentstate_image', 'effect_image'
+                  'currentstate_image', 'effect_image',
+                  'possible_implementation_area'
                   )
         read_only_fields = ('url', 'id', )
         extra_kwargs = {

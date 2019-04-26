@@ -614,7 +614,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         if(region){
             this.map.addPolygon(region.get('coordinates'), {
                 layername: 'region',
-                type: 'Multipolygon',
+                type: 'MultiPolygon',
                 label: gettext('Casestudy Region'),
                 tooltip: gettext('Casestudy Region'),
                 projection: this.projection
