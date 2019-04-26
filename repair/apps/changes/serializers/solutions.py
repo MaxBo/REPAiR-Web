@@ -46,21 +46,19 @@ class SolutionDetailCreateMixin:
 
 class ImplementationQuestionSerializer(SolutionDetailCreateMixin,
                                        NestedHyperlinkedModelSerializer):
-    unit = IDRelatedField()
     solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
         'keyflow_pk': 'solution__solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution__solution_category__id',
         'solution_pk': 'solution__id'
     }
 
     class Meta:
         model = ImplementationQuestion
-        fields = ('url', 'id', 'question', 'unit', 'select_values', 'steps',
-                  'min_value', 'max_value', 'is_absolute')
-        extra_kwargs = {'steps': {'required': False},
-                        'unit': {'required': False},}
+        fields = ('url', 'id', 'solution', 'question', 'select_values',
+                  'step', 'min_value', 'max_value', 'is_absolute')
+        extra_kwargs = {'step': {'required': False},
+                        'select_values': {'required': False}}
 
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,

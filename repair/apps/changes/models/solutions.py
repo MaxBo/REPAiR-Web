@@ -52,7 +52,7 @@ class ImplementationQuestion(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
                                  related_name='question')
     unit = models.CharField(blank=True, default='', max_length=100)
-    select_values = models.TextField(validators=[double_list_validator])
+    select_values = models.TextField(blank=True, validators=[double_list_validator])
     step = models.FloatField(null=True)
     min_value = models.FloatField(default=0)
     max_value = models.FloatField(default=1)

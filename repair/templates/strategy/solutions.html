@@ -132,10 +132,31 @@
   <div class="col-md-8">
     <ul class="nav nav-tabs">
       <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
-      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
       <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
+      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
     </ul>
     <div class="tab-content bordered" style="min-height: 500px;">
+      <div class="tab-pane fade in active" id="parts-tab">
+        <div class="row">
+          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
+          <div class="row">
+            <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
+          </div>
+          <button id="add-solution-part" class="btn btn-primary add square" title="add part">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add Part" %}
+          </button>
+        </div>
+      </div>
+      <div class="tab-pane fade in" id="questions-tab">
+        <div class="row">
+          <div class="row">
+            <div id="questions-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
+          </div>
+          <button id="add-question" class="btn btn-primary add square" title="add question">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add Question" %}
+          </button>
+        </div>
+      </div>
       <div class="tab-pane fade in" id="area-tab">
         <div class="row">
           <div class="col-md-6">
@@ -156,20 +177,6 @@
               <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
             </button>
           </div>
-        </div>
-      </div>
-      <div class="tab-pane fade in" id="questions-tab">
-      </div>
-      <div class="tab-pane fade in active" id="parts-tab">
-        <div class="row">
-          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
-          <div class="row">
-            <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered">
-          </div>
-          </div>
-          <button id="add-solution-part" class="btn btn-primary add square" title="add part">
-            <span class="glyphicon glyphicon-plus"></span> {% trans "Add part" %}
-          </button>
         </div>
       </div>
     </div>
@@ -194,13 +201,28 @@
     </div>
   </div>
 </div>
+<div id="question-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Edit Question" %}</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      </div>
+    </div>
+  </div>
+</div>
 </script>
 
 <!-- solution part-->
 <script type="text/template" id="solution-part-template">
 <div class="row">
   <label>{% trans "Name" %} </label>
-  <input class="form-control" name="name" value="remove flow">
+  <input class="form-control" name="name">
 </div>
 <div class="row">
   <input type="checkbox" name="impl-new-flow"> {% trans "implements new flow" %}
@@ -286,6 +308,32 @@
   </div>
   <div class="tab-pane fade in" id="target-tab">
   </div>
+</div>
+</script>
+
+<!-- question-->
+<script type="text/template" id="question-template">
+<div class="row">
+  <label>{% trans "Question (as presented in workshop mode)" %} </label>
+  <input class="form-control" name="question">
+</div>
+<br>
+<div class="row">
+  {% trans "relative change (Percentage)" %} <input type="radio" name="is_absolute" value="false" checked>
+  <br>
+  {% trans "absolute change (t/year)" %} <input type="radio" name="is_absolute" value="true">
+</div>
+<div class="row">
+  <label>{% trans "minimum adjustable value" %} </label>
+  <br>
+  <input name="min-value" min="0" type="number" style="text-align: right; float: left;">
+  <div name="unit">%</div>
+</div>
+<div class="row">
+  <label>{% trans "maximum adjustable value" %} </label>
+  <br>
+  <input name="max-value" min="0" type="number" style="text-align: right; float: left;">
+  <div name="unit">%</div>
 </div>
 </script>
 
