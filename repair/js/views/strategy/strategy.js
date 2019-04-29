@@ -42,11 +42,16 @@ var StrategyView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
 
-        // ToDo: replace with collections fetched from server
         this.solutionCategories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
         })
+
+        this.solutions = new GDSECollection([], {
+            apiTag: 'solutions',
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
+        });
 
         var focusarea = this.caseStudy.get('properties').focusarea;
         if (focusarea != null){
@@ -54,13 +59,13 @@ var StrategyView = BaseView.extend(
         }
 
         this.stakeholders = [];
-        this.solutions = [];
         this.projection = 'EPSG:4326';
 
         var promises = [
             this.strategies.fetch(),
             this.stakeholderCategories.fetch(),
             this.solutionCategories.fetch(),
+            this.solutions.fetch()
         ]
         this.loader.activate();
         Promise.all(promises).then(function(){
@@ -74,15 +79,14 @@ var StrategyView = BaseView.extend(
                 category.stakeholders = stakeholders;
                 deferreds.push(stakeholders.fetch({ error: _this.onError }))
             });
-            // fetch all solutions after fetching the categories
-            _this.solutionCategories.forEach(function(category){
-                var solutions = new GDSECollection([], {
-                    apiTag: 'solutions',
-                    apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
+
+            _this.solutions.forEach(function(solution){
+                solution.questions = new GDSECollection([], {
+                    apiTag: 'questions',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
                 });
-                category.solutions = solutions;
-                deferreds.push(solutions.fetch({ error: _this.onError }))
-            });
+                deferreds.push(solution.questions.fetch());
+            })
 
             Promise.all(deferreds).then(_this.render);
 
@@ -105,6 +109,11 @@ var StrategyView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
+
+        // append solutions to their categories, easier to work with in template
+        _this.solutionCategories.forEach(function(category){
+            category.solutions = _this.solutions.filterBy({solution_category: category.id});
+        });
         this.el.innerHTML = template({
             stakeholderCategories: this.stakeholderCategories,
             solutionCategories: this.solutionCategories,
@@ -205,15 +214,8 @@ var StrategyView = BaseView.extend(
             solId = solutionInStrategy.get('solution'),
             _this = this;
 
-        var solution;
-        for (var i = 0; i < this.solutionCategories.length; i++){
-            solution = this.solutionCategories.at(i).solutions.get(solId);
-            if (solution != null) break;
-        }
-
-        if (!solution) return;
-
-        var stakeholderIds = solutionInStrategy.get('participants'),
+        var solution = this.solutions.get(solId),
+            stakeholderIds = solutionInStrategy.get('participants'),
             stakeholderNames = [];
 
         stakeholderIds.forEach(function(id){
@@ -260,19 +262,14 @@ var StrategyView = BaseView.extend(
             template = _.template(html);
         var modal = this.el.querySelector('#solution-strategy-modal');
 
-        var solution = null,
-            solId = solutionImpl.get('solution');
-
-        for (var i = 0; i < this.solutionCategories.length; i++){
-            solution = this.solutionCategories.at(i).solutions.get(solId);
-            if (solution != null) break;
-        }
-
+        var solId = solutionImpl.get('solution'),
+            solution = this.solutions.get(solId);
         modal.innerHTML = template({
             solutionCategories: this.solutionCategories,
             solutionImpl: solutionImpl,
             solution: solution,
-            stakeholderCategories: this.stakeholderCategories
+            stakeholderCategories: this.stakeholderCategories,
+            questions: solution.questions
         });
 
         var stakeholderSelect = modal.querySelector('#strategy-stakeholders'),
@@ -310,32 +307,43 @@ var StrategyView = BaseView.extend(
                 var geometries = [];
                 features.forEach(function(feature) {
                     var geom = feature.getGeometry();
-                    geometries.push(geom)
+                    geometries.push(geom);
                 });
                 var geoCollection = new ol.geom.GeometryCollection(geometries),
                     geoJSON = new ol.format.GeoJSON(),
                     geoJSONText = geoJSON.writeGeometry(geoCollection);
                 solutionImpl.set('geom', geoJSONText);
             }
+
+            var quantityInputs = modal.querySelectorAll('input[name="quantity"]'),
+                quantities = [];
+            quantityInputs.forEach(function(input){
+                var quantity = {
+                    question: input.dataset.id,
+                    value: input.value
+                }
+                quantities.push(quantity);
+            })
+
+            solutionImpl.set('quantities', quantities);
+
             var notes = modal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
-            var promises = [
-                solutionImpl.save(null, {
-                    error: _this.onError,
-                    patch: true,
-                    wait: true
-                })
-            ]
-            Promise.all(promises).then(function(){
-                _this.renderSolutionPreviewMap(solutionImpl, item);
-                item.querySelector('textarea[name="notes"]').value = notes;
-                var stakeholderNames = [];
-                stakeholderIds.forEach(function(id){
-                    var stakeholder = _this.getStakeholder(id);
-                    stakeholderNames.push(stakeholder.get('name'));
-                })
-                item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
-                $(modal).modal('hide');
+            solutionImpl.save(null, {
+                error: _this.onError,
+                patch: true,
+                wait: true,
+                success: function(){
+                    _this.renderSolutionPreviewMap(solutionImpl, item);
+                    item.querySelector('textarea[name="notes"]').value = notes;
+                    var stakeholderNames = [];
+                    stakeholderIds.forEach(function(id){
+                        var stakeholder = _this.getStakeholder(id);
+                        stakeholderNames.push(stakeholder.get('name'));
+                    })
+                    item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
+                    $(modal).modal('hide');
+                }
             })
         })
     },
@@ -463,7 +471,7 @@ var StrategyView = BaseView.extend(
             _this = this;
         items.forEach(function(item){
             var id = item.getElement().dataset['id'];
-            _this.solutionsInStrategy.get(id).save({ priority: i })
+            _this.solutionsInStrategy.get(id).save({ priority: i }, { patch: true })
             i++;
         });
     }

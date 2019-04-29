@@ -147,7 +147,6 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             'map_request': {'required': False, 'allow_blank': True}
         }
 
-
     def update(self, instance, validated_data):
         new_flows = validated_data.pop('affected_flow', None)
         instance = super().update(instance, validated_data)

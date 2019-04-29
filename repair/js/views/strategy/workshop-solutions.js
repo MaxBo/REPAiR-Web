@@ -82,8 +82,6 @@ var SolutionsWorkshopView = BaseView.extend(
         });
     },
 
-
-
     /*
     * open a modal containing details about the solution
     * onConfirm is called when user confirms modal by clicking OK button

@@ -111,6 +111,12 @@ class StrategyField(InCasestudyField):
     }
 
 
+class ImplementationQuantitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImplementationQuantity
+        fields = ('question', 'value')
+
+
 class SolutionInStrategySerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'strategy__keyflow__casestudy__id',
@@ -118,51 +124,21 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
         'strategy_pk': 'strategy__id'
     }
     participants = IDRelatedField(many=True, required=False)
+    quantities = ImplementationQuantitySerializer(
+        many=True, source='implementation_quantity', required=False)
 
     class Meta:
         model = SolutionInStrategy
-        fields = ('id',
-                  'solution',
-                  'note', 'geom',
-                  'participants',
-                  'priority'
-                  )
+        fields = ('id', 'solution', 'note', 'geom',
+                  'participants', 'priority', 'quantities')
 
-
-class SolutionInStrategyField(InCasestudyField):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'strategy__keyflow__casestudy__id',
-        'keyflow_pk': 'strategy__keyflow__id',
-        'strategy_pk': 'strategy__id'
-    }
-
-
-class SolutionInStrategyDetailCreateMixin:
-    def create(self, validated_data):
-        """Create a new solution quantity"""
-        url_pks = self.context['request'].session['url_pks']
-        solution_pks = url_pks['solution_pk']
-        sii = SolutionInStrategy.objects.get(id=solution_pks)
-
-        obj = self.Meta.model.objects.create(
-            sii=sii,
-            **validated_data)
-        return obj
-
-
-class ImplementationQuantitySerializer(SolutionInStrategyDetailCreateMixin,
-                                       NestedHyperlinkedModelSerializer):
-    parent_lookup_kwargs = {
-        'casestudy_pk': 'sii__strategy__keyflow__casestudy__id',
-        'keyflow_pk': 'sii__strategy__keyflow__id',
-        'strategy_pk': 'sii__strategy__id',
-        'solution_pk': 'sii__id'
-    }
-    implementation = IDRelatedField(read_only=True)
-    question = IDRelatedField(read_only=True)
-    value = IDRelatedField(read_only=True)
-
-    class Meta:
-        model = ImplementationQuantity
-        fields = ('url', 'id', 'implementation', 'question', 'value')
+    def update(self, instance, validated_data):
+        quantities = validated_data.pop('implementation_quantity', [])
+        instance = super().update(instance, validated_data)
+        for f in quantities:
+            quantity = ImplementationQuantity.objects.get(
+                question=f['question'], implementation=instance)
+            quantity.value = f['value'];
+            quantity.save()
+        return instance
 

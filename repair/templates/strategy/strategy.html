@@ -85,12 +85,46 @@
     <div class="modal-body">
       <div class="row">
         <ul class="nav nav-tabs">
-          <li class="active"><a data-toggle="tab" href="#strategy-area-tab">{% trans "Implementation Area" %}</a></li>
-          <li><a data-toggle="tab" href="#strategy-by-tab">{% trans "Implementation by" %}</a></li>
+          <li class="active"><a data-toggle="tab" href="#questions-tab"><i>Overview REPLACE</i></a></li>
+          <li><a data-toggle="tab" href="#actors-tab"><i>Pick Actors REPLACE</i></a></li>
+          <li><a data-toggle="tab" href="#strategy-area-tab">{% trans "Implementation Area" %}</a></li>
           <li><a data-toggle="tab" href="#notes-tab">{% trans "Notes" %}</a></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane fade in active" id="strategy-area-tab">
+          <div class="tab-pane fade in active" id="questions-tab">
+            <div class="col-md-12 bordered">
+              <div class="row" style="margin-top: 15px">
+                {% trans "Stakeholders in charge of the solution’s strategy in the strategy area" %}:
+                <div class="row">
+                  <select id="strategy-stakeholders" class="selectpicker" multiple data-width="500px">
+                  <% stakeholderCategories.forEach(function(category){ %>
+                    <optgroup label="<%= category.get('name') %>">
+                      <% category.stakeholders.forEach(function(stakeholder){ %>
+                      <option value="<%= stakeholder.id %>"> <%= stakeholder.get('name') %></option>
+                      <% }) %>
+                    </optgroup>
+                  <% }) %>
+                  </select>
+                </div>
+              </div>
+              {% trans "Questions" %}
+              <% solutionImpl.get('quantities').forEach(function(quantity){ %>
+              <div class="row">
+                <% var question = questions.get(quantity.question); %>
+                <%= question.get('question') %>
+                <input name="quantity" value="<%= quantity.value %>" data-id="<%= question.id %>" type="number" min="<%= question.get('min_value') %>" max="<%= question.get('max_value') %>" style="margin-left: 10px; margin-right: 5px">
+                <% if (question.get('is_absolute')) { %>
+                {% trans "t/year" %}
+                <% } else { %>
+                %
+                <% } %>
+              </div>
+              <% }) %>
+            </div>
+          </div>
+          <div class="tab-pane fade in active" id="actors-tab">
+          </div>
+          <div class="tab-pane fade in" id="strategy-area-tab">
             <div class="col-md-12 bordered">
               <div class="olmap" id='editor-map'>
                 <div class="drawing-tools row">
@@ -103,13 +137,6 @@
                       <input type="radio" class="tool" name="options" data-tool="Select" autocomplete="off">
                       <span class="far fa-hand-point-up"></span>
                     </label>
-                    <!--seperate dragbox tool disabled, doesn't work with touch-->
-                    <!--
-                    <label class="btn btn-secondary" title="{% trans "Select Features" %}">
-                      <input type="radio" class="tool" name="options" data-tool="DragBox" autocomplete="off">
-                      <div style="border: 1px black dashed; width: 18px; height: 18px;"></div>
-                    </label>
-                    -->
                     <label class="btn btn-secondary" title="{% trans "Draw Polygons" %}">
                       <input type="radio" class="tool" name="options" data-tool="Polygon" autocomplete="off">
                       <span class="fas fa-draw-polygon"></span>
@@ -127,24 +154,6 @@
                   <label style="text-shadow: 0 0 0.2em #fff, 0 0 0.2em #fff, 0 0 0.2em #fff;">{% trans "freehand" %}</label>
                   <button class="remove btn btn-danger round" style="margin-left: 10px; display: none;"> <span class="glyphicon glyphicon-remove-sign" ></span> {% trans "selection" %} </button>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane fade in" id="strategy-by-tab">
-            <div class="col-md-12 bordered">
-              <div class="row" style="margin-top: 15px">
-                {% trans "Stakeholders in charge of the solution’s strategy in the strategy area" %}:
-              </div>
-              <div class="row">
-                <select id="strategy-stakeholders" class="selectpicker" multiple data-width="500px">
-                <% stakeholderCategories.forEach(function(category){ %>
-                  <optgroup label="<%= category.get('name') %>">
-                    <% category.stakeholders.forEach(function(stakeholder){ %>
-                    <option value="<%= stakeholder.id %>"> <%= stakeholder.get('name') %></option>
-                    <% }) %>
-                  </optgroup>
-                <% }) %>
-                </select>
               </div>
             </div>
           </div>
