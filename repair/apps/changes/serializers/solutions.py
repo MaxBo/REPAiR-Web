@@ -5,7 +5,8 @@ from repair.apps.asmfa.models import Activity
 from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
                                         ImplementationQuestion,
-                                        SolutionPart
+                                        SolutionPart,
+                                        AffectedFlow
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -92,6 +93,18 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         }
 
 
+class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,
+                             serializers.ModelSerializer):
+
+    class Meta:
+        model = AffectedFlow
+        fields = ('id', 'origin_activity', 'destination_activity',
+                  'material', 'process')
+        extra_kwargs = {
+            'process': {'required': False},
+        }
+
+
 class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                              NestedHyperlinkedModelSerializer):
     solution = IDRelatedField(read_only=True)
@@ -105,6 +118,7 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     implementation_flow_material = IDRelatedField()
     new_target_activity = IDRelatedField(required=False, allow_null=True)
     implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
+    affected_flows = AffectedFlowSerializer(source='affected_flow', many=True)
     question = IDRelatedField()
 
     # ToDo: serialize affected flows as part of this serializer
@@ -120,7 +134,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                   'implementation_flow_spatial_application',
                   'question', 'a', 'b',
                   'keep_origin', 'new_target_activity',
-                  'map_request', 'priority'
+                  'map_request', 'priority',
+                  'affected_flows'
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
@@ -131,3 +146,14 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             'documentation': {'required': False, 'allow_blank': True},
             'map_request': {'required': False, 'allow_blank': True}
         }
+
+
+    def update(self, instance, validated_data):
+        new_flows = validated_data.pop('affected_flow', None)
+        instance = super().update(instance, validated_data)
+        if new_flows:
+            AffectedFlow.objects.filter(solution_part=instance).delete()
+            for f in new_flows:
+                flow = AffectedFlow(solution_part=instance, **f)
+                flow.save()
+        return instance

@@ -272,22 +272,7 @@
       All flow definitions in this list have to be on activity level.
     {% endblocktrans %}
     </p>
-    <div class="row bordered">
-      {% trans "Material" %}
-      <select style="width: 100px"></select>
-      {% trans "from" %}
-      <select style="width: 100px"></select>
-      {% trans "to" %}
-      <select style="width: 100px"></select>
-    </div>
-    <div class="row bordered">
-      {% trans "Material" %}
-      <select style="width: 100px"></select>
-      {% trans "from" %}
-      <select style="width: 100px"></select>
-      {% trans "to" %}
-      <select style="width: 100px"></select>
-    </div>
+    <div id="affected-flows"></div>
     <button class="btn btn-primary add square">
       <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
     </button>
@@ -325,6 +310,19 @@
     </div>
   </div>
 </div>
+</script>
+
+<!-- affected flow row-->
+<script type="text/template" id="affected-flow-row-template">
+  {% trans "Material" %}
+  <div name="material" style="width: 200px; display: inline-block;"></div>
+  {% trans "from" %}
+  <select name="origin" style="width: 200px; display: inline-block;"></select>
+  {% trans "to" %}
+  <select name="destination" style="width: 200px; display: inline-block;"></select>
+  <button class="btn btn-warning square remove" title="remove affected flow">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
 </script>
 
 <!-- question-->

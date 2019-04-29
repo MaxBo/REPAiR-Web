@@ -110,7 +110,8 @@ class AffectedFlow(GDSEModel):
     '''
     flow affected by solution-part on activity level
     '''
-    solution_part = models.ForeignKey(SolutionPart, on_delete=models.CASCADE)
+    solution_part = models.ForeignKey(
+        SolutionPart, related_name='affected_flow', on_delete=models.CASCADE)
 
     origin_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE, related_name='affected_origin')
@@ -120,5 +121,6 @@ class AffectedFlow(GDSEModel):
     material = models.ForeignKey(
         Material, on_delete=PROTECT_CASCADE, related_name='affected_material')
     process = models.ForeignKey(
-        Process, on_delete=PROTECT_CASCADE, related_name='affected_process')
+        Process, on_delete=PROTECT_CASCADE, related_name='affected_process',
+        null=True)
 

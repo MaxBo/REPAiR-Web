@@ -29,6 +29,7 @@ var SolutionPartView = BaseView.extend(
         SolutionPartView.__super__.initialize.apply(this, [options]);
         var _this = this;
         _.bindAll(this, 'toggleNewFlow');
+        _.bindAll(this, 'addAffectedFlow');
 
         this.template = options.template;
 
@@ -79,6 +80,7 @@ var SolutionPartView = BaseView.extend(
         this.populateActivitySelect(this.destinationSelect);
         this.populateActivitySelect(this.newTargetSelect);
         this.populateQuestionSelect();
+        this.affectedDiv = this.el.querySelector('#affected-flows');
 
         this.renderMatFilter(this.materialSelect);
 
@@ -97,6 +99,8 @@ var SolutionPartView = BaseView.extend(
         this.nameInput.addEventListener('keyup', function(){
             this.value = this.value.replace(/<|>/g, '')
         })
+        // for some reasons jquery doesn't find this element when declared in 'events' attribute
+        this.el.querySelector('#affected-flows-tab button.add').addEventListener('click', this.addAffectedFlow);
     },
 
     toggleNewFlow: function(){
@@ -108,6 +112,7 @@ var SolutionPartView = BaseView.extend(
     },
 
     setInputs: function(){
+        var _this = this;
         this.nameInput.value = this.model.get('name') || '';
         this.implNewFlowInput.checked = this.model.get('implements_new_flow');
         this.originSelect.value = this.model.get('implementation_flow_origin_activity') || null;
@@ -137,14 +142,21 @@ var SolutionPartView = BaseView.extend(
         $(this.destinationSelect).selectpicker('refresh');
         $(this.newTargetSelect).selectpicker('refresh');
         this.toggleNewFlow();
+
+        var affected = this.model.get('affected_flows') || [];
+        affected.forEach(function(flow){
+            _this.addAffectedFlow(flow);
+        })
     },
 
     applyInputs: function(){
+        var _this = this;
         this.model.set('name', this.nameInput.value);
         this.model.set('implements_new_flow', this.implNewFlowInput.checked);
         this.model.set('implementation_flow_origin_activity', (this.originSelect.value != "-1") ? this.originSelect.value: null);
         this.model.set('implementation_flow_destination_activity', (this.destinationSelect.value != "-1") ? this.destinationSelect.value: null);
-        this.model.set('implementation_flow_material', (this.selectedMaterial) ? this.selectedMaterial.id: null);
+        var selectedMaterial = this.materialSelect.dataset.selected;
+        this.model.set('implementation_flow_material', selectedMaterial);
         var spatial = (this.spatialOriginCheck.checked && this.spatialDestinationCheck.checked) ? 'both':
                       (this.spatialOriginCheck.checked) ? 'origin': 'destination';
         this.model.set('implementation_flow_spatial_application', spatial);
@@ -158,6 +170,25 @@ var SolutionPartView = BaseView.extend(
         this.model.set('new_target_activity', (this.newTargetSelect.value != "-1") ? this.newTargetSelect.value: null);
         this.model.set('keep_origin', this.keepOriginInput.value);
         this.model.set('map_request', this.mapRequestArea.value);
+
+        var affectedFlowRows = this.affectedDiv.querySelectorAll('.row'),
+            affectedFlows = [];
+
+        affectedFlowRows.forEach(function(row){
+            var matSelect = row.querySelector('div[name="material"]'),
+                originSelect = row.querySelector('select[name="origin"]'),
+                destinationSelect = row.querySelector('select[name="destination"]');
+
+            var selectedMaterial = matSelect.dataset.selected;
+
+            var affectedFlow = {
+                material: selectedMaterial,
+                origin_activity: (originSelect.value != "-1") ? originSelect.value: null,
+                destination_activity: (destinationSelect.value != "-1") ? destinationSelect.value: null
+            };
+            affectedFlows.push(affectedFlow);
+        })
+        this.model.set('affected_flows', affectedFlows);
     },
 
     populateQuestionSelect: function(){
@@ -201,7 +232,7 @@ var SolutionPartView = BaseView.extend(
         $(select).selectpicker('refresh');
     },
 
-    renderMatFilter: function(el){
+    renderMatFilter: function(el, width){
         var _this = this;
         this.selectedMaterial = null;
         // select material
@@ -216,10 +247,11 @@ var SolutionPartView = BaseView.extend(
             flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
         })
 
-        this.matSelect = this.hierarchicalSelect(this.materials, matSelect, {
+        var hierarchicalSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 _this.selectedMaterial = model;
+                 el.dataset.selected = model.id;
             },
+            width: width,
             defaultOption: gettext('Select'),
             label: function(model, option){
                 var compCount = model.get('flow_count'),
@@ -233,13 +265,50 @@ var SolutionPartView = BaseView.extend(
         // grey out materials not used in any flows in keyflow
         // (do it afterwards, because hierarchical select is build in template)
         matFlowless.forEach(function(material){
-            var li = _this.matSelect.querySelector('li[data-value="' + material.id + '"]');
+            var li = hierarchicalSelect.querySelector('li[data-value="' + material.id + '"]');
             if (!li) return;
             var a = li.querySelector('a'),
                 cls = (flowsInChildren[material.id] > 0) ? 'half': 'empty';
             a.classList.add(cls);
         })
-        el.appendChild(matSelect);
+        el.appendChild(hierarchicalSelect);
+    },
+
+    addAffectedFlow: function(flow){
+        var row = document.createElement('div');
+            html = document.getElementById('affected-flow-row-template').innerHTML,
+            template = _.template(html),
+            _this = this;
+        row.innerHTML = template({});
+        row.classList.add('row');
+        var matSelect = row.querySelector('div[name="material"]'),
+            originSelect = row.querySelector('select[name="origin"]'),
+            destinationSelect = row.querySelector('select[name="destination"]'),
+            removeBtn = row.querySelector('button.remove');
+        this.affectedDiv.appendChild(row);
+
+        this.renderMatFilter(matSelect, '200px');
+        $(originSelect).selectpicker({size: 10});
+        $(destinationSelect).selectpicker({size: 10});
+        this.populateActivitySelect(originSelect);
+        this.populateActivitySelect(destinationSelect);
+
+        if (flow){
+            originSelect.value = flow['origin_activity'];
+            destinationSelect.value = flow['destination_activity'];
+            destinationSelect.value = flow['destination_activity'];
+            li = matSelect.querySelector('li[data-value="' + flow['material'] + '"]');
+            if(li){
+                var matItem = li.querySelector('a');
+                matItem.click();
+            }
+        }
+
+        $(originSelect).selectpicker('refresh');
+        $(destinationSelect).selectpicker('refresh');
+        removeBtn.addEventListener('click', function(){
+            _this.affectedDiv.removeChild(row);
+        })
     }
 
 });
