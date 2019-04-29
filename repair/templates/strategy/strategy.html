@@ -107,22 +107,36 @@
                   </select>
                 </div>
               </div>
-              {% trans "Questions" %}
-              <% solutionImpl.get('quantities').forEach(function(quantity){ %>
-              <div class="row">
-                <% var question = questions.get(quantity.question); %>
-                <%= question.get('question') %>
-                <input name="quantity" value="<%= quantity.value %>" data-id="<%= question.id %>" type="number" min="<%= question.get('min_value') %>" max="<%= question.get('max_value') %>" style="margin-left: 10px; margin-right: 5px">
-                <% if (question.get('is_absolute')) { %>
-                {% trans "t/year" %}
-                <% } else { %>
-                %
-                <% } %>
-              </div>
-              <% }) %>
+              <% if (solutionImpl.get('quantities')) { %>
+                {% trans "Questions" %}
+                <% solutionImpl.get('quantities').forEach(function(quantity){ %>
+                <div class="row">
+                  <% var question = questions.get(quantity.question); %>
+                  <%= question.get('question') %>
+                  <input name="quantity" value="<%= quantity.value %>" data-id="<%= question.id %>" type="number" min="<%= question.get('min_value') %>" max="<%= question.get('max_value') %>" style="margin-left: 10px; margin-right: 5px">
+                  <% if (question.get('is_absolute')) { %>
+                  {% trans "t/year" %}
+                  <% } else { %>
+                  %
+                  <% } %>
+                </div>
+                <% }) %>
+              <% } %>
             </div>
           </div>
-          <div class="tab-pane fade in active" id="actors-tab">
+          <div class="tab-pane fade in" id="actors-tab">
+            <div class="col-md-12 bordered">
+              <select class="form-control" name="map-request" style="margin-top: 15px;">
+                <% solutionparts.forEach(function(part){ %>
+                  <% if (part.get('implements_new_flow')) { %>
+                  <option value="<%= part.id %>"> <%= part.get('map_request') %> </option>
+                  <% } %>
+                <% }) %>
+              </select>
+              <div class="row">
+                <div class="olmap" id='actor-map'></div>
+              </div>
+            </div>
           </div>
           <div class="tab-pane fade in" id="strategy-area-tab">
             <div class="col-md-12 bordered">

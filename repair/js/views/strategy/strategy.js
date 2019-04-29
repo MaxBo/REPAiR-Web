@@ -86,10 +86,13 @@ var StrategyView = BaseView.extend(
                     apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
                 });
                 deferreds.push(solution.questions.fetch());
+                solution.parts = new GDSECollection([], {
+                    apiTag: 'solutionparts',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
+                });
+                deferreds.push(solution.parts.fetch());
             })
-
             Promise.all(deferreds).then(_this.render);
-
         })
     },
 
@@ -269,7 +272,8 @@ var StrategyView = BaseView.extend(
             solutionImpl: solutionImpl,
             solution: solution,
             stakeholderCategories: this.stakeholderCategories,
-            questions: solution.questions
+            questions: solution.questions,
+            solutionparts: solution.parts
         });
 
         var stakeholderSelect = modal.querySelector('#strategy-stakeholders'),
@@ -282,10 +286,12 @@ var StrategyView = BaseView.extend(
         $(stakeholderSelect).selectpicker();
 
         this.renderEditorMap('editor-map', solutionImpl);
+        this.renderActorMap('actor-map', solutionImpl);
         // update map after modal is rendered to fit width and height of wrapping div
         $(modal).off();
         $(modal).on('shown.bs.modal', function () {
             _this.editorMap.map.updateSize();
+            _this.actorMap.map.updateSize();
         });
         $(modal).modal('show');
 
@@ -378,12 +384,35 @@ var StrategyView = BaseView.extend(
         }
     },
 
+    renderActorMap: function(divid, solutionImpl) {
+        var el = document.getElementById(divid);
+
+        // calculate (min) height
+        var height = document.body.clientHeight * 0.6;
+        el.style.height = height + 'px';
+        // remove old map
+        if (this.actorMap){
+            this.actorMap.map.setTarget(null);
+            this.actorMap.map = null;
+            this.actorMap = null;
+        }
+        this.actorMap = new Map({
+            el: el
+        });
+
+        if (this.focusPoly){
+            this.actorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
+        };
+
+    },
+
     /*
     * render the map to draw on inside the solution modal
     */
-    renderEditorMap: function(divid, solutionImpl, activities){
+    renderEditorMap: function(divid, solutionImpl){
         var _this = this,
-            el = document.getElementById(divid);
+            el = document.getElementById(divid),
+            solution = this.solutions.get(solutionImpl.get('solution'));
         // calculate (min) height
         var height = document.body.clientHeight * 0.6;
         el.style.height = height + 'px';
@@ -401,7 +430,28 @@ var StrategyView = BaseView.extend(
             this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
 
+        this.editorMap.addLayer('implementation-area', {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1,
+            zIndex: 0
+        });
+
+        var implArea = solution.get('possible_implementation_area') || '';
+        if(implArea) {
+            var poly = this.editorMap.addPolygon(implArea.coordinates, {
+                projection: this.projection,
+                layername: 'implementation-area',
+                tooltip: gettext('Focus area'),
+                type: implArea.type.toLowerCase(),
+                tooltip: gettext('possible implementation area')
+            });
+            this.editorMap.centerOnPolygon(poly, { projection: this.projection });
+        }
+
+
         var geom = solutionImpl.get('geom');
+
         this.editorMap.addLayer('drawing', {
             select: { selectable: true },
             strokeWidth: 3
