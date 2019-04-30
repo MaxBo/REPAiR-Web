@@ -82,8 +82,6 @@ var SolutionsWorkshopView = BaseView.extend(
         });
     },
 
-
-
     /*
     * open a modal containing details about the solution
     * onConfirm is called when user confirms modal by clicking OK button
@@ -147,10 +145,11 @@ var SolutionsWorkshopView = BaseView.extend(
         });
         // add polygon of focusarea to both maps and center on their centroid
         if (focusarea != null){
-            var poly = this.map.addPolygon(focusarea.coordinates[0], {
+            var poly = this.map.addPolygon(focusarea.coordinates, {
                 projection: this.projection,
                 layername: 'background',
-                tooltip: gettext('Focus area')
+                tooltip: gettext('Focus area'),
+                type: 'MultiPolygon'
             });
             this.map.centerOnPolygon(poly, { projection: this.projection });
         };
@@ -216,6 +215,7 @@ var SolutionsWorkshopView = BaseView.extend(
         });
         actors.fetch({
             data: { activity: activityId, included: "True" },
+            processData: true,
             success: function(){
                 if (actors.length === 0) {
                     if(loader) loader.deactivate();
@@ -230,6 +230,7 @@ var SolutionsWorkshopView = BaseView.extend(
                 data['actor__in'] = actorIds.toString();
                 locations.fetch({
                     data: data,
+                    processData: true,
                     success: function(){
                         locations.forEach(function(loc){
                             var properties = loc.get('properties'),

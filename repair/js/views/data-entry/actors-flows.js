@@ -281,7 +281,6 @@ var FlowsEditView = BaseView.extend(
     },
 
     addActorRows: function(actors){
-        console.log(actors)
         var _this = this,
             dataRows = [];
         actors.forEach(function(actor){
