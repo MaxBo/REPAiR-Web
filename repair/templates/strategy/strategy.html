@@ -127,6 +127,7 @@
           <div class="tab-pane fade in" id="actors-tab">
             <div class="col-md-12 bordered">
               <select class="form-control" name="map-request" style="margin-top: 15px;">
+                <option value="-1" disabled selected> {% trans "Pick a map request" %} </option>
                 <% solutionparts.forEach(function(part){ %>
                   <% if (part.get('implements_new_flow')) { %>
                   <option value="<%= part.id %>"> <%= part.get('map_request') %> </option>

@@ -1,8 +1,8 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection/',
-        'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
+        'collections/geolocations/', 'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
         'app-config', 'bootstrap', 'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, Map, utils, Muuri, ol, config){
+function(BaseView, _, GDSECollection, GeoLocations, Map, utils, Muuri, ol, config){
 /**
 *
 * @author Christoph Franke
@@ -57,6 +57,7 @@ var StrategyView = BaseView.extend(
         if (focusarea != null){
             this.focusPoly = new ol.geom.Polygon(focusarea.coordinates[0]);
         }
+        this.activityCache = {}
 
         this.stakeholders = [];
         this.projection = 'EPSG:4326';
@@ -286,13 +287,27 @@ var StrategyView = BaseView.extend(
         $(stakeholderSelect).selectpicker();
 
         this.renderEditorMap('editor-map', solutionImpl);
-        this.renderActorMap('actor-map', solutionImpl);
-        // update map after modal is rendered to fit width and height of wrapping div
-        $(modal).off();
-        $(modal).on('shown.bs.modal', function () {
+
+        var hasActorsToPick = false;
+        solution.parts.forEach(function(part){
+            if (part.get('implements_new_flow')) hasActorsToPick = true;
+        })
+
+        var actorsLi = modal.querySelector('a[href="#actors-tab"]'),
+            editorLi = modal.querySelector('a[href="#strategy-area-tab"]');
+        // update map after switching to tab to fit width and height of wrapping div
+        $(editorLi).on('shown.bs.tab', function () {
             _this.editorMap.map.updateSize();
-            _this.actorMap.map.updateSize();
         });
+        if (hasActorsToPick){
+            this.renderActorMap('actor-map', solutionImpl);
+            $(actorsLi).on('shown.bs.tab', function () {
+                _this.actorMap.map.updateSize();
+            });
+        }
+        else
+            actorsLi.style.display = 'none';
+
         $(modal).modal('show');
 
         // save solution and drawn polygons after user confirmed modal
@@ -352,8 +367,85 @@ var StrategyView = BaseView.extend(
                 }
             })
         })
+        if (hasActorsToPick){
+            var requestSelect = modal.querySelector('select[name="map-request"]');
+            requestSelect.addEventListener('change', function(){
+                var part = solution.parts.get(this.value),
+                    activity = part.get('new_target_activity');
+                _this.renderSelectableActors(activity);
+            });
+        }
     },
 
+    // render the administrative locations of all actors of activity with given id
+    renderSelectableActors: function(activityId){
+        var _this = this;
+        if (!activityId) return;
+        this.activityCache = {}
+
+        var cache = this.activityCache[activityId];
+
+        function renderActors(actors, locations){
+            _this.actorMap.clearLayer('pickable-actors');
+            if (cache.actors.length === 0) return;
+            cache.locations.forEach(function(loc){
+                var properties = loc.get('properties'),
+                    actor = cache.actors.get(properties.actor),
+                    geom = loc.get('geometry');
+                if (geom) {
+                    //_this.actorMap.addGeometry(geom.get('coordinates'), {
+                        //projection: _this.projection,
+                        //layername: 'pickable-actors',
+                        //tooltip: actor.get('name'),
+                        //type: 'Point'
+                    //});
+                    console.log(actor)
+                    console.log(loc)
+                    _this.actorMap.addmarker(geom.get('coordinates'), {
+                        icon: '/static/img/map-marker-red.svg',
+                        anchor: [0.5, 1],
+                        projection: _this.projection,
+                        name: actor.get('name'),
+                        tooltip: actor.get('name'),
+                        layername: 'pickable-actors',
+                        draggable: false
+                    });
+                }
+            })
+        }
+
+        if (!cache){
+            this.activityCache[activityId] = cache = {};
+            cache.actors = new GDSECollection([], {
+                apiTag: 'actors',
+                apiIds: [this.caseStudy.id, this.keyflowId]
+            })
+            cache.actors.fetch({
+                data: { activity: activityId, included: "True" },
+                processData: true,
+                success: function(){
+                    if (cache.actors.length === 0) return;
+                    var actorIds = cache.actors.pluck('id');
+                    cache.locations = new GeoLocations([],{
+                        apiTag: 'adminLocations',
+                        apiIds: [_this.caseStudy.id, _this.keyflowId]
+                    });
+                    var data = {};
+                    data['actor__in'] = actorIds.toString();
+                    cache.locations.fetch({
+                        data: data,
+                        processData: true,
+                        success: function(){
+                            renderActors(cache.actors, cache.locations)
+                        },
+                        error: _this.onError
+                    })
+                },
+                error: _this.onError
+            })
+        }
+        else renderActors(cache.actors, cache.locations);
+    },
     /*
     * render the map with the drawn polygons into the solution item
     */
@@ -404,6 +496,12 @@ var StrategyView = BaseView.extend(
             this.actorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
 
+        this.actorMap.addLayer('pickable-actors', {
+            stroke: 'black',
+            fill: 'red',
+            strokeWidth: 1,
+            zIndex: 1
+        });
     },
 
     /*
@@ -430,23 +528,49 @@ var StrategyView = BaseView.extend(
             this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
 
+        this.editorMap.addLayer('mask', {
+            stroke: 'grey',
+            fill: 'rgba(70, 70, 70, 0.5)',
+            strokeWidth: 1,
+            zIndex: 0
+        });
         this.editorMap.addLayer('implementation-area', {
             stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
+            fill: 'rgba(170, 212, 0, 0)',
             strokeWidth: 1,
             zIndex: 0
         });
 
+
         var implArea = solution.get('possible_implementation_area') || '';
         if(implArea) {
-            var poly = this.editorMap.addPolygon(implArea.coordinates, {
+            //var poly = this.editorMap.addPolygon(implArea.coordinates, {
+                //projection: this.projection,
+                //layername: 'implementation-area',
+                //tooltip: gettext('Focus area'),
+                //type: implArea.type.toLowerCase(),
+                //tooltip: gettext('possible implementation area')
+            //});
+            //var area = (implArea.type.toLowerCase() === 'polygon') ? new ol.geom.Polygon(implArea.coordinates) : new ol.geom.MultiPolygon(implArea.coordinates);
+            //console.log(implArea.coordinates)
+            //var cutout = new ol.geom.LinearRing(implArea.coordinates[0][0]),
+                //bbox = new ol.geom.Polygon([[[-180, 90], [180, 90], [180, -90], [-180, -90], [-180, 90]]]);
+            //console.log(bbox)
+            //bbox.appendLinearRing(cutout);
+            var edit_mask = solution.get('edit_mask');
+            var darkArea = this.editorMap.addPolygon(edit_mask.coordinates, {
                 projection: this.projection,
-                layername: 'implementation-area',
-                tooltip: gettext('Focus area'),
-                type: implArea.type.toLowerCase(),
+                layername: 'mask',
+                type: edit_mask.type,
                 tooltip: gettext('possible implementation area')
             });
-            this.editorMap.centerOnPolygon(poly, { projection: this.projection });
+            var area = this.editorMap.addPolygon(implArea.coordinates, {
+                projection: this.projection,
+                layername: 'implementation-area',
+                type: implArea.type,
+                tooltip: gettext('possible implementation area')
+            });
+            this.editorMap.centerOnPolygon(area, { projection: this.projection });
         }
 
 

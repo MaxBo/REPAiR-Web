@@ -73,6 +73,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     currentstate_image = serializers.ImageField(required=False, allow_null=True)
     activities_image = serializers.ImageField(required=False, allow_null=True)
     effect_image = serializers.ImageField(required=False, allow_null=True)
+    edit_mask = serializers.ReadOnlyField()
 
     class Meta:
         model = Solution
@@ -80,7 +81,8 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'documentation', 'solution_category',
                   'activities_image',
                   'currentstate_image', 'effect_image',
-                  'possible_implementation_area'
+                  'possible_implementation_area',
+                  'edit_mask'
                   )
         read_only_fields = ('url', 'id', )
         extra_kwargs = {

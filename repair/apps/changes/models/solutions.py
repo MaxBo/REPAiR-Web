@@ -3,7 +3,9 @@ from django.contrib.gis.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 import re
+import json
 from enumfields import EnumIntegerField
+from django.contrib.gis.geos import Polygon
 
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel)
@@ -42,6 +44,15 @@ class Solution(GDSEModel):
                                          blank=True)
     possible_implementation_area = models.MultiPolygonField(
         null=True, srid=4326, blank=True)
+
+    @property
+    def edit_mask(self):
+        if not self.possible_implementation_area:
+            return
+        bbox = Polygon([[-180, 90], [180, 90],
+                        [180, -90], [-180, -90], [-180, 90]])
+        mask = bbox.difference(self.possible_implementation_area)
+        return json.loads(mask.geojson)
 
 
 class ImplementationQuestion(GDSEModel):

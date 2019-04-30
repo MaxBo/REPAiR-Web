@@ -368,21 +368,26 @@ define([
             return this.addGeometry(coordinates, options);
         }
 
-        addGeometry(coordinates, options){
+        addGeometry(geometry, options){
             var options = options || {},
                 type = options.type.toLowerCase() || 'polygon',
                 proj = options.projection || this.mapProjection;
-            var geometry;
-            if (type === 'multipolygon') {
-                geometry = new ol.geom.MultiPolygon(coordinates);
-            } else if (type === 'point'){
-                geometry = new ol.geom.Point(coordinates)
-            } else if (type === 'linestring'){
-                geometry = new ol.geom.LineString(coordinates)
-            } else if (type === 'polygon'){
-                geometry = new ol.geom.Polygon(coordinates)
-            } else {
-                throw "Unknown type, supported: MultiPolygon, Polygon, Point, Linestring";
+            if (!((geometry instanceof ol.geom.MultiPolygon) ||
+                  (geometry instanceof ol.geom.Polygon) ||
+                  (geometry instanceof ol.geom.LineString) ||
+                  (geometry instanceof ol.geom.Point)
+                  )){
+                if (type === 'multipolygon') {
+                    geometry = new ol.geom.MultiPolygon(geometry);
+                } else if (type === 'point'){
+                    geometry = new ol.geom.Point(geometry)
+                } else if (type === 'linestring'){
+                    geometry = new ol.geom.LineString(geometry)
+                } else if (type === 'polygon'){
+                    geometry = new ol.geom.Polygon(geometry)
+                } else {
+                    throw "Unknown type, supported: MultiPolygon, Polygon, Point, Linestring";
+                }
             }
             var ret = geometry.clone();
             var layername = options.layername || 'basic',
@@ -434,6 +439,8 @@ define([
         *
         * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added at
         * @param {Object} options
+        * @param {Boolean} [options.draggable=true]  marker is draggable
+        * @param {Boolean} [options.selectable=true]  marker is selectable
         * @param {string} [options.layername='basic']  layer to which the marker will be added
         * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
         * @param {string=} [options.name='']   the name will be rendered below the marker
@@ -446,7 +453,8 @@ define([
         addmarker(coordinates, options) {
             var _this = this;
             var options = options || {};
-            var proj = options.projection || this.mapProjection;
+            var proj = options.projection || this.mapProjection,
+                draggable = (options.draggable != null) ? options.draggable : true;
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];
 
@@ -478,25 +486,27 @@ define([
             })
             }
 
-            // Drag and drop feature
-            var dragInteraction = new ol.interaction.Modify({
-                features: new ol.Collection([feature]),
-                style: dragStyle,
-                pixelTolerance: 20
-            });
+            if (options.draggable){
+                // Dr{ag and drop feature
+                var dragInteraction = new ol.interaction.Modify({
+                    features: new ol.Collection([feature]),
+                    style: dragStyle,
+                    pixelTolerance: 20
+                });
 
-            // Add the event to the drag and drop feature
-            dragInteraction.on('modifyend', function(){
-                var coordinate = feature.getGeometry().getCoordinates();
-                var transformed = ol.proj.transform(coordinate, _this.mapProjection, proj);
-                //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-                layer.changed();
-                if(options.onDrag){
-                    options.onDrag(transformed);
-                }
-            }, feature);
+                // Add the event to the drag and drop feature
+                dragInteraction.on('modifyend', function(){
+                    var coordinate = feature.getGeometry().getCoordinates();
+                    var transformed = ol.proj.transform(coordinate, _this.mapProjection, proj);
+                    //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
+                    layer.changed();
+                    if(options.onDrag){
+                        options.onDrag(transformed);
+                    }
+                }, feature);
 
-            this.map.addInteraction(dragInteraction);
+                this.map.addInteraction(dragInteraction);
+            }
             var id = this.idCounter;
             feature.setId(id);
             // remember the interactions to access them on remove by setting them as attributes

@@ -215,6 +215,7 @@ var SolutionsWorkshopView = BaseView.extend(
         });
         actors.fetch({
             data: { activity: activityId, included: "True" },
+            processData: true,
             success: function(){
                 if (actors.length === 0) {
                     if(loader) loader.deactivate();
@@ -229,6 +230,7 @@ var SolutionsWorkshopView = BaseView.extend(
                 data['actor__in'] = actorIds.toString();
                 locations.fetch({
                     data: data,
+                    processData: true,
                     success: function(){
                         locations.forEach(function(loc){
                             var properties = loc.get('properties'),
