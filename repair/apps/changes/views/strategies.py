@@ -77,13 +77,3 @@ class SolutionInStrategyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = SolutionInStrategy.objects.all()
 
 
-class ImplementationQuantityViewSet(CasestudyViewSetMixin,
-                                    ReadUpdatePermissionViewSet):
-    """
-    Has to provide exactly one quantity value
-    for each quantity defined for the solution
-    So no PUT or DELETE is allowed
-    """
-    serializer_class = ImplementationQuantitySerializer
-    queryset = ImplementationQuantity.objects.all()
-

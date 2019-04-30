@@ -1,10 +1,10 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'models/gdsemodel', 'views/strategy/setup-solution-part',
+        'models/gdsemodel', 'views/strategy/setup-solution-part', 'views/strategy/setup-question',
         'collections/geolocations', 'visualizations/map', 'viewerjs', 'app-config',
         'utils/utils', 'muuri', 'visualizations/map',
         'bootstrap', 'viewerjs/dist/viewer.css', 'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, GDSEModel, SolutionPartView,
+function(BaseView, _, GDSECollection, GDSEModel, SolutionPartView, QuestionView,
          GeoLocations, Map, Viewer, config, utils, Muuri, Map){
 /**
 *
@@ -30,7 +30,7 @@ var SolutionsLogicView = BaseView.extend(
     initialize: function(options){
         SolutionsLogicView.__super__.initialize.apply(this, [options]);
         var _this = this;
-        _.bindAll(this, 'editSolutionPart');
+        _.bindAll(this, 'editItem');
         _.bindAll(this, 'uploadPriorities');
         _.bindAll(this, 'renderSolution');
 
@@ -77,7 +77,10 @@ var SolutionsLogicView = BaseView.extend(
     */
     events: {
         'click #reload-solution-list': 'populateSolutions',
-        'click #add-solution-part': 'addSolutionPart'
+        'click #add-solution-part': 'addSolutionPart',
+        'click #add-question': 'addQuestion',
+        'click button[name="implementation-area"]': 'uploadArea',
+        'click button[name="show-area"]': 'showArea'
     },
 
     /*
@@ -91,7 +94,12 @@ var SolutionsLogicView = BaseView.extend(
 
         this.solutionPartModal = this.el.querySelector('#solution-part-modal');
         $(this.solutionPartModal).on('hide.bs.modal', function(){
-            _this.solutionPartView.close();
+            _this.editView.close();
+        })
+
+        this.questionModal = this.el.querySelector('#question-modal');
+        $(this.questionModal).on('hide.bs.modal', function(){
+            _this.editView.close();
         })
 
         this.notesArea = this.el.querySelector('textarea[name="notes"]');
@@ -107,27 +115,40 @@ var SolutionsLogicView = BaseView.extend(
         this.solutionSelect.addEventListener('change', function(){
             _this.activeSolution = _this.solutions.get(_this.solutionSelect.value);
             if (!_this.activeSolution) return;
-            var parts = new GDSECollection([], {
+            _this.solutionParts = new GDSECollection([], {
                 apiTag: 'solutionparts',
                 apiIds: [_this.caseStudy.id, _this.keyflowId, _this.activeSolution.id],
                 comparator: 'priority'
             });
-            parts.fetch({
-                success: function(){
-                    parts.sort();
-                    _this.solutionParts = parts;
-                    _this.renderSolution(_this.activeSolution, parts)
-                },
-                error: _this.onError
+            _this.questions = new GDSECollection([], {
+                apiTag: 'questions',
+                apiIds: [_this.caseStudy.id, _this.keyflowId, _this.activeSolution.id]
+            });
+            var promises = [_this.solutionParts.fetch(), _this.questions.fetch()];
+            Promise.all(promises).then(function(){
+                _this.solutionParts.sort();
+                _this.renderSolution();
             })
         });
 
         this.populateSolutions();
         this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel');
+        this.questionsPanel = this.el.querySelector('#questions-panel');
 
+        this.implAreaText = this.el.querySelector('textarea[name="implementation-area"]');
         var mapDiv = this.el.querySelector('div[name="area-map"]');
         this.areaMap = new Map({
             el: mapDiv
+        });
+        // map is rendered with wrong size, when tab is not visible -> update size when accessing tab
+        $('a[href="#area-tab"]').on('shown.bs.tab', function (e) {
+            _this.areaMap.map.updateSize();
+        });
+        this.areaMap.addLayer('implementation-area', {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0.1)',
+            strokeWidth: 1,
+            zIndex: 0
         });
     },
 
@@ -137,17 +158,37 @@ var SolutionsLogicView = BaseView.extend(
                 apiTag: 'solutionparts',
                 apiIds: [_this.caseStudy.id, _this.keyflowId, _this.activeSolution.id]
             });
-        function onConfirm(part, affectedFlows){
+        function onConfirm(part){
             part.save(null, {
                 success: function(){
                     _this.solutionParts.add(part);
                     $(_this.solutionPartModal).modal('hide');
-                    _this.renderPartItem(part);
+                    _this.renderItem(part);
                 },
                 error: _this.onError
             });
         }
-        this.editSolutionPart(part, onConfirm);
+        this.editItem(part, onConfirm);
+    },
+
+    addQuestion: function(){
+        var _this = this,
+            question = new GDSEModel({}, {
+                apiTag: 'questions',
+                apiIds: [_this.caseStudy.id, _this.keyflowId, _this.activeSolution.id]
+            });
+        function onConfirm(question){
+            question.save(null, {
+                success: function(){
+                    console.log(question)
+                    _this.questions.add(question);
+                    $(_this.questionModal).modal('hide');
+                    _this.renderItem(question);
+                },
+                error: _this.onError
+            });
+        }
+        this.editItem(question, onConfirm);
     },
 
     /* fill selection with solutions */
@@ -177,46 +218,54 @@ var SolutionsLogicView = BaseView.extend(
         $(this.solutionSelect).selectpicker('refresh');
     },
 
-    renderPartItem(model){
+    renderItem(model){
         var html = document.getElementById('panel-item-template').innerHTML,
             template = _.template(html),
             panelItem = document.createElement('div'),
             itemContent = document.createElement('div'),
+            type = model.apiTag,
             _this = this;
         panelItem.classList.add('panel-item');
-        panelItem.classList.add('draggable');
+        if (type === 'solutionparts') panelItem.classList.add('draggable');
         panelItem.style.position = 'absolute';
         panelItem.dataset.id = model.id;
         itemContent.classList.add('noselect', 'item-content');
-        itemContent.innerHTML = template({ name: model.get('name') });
+        var name = (type === 'questions') ? model.get('question') : model.get('name');
+        itemContent.innerHTML = template({ name: name });
+
+        var grid = (type === 'solutionparts') ? this.solutionPartsGrid: this.questionsGrid,
+            modal = (type === 'solutionparts') ? this.solutionPartModal: this.questionModal;
+
         var editBtn = itemContent.querySelector("button.edit"),
             removeBtn = itemContent.querySelector("button.remove");
         editBtn.addEventListener('click', function(){
-            function onConfirm(part, affectedFlows){
-                part.save(null, {
+            function onConfirm(model){
+                model.save(null, {
                     success: function(){
-                        itemContent.querySelector('label[name="name"]').innerHTML = part.get('name');
-                        $(_this.solutionPartModal).modal('hide');
+                        var name = (type === 'questions') ? model.get('question') : model.get('name');
+                        itemContent.querySelector('label[name="name"]').innerHTML = name;
+                        $(modal).modal('hide');
                     },
                     error: _this.onError
                 });
             }
-            _this.editSolutionPart(model, onConfirm);
+            _this.editItem(model, onConfirm)
         });
         removeBtn.addEventListener('click', function(){
-            _this.removeSolutionPart(panelItem, model);
+            _this.removeItem(panelItem, model, grid);
         });
         panelItem.appendChild(itemContent);
-        this.solutionPartsGrid.add(panelItem);
+
+        grid.add(panelItem);
     },
 
-    removeSolutionPart: function(item, model){
+    removeItem: function(item, model, grid){
         var _this = this,
-            message = gettext("Do you want to delete the selected solution part?");
+            message = gettext("Do you want to delete the selected item?");
         function onConfirm(name){
             model.destroy({
                 success: function(){
-                    _this.solutionPartsGrid.remove(item, { removeElements: true });
+                    grid.remove(item, { removeElements: true });
                 },
                 error: _this.onError
             });
@@ -239,39 +288,51 @@ var SolutionsLogicView = BaseView.extend(
         })
     },
 
-    editSolutionPart: function(solutionPart, onConfirm){
+    editItem: function(model, onConfirm){
         var _this = this,
-            el = this.solutionPartModal.querySelector('.modal-body'),
-            confirmBtn = this.solutionPartModal.querySelector('.confirm');
-        $(this.solutionPartModal).modal('show');
-        this.solutionPartView = new SolutionPartView({
-            model: solutionPart,
-            template: 'solution-part-template',
+            type = model.apiTag,
+            modal = (type === 'solutionparts') ? this.solutionPartModal: this.questionModal,
+            template = (type === 'solutionparts') ? 'solution-part-template': 'question-template',
+            View = (type === 'solutionparts') ? SolutionPartView: QuestionView,
+            el = modal.querySelector('.modal-body'),
+            confirmBtn = modal.querySelector('.confirm');
+        $(modal).modal('show');
+        this.editView = new View({
+            model: model,
+            template: template,
             el: el,
             materials: this.materials,
             activityGroups: this.activityGroups,
-            activities: this.activities
+            activities: this.activities,
+            questions: this.questions
         })
         confirmBtn = utils.removeEventListeners(confirmBtn);
         confirmBtn.addEventListener('click', function(){
-            _this.solutionPartView.applyInputs();
-            onConfirm(solutionPart, _this.solutionPartView.affectedFlows);
+            _this.editView.applyInputs();
+            onConfirm(model);
         })
     },
 
-    renderSolutionParts: function(parts){
+    renderItems: function(collection){
         var _this = this;
-        parts.forEach(function(part){
-            _this.renderPartItem(part);
+        collection.forEach(function(model){
+            model.apiTag = collection.apiTag,
+            _this.renderItem(model);
         })
     },
 
-    renderSolution: function(solution, parts){
-        var _this = this;
+    renderSolution: function(solution, parts, questions){
+        var _this = this,
+            solution = this.activeSolution,
+            parts = this.solutionParts,
+            questions = this.questions;
+
         if (!solution) return;
         if (this.solutionPartsGrid) this.solutionPartsGrid.destroy();
+        if (this.questionsGrid) this.questionsGrid.destroy();
 
         this.solutionPartsPanel.innerHTML = '';
+        this.questionsPanel.innerHTML = '';
 
         this.solutionPartsGrid = new Muuri(this.solutionPartsPanel, {
             items: '.panel-item',
@@ -283,11 +344,77 @@ var SolutionsLogicView = BaseView.extend(
             dragReleaseDuration: 400,
             dragReleaseEasing: 'ease'
         })
+        this.questionsGrid = new Muuri(this.questionsPanel, {
+            items: '.panel-item',
+            dragEnabled: false
+        })
         this.solutionPartsGrid.on('dragReleaseEnd', this.uploadPriorities);
         this.el.querySelector('#solution-logic-content').style.visibility = 'visible';
-        this.renderSolutionParts(parts);
+        this.renderItems(parts);
+        this.renderItems(questions);
         this.notesArea.value = solution.get('documentation');
-        this.areaMap.map.updateSize();
+
+        this.areaMap.clearLayer('implementation-area');
+        var implArea = solution.get('possible_implementation_area') || '';
+        if(implArea) implArea = JSON.stringify(implArea);
+        this.implAreaText.value = implArea;
+        this.showArea();
+    },
+
+    checkGeoJSON: function(geoJSONTxt){
+        try {
+            var geoJSON = JSON.parse(geoJSONTxt);
+        }
+        catch(err) {
+            this.alert(err);
+            return;
+        }
+        if (!geoJSON.coordinates && !geoJSON.type) {
+            this.alert(gettext('GeoJSON needs attributes "type" and "coordinates"'));
+        }
+        if (!['multipolygon', 'polygon'].includes(geoJSON.type.toLowerCase())){
+            this.alert(gettext('type has to be MultiPolygon or Polygon'));
+            return;
+        }
+
+        return geoJSON;
+    },
+
+    showArea: function(){
+        var implArea = this.implAreaText.value;
+        if (!implArea) return;
+
+        var geoJSON = this.checkGeoJSON(implArea);
+        if (!geoJSON) return;
+
+        this.areaMap.clearLayer('implementation-area');
+        try {
+            var poly = this.areaMap.addPolygon(geoJSON.coordinates, {
+                projection: this.projection,
+                layername: 'implementation-area',
+                tooltip: gettext('Focus area'),
+                type: geoJSON.type.toLowerCase()
+            });
+        }
+        catch(err) {
+            this.alert(err);
+            return;
+        }
+        this.areaMap.centerOnPolygon(poly, { projection: this.projection });
+    },
+
+    uploadArea: function(){
+        var geoJSON = this.checkGeoJSON(this.implAreaText.value);
+        if (!geoJSON) return;
+        var _this = this;
+
+        this.activeSolution.save({ 'possible_implementation_area': geoJSON },{
+            success: function(){
+                _this.alert(gettext('Upload successful'), gettext('Success'));
+            },
+            error: _this.onError,
+            patch: true
+        })
     }
 });
 return SolutionsLogicView;

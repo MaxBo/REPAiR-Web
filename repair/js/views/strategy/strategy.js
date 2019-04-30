@@ -1,8 +1,8 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection/',
-        'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
+        'collections/geolocations/', 'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
         'app-config', 'bootstrap', 'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, Map, utils, Muuri, ol, config){
+function(BaseView, _, GDSECollection, GeoLocations, Map, utils, Muuri, ol, config){
 /**
 *
 * @author Christoph Franke
@@ -39,24 +39,30 @@ var StrategyView = BaseView.extend(
 
         this.strategy = options.strategy;
 
-        // ToDo: replace with collections fetched from server
         this.solutionCategories = new GDSECollection([], {
             apiTag: 'solutionCategories',
             apiIds: [this.caseStudy.id, this.keyflowId]
         })
 
+        this.solutions = new GDSECollection([], {
+            apiTag: 'solutions',
+            apiIds: [this.caseStudy.id, this.keyflowId],
+            comparator: 'name'
+        });
+
         var focusarea = this.caseStudy.get('properties').focusarea;
         if (focusarea != null){
             this.focusPoly = new ol.geom.Polygon(focusarea.coordinates[0]);
         }
+        this.activityCache = {}
 
         this.stakeholders = [];
-        this.solutions = [];
         this.projection = 'EPSG:4326';
 
         var promises = [
             this.stakeholderCategories.fetch(),
             this.solutionCategories.fetch(),
+            this.solutions.fetch()
         ]
         this.loader.activate();
         Promise.all(promises).then(function(){
@@ -70,18 +76,20 @@ var StrategyView = BaseView.extend(
                 category.stakeholders = stakeholders;
                 deferreds.push(stakeholders.fetch({ error: _this.onError }))
             });
-            // fetch all solutions after fetching the categories
-            _this.solutionCategories.forEach(function(category){
-                var solutions = new GDSECollection([], {
-                    apiTag: 'solutions',
-                    apiIds: [_this.caseStudy.id, _this.keyflowId, category.id]
+
+            _this.solutions.forEach(function(solution){
+                solution.questions = new GDSECollection([], {
+                    apiTag: 'questions',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
                 });
-                category.solutions = solutions;
-                deferreds.push(solutions.fetch({ error: _this.onError }))
-            });
-
+                deferreds.push(solution.questions.fetch());
+                solution.parts = new GDSECollection([], {
+                    apiTag: 'solutionparts',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
+                });
+                deferreds.push(solution.parts.fetch());
+            })
             Promise.all(deferreds).then(_this.render);
-
         })
     },
 
@@ -101,6 +109,11 @@ var StrategyView = BaseView.extend(
         var html = document.getElementById(this.template).innerHTML,
             template = _.template(html),
             _this = this;
+
+        // append solutions to their categories, easier to work with in template
+        _this.solutionCategories.forEach(function(category){
+            category.solutions = _this.solutions.filterBy({solution_category: category.id});
+        });
         this.el.innerHTML = template({
             stakeholderCategories: this.stakeholderCategories,
             solutionCategories: this.solutionCategories,
@@ -198,15 +211,8 @@ var StrategyView = BaseView.extend(
             solId = solutionInStrategy.get('solution'),
             _this = this;
 
-        var solution;
-        for (var i = 0; i < this.solutionCategories.length; i++){
-            solution = this.solutionCategories.at(i).solutions.get(solId);
-            if (solution != null) break;
-        }
-
-        if (!solution) return;
-
-        var stakeholderIds = solutionInStrategy.get('participants'),
+        var solution = this.solutions.get(solId),
+            stakeholderIds = solutionInStrategy.get('participants'),
             stakeholderNames = [];
 
         stakeholderIds.forEach(function(id){
@@ -249,26 +255,23 @@ var StrategyView = BaseView.extend(
     */
     editSolution: function(solutionImpl, item){
         var _this = this;
+        this.selectedActors = {}
         var html = document.getElementById('view-solution-strategy-template').innerHTML,
             template = _.template(html);
-        var modal = this.el.querySelector('#solution-strategy-modal');
+        this.solutionModal = this.el.querySelector('#solution-strategy-modal');
 
-        var solution = null,
-            solId = solutionImpl.get('solution');
-
-        for (var i = 0; i < this.solutionCategories.length; i++){
-            solution = this.solutionCategories.at(i).solutions.get(solId);
-            if (solution != null) break;
-        }
-
-        modal.innerHTML = template({
+        var solId = solutionImpl.get('solution'),
+            solution = this.solutions.get(solId);
+        this.solutionModal.innerHTML = template({
             solutionCategories: this.solutionCategories,
             solutionImpl: solutionImpl,
             solution: solution,
-            stakeholderCategories: this.stakeholderCategories
+            stakeholderCategories: this.stakeholderCategories,
+            questions: solution.questions,
+            solutionparts: solution.parts
         });
 
-        var stakeholderSelect = modal.querySelector('#strategy-stakeholders'),
+        var stakeholderSelect = this.solutionModal.querySelector('#strategy-stakeholders'),
             stakeholders = solutionImpl.get('participants').map(String);
         for (var i = 0; i < stakeholderSelect.options.length; i++) {
             if (stakeholders.indexOf(stakeholderSelect.options[i].value) >= 0) {
@@ -278,15 +281,41 @@ var StrategyView = BaseView.extend(
         $(stakeholderSelect).selectpicker();
 
         this.renderEditorMap('editor-map', solutionImpl);
-        // update map after modal is rendered to fit width and height of wrapping div
-        $(modal).off();
-        $(modal).on('shown.bs.modal', function () {
+
+        var hasActorsToPick = false;
+        solution.parts.forEach(function(part){
+            if (part.get('implements_new_flow')) hasActorsToPick = true;
+        })
+
+        var actorsLi = this.solutionModal.querySelector('a[href="#actors-tab"]'),
+            editorLi = this.solutionModal.querySelector('a[href="#strategy-area-tab"]');
+        // update map after switching to tab to fit width and height of wrapping div
+        $(editorLi).on('shown.bs.tab', function () {
             _this.editorMap.map.updateSize();
         });
-        $(modal).modal('show');
+        if (hasActorsToPick){
+            this.pickedActors = {};
+            solutionImpl.get('picked_actors').forEach(function(pick){
+                _this.pickedActors[pick.solutionpart] = pick.actor;
+            })
+            this.renderActorMap('actor-map', solutionImpl);
+            $(actorsLi).on('shown.bs.tab', function () {
+                _this.actorMap.map.updateSize();
+            });
+
+            var requestSelect = this.solutionModal.querySelector('select[name="map-request"]');
+            requestSelect.addEventListener('change', function(){
+                var picked = _this.pickedActors[this.value];
+                _this.renderSelectableActors(solution.parts.get(this.value), picked);
+            });
+        }
+        else
+            actorsLi.style.display = 'none';
+
+        $(this.solutionModal).modal('show');
 
         // save solution and drawn polygons after user confirmed modal
-        var okBtn = modal.querySelector('.confirm');
+        var okBtn = this.solutionModal.querySelector('.confirm');
         okBtn.addEventListener('click', function(){
             // stakeholders
             var stakeholderIds = [];
@@ -303,36 +332,120 @@ var StrategyView = BaseView.extend(
                 var geometries = [];
                 features.forEach(function(feature) {
                     var geom = feature.getGeometry();
-                    geometries.push(geom)
+                    geometries.push(geom);
                 });
                 var geoCollection = new ol.geom.GeometryCollection(geometries),
                     geoJSON = new ol.format.GeoJSON(),
                     geoJSONText = geoJSON.writeGeometry(geoCollection);
                 solutionImpl.set('geom', geoJSONText);
             }
-            var notes = modal.querySelector('textarea[name="description"]').value;
+
+            var quantityInputs = _this.solutionModal.querySelectorAll('input[name="quantity"]'),
+                quantities = [];
+            quantityInputs.forEach(function(input){
+                var quantity = {
+                    question: input.dataset.id,
+                    value: input.value
+                }
+                quantities.push(quantity);
+            })
+
+            solutionImpl.set('quantities', quantities);
+
+            if (hasActorsToPick){
+                var picked = [];
+                for (var partId in _this.pickedActors){
+                    picked.push({
+                        solutionpart: partId,
+                        actor: _this.pickedActors[partId]
+                    })
+                }
+                solutionImpl.set('picked_actors', picked);
+            }
+
+            var notes = _this.solutionModal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
-            var promises = [
-                solutionImpl.save(null, {
-                    error: _this.onError,
-                    patch: true,
-                    wait: true
-                })
-            ]
-            Promise.all(promises).then(function(){
-                _this.renderSolutionPreviewMap(solutionImpl, item);
-                item.querySelector('textarea[name="notes"]').value = notes;
-                var stakeholderNames = [];
-                stakeholderIds.forEach(function(id){
-                    var stakeholder = _this.getStakeholder(id);
-                    stakeholderNames.push(stakeholder.get('name'));
-                })
-                item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
-                $(modal).modal('hide');
+            solutionImpl.save(null, {
+                error: _this.onError,
+                patch: true,
+                wait: true,
+                success: function(){
+                    _this.renderSolutionPreviewMap(solutionImpl, item);
+                    item.querySelector('textarea[name="notes"]').value = notes;
+                    var stakeholderNames = [];
+                    stakeholderIds.forEach(function(id){
+                        var stakeholder = _this.getStakeholder(id);
+                        stakeholderNames.push(stakeholder.get('name'));
+                    })
+                    item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
+                    $(_this.solutionModal).modal('hide');
+                }
             })
         })
     },
 
+    // render the administrative locations of all actors of activity in solutionpart
+    renderSelectableActors: function(solutionpart, picked){
+        var _this = this,
+            activityId = solutionpart.get('new_target_activity');
+        if (!activityId) return;
+
+        var cache = this.activityCache[activityId];
+
+        function renderActors(actors, locations){
+            _this.actorMap.clearLayer('pickable-actors');
+            if (cache.actors.length === 0) return;
+            cache.locations.forEach(function(loc){
+                var properties = loc.get('properties'),
+                    actor = cache.actors.get(properties.actor),
+                    geom = loc.get('geometry');
+                if (geom) {
+                    _this.actorMap.addGeometry(geom.get('coordinates'), {
+                        projection: _this.projection,
+                        layername: 'pickable-actors',
+                        tooltip: actor.get('name'),
+                        label: actor.get('name'),
+                        id: actor.id,
+                        type: 'Point'
+                    });
+                }
+            })
+            if (picked)
+                _this.actorMap.selectFeature('pickable-actors', picked);
+        }
+
+        if (!cache){
+            this.activityCache[activityId] = cache = {};
+            cache.actors = new GDSECollection([], {
+                apiTag: 'actors',
+                apiIds: [this.caseStudy.id, this.keyflowId]
+            })
+            cache.actors.fetch({
+                data: { activity: activityId, included: "True" },
+                processData: true,
+                success: function(){
+                    if (cache.actors.length === 0) return;
+                    var actorIds = cache.actors.pluck('id');
+                    cache.locations = new GeoLocations([],{
+                        apiTag: 'adminLocations',
+                        apiIds: [_this.caseStudy.id, _this.keyflowId]
+                    });
+                    var data = {};
+                    data['actor__in'] = actorIds.toString();
+                    cache.locations.fetch({
+                        data: data,
+                        processData: true,
+                        success: function(){
+                            renderActors(cache.actors, cache.locations)
+                        },
+                        error: _this.onError
+                    })
+                },
+                error: _this.onError
+            })
+        }
+        else renderActors(cache.actors, cache.locations);
+    },
     /*
     * render the map with the drawn polygons into the solution item
     */
@@ -363,12 +476,57 @@ var StrategyView = BaseView.extend(
         }
     },
 
+    renderActorMap: function(divid, solutionImpl) {
+        var el = document.getElementById(divid),
+            _this = this;
+
+        // calculate (min) height
+        var height = document.body.clientHeight * 0.6;
+        el.style.height = height + 'px';
+        // remove old map
+        if (this.actorMap){
+            this.actorMap.map.setTarget(null);
+            this.actorMap.map = null;
+            this.actorMap = null;
+        }
+        this.actorMap = new Map({
+            el: el
+        });
+
+        if (this.focusPoly){
+            this.actorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
+        };
+        var requestSelect = this.solutionModal.querySelector('select[name="map-request"]');
+        this.actorMap.addLayer('pickable-actors', {
+            stroke: 'black',
+            fill: 'red',
+            strokeWidth: 1,
+            zIndex: 1,
+            icon: '/static/img/map-marker-red.svg',
+            anchor: [0.5, 1],
+            labelColor: '#111',
+            labelOutline: 'white',
+            select: {
+                selectable: true,
+                onChange: function(feature){
+                    _this.pickedActors[requestSelect.value] = feature[0].id;
+                },
+                multi: false,
+                icon: '/static/img/map-marker-yellow.svg',
+                anchor: [0.5, 1],
+                labelColor: 'yellow',
+                labelOutline: '#111'
+            }
+        });
+    },
+
     /*
     * render the map to draw on inside the solution modal
     */
-    renderEditorMap: function(divid, solutionImpl, activities){
+    renderEditorMap: function(divid, solutionImpl){
         var _this = this,
-            el = document.getElementById(divid);
+            el = document.getElementById(divid),
+            solution = this.solutions.get(solutionImpl.get('solution'));
         // calculate (min) height
         var height = document.body.clientHeight * 0.6;
         el.style.height = height + 'px';
@@ -386,7 +544,41 @@ var StrategyView = BaseView.extend(
             this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
 
+        this.editorMap.addLayer('mask', {
+            stroke: 'grey',
+            fill: 'rgba(70, 70, 70, 0.5)',
+            strokeWidth: 1,
+            zIndex: 0
+        });
+        this.editorMap.addLayer('implementation-area', {
+            stroke: '#aad400',
+            fill: 'rgba(170, 212, 0, 0)',
+            strokeWidth: 1,
+            zIndex: 0
+        });
+
+
+        var implArea = solution.get('possible_implementation_area') || '';
+        if(implArea) {
+            var mask = solution.get('edit_mask');
+            var maskArea = this.editorMap.addPolygon(mask.coordinates, {
+                projection: this.projection,
+                layername: 'mask',
+                type: mask.type,
+                tooltip: gettext('possible implementation area')
+            });
+            var area = this.editorMap.addPolygon(implArea.coordinates, {
+                projection: this.projection,
+                layername: 'implementation-area',
+                type: implArea.type,
+                tooltip: gettext('possible implementation area')
+            });
+            this.editorMap.centerOnPolygon(area, { projection: this.projection });
+        }
+
+
         var geom = solutionImpl.get('geom');
+
         this.editorMap.addLayer('drawing', {
             select: { selectable: true },
             strokeWidth: 3
@@ -456,7 +648,7 @@ var StrategyView = BaseView.extend(
             _this = this;
         items.forEach(function(item){
             var id = item.getElement().dataset['id'];
-            _this.solutionsInStrategy.get(id).save({ priority: i })
+            _this.solutionsInStrategy.get(id).save({ priority: i }, { patch: true })
             i++;
         });
     }

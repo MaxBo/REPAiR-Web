@@ -166,12 +166,14 @@ define([
         * @param {Object=} options.colorRange                       function to color feature by value (fill and stroke, options.stroke overrides stroke by colorRange)
         * @param {Object=} options.source                           source layer
         * @param {string=} options.source.projection                projection of the source
+        * @param {string=} options.source.url                       url of source
         * @param {Object=} options.select                           options for selectable features inside this layer
         * @param {Boolean=} [options.select.selectable=false]       enables selection of features on click
         * @param {string} [options.select.stroke='rgb(230, 230, 0)'] color of outline of selected feature
         * @param {string} [options.select.strokeWidth=3]            width of outline of selected feature
         * @param {string} [options.select.fill='rgba(230, 230, 0, 0.1)'] color of filling of selected feature
         * @param {string} [options.select.labelColor='#e69d00']     color of label selected feature
+        * @param {Boolean} [options.select.multi=true]            single select feature (others are deselected)
         * @param {Object} options.select.onChange                   callback
         *
         * @returns {ol.layer.Vector}                                the added vector layer
@@ -191,22 +193,26 @@ define([
                     projection : sourceopt.projection || this.mapProjection,
                 })
             }
-
-            var image = new ol.style.Circle({
-                radius: 5,
-                fill: new ol.style.Fill({ color: options.fill || 'rgb(100, 150, 250)' }),
-                stroke: new ol.style.Stroke({
-                    color: options.stroke || 'rgba(100, 150, 250, 0.1)',
-                    width: options.strokeWidth || 3
-                })
-            });
+            if (options.icon){
+                var image = new ol.style.Icon({ scale: .08, src: options.icon, anchor: options.anchor });
+            }
+            else {
+                var image = new ol.style.Circle({
+                    radius: 5,
+                    fill: new ol.style.Fill({ color: options.fill || 'rgb(100, 150, 250)' }),
+                    stroke: new ol.style.Stroke({
+                        color: options.stroke || 'rgba(100, 150, 250, 0.1)',
+                        width: options.strokeWidth || 3
+                    })
+                });
+            }
 
             function labelStyle(feature, resolution) {
                 return new ol.style.Text({
                     font: '15px Open Sans,sans-serif',
                     fill: new ol.style.Fill({ color: options.labelColor || '#4253f4' }),
                     stroke: new ol.style.Stroke({
-                        color: 'white', width: 3
+                        color: options.labelOutline || 'white', width: 3
                     }),
                     text: feature.get('label'),
                     overflow: false
@@ -225,26 +231,35 @@ define([
             var select = options.select || {};
 
             if (select.selectable){
+                if (options.select.icon) {
+                    var selectImage = new ol.style.Icon({ scale: .08, src: options.select.icon, anchor: options.select.anchor });
+                }
+                else if (options.icon){
+                    var selectImage = new ol.style.Icon({ scale: .08, src: options.icon, anchor: options.anchor });
+                }
+                else {
+                    var selectImage = new ol.style.Circle({
+                        radius: 5,
+                        fill: new ol.style.Fill({ color: select.fill || 'rgb(230, 230, 0)' }),
+                        stroke: new ol.style.Stroke({
+                            color: select.stroke || 'rgba(100, 150, 250, 0.1)',
+                            width: select.strokeWidth || 3
+                        })
+                    });
+                }
                 function selectLabelStyle(feature, resolution) {
                     return new ol.style.Text({
                         font: '15px Open Sans,sans-serif',
                         fill: new ol.style.Fill({ color: select.labelColor || '#e69d00' }),
                         stroke: new ol.style.Stroke({
-                            color: 'white', width: 3
+                            color:  select.labelOutline || 'white', width: 3
                         }),
                         text: feature.get('label'),
                     })
                 }
                 layer.selectStyle = function(feature, resolution){
                     return new ol.style.Style({
-                        image: new ol.style.Circle({
-                            radius: 5,
-                            fill: new ol.style.Fill({ color: select.stroke || 'rgb(230, 230, 0)' }),
-                            stroke: new ol.style.Stroke({
-                                color: select.fill || 'rgba(100, 150, 250, 0.1)',
-                                width: select.strokeWidth || 3
-                            })
-                        }),
+                        image: selectImage,
                         stroke: new ol.style.Stroke({
                             color: select.stroke || 'rgb(230, 230, 0)',
                             width: select.strokeWidth || 3
@@ -255,11 +270,14 @@ define([
                         text: selectLabelStyle(feature, resolution)
                     });
                 }
+                var multi = options.select.multi;
+                if (multi == null) multi = true;
                 var interaction = new ol.interaction.Select({
-                    toggleCondition: ol.events.condition.always,
+                    toggleCondition: ol.events.condition.click,
                     features: layer.selected,
                     layers: [layer],
                     style: layer.selectStyle,
+                    multi: multi
                 });
                 this.map.addInteraction(interaction);
                 layer.select = interaction;
@@ -367,14 +385,27 @@ define([
             return this.addGeometry(coordinates, options);
         }
 
-        addGeometry(coordinates, options){
+        addGeometry(geometry, options){
             var options = options || {},
-                type = options.type || 'Polygon',
+                type = options.type.toLowerCase() || 'polygon',
                 proj = options.projection || this.mapProjection;
-            var geometry = (type === 'MultiPolygon') ? new ol.geom.MultiPolygon(coordinates) :
-                           (type === 'Point') ? new ol.geom.Point(coordinates) :
-                           (type === 'LineString') ? new ol.geom.LineString(coordinates) :
-                           new ol.geom.Polygon(coordinates);
+            if (!((geometry instanceof ol.geom.MultiPolygon) ||
+                  (geometry instanceof ol.geom.Polygon) ||
+                  (geometry instanceof ol.geom.LineString) ||
+                  (geometry instanceof ol.geom.Point)
+                  )){
+                if (type === 'multipolygon') {
+                    geometry = new ol.geom.MultiPolygon(geometry);
+                } else if (type === 'point'){
+                    geometry = new ol.geom.Point(geometry)
+                } else if (type === 'linestring'){
+                    geometry = new ol.geom.LineString(geometry)
+                } else if (type === 'polygon'){
+                    geometry = new ol.geom.Polygon(geometry)
+                } else {
+                    throw "Unknown type, supported: MultiPolygon, Polygon, Point, Linestring";
+                }
+            }
             var ret = geometry.clone();
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];
@@ -425,6 +456,8 @@ define([
         *
         * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added at
         * @param {Object} options
+        * @param {Boolean} [options.draggable=true]  marker is draggable
+        * @param {Boolean} [options.selectable=true]  marker is selectable
         * @param {string} [options.layername='basic']  layer to which the marker will be added
         * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
         * @param {string=} [options.name='']   the name will be rendered below the marker
@@ -437,7 +470,8 @@ define([
         addmarker(coordinates, options) {
             var _this = this;
             var options = options || {};
-            var proj = options.projection || this.mapProjection;
+            var proj = options.projection || this.mapProjection,
+                draggable = (options.draggable != null) ? options.draggable : true;
             var layername = options.layername || 'basic',
                 layer = this.layers[layername];
 
@@ -466,28 +500,30 @@ define([
             if (options.dragIcon){
                 dragStyle = new ol.style.Style({
                     image: new ol.style.Icon({ scale: .08, src: options.dragIcon })
-            })
+                })
             }
 
-            // Drag and drop feature
-            var dragInteraction = new ol.interaction.Modify({
-                features: new ol.Collection([feature]),
-                style: dragStyle,
-                pixelTolerance: 20
-            });
+            if (options.draggable){
+                // Dr{ag and drop feature
+                var dragInteraction = new ol.interaction.Modify({
+                    features: new ol.Collection([feature]),
+                    style: dragStyle,
+                    pixelTolerance: 20
+                });
 
-            // Add the event to the drag and drop feature
-            dragInteraction.on('modifyend', function(){
-                var coordinate = feature.getGeometry().getCoordinates();
-                var transformed = ol.proj.transform(coordinate, _this.mapProjection, proj);
-                //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
-                layer.changed();
-                if(options.onDrag){
-                    options.onDrag(transformed);
-                }
-            }, feature);
+                // Add the event to the drag and drop feature
+                dragInteraction.on('modifyend', function(){
+                    var coordinate = feature.getGeometry().getCoordinates();
+                    var transformed = ol.proj.transform(coordinate, _this.mapProjection, proj);
+                    //iconStyle.getText().setText(ol.coordinate.format(transformed, template, 2));
+                    layer.changed();
+                    if(options.onDrag){
+                        options.onDrag(transformed);
+                    }
+                }, feature);
 
-            this.map.addInteraction(dragInteraction);
+                this.map.addInteraction(dragInteraction);
+            }
             var id = this.idCounter;
             feature.setId(id);
             // remember the interactions to access them on remove by setting them as attributes

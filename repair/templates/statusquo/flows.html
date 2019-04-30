@@ -18,7 +18,7 @@
   <button class="btn btn-primary" id="new-flowfilter-button"> {% trans "New" %} </button>
   <button class="btn btn-warning" id="delete-flowfilter-button"> {% trans "Delete" %} </button>
 </div>
-<div class="row bordered" id="filter-attributes">
+<div class="row bordered sunken" id="filter-attributes">
   <button id='upload-flowfilter-button' title="{% trans "upload changes made to filter" %}" class="btn btn-danger btn-upload">
     <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
   </button>
@@ -50,24 +50,26 @@
 <!-- workshop view filters -->
 <script type="text/template" id="workshop-flows-template">
 <div class="row bordered">
-  <div class="row">
-    <h4 style="margin-right: 10px; float: left;">{% trans "View" %}</h4>
-    <select name="filter" class="form-control" style="max-width: 500px; float: left;">
-      <option disabled selected value="-1"> {% trans "Select" %} </option>
-      <% filters.each(function(filter) { %>
-        <option value="<%= filter.id %>"> <%= filter.get('name') %></option>
-      <% });  %>
-    </select>
-    <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="View" style="float: left; margin-right: 10px;" data-html="true" tabindex="0"
-      data-content="{% blocktrans %}
-        Select a predefined view. The flows in a view are filtered to match certain criteria.
-      {% endblocktrans %}">
-    </a>
-    <div id="filter-description" class="input-label"></div>
+  <div class="col-md-4" style="border-right: 1px solid lightgrey;">
+    <div class="row">
+      <h4 style="margin-right: 10px; float: left;">{% trans "View" %}</h4>
+      <select name="filter" class="form-control" style="max-width: 70%; float: left;">
+        <option disabled selected value="-1"> {% trans "Select" %} </option>
+        <% filters.each(function(filter) { %>
+          <option value="<%= filter.id %>"> <%= filter.get('name') %></option>
+        <% });  %>
+      </select>
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="View" style="float: left; margin-right: 10px;" data-html="true" tabindex="0"
+        data-content="{% blocktrans %}
+          Select a predefined view. The flows in a view are filtered to match certain criteria.
+        {% endblocktrans %}">
+      </a>
+      <div id="filter-description" class="input-label"></div>
+    </div>
   </div>
-  <div class="row">
-    <div class="row" style="padding: 10px; border-top: 1px solid lightgrey;">
-      <h4 style="margin-right: 10px; margin-left: -10px; float: left;">{% trans "Level" %} </h4>
+  <div class="col-md-5">
+    <div class="row">
+      <h4 style="margin-right: 10px; float: left;">{% trans "Level" %} </h4>
       <select class="form-control" name="display-level-select" style="max-width: 200px; float: left;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>
@@ -81,7 +83,7 @@
     </div>
   </div>
 </div>
-<div class="row bordered" id="flows-render-content"></div>
+<div class="row bordered sunken" id="flows-render-content"></div>
 </script>
 
 <!-- template for viewing flows as sankey or map  -->
@@ -173,14 +175,14 @@
 <script type="text/template" id="filter-flows-template">
 <div class="panel-group" id="filter-accordion">
   <div class="panel panel-default">
-    <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
+    <div class="panel-heading" data-toggle="collapse" style="padding: 0px; background-color: white">
       <h4 style="margin-top: 0; margin-bottom: 0;">
         <a id="toggle-filter-section" role="button" data-toggle="collapse" data-parent="#filter-accordion" href="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" class="accordion-toggle collapsed">
           {% trans "Filter Settings" %}
         </a>
       </h4>
     </div>
-    <div id="filterCollapse" class="panel-collapse collapse" style="padding: 0px 10px 10px 10px;">
+    <div id="filterCollapse" class="panel-collapse collapse sunken" style="padding: 0px 10px 10px 10px;">
       <div class="row" style="border-top: 1px solid lightgrey;">
         <h4 style="float: left;"> {% trans 'Activities and Actors' %} </h4>
         <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Activities and Actors Filter" data-html="true" tabindex="0"

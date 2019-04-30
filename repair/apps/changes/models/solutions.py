@@ -3,7 +3,9 @@ from django.contrib.gis.db import models
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 import re
+import json
 from enumfields import EnumIntegerField
+from django.contrib.gis.geos import Polygon
 
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel)
@@ -43,6 +45,15 @@ class Solution(GDSEModel):
     possible_implementation_area = models.MultiPolygonField(
         null=True, srid=4326, blank=True)
 
+    @property
+    def edit_mask(self):
+        if not self.possible_implementation_area:
+            return
+        bbox = Polygon([[-180, 90], [180, 90],
+                        [180, -90], [-180, -90], [-180, 90]])
+        mask = bbox.difference(self.possible_implementation_area)
+        return json.loads(mask.geojson)
+
 
 class ImplementationQuestion(GDSEModel):
     '''
@@ -52,7 +63,7 @@ class ImplementationQuestion(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
                                  related_name='question')
     unit = models.CharField(blank=True, default='', max_length=100)
-    select_values = models.TextField(validators=[double_list_validator])
+    select_values = models.TextField(blank=True, validators=[double_list_validator])
     step = models.FloatField(null=True)
     min_value = models.FloatField(default=0)
     max_value = models.FloatField(default=1)
@@ -113,7 +124,8 @@ class AffectedFlow(GDSEModel):
     '''
     flow affected by solution-part on activity level
     '''
-    solution_part = models.ForeignKey(SolutionPart, on_delete=models.CASCADE)
+    solution_part = models.ForeignKey(
+        SolutionPart, related_name='affected_flow', on_delete=models.CASCADE)
 
     origin_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE, related_name='affected_origin')
@@ -123,5 +135,6 @@ class AffectedFlow(GDSEModel):
     material = models.ForeignKey(
         Material, on_delete=PROTECT_CASCADE, related_name='affected_material')
     process = models.ForeignKey(
-        Process, on_delete=PROTECT_CASCADE, related_name='affected_process')
+        Process, on_delete=PROTECT_CASCADE, related_name='affected_process',
+        null=True)
 
