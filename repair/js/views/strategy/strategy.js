@@ -265,11 +265,11 @@ var StrategyView = BaseView.extend(
         this.selectedActors = {}
         var html = document.getElementById('view-solution-strategy-template').innerHTML,
             template = _.template(html);
-        var modal = this.el.querySelector('#solution-strategy-modal');
+        this.solutionModal = this.el.querySelector('#solution-strategy-modal');
 
         var solId = solutionImpl.get('solution'),
             solution = this.solutions.get(solId);
-        modal.innerHTML = template({
+        this.solutionModal.innerHTML = template({
             solutionCategories: this.solutionCategories,
             solutionImpl: solutionImpl,
             solution: solution,
@@ -278,7 +278,7 @@ var StrategyView = BaseView.extend(
             solutionparts: solution.parts
         });
 
-        var stakeholderSelect = modal.querySelector('#strategy-stakeholders'),
+        var stakeholderSelect = this.solutionModal.querySelector('#strategy-stakeholders'),
             stakeholders = solutionImpl.get('participants').map(String);
         for (var i = 0; i < stakeholderSelect.options.length; i++) {
             if (stakeholders.indexOf(stakeholderSelect.options[i].value) >= 0) {
@@ -294,25 +294,35 @@ var StrategyView = BaseView.extend(
             if (part.get('implements_new_flow')) hasActorsToPick = true;
         })
 
-        var actorsLi = modal.querySelector('a[href="#actors-tab"]'),
-            editorLi = modal.querySelector('a[href="#strategy-area-tab"]');
+        var actorsLi = this.solutionModal.querySelector('a[href="#actors-tab"]'),
+            editorLi = this.solutionModal.querySelector('a[href="#strategy-area-tab"]');
         // update map after switching to tab to fit width and height of wrapping div
         $(editorLi).on('shown.bs.tab', function () {
             _this.editorMap.map.updateSize();
         });
         if (hasActorsToPick){
+            this.pickedActors = {};
+            solutionImpl.get('picked_actors').forEach(function(pick){
+                _this.pickedActors[pick.solutionpart] = pick.actor;
+            })
             this.renderActorMap('actor-map', solutionImpl);
             $(actorsLi).on('shown.bs.tab', function () {
                 _this.actorMap.map.updateSize();
+            });
+
+            var requestSelect = this.solutionModal.querySelector('select[name="map-request"]');
+            requestSelect.addEventListener('change', function(){
+                var picked = _this.pickedActors[this.value];
+                _this.renderSelectableActors(solution.parts.get(this.value), picked);
             });
         }
         else
             actorsLi.style.display = 'none';
 
-        $(modal).modal('show');
+        $(this.solutionModal).modal('show');
 
         // save solution and drawn polygons after user confirmed modal
-        var okBtn = modal.querySelector('.confirm');
+        var okBtn = this.solutionModal.querySelector('.confirm');
         okBtn.addEventListener('click', function(){
             // stakeholders
             var stakeholderIds = [];
@@ -337,7 +347,7 @@ var StrategyView = BaseView.extend(
                 solutionImpl.set('geom', geoJSONText);
             }
 
-            var quantityInputs = modal.querySelectorAll('input[name="quantity"]'),
+            var quantityInputs = _this.solutionModal.querySelectorAll('input[name="quantity"]'),
                 quantities = [];
             quantityInputs.forEach(function(input){
                 var quantity = {
@@ -349,7 +359,18 @@ var StrategyView = BaseView.extend(
 
             solutionImpl.set('quantities', quantities);
 
-            var notes = modal.querySelector('textarea[name="description"]').value;
+            if (hasActorsToPick){
+                var picked = [];
+                for (var partId in _this.pickedActors){
+                    picked.push({
+                        solutionpart: partId,
+                        actor: _this.pickedActors[partId]
+                    })
+                }
+                solutionImpl.set('picked_actors', picked);
+            }
+
+            var notes = _this.solutionModal.querySelector('textarea[name="description"]').value;
             solutionImpl.set('note', notes);
             solutionImpl.save(null, {
                 error: _this.onError,
@@ -364,21 +385,14 @@ var StrategyView = BaseView.extend(
                         stakeholderNames.push(stakeholder.get('name'));
                     })
                     item.querySelector('.implemented-by').innerHTML = stakeholderNames.join(', ');
-                    $(modal).modal('hide');
+                    $(_this.solutionModal).modal('hide');
                 }
             })
         })
-        if (hasActorsToPick){
-            var requestSelect = modal.querySelector('select[name="map-request"]');
-            requestSelect.addEventListener('change', function(){
-                _this.renderSelectableActors(solution.parts.get(this.value));
-                //_this.areaMap.selectFeature('areas', areaId);
-            });
-        }
     },
 
-    // render the administrative locations of all actors of activity with given id
-    renderSelectableActors: function(solutionpart){
+    // render the administrative locations of all actors of activity in solutionpart
+    renderSelectableActors: function(solutionpart, picked){
         var _this = this,
             activityId = solutionpart.get('new_target_activity');
         if (!activityId) return;
@@ -403,6 +417,8 @@ var StrategyView = BaseView.extend(
                     });
                 }
             })
+            if (picked)
+                _this.actorMap.selectFeature('pickable-actors', picked);
         }
 
         if (!cache){
@@ -468,7 +484,8 @@ var StrategyView = BaseView.extend(
     },
 
     renderActorMap: function(divid, solutionImpl) {
-        var el = document.getElementById(divid);
+        var el = document.getElementById(divid),
+            _this = this;
 
         // calculate (min) height
         var height = document.body.clientHeight * 0.6;
@@ -486,7 +503,7 @@ var StrategyView = BaseView.extend(
         if (this.focusPoly){
             this.actorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
         };
-
+        var requestSelect = this.solutionModal.querySelector('select[name="map-request"]');
         this.actorMap.addLayer('pickable-actors', {
             stroke: 'black',
             fill: 'red',
@@ -498,7 +515,9 @@ var StrategyView = BaseView.extend(
             labelOutline: 'white',
             select: {
                 selectable: true,
-                onChange: console.log,
+                onChange: function(feature){
+                    _this.pickedActors[requestSelect.value] = feature[0].id;
+                },
                 multi: false,
                 icon: '/static/img/map-marker-yellow.svg',
                 anchor: [0.5, 1],

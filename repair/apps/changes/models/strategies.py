@@ -51,7 +51,8 @@ class ActorInSolutionPart(GDSEModel):
                                      related_name='targetactor')
     actor = models.ForeignKey(Actor, on_delete=PROTECT_CASCADE)
     implementation = models.ForeignKey(SolutionInStrategy,
-                                       on_delete=models.CASCADE)
+                                       on_delete=models.CASCADE,
+                                       related_name='picked_actors')
 
 
 class ImplementationQuantity(GDSEModel):

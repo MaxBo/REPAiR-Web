@@ -5,6 +5,7 @@ from rest_framework import serializers
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
                                         ImplementationQuantity,
+                                        ActorInSolutionPart
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -117,6 +118,12 @@ class ImplementationQuantitySerializer(serializers.ModelSerializer):
         fields = ('question', 'value')
 
 
+class ActorInSolutionPartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActorInSolutionPart
+        fields = ('solutionpart', 'actor')
+
+
 class SolutionInStrategySerializer(serializers.ModelSerializer):
     parent_lookup_kwargs = {
         'casestudy_pk': 'strategy__keyflow__casestudy__id',
@@ -126,19 +133,27 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
     participants = IDRelatedField(many=True, required=False)
     quantities = ImplementationQuantitySerializer(
         many=True, source='implementation_quantity', required=False)
+    picked_actors = ActorInSolutionPartSerializer(many=True, required=False)
 
     class Meta:
         model = SolutionInStrategy
         fields = ('id', 'solution', 'note', 'geom',
-                  'participants', 'priority', 'quantities')
+                  'participants', 'priority', 'quantities', 'picked_actors')
 
     def update(self, instance, validated_data):
         quantities = validated_data.pop('implementation_quantity', [])
+        picked_actors = validated_data.pop('picked_actors', None)
         instance = super().update(instance, validated_data)
-        for f in quantities:
+        for q in quantities:
+            # quantities are created automatically, no need to delete them
             quantity = ImplementationQuantity.objects.get(
-                question=f['question'], implementation=instance)
-            quantity.value = f['value'];
+                question=q['question'], implementation=instance)
+            quantity.value = q['value'];
             quantity.save()
+        if picked_actors:
+            ActorInSolutionPart.objects.filter(implementation=instance).delete()
+            for a in picked_actors:
+                ais = ActorInSolutionPart(implementation=instance, **a)
+                ais.save()
         return instance
 
