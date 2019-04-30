@@ -65,9 +65,16 @@ class Material(GDSEModel):
     def top_ancestor(self):
         ancestor = self
         parent = self.parent
+        i = 0
         while parent:
             ancestor = parent
             parent = parent.parent
+            i += 1
+            if i > 100:
+                raise RecursionError(
+                    'There appears to be a cycle in ancestry '
+                    'of material {} - {}'
+                    .format(self.id, self.name))
         return ancestor
 
     def is_descendant(self, *args):
@@ -75,9 +82,15 @@ class Material(GDSEModel):
         the passed materials '''
         parent = self.parent
         materials = list(args)
+        i = 0
         while parent:
             if parent in materials: return True
             parent = parent.parent
+            i += 1
+            if i > 1000:
+                raise RecursionError(
+                    'There seems to be an cycle in ancestry of material {} - {}'
+                    .format(self.id, self.name))
         return False
 
     def ancestor(self, *args):
@@ -88,10 +101,16 @@ class Material(GDSEModel):
         '''
         parent = self.parent
         materials = list(args)
+        i = 0
         while parent:
             if parent in materials:
                 return parent
             parent = parent.parent
+            i += 1
+            if i > 1000:
+                raise RecursionError(
+                    'There seems to be an cycle in ancestry of material {} - {}'
+                    .format(self.id, self.name))
         return None
 
     def save(self, *args, **kwargs):

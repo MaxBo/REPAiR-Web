@@ -5,55 +5,124 @@
 {% block title %}{% trans "REPAiR | Recommendations" %}{% endblock %}
 
 {% block sidebar %}
-
-  <script>
-    document.getElementById("conclusions-link").classList.add('active');
-  </script>
-  <ul class="nav nav-pills nav-stacked" id="sidebar">
-    <div class="row">
-      <select id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
-        <option selected disabled>{% trans "Select keyflow" %} </option>
-      {% for keyflow in keyflows %}
-        <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
-      {% endfor %}
-      </select>
-      <span class="sub-icon fa fa-cogs" style="margin-right: 8px"></span>
-    </div>
-    <li class="active"><a href="#objectives" data-toggle="pill">{% trans "Objectives" %} <span class="sub-icon fas fa-star"></span></a></li>
-    <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon fas fa-bullseye"></span></a></li>
-    <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
-    <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
-    <li><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
-    <li><a href="#conclusions" data-toggle="pill">{% trans "Conclusions" %} <span class="sub-icon far fa-lightbulb"></span></a></li>
-  </ul>
+<script>
+  document.getElementById("conclusions-link").classList.add('active');
+</script>
+<ul class="nav nav-pills nav-stacked" id="sidebar">
+  <div class="row">
+    <select id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
+      <option selected disabled>{% trans "Select keyflow" %} </option>
+    {% for keyflow in keyflows %}
+      <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+    {% endfor %}
+    </select>
+    <span class="sub-icon fa fa-cogs" style="right: -5px;"></span>
+  </div>
+  <li class="active"><a href="#objectives" data-toggle="pill">{% trans "Objectives" %} <span class="sub-icon fas fa-star"></span></a></li>
+  <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon fas fa-bullseye"></span></a></li>
+  <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
+  <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
+  <li><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
+  <li><a href="#conclusions" data-toggle="pill" style="margin-right: 5px;">{% trans "Conclusions" %} <span class="sub-icon far fa-lightbulb"></span></a></li>
+</ul>
 {% endblock %}
 
 {% block content %}
-  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
-  <div class="tab-content">
-    <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
-    <div class="tab-pane fade in active" id="objectives">
+
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
+<div class="tab-content" style="padding-right: 50px"><!--col-md-10-->
+  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+  <div class="tab-pane fade in active" id="objectives" data-step="Objectives">
+  </div>
+  <div class="tab-pane fade" id="flow-targets" data-step="Flow Targets">
+    <h2> ToDo </h2>
+  </div>
+  <div class="tab-pane fade" id="strategies" data-step="Strategies">
+    <h2> ToDo </h2>
+  </div>
+  <div class="tab-pane fade" id="modified-flows" data-step="Modified Flows">
+    <h2> ToDo </h2>
+  </div>
+  <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
+    <h2> ToDo </h2>
+  </div>
+  <div class="tab-pane fade" id="conclusions">
+    <h2> ToDo </h2>
+  </div>
+</div>
+<div id='comment-section'> <!--class="col-md-2"-->
+    <div class="row">
+      <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
+        <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
+      </button>
     </div>
-    <div class="tab-pane fade" id="flow-targets">
-      <h2> ToDo </h2>
+    <div class="row">
+      <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
+        <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
+      </button>
     </div>
-    <div class="tab-pane fade" id="strategies">
-      <h2> ToDo </h2>
-    </div>
-    <div class="tab-pane fade" id="modified-flows">
-      <h2> ToDo </h2>
-    </div>
-    <div class="tab-pane fade" id="sustainability">
-      <h2> ToDo </h2>
-    </div>
-    <div class="tab-pane fade" id="conclusions">
-      <h2> ToDo </h2>
+</div>
+<div id="conclusion-modal" class="modal fade" role="dialog">
+<div id="manage-conclusions-modal"></div>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Manage Conclusions" %} &nbspc; </h4>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+      </div>
     </div>
   </div>
+</div>
 
 {% render_bundle 'Recommendations' %}
 
 <!-- i put the template scripts directly in here, they are not that complex -->
+
+<script type="text/template" id="conclusion-template">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content col-md-12">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">{% trans "Add Conclusion" %}</h4>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <label> {% trans "Section" %} </label>
+        <select class="section form-control">
+        </select>
+      </div>
+      <div class="row">
+        <label> {% trans "Consensus Level" %} </label>
+        <select class="consensus form-control">
+          <% consensusLevels.forEach(function(level){ %>
+            <option value="<%= level.id %>"> <%= level.get("name") %> </option>
+          <% }); %>
+        </select>
+      </div>
+      <div class="row">
+        <label> {% trans "Description" %} </label>
+        <textarea class="comment form-control" style="width: 100%; resize: vertical;" rows="4"></textarea>
+      </div>
+      <div class="row" style="margin-top: 10px;">
+        <input type="checkbox" class="screenshot-check" style="transform: scale(1.5); margin-right: 5px;"/>
+        <label> {% trans "Append screenshot" %} </label>
+        <br>
+        <img class="bordered" src="<%= image %>" style="height: 200px; cursor: pointer;"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+    </div>
+  </div>
+</div>
+</script>
 
 <script type="text/template" id="objectives-template">
 <div class="col-md-12">
@@ -97,5 +166,23 @@
 </div>
 </script>
 
+<script type="text/template" id="objectives-template">
+<div class="col-md-12">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#step1tab">{% trans "Step" %} 1</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active bordered" id="step1tab">
+      <h3> {% trans "How were the objectives ranked by the small groups?" %} </h3>
+      <div style="overflow: auto; margin-top: 20px;">
+        <table id="objectives-table" class="table"></table>
+      </div>
+      <div style="overflow: auto; margin-top: 20px;">
+        <table id="general-objectives-table" class="table"></table>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
 
 {% endblock %}

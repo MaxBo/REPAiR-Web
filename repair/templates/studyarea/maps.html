@@ -2,40 +2,45 @@
 
 <script type="text/template" id="base-maps-template">
 <div class="row">
-  <div class="col-md-12" style="padding: 0px;">
-    <div id='base-map'>
-      <div class="noselect workshop layer-tree">
-        <div>
-          <h4 style="float: left;"> {% trans "Layers" %} </h4>
-          <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Layer Tree" data-html="true" tabindex="0"
-            data-content="{% blocktrans %}
-              <b>Layer visibility</b><br>
-              Expand a category by pressing the <i>+</i> button to the left or by tapping its name.
-              Check/Uncheck layers by pressing the checkboxes to the left of their names or by tapping its name directly. <br>
-              Checked layers will be shown on the map and in the legend if available.
-              <br><br>
-              <b>Layer order</b><br>
-              The order of the visibilty of the layers in the map can be changed by changing the order inside the layer tree.
-              You may change the order of layers within the same category with <b>drag & drop</b>. The order of the categories is also changable in the same way.
+  <div class="col-md-12">
+    <div id='base-map' {% if request.session.mode != 1 %} class="workshop" {% endif %}>
+      <div class="noselect workshop layer-tree panel panel-default">
+        <div class="panel-heading" data-toggle="collapse" style="padding-right: 40px;">
+          <h4 style="margin-top: 0; margin-bottom: 0;">
+            <a role="button" data-toggle="collapse" style="padding: 5px;" href="#layer-tree" aria-expanded="false" aria-controls="#layer-tree" class="toggle-details accordion-toggle">
+              {% trans "Layers" %}
+            </a>
+          </h4>
+        </div>
+        <a class="help-icon glyphicon glyphicon-question-sign" style="position: absolute; top: 8px; right: 10px;"data-toggle="popover" title="Layer Tree" data-html="true" tabindex="0"
+          data-content="{% blocktrans %}
+            <b>Layer visibility</b><br>
+            Expand a category by pressing the <i>+</i> button to the left or by tapping its name.
+            Check/Uncheck layers by pressing the checkboxes to the left of their names or by tapping its name directly. <br>
+            Checked layers will be shown on the map and in the legend if available.
+            <br><br>
+            <b>Layer order</b><br>
+            The order of the visibilty of the layers in the map can be changed by changing the order inside the layer tree.
+            You may change the order of layers within the same category with <b>drag & drop</b>. The order of the categories is also changable in the same way.
 
-            {% endblocktrans %}">
-          </a>
-        </div>
-        <div id="layer-tree"></div>
+          {% endblocktrans %}">
+        </a>
+        <div id="layer-tree" class="collapse in"></div>
       </div>
-      <div id='legend' class="bordered workshop">
-        <div class="row" data-toggle="collapse" data-target="#legend>.items">
-          <button class="btn btn-primary square inverted">
-            <span class="glyphicon glyphicon-eye-open"></span>
-          </button>
-          <h4> {% trans "Legend" %} </h4>
+      <div id='legend' class="noselect workshop panel panel-default">
+        <div class="panel-heading" data-toggle="collapse" style="padding-right: 40px;">
+          <h4 style="margin-top: 0; margin-bottom: 0;">
+            <a role="button" data-toggle="collapse" style="padding: 5px;" href="#legend-items" aria-expanded="false" aria-controls="#legend-items" class="toggle-details accordion-toggle">
+              {% trans "Legend" %}
+            </a>
+          </h4>
         </div>
-        <div class="items collapse" style="padding: 5px;">
+        <div id='legend-items' class="items collapse in" style="padding: 5px;">
         </div>
       </div>
-      <div class="modal fade info" role="dialog" style="z-index: 99999;"></div>
     </div>
   </div>
+  <div class="modal fade info" role="dialog" style="z-index: 99999;"></div>
 </div>
 </script>
 
@@ -83,7 +88,7 @@
     </div>
   </div>
   <div class="col-md-6 bordered" style="margin-right: 10px;">
-    <div id='base-map'>
+    <div id='base-map' >
     </div>
   </div>
   <div id='legend' class="col-md-2 bordered">
@@ -165,11 +170,11 @@
     <div class="col-md-1"></div>
     <div class="col-md-11">
       <a href="<%= resource.get('wms_uri') %>?REQUEST=getCapabilities" target="_blank"><i><%= resource.get('wms_uri') %></i></a>
-      <table style="margin: 0px;" class="entry-table">
+      <table style="margin: 0px; table-layout: fixed;" class="entry-table">
       <% _.each(resource.get('layers'), function(layer){ %>
         <tr>
-          <td><input type="checkbox" name="layer" data-layerid="<%= layer.id %>" data-layername="<%= layer.title %>"></td>
-          <td> <%= layer.title %> </td>
+          <td style="width: 20px;"><input type="checkbox" name="layer" data-layerid="<%= layer.id %>" data-layername="<%= layer.title %>"></td>
+          <td style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" > <%= layer.title %> </td>
           <td> <%= layer.abstract %> </td>
         </tr>
       <% }) %>

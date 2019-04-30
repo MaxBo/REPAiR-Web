@@ -18,7 +18,8 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          CompositionFactory,
                                          Actor2ActorFactory,
                                          MaterialFactory,
-                                         ProductFractionFactory
+                                         ProductFractionFactory,
+                                         KeyflowFactory
                                          )
 
 from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor,
@@ -428,10 +429,16 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        # create another keyflow
+        keyflow2 = KeyflowInCasestudyFactory(keyflow__name='concurring')
+        # create mats with same names, should not be picked while bulk creating
+        MaterialFactory(name='a', keyflow=keyflow2)
+        MaterialFactory(name='b', keyflow=keyflow2)
+
         MaterialFactory(name='Mat 1', keyflow=self.keyflow)
         # this one is a 'default' material without keyflow and duplicate
         # to one in the file, the keyflow related one should be preferred
-        MaterialFactory(name='a')
+        MaterialFactory(name='a', keyflow=self.keyflow)
         MaterialFactory(name='b')
 
         a = PublicationFactory(citekey='crem2017', title='sth')
@@ -491,6 +498,12 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         # but updates (kind of)
         assert lengths[0] == lengths[1]
         fractions = ProductFraction.objects.all()
+        # check that the picked keyflows of the picked materials are either None
+        # (common mats) or the keyflow set to this test (set in url as well)
+        for f in fractions:
+            mat = f.material
+            assert mat.keyflow == None or mat.keyflow.id == self.keyflow.id
+
         avoidable = fractions.values_list('avoidable', flat=True)
         # avoidable is set (just checking that not everything is
         # True but some entries should be)

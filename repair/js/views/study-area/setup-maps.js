@@ -19,6 +19,7 @@ var SetupMapsView = BaseMapView.extend(
     initialize: function(options){
         SetupMapsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'repositionButtons');
+        _.bindAll(this, 'renderAvailableServices');
     },
 
     /*
@@ -30,7 +31,7 @@ var SetupMapsView = BaseMapView.extend(
         'click #add-layer-modal .confirm': 'confirmLayer',
         'click #layer-tree-buttons>.remove': 'removeNode',
         'click #layer-tree-buttons>.edit': 'editName',
-        'click #refresh-wms-services-button': 'renderAvailableServices',
+        'click #refresh-wms-services-button': 'refreshServices',
     },
 
     // determines if a layer is checked on start ('included' layers in setup mode)
@@ -164,25 +165,41 @@ var SetupMapsView = BaseMapView.extend(
 
     renderAvailableServices: function(){
         var _this = this;
+        this.loader.activate();
         this.wmsResources.fetch({ success: function(){
             var html = document.getElementById('wms-services-template').innerHTML,
                 template = _.template(html),
                 el = document.getElementById('wms-services');
+            _this.loader.deactivate();
             el.innerHTML = template({ resources: _this.wmsResources });
         }})
+    },
+
+    refreshServices: function(){
+        var _this = this,
+            url = this.wmsResources.url() + 'populate/';
+        _this.loader.activate();
+
+        return Backbone.ajax({
+            url: url,
+            method: 'GET',
+            success: this.renderAvailableServices,
+            error: this.onError
+        });
+
     },
 
     addLayer: function(){
         // uncheck all checkboxes
         var checked = this.layerModal.querySelectorAll('input[name=layer]:checked');
-        checked.forEach(function(checkbox){checkbox.checked = false;})
+        checked.forEach(function(checkbox){ checkbox.checked = false; })
         $(this.layerModal).modal('show');
     },
 
     addCategory: function(){
         var _this = this;
         function onConfirm(name){
-            var category = _this.layerCategories.create( { name: name }, {
+            var category = _this.layerCategories.create( { name: name, tag: _this.tag }, {
                 success: function(){
                     var catNode = {
                         text: name,

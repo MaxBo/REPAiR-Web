@@ -6,6 +6,7 @@ d3.sankey = function() {
       size = [1, 1],
       nodes = [],
       links = [],
+      align = 'justify', // left, right, center or justify,
       // cycle features
       cycleLaneNarrowWidth = 4,
       cycleLaneDistFromFwdPaths = -10,  // the distance above the paths to start showing 'cycle lanes'
@@ -71,6 +72,12 @@ d3.sankey = function() {
   sankey.size = function(_) {
     if (!arguments.length) return size;
     size = _;
+    return sankey;
+  };
+
+  sankey.align = function(_) {
+    if (!arguments.length) return align;
+    align = _.toLowerCase();
     return sankey;
   };
 
@@ -195,7 +202,7 @@ d3.sankey = function() {
       );
     });
   }
-  
+
   function adjustSize(){
     computeNodeBreadths();
     var nodesByBreadth = d3.nest()
@@ -205,9 +212,9 @@ d3.sankey = function() {
         .map(function(d) { return d.values; });
     var aspectRatio = size[0] / size[1],
         maxNodesPerLane = d3.max(nodesByBreadth, function(nodes) { return nodes.length - 1 });
-    
+
     var minHeight = 3 * maxNodesPerLane * nodePadding;
-    
+
     if (minHeight > size[1]) size = [Math.round(aspectRatio * minHeight), minHeight];
   }
 
@@ -218,7 +225,8 @@ d3.sankey = function() {
   function computeNodeBreadths() {
     var remainingNodes = nodes,
         nextNodes,
-        x = 0;
+        x = 0,
+        reverse = (align === 'right'); // Reverse traversal direction
 
     while (remainingNodes.length) {
       nextNodes = [];
@@ -234,8 +242,13 @@ d3.sankey = function() {
       remainingNodes = nextNodes;
       ++x;
     }
+    if (align === 'center') {
+      moveSourcesRight();
+    }
+    if (align === 'justify') {
+      moveSinksRight(x);
+    }
 
-    moveSinksRight(x);
     scaleNodeBreadths((size[0] - nodeWidth) / (x - 1));
   }
 
@@ -376,11 +389,11 @@ d3.sankey = function() {
         link.ty = ty;
         ty += Math.abs(link.dy);
       });
-      
+
       //// adjust node size to spread of links going in and out
       //var dy = Math.max(sy, ty, node.dy);
       //node.dy = dy;
-    
+
     });
 
     function ascendingSourceDepth(a, b) {

@@ -35,7 +35,7 @@ function(_, BaseView, GDSECollection, Muuri){
             this.keyflowName = options.keyflowName;
             this.users = options.users;
 
-            // non-keyflow related collections obviously don't change when changing keyflow
+            // ToDo: non-keyflow related collections obviously don't change when changing keyflow
             // so general collections could be already fetched outside, no performance issues expected though
             this.generalAims = new GDSECollection([], {
                 apiTag: 'aims',
@@ -129,6 +129,7 @@ function(_, BaseView, GDSECollection, Muuri){
                     if (rank) {
                         var item = _this.panelItem('#' + rank);
                         item.style.width = '50px';
+                        item.style.backgroundImage = 'none';
                         cell.appendChild(item);
                         var sat = 30 + colorStep * (rank -1),
                             hsl = 'hsla(90, 50%, ' + sat + '%, 1)';

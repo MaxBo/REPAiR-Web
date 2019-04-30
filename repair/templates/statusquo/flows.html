@@ -20,7 +20,7 @@
 </div>
 <div class="row bordered" id="filter-attributes">
   <button id='upload-flowfilter-button' title="{% trans "upload changes made to filter" %}" class="btn btn-danger btn-upload">
-    <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+    <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
   </button>
   <table class="entry-table">
     <tr>
@@ -118,6 +118,24 @@
         <div style="position: absolute; bottom: 15px; left: 10px;">
           <button class="select-all fas fa-vector-square btn btn-primary d3-overlay inverted" style="position: relative; float: left; margin-right: 10px; height: 30px;">&nbsp;{% trans "All" %}</button>
           <button class="deselect-all fas fa-ban btn btn-primary d3-overlay inverted" style="position: relative; height: 30px;">&nbsp;{% trans "None" %}</button>
+        </div>
+        <div style="position: absolute; bottom: 15px; right: 10px;">
+          <label>{% trans "Scale" %}</label>
+          <select id="sankey-scale" style="float: right;">
+            <option value="linear">{% trans "Linear" %}</option>
+            <option value="log">{% trans "Logarithmic" %}</option>
+          </select>
+          <br>
+          <label>{% trans "Alignment" %}</label>
+          <select id="sankey-alignment" style="float: right;">
+            <option value="justify">{% trans "Justify" %}</option>
+            <option value="left">{% trans "Left" %}</option>
+            <option value="center">{% trans "Center" %}</option>
+            <option value="right">{% trans "Right" %}</option>
+          </select>
+          <br>
+          <label>{% trans "Stretch" %}</label>
+          <input id='sankey-stretch' type="number" value='1' min='1' max='10' style="width: 50px; float: right;"/>
         </div>
         <div class="sankey" style="text-align: center;"></div>
       </div>
@@ -274,7 +292,7 @@
         <div class="row" style="margin-top: 10px">
           <div class="col-md-2">
             <label>{% trans "Subprocess" %}</label>
-            <select name="process-select" multiple class="form-control" data-live-search="true" data-dropup-auto="false" data-size="6" style="resize: vertical;">
+            <select name="process-select" multiple class="form-control" data-live-search="true" data-size="6" style="resize: vertical;">
               <option value="-1"> {% trans "All" %} </option>
               <option data-divider="true"></option>
               <% processes.forEach(function(process){ %>
@@ -415,7 +433,7 @@
 <div class="row bordered" id="flowindicator-edit" style="margin-top: 10px; display: none; background-color: #f7f7f7;">
   <div class="row">
     <button id='upload-flowindicator-button' title="{% trans "upload changes made to indicator" %}" class="btn btn-danger btn-upload">
-      <span class="glyphicon glyphicon-upload"></span> {% trans "Upload Changes" %}
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
     </button>
   </div>
   <div class="row">

@@ -1,13 +1,296 @@
 {% load i18n %}
 {% block content %}
 
-<script type="text/template" id="solutions-template">
+<!--setup solutions-->
+<script type="text/template" id="solutions-setup-template">
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Solution" %}</h4>
+  <select name="solutions" class="selectpicker" style="max-width: 500px; margin-right: 10px; float: left;">
+  </select>
+  <button id="edit-solution" class="btn btn-primary"> {% trans "Edit" %} </button>
+  <button id="add-solution" class="btn btn-primary"> {% trans "New" %} </button>
+  <button id="delete-solution" class="btn btn-warning"> {% trans "Delete" %} </button>
+</div>
+<div id="solution-edit-content" class="row bordered sunken" style="display: none;">
+  <div class="row">
+    <button id='save-solution' title="{% trans "upload changes made to filter" %}" class="btn btn-danger btn-upload">
+      <span class="glyphicon glyphicon-upload"></span> {% trans "Save Changes" %}
+    </button>
+  </div>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="row">
+        <label>{% trans "Name" %} </label>
+        <input class="form-control" name="name">
+      </div>
+      <div class="row">
+        <label>{% trans "Category" %} </label>
+        <select name="solution-category" class="form-control"></select>
+      </div>
+      <button name="edit-solution-categories" class="btn btn-primary" title="{% trans "edit categories" %}">
+        {% trans "Add/Edit Categories" %}
+      </button>
+      <div class="row" style="margin-top: 15px;">
+        <label>{% trans "Description (visible in workshop mode)" %} </label>
+        <div name="description"></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <label>{% trans "Diagrams (visible in workshop mode)" %} </label>
+      <div class="row bordered">
+        <div class="row">
+          <h4>{% trans "Current process" %}</h4>
+          <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
+        </div>
+        <div style="position: relative; ">
+          <div class="row" style="background: white; overflow: auto; min-height: 200px;">
+            <img id="state-image" src='' style="max-height: 300px;" alt="{% trans "Current process" %}">
+          </div>
+        </div>
+        <div class="row">
+          <h4>{% trans "Proposed process" %}</h4>
+          <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
+        </div>
+        <div style="position: relative; ">
+          <div class="row" style="background: white; overflow: auto; min-height: 200px;">
+            <img id="effect-image" src='' style="max-height: 300px;" alt="{% trans "Proposed process" %}">
+          </div>
+        </div>
+        <div class="row">
+          <h4>{% trans "Activities involved" %}</h4>
+          <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
+        </div>
+        <div style="position: relative; ">
+          <div class="row" style="background: white; overflow: auto; min-height: 200px;">
+            <img id="activities-image" src='' style="max-height: 300px;" alt="{% trans "Activities involved" %}">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="add-solution-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"> Add Solution </h4>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label>{% trans "Name" %}</label>
+          <input name="name" style="width: 100%;" style="margin-bottom: 10px;">
+          <label>{% trans "Category" %}</label>
+          <select name="solution-category" class="form-control" style="margin-bottom: 10px;"></select>
+          <button name="edit-solution-categories" class="btn btn-primary add square" title="add part">
+            <span class="glyphicon glyphicon-plus"></span> Add Category
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary confirm">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="categories-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
+</script>
+
+<!-- modal for editing categories -->
+<script type="text/template" id="categories-template">
+<div class="modal-dialog modal-lg">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">&times;</button>
+      <h4 class="modal-title">{% trans "Solution categories"%} in <i> <%= keyflowName %> </i></h4>
+    </div>
+    <div class="modal-body sunken">
+      <div class="row category-list">
+      </div>
+      <button class="btn btn-primary add square" title="add category">
+        <span class="glyphicon glyphicon-plus"></span> {% trans "Add Category" %}
+      </button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- setup solution logic -->
+<script type="text/template" id="solutions-logic-template">
+<div class="row bordered">
+  <h4 style="margin-right: 10px; float: left;">{% trans "Solution" %}</h4>
+  <select name="solutions" style="max-width: 500px; margin-right: 10px; float: left;">
+  </select>
+  <button id="reload-solution-list" class="btn btn-primary round" style="margin-right: 10px; margin-left: -3px;">
+    <span class="glyphicon glyphicon-refresh"></span>
+  </button>
+</div>
+<div class="row sunken" id="solution-logic-content" style="visibility: hidden;">
+  <div class="col-md-8">
+    <ul class="nav nav-tabs">
+      <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
+      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
+      <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
+    </ul>
+    <div class="tab-content bordered" style="min-height: 500px;">
+      <div class="tab-pane fade in" id="area-tab">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>{% trans "Map View" %}</h4>
+            <div name="area-map" style="min-height: 600px;"></div>
+          </div>
+          <div class="col-md-6">
+            <h4>{% trans "Implementation Area as GeoJSON" %}</h4>
+            <div class="row">
+              <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
+            </div>
+            <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
+              Show
+              <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
+            </button>
+            <button style="float: right;" class="btn btn-primary upload" name="implementation-area" title="Upload GeoJSON">
+              Upload
+              <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane fade in" id="questions-tab">
+      </div>
+      <div class="tab-pane fade in active" id="parts-tab">
+        <div class="row">
+          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
+          <div class="row">
+            <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered">
+          </div>
+          </div>
+          <button id="add-solution-part" class="btn btn-primary add square" title="add part">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add part" %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 bordered" style="margin-top: 10px; min-height: 550px;">
+    <h4>{% trans "Notes (visible in setup mode only)" %} </h4>
+    <textarea class="sunken bordered" rows="20" name="notes" style="width: 100%; resize: vertical;"></textarea>
+  </div>
+</div>
+<div id="solution-part-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Edit Solution Part" %}</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- solution part-->
+<script type="text/template" id="solution-part-template">
+<div class="row">
+  <label>{% trans "Name" %} </label>
+  <input class="form-control" name="name" value="remove flow">
+</div>
+<div class="row">
+  <input type="checkbox" name="impl-new-flow"> {% trans "implements new flow" %}
+</div>
+<ul class="nav nav-tabs" style="margin-top: 20px;">
+  <li class="active"><a data-toggle="tab" href="#solution-flow-tab">{% trans "Initial Impact Flow" %}</a></li>
+  <li><a data-toggle="tab" href="#affected-flows-tab">{% trans "Affected Flows" %}</a></li>
+  <li><a data-toggle="tab" href="#formula-tab">{% trans "Formula" %}</a></li>
+  <li><a data-toggle="tab" href="#target-tab">{% trans "New Flow" %}</a></li>
+</ul>
+<div class="tab-content bordered">
+  <div class="tab-pane fade in active" id="solution-flow-tab">
+    <p style="max-width: 800px;">
+    {% blocktrans %}
+      The initial impact flow is the flow which the solution part modifies directly.
+      All indirect changes of flows derived from the change of this initial impact flow are described by the affected flows (see next tab).<br>
+      As the solution definition does not include the implementation area and affected actors,
+      the initial impact flow has to be defined on activity level.
+    {% endblocktrans %}
+    </p>
+    <br>
+    <div class="row">
+      {% trans "Material" %}
+      <div name="material" style="display: inline-block;"></div>
+    </div>
+    <div class="row">
+      {% trans "going from activity" %}
+      <select name="origin" style="width: 100px"></select>
+      <input name="origin-in-area" type="checkbox">
+      {% trans " activity has to be in the implementation area *)" %}
+    </div>
+    <div class="row">
+      {% trans "to activity" %}
+      <select name="destination" style="width: 100px; margin-right: 20px;"></select>
+      <input name="destination-in-area" type="checkbox">
+      {% trans " activity has to be in the implementation area *)" %}
+    </div>
+    <br>
+    {% trans "*) defined by the users in the workshop mode when implementing the solution" %}
+  </div>
+  <div class="tab-pane fade in" id="affected-flows-tab">
+    <p style="max-width: 800px;">
+    {% blocktrans %}
+      Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
+      Please include flows "downstream" as much as "upstream".<br>
+      Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and therefore not change their volume.<br>
+      All flow definitions in this list have to be on activity level.
+    {% endblocktrans %}
+    </p>
+    <div class="row bordered">
+      {% trans "Material" %}
+      <select style="width: 100px"></select>
+      {% trans "from" %}
+      <select style="width: 100px"></select>
+      {% trans "to" %}
+      <select style="width: 100px"></select>
+    </div>
+    <div class="row bordered">
+      {% trans "Material" %}
+      <select style="width: 100px"></select>
+      {% trans "from" %}
+      <select style="width: 100px"></select>
+      {% trans "to" %}
+      <select style="width: 100px"></select>
+    </div>
+    <button class="btn btn-primary add square">
+      <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
+    </button>
+  </div>
+  <div class="tab-pane fade in" id="formula-tab">
+    <div class="row">
+      <label>a</label>
+      <input name='a' class="form-control">
+    </div>
+    <div class="row">
+      <label>b</label>
+      <input name='b' class="form-control">
+    </div>
+    <div class="row">
+      <label>{% trans "Question" %}</label>
+      <select name='question' class="form-control"></select>
+    </div>
+  </div>
+  <div class="tab-pane fade in" id="target-tab">
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="solutions-workshop-template">
 <h3> {% trans "Solutions for the keyflow" %} <i><%= keyflowName %></i> </h3>
-<% if (mode == 1) { %>
-<button id="add-solution-category" class="btn btn-primary add" title="{% trans "add category" %}">
-  <span class="glyphicon glyphicon-plus"></span> {% trans "Solution Category" %}
-</button>
-<% } %>
 <div id="categories" class="row overflow">
 </div>
 <div id="solution-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
@@ -23,15 +306,9 @@
       <h4 class="modal-title"><%= category %> - <%= name %></h4>
     </div>
     <div class="modal-body">
-      <% if (mode == 1) { %>
-          {% trans "Name" %} <input name="name" value="<%= name %>" style="width: 70%; margin-bottom: 10px; margin-left: 5px;">
-      <% } %>
       <div class="row">
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
-          <% if (mode == 1) { %>
-          <li><a data-toggle="tab" href="#units-tab">{% trans "Units/Ratios" %}</a></li>
-          <% } %>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
           <li><a data-toggle="tab" href="#actors-tab">{% trans "Actors" %}</a></li>
@@ -39,42 +316,30 @@
         <div class="tab-content">
           <div class="tab-pane fade in active" id="description-tab">
             <div class="col-md-12 bordered">
-              <div class="row">
-                <textarea name="description" rows="10" cols="100" style="max-width: 100%;" <% if (mode == 0) { %> readonly <% } %>><%= description %></textarea>
+              <div class="row" style="width: 900px; max-width: 100%;">
+                <div name="description"><%= description %></div>
               </div>
-            </div>
-          </div>
-          <div class="tab-pane fade in" id="units-tab">
-            <div class="col-md-12 bordered">
-              <br>
-              <h3> Under construction </h3>
             </div>
           </div>
           <div class="tab-pane fade in" id="ce-diagrams-tab">
             <div class="col-md-12 bordered">
               <div class="col-md-6">
                 <div class="row">
-                  <h4>{% trans "Current state" %}</h4>
-                  <% if (mode == 1) { %>
-                    <input type="file" name="state-file" accept=".gif,.jpg,.jpeg,.png">
-                  <% } %>
+                  <h4>{% trans "Current process" %}</h4>
                 </div>
-                <div style="position: relative; margin-top: 30px;">
+                <div style="position: relative;">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "Current state" %}">
+                    <img id="state-image" src='<%= stateSrc %>' style="width: 100%" alt="{% trans "Current process" %}">
                   </div>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="row">
-                  <h4>{% trans "Effect of Solution" %}</h4>
-                  <% if (mode == 1) { %>
-                    <input type="file" name="effect-file" accept=".gif,.jpg,.jpeg,.png">
-                  <% } %>
+                  <h4>{% trans "Proposed process" %}</h4>
                 </div>
-                <div style="position: relative; margin-top: 30px;">
+                <div style="position: relative; ">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
-                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "Effect of Solution" %}">
+                    <img id="effect-image" src='<%= effectSrc %>' style="width: 100%" alt="{% trans "Proposed process" %}">
                   </div>
                 </div>
               </div>
@@ -83,20 +348,8 @@
           <div class="tab-pane fade in" id="activities-tab">
             <div class="col-md-12 bordered">
               <h4>{% trans "Activities involved" %}</h4>
-              <% if (mode == 1) { %>
-                <div class="col-md-4" id="activities-checks" style="max-height: 400px; overflow: auto;">
-                    <% activities.forEach(function(activity){ %>
-                      <input name="activity" type='checkbox' value="<%= activity.id %>" <% if (checkedActivities.includes(activity.id)){ %> checked <% } %>> <%= activity.get('name') %><br>
-                    <% }) %>
-                </div>
-              <% } %>
-              <div <% if (mode == 1) { %> class="col-md-8"  <% } %>>
-                <div class="row">
-                  <% if (mode == 1) { %>
-                    <input type="file" name="activities-file" accept=".gif,.jpg,.jpeg,.png">
-                  <% } %>
-                </div>
-                <div style="position: relative; margin-top: 30px;">
+              <div class="col-md-8">
+                <div style="position: relative; ">
                   <div class="row bordered" style="background: white; overflow: auto; min-height: 200px;">
                     <img id="activities-image" src='<%= activitiesSrc %>' style="width: 100%" alt="{% trans "Activities involved" %}">
                   </div>
@@ -124,10 +377,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <% if (mode == 1) { %>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-      <% } %>
-      <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
     </div>
   </div>
 </div>

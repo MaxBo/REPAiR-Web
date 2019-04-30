@@ -6,8 +6,7 @@ import re
 from enumfields import EnumIntegerField
 
 from repair.apps.login.models import (GDSEUniqueNameModel,
-                                      GDSEModel,
-                                      UserInCasestudy)
+                                      GDSEModel)
 from repair.apps.asmfa.models import (Activity, KeyflowInCasestudy,
                                       Material, Process)
 from repair.apps.statusquo.models import SpatialChoice
@@ -20,15 +19,9 @@ double_list_validator = RegexValidator(
 
 
 class SolutionCategory(GDSEModel):
-    # note CF: why does this have a user??????
-    user = models.ForeignKey(UserInCasestudy, on_delete=models.CASCADE)
     name = models.TextField()
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=models.CASCADE)
-
-    @property
-    def casestudy(self):
-        return self.user.casestudy
 
 
 class Solution(GDSEModel):
@@ -36,9 +29,6 @@ class Solution(GDSEModel):
     definition of a solution to be implemented by user, may affect multiple
     flows as defined in its solution-parts
     '''
-    # note CF: this user relation makes no sense either, the SolutionInStrategy
-    # is supposed to be the user related one via Strategy
-    user = models.ForeignKey(UserInCasestudy, on_delete=PROTECT_CASCADE)
     solution_category = models.ForeignKey(SolutionCategory,
                                           on_delete=PROTECT_CASCADE)
     name = models.TextField()
@@ -48,15 +38,10 @@ class Solution(GDSEModel):
                                            blank=True)
     effect_image = models.ImageField(upload_to='charts', null=True,
                                      blank=True)
-    activities = models.ManyToManyField(Activity)
     activities_image = models.ImageField(upload_to='charts', null=True,
                                          blank=True)
     possible_implementation_area = models.MultiPolygonField(
         null=True, srid=4326, blank=True)
-
-    @property
-    def casestudy(self):
-        return self.user.casestudy
 
 
 class ImplementationQuestion(GDSEModel):
@@ -85,6 +70,7 @@ class SolutionPart(GDSEModel):
     '''
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
                                  related_name='solution_part')
+    name = models.TextField()
     documentation = models.TextField(default='')
     implements_new_flow = models.BooleanField(default=False)
 
@@ -101,13 +87,13 @@ class SolutionPart(GDSEModel):
         related_name='implementation_material')
     implementation_flow_process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE,
-        related_name='implementation_process')
+        related_name='implementation_process', null=True)
     implementation_flow_spatial_application = EnumIntegerField(
         enum=SpatialChoice, default=SpatialChoice.BOTH)
 
     # parameters for formula changing the implementation flow
     question = models.ForeignKey(ImplementationQuestion, null=True,
-                                 on_delete=models.CASCADE)
+                                 on_delete=PROTECT_CASCADE)
     a = models.FloatField()
     b = models.FloatField()
 

@@ -1,17 +1,48 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
-         'views/conclusions/setup-notepad', 'views/conclusions/objectives',
+         'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets',
-         'collections/gdsecollection', 'app-config', 'utils/utils', 'base'
+         'collections/gdsecollection', 'app-config', 'utils/utils',
+         'underscore', 'html2canvas', 'viewerjs', 'base',
+         'viewerjs/dist/viewer.css'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
-             EvalFlowTargetsView, GDSECollection, appConfig, utils) {
+             EvalFlowTargetsView, GDSECollection, appConfig, utils, _,
+             html2canvas, Viewer) {
     /**
-     * entry point for views on subpages of "Recommendations" menu item
+     * entry point for views on subpages of "Conclusions" menu item
      *
      * @author Christoph Franke
      * @module Recommendations
      */
 
-     var objectivesView;
+    var objectivesView, aims, users, objectives, consensusLevels, sections, modal;
+
+
+    html2image = function(container, onSuccess){
+        html2canvas(container).then(canvas => {
+            var data = canvas.toDataURL("image/png");
+            onSuccess(data);
+        });
+    }
+
+    addConclusion = function(){
+        var html = document.getElementById('conclusion-template').innerHTML,
+            template = _.template(html);
+        if (!modal) {
+            modal = document.getElementById('conclusion-modal');
+            $(modal).on('shown.bs.modal', function() {
+                console.log('show')
+                new Viewer.default(modal.querySelector('img'));
+            });
+        }
+        html2image(document.getElementById('content'), function(image){
+            modal.innerHTML = template({
+                consensusLevels: consensusLevels,
+                sections: sections,
+                image: image
+            });
+            $(modal).modal('show');
+        })
+    }
 
     renderSetup = function(caseStudy){
         var usersView = new SetupUsersView({
@@ -20,12 +51,14 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         })
         var setupNotepadView = new SetupNotepadView({
             caseStudy: caseStudy,
-            el: document.getElementById('notepad')
+            el: document.getElementById('notepad'),
+            consensusLevels: consensusLevels,
+            sections: sections
         })
     };
 
-    renderWorkshop = function(caseStudy, keyflowId, keyflowName, users, aims, objectives){
-        if (users.size() === 0){
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName, participants){
+        if (participants.size() === 0){
             var warning = document.createElement('h3');
             warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
             document.getElementById('content').innerHTML = warning.outerHTML;
@@ -38,7 +71,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             template: 'objectives-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName,
-            users: users,
+            users: participants,
             aims: aims,
             objectives: objectives
         })
@@ -49,11 +82,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             template: 'flow-targets-template',
             keyflowId: keyflowId,
             keyflowName: keyflowName,
-            users: users,
+            users: participants,
             aims: aims,
             objectives: objectives
         })
 
+        document.getElementById('add-conclusion').addEventListener('click', addConclusion);
     };
 
     function render(caseStudy, mode){
@@ -74,17 +108,27 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             var loader = new utils.Loader(document.getElementById('content'),
                                          { disable: true });
             loader.activate();
-            var aims = new GDSECollection([], {
+            aims = new GDSECollection([], {
                 apiTag: 'aims',
                 apiIds: [caseStudy.id]
             });
-            var users = new GDSECollection([], {
+            users = new GDSECollection([], {
                 apiTag: 'usersInCasestudy',
                 apiIds: [caseStudy.id]
             });
-            var objectives = new GDSECollection([], {
+            objectives = new GDSECollection([], {
                 apiTag: 'userObjectives',
                 apiIds: [caseStudy.id]
+            });
+            consensusLevels = new GDSECollection([], {
+                apiTag: 'consensusLevels',
+                apiIds: [caseStudy.id],
+                comparator: 'priority'
+            });
+            sections = new GDSECollection([], {
+                apiTag: 'sections',
+                apiIds: [caseStudy.id],
+                comparator: 'priority'
             });
             var promises = [];
             promises.push(aims.fetch({
@@ -95,12 +139,14 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 data: { keyflow: keyflowId, all: true },
                 error: alert
             }));
+            promises.push(consensusLevels.fetch({ error: alert }));
+            promises.push(sections.fetch({ error: alert }));
             promises.push(users.fetch({error: alert}));
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
                 var participants = users.filterBy({'gets_evaluated' : true});
-                renderWorkshop(caseStudy, keyflowId, keyflowName, participants, aims, objectives);
+                renderWorkshop(caseStudy, keyflowId, keyflowName, participants);
             });
         }
 

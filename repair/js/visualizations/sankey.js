@@ -31,10 +31,13 @@ class Sankey{
         this.width = options.width || this.width;
         this.width = this.width - this.margin.left - this.margin.right;
         this.language = options.language || 'en-US';
+        var alignment = options.alignment || 'justify';
+        this.stretchFactor = options.stretchFactor || 1;
         this.sankey = d3.sankey()
             .nodeWidth(15)
             .nodePadding(10)
-            .size([this.width, this.height]);
+            .size([this.width * this.stretchFactor, this.height])
+            .align(alignment);
         this.selectable = options.selectable;
         this.gradient = options.gradient;
     }
@@ -43,11 +46,20 @@ class Sankey{
         return d.toLocaleString(this.language);
     }
 
+    align(alignment){
+        this.sankey.align(alignment).layout(32);
+    }
+
     setSize(width, height) {
         this.width = width - this.margin.left - this.margin.right;
         this.height = height;
         this.svg.attr("width", width)
                 .attr("height", height);
+    }
+
+    stretch(factor) {
+        this.stretchFactor = factor;
+        this.sankey.size([this.width * factor, this.height]);
     }
 
     zoomToFit(duration) {
@@ -87,8 +99,6 @@ class Sankey{
     * @param {Array.<Sankey~Links>} links - array of links, origin and target indices refer to order of nodes
     */
     render( data ) {
-
-        //sankey.nodeAlign(d3.sankeyLeft)
         var _this = this;
         this.zoom = {};
         var drag = {};
@@ -146,7 +156,7 @@ class Sankey{
 
         tipLinks.html(function(d) {
             var title = d.source.name + " -> " + d.target.name,
-                value = _this.format(d.value) + " " + (d.units || "");
+                value = _this.format(d.amount || d.value) + " " + (d.units || "");
             return "<h1>" + title + "</h1>" + "<br>" + value + "<br><br>" + d.text;
         });
 
@@ -156,12 +166,12 @@ class Sankey{
             var inUnits, outUnits;
             for (var i = 0; i < d.targetLinks.length; i++) {
                 var link = d.targetLinks[i];
-                inSum += link.value;
+                inSum += link.amount || link.value;
                 if (!inUnits) inUnits = link.units; // in fact take first occuring unit, ToDo: can there be different units in the future?
             }
             for (var i = 0; i < d.sourceLinks.length; i++) {
                 var link = d.sourceLinks[i];
-                outSum += link.value;
+                outSum += link.amount || link.value;
                 if (!outUnits) outUnits = link.units;
             }
             var ins = "in: " + _this.format(inSum) + " " + (inUnits || ""),
@@ -195,7 +205,7 @@ class Sankey{
 
         this.svg = this.div.append("svg")
             //.attr( "preserveAspectRatio", "xMinYMid meet" )
-            .attr("width", this.width)
+            .attr("width", this.width  * this.stretchFactor)
             .attr("height", this.height)
             .call(this.zoom)
             .call(tipLinks)

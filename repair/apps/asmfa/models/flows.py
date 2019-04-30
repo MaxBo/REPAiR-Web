@@ -99,6 +99,7 @@ class Actor2Actor(Flow):
         fraction_flows.delete()
         composition = self.composition
         fractions = ProductFraction.objects.filter(composition=composition)
+        fraction_flows = []
         for fraction in fractions:
             fraction_flow = FractionFlow(
                 flow=self,
@@ -119,7 +120,9 @@ class Actor2Actor(Flow):
                 description=self.description,
                 year=self.year
             )
-            fraction_flow.save()
+            fraction_flows.append(fraction_flow)
+        if fraction_flows:
+            FractionFlow.objects.bulk_create(fraction_flows)
 
 
 class Stock(GDSEModel):
@@ -173,6 +176,7 @@ class ActorStock(Stock):
         fraction_flows.delete()
         composition = self.composition
         fractions = ProductFraction.objects.filter(composition=composition)
+        fraction_flows = []
         for fraction in fractions:
             fraction_flow = FractionFlow(
                 flow=None,
@@ -193,7 +197,10 @@ class ActorStock(Stock):
                 description=self.description,
                 year=self.year
             )
-            fraction_flow.save()
+            fraction_flows.append(fraction_flow)
+        if fraction_flows:
+            FractionFlow.objects.bulk_create(fraction_flows)
+
 
 
 class FractionFlow(Flow):

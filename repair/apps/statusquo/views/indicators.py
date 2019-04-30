@@ -230,8 +230,6 @@ class IndicatorArea(ComputeIndicator):
         if not areas and not geom:
             return [OrderedDict({'area': -1, 'value': 0})]
         amounts = []
-        #  ToDo: how to calc for geometries?
-        #        inhabitant data is attached to the areas only
         if geom:
             sm = geom.transform(3035, clone=True).area
             ha = sm / 10000
@@ -276,6 +274,7 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
 
     @action(methods=['get', 'post'], detail=True)
     def compute(self, request, **kwargs):
+        self.check_permission(request, 'view')
         indicator = self.get_queryset().get(id=kwargs.get('pk', None))
         query_params = request.query_params
         body_params = request.data

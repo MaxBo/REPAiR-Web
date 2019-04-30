@@ -1,9 +1,8 @@
-require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
-    'views/strategy/solutions', 'views/strategy/strategy',
-    'views/strategy/modified-flows',
-    'app-config', 'utils/utils', 'utils/overrides', 'base'
-], function (CaseStudy, GDSEModel, GDSECollection, SolutionsView, StrategyView,
-            ModFlowsWorkshopView, appConfig, utils) {
+require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/workshop-solutions',
+         'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
+         'views/strategy/strategy', 'app-config', 'utils/utils', 'utils/overrides', 'base'
+], function (CaseStudy, GDSECollection, SolutionsWorkshopView, SolutionsSetupView, SolutionsLogicView,
+             StrategyView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -11,16 +10,15 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
      * @module Changes
      */
 
-    var solutionsView, strategyView, flowsView;
+    var solutionsView, strategyView, solutionsLogicView;
 
-    renderWorkshop = function(caseStudy, keyflow, strategy){
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName){
         if (solutionsView) solutionsView.close();
-        var keyflowName = keyflow.get('name');
-        solutionsView = new SolutionsView({
+        solutionsView = new SolutionsWorkshopView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
-            template: 'solutions-template',
-            keyflowId: keyflow.id,
+            template: 'solutions-workshop-template',
+            keyflowId: keyflowId,
             keyflowName: keyflowName
         });
         if (strategyView) strategyView.close();
@@ -28,84 +26,31 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             caseStudy: caseStudy,
             el: document.getElementById('strategy'),
             template: 'strategy-template',
-            keyflowId: keyflow.id,
-            keyflowName: keyflowName,
-            strategy: strategy
-        })
-
-        if (flowsView) flowsView.close();
-        flowsView = new ModFlowsWorkshopView({
-            caseStudy: caseStudy,
-            el: document.getElementById('modified-flows'),
-            template: 'workshop-flows-template',
-            keyflowId: keyflow.id,
-            strategy: strategy
-        })
-
-        loader = new utils.Loader(document.getElementById('content'), {disable: true})
-        // lazy way to reset the button to build graph
-        var btn = document.getElementById('calculate-strategy'),
-            note = document.getElementById('graph-note'),
-            clone = btn.cloneNode(true);
-        note.innerHTML = strategy.get('graph_build') || '-';
-        btn.parentNode.replaceChild(clone, btn);
-        clone.addEventListener('click', function(){
-            loader.activate();
-            var url = '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/build_graph/'.format(caseStudy.id, keyflow.id, strategy.id);
-            fetch(url).then(
-                function(response) {
-                    if (!response.ok) {
-                        response.text().then(alert);
-                        throw Error(response.statusText);
-                    }
-                    loader.deactivate();
-                    return response.json();
-                }).then(function(json) {
-                    note.innerHTML = json['graph_build'];
-                    alert(gettext('Graph was successfully build.'));
-                }).catch(function(error) {
-                    loader.deactivate();
-            });
-
+            keyflowId: keyflowId,
+            keyflowName: keyflowName
         })
     }
 
-    renderSetup = function(caseStudy, keyflow, strategy){
+    renderSetup = function(caseStudy, keyflowId, keyflowName, solutions, categories){
         if(solutionsView) solutionsView.close();
-        var keyflowName = keyflow.get('name');
-        solutionsView = new SolutionsView({
+        solutionsView = new SolutionsSetupView({
             caseStudy: caseStudy,
             el: document.getElementById('solutions'),
-            template: 'solutions-template',
-            mode: 1,
-            keyflowId: keyflow.id,
-            keyflowName: keyflowName
+            template: 'solutions-setup-template',
+            keyflowId: keyflowId,
+            keyflowName: keyflowName,
+            solutions: solutions,
+            categories: categories
         })
-        loader = new utils.Loader(document.getElementById('graph'), {disable: true})
-        // lazy way to reset the button to build graph
-        var btn = document.getElementById('build-graph'),
-            note = document.getElementById('graph-note'),
-            clone = btn.cloneNode(true);
-        note.innerHTML = keyflow.get('graph_build') || '-';
-        btn.parentNode.replaceChild(clone, btn);
-        clone.addEventListener('click', function(){
-            loader.activate();
-            var url = '/api/casestudies/{0}/keyflows/{1}/build_graph/'.format(caseStudy.id, keyflow.id);
-            fetch(url).then(
-                function(response) {
-                    if (!response.ok) {
-                        throw Error(response.statusText);
-                    }
-                    loader.deactivate();
-                    return response.json();
-                }).then(function(json) {
-                    note.innerHTML = json['graph_build'];
-                    alert(gettext('Graph was successfully build.'));
-                }).catch(function(error) {
-                    alert(error);
-                    loader.deactivate();
-            });
-
+        return;
+        if(solutionsLogicView) solutionsLogicView.close();
+        solutionsLogicView = new SolutionsLogicView({
+            caseStudy: caseStudy,
+            el: document.getElementById('solutions-logic'),
+            template: 'solutions-logic-template',
+            keyflowId: keyflowId,
+            solutions: solutions,
+            categories: categories
         })
     };
 
@@ -115,38 +60,29 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
         document.getElementById('keyflow-warning').style.display = 'block';
         keyflowSelect.disabled = false;
 
-        function renderKeyflow(keyflowId){
-            var keyflow = new GDSEModel(
-                {id: keyflowId},
-                {
-                    apiTag: 'keyflowsInCaseStudy',
-                    apiIds: [caseStudy.id]
-                }
-            )
-            keyflow.fetch({
-                success: function(){
-
-                    var strategies = new GDSECollection([], {
-                        apiTag: 'strategies',
-                        apiIds: [caseStudy.id, keyflowId]
-                    });
-
-                    strategies.fetch({
-                        success: function(){
-                            // there is only one strategy allowed per user
-                            var strategy = strategies.first();
-                            document.getElementById('keyflow-warning').style.display = 'none';
-                            if (Number(mode) == 1)
-                                renderSetup(caseStudy, keyflow, strategy);
-                            else
-                                renderWorkshop(caseStudy, keyflow, strategy);
-                        },
-                        error: alert
-                    })
-
-                },
-                error: alert
-            })
+        function renderKeyflow(keyflowId, keyflowName){
+            document.getElementById('keyflow-warning').style.display = 'none';
+            if (Number(mode) == 1){
+                var loader = new utils.Loader(document.getElementById('content'),
+                                             { disable: true });
+                var solutions = new GDSECollection([], {
+                    apiTag: 'solutions',
+                    apiIds: [caseStudy.id, keyflowId],
+                    comparator: 'name'
+                });
+                var categories = new GDSECollection([], {
+                    apiTag: 'solutionCategories',
+                    apiIds: [caseStudy.id, keyflowId]
+                });
+                loader.activate();
+                Promise.all([solutions.fetch(), categories.fetch()]).then(function(){
+                    solutions.sort();
+                    renderSetup(caseStudy, keyflowId, keyflowName, solutions, categories);
+                    loader.deactivate();
+                })
+            }
+            else
+                renderWorkshop(caseStudy, keyflowId, keyflowName);
         }
 
         var keyflowSession = session.get('keyflow');
@@ -157,15 +93,17 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
                 keyflowSelect.selectedIndex = 0;
             }
             else {
-                renderKeyflow(parseInt(keyflowSession));
+                var keyflowName = keyflowSelect.options[keyflowSelect.selectedIndex].text;
+                renderKeyflow(parseInt(keyflowSession), keyflowName);
             }
         }
 
         keyflowSelect.addEventListener('change', function(){
-            var keyflowId = this.value;
+            var keyflowId = this.value,
+                keyflowName = this.options[this.selectedIndex].text;
             session.set('keyflow', keyflowId);
             session.save();
-            renderKeyflow(keyflowId);
+            renderKeyflow(keyflowId, keyflowName);
         });
     }
 
