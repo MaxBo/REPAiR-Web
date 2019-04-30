@@ -5,7 +5,8 @@ from repair.apps.asmfa.models import Activity
 from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
                                         ImplementationQuestion,
-                                        SolutionPart
+                                        SolutionPart,
+                                        AffectedFlow
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -46,21 +47,19 @@ class SolutionDetailCreateMixin:
 
 class ImplementationQuestionSerializer(SolutionDetailCreateMixin,
                                        NestedHyperlinkedModelSerializer):
-    unit = IDRelatedField()
     solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
         'keyflow_pk': 'solution__solution_category__keyflow__id',
-        'solutioncategory_pk': 'solution__solution_category__id',
         'solution_pk': 'solution__id'
     }
 
     class Meta:
         model = ImplementationQuestion
-        fields = ('url', 'id', 'question', 'unit', 'select_values', 'steps',
-                  'min_value', 'max_value', 'is_absolute')
-        extra_kwargs = {'steps': {'required': False},
-                        'unit': {'required': False},}
+        fields = ('url', 'id', 'solution', 'question', 'select_values',
+                  'step', 'min_value', 'max_value', 'is_absolute')
+        extra_kwargs = {'step': {'required': False},
+                        'select_values': {'required': False}}
 
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,
@@ -74,13 +73,16 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     currentstate_image = serializers.ImageField(required=False, allow_null=True)
     activities_image = serializers.ImageField(required=False, allow_null=True)
     effect_image = serializers.ImageField(required=False, allow_null=True)
+    edit_mask = serializers.ReadOnlyField()
 
     class Meta:
         model = Solution
         fields = ('url', 'id', 'name', 'description',
                   'documentation', 'solution_category',
                   'activities_image',
-                  'currentstate_image', 'effect_image'
+                  'currentstate_image', 'effect_image',
+                  'possible_implementation_area',
+                  'edit_mask'
                   )
         read_only_fields = ('url', 'id', )
         extra_kwargs = {
@@ -90,6 +92,18 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
             },
             'description': {'required': False},
             'documentation': {'required': False},
+        }
+
+
+class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,
+                             serializers.ModelSerializer):
+
+    class Meta:
+        model = AffectedFlow
+        fields = ('id', 'origin_activity', 'destination_activity',
+                  'material', 'process')
+        extra_kwargs = {
+            'process': {'required': False},
         }
 
 
@@ -106,6 +120,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     implementation_flow_material = IDRelatedField()
     new_target_activity = IDRelatedField(required=False, allow_null=True)
     implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
+    affected_flows = AffectedFlowSerializer(source='affected_flow', many=True)
+    question = IDRelatedField()
 
     # ToDo: serialize affected flows as part of this serializer
 
@@ -120,7 +136,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                   'implementation_flow_spatial_application',
                   'question', 'a', 'b',
                   'keep_origin', 'new_target_activity',
-                  'map_request', 'priority'
+                  'map_request', 'priority',
+                  'affected_flows'
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
@@ -131,3 +148,13 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             'documentation': {'required': False, 'allow_blank': True},
             'map_request': {'required': False, 'allow_blank': True}
         }
+
+    def update(self, instance, validated_data):
+        new_flows = validated_data.pop('affected_flow', None)
+        instance = super().update(instance, validated_data)
+        if new_flows:
+            AffectedFlow.objects.filter(solution_part=instance).delete()
+            for f in new_flows:
+                flow = AffectedFlow(solution_part=instance, **f)
+                flow.save()
+        return instance

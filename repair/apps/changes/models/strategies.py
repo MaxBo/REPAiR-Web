@@ -26,18 +26,6 @@ class Strategy(GDSEModel):
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInStrategy')
 
-    @property
-    def participants(self):
-        """
-        look for all stakeholders that participate in any of the solutions
-        """
-        # start with the coordinator
-        participants = {self.coordinating_stakeholder}
-        for solution in self.solutioninstrategy_set.all():
-            for participant in solution.participants.all():
-                participants.add(participant)
-        return participants
-
 
 class SolutionInStrategy(GDSEModel):
     '''
@@ -63,7 +51,8 @@ class ActorInSolutionPart(GDSEModel):
                                      related_name='targetactor')
     actor = models.ForeignKey(Actor, on_delete=PROTECT_CASCADE)
     implementation = models.ForeignKey(SolutionInStrategy,
-                                       on_delete=models.CASCADE)
+                                       on_delete=models.CASCADE,
+                                       related_name='picked_actors')
 
 
 class ImplementationQuantity(GDSEModel):
@@ -71,10 +60,12 @@ class ImplementationQuantity(GDSEModel):
     answer by user to a implementation question
     '''
     implementation = models.ForeignKey(SolutionInStrategy,
-                                       on_delete=models.CASCADE)
+                                       on_delete=models.CASCADE,
+                                       related_name='implementation_quantity')
     question = models.ForeignKey(ImplementationQuestion,
                                  on_delete=PROTECT_CASCADE)
     value = models.FloatField()
+
 
 def trigger_implementationquantity_sii(sender, instance,
                                        created, **kwargs):
@@ -87,7 +78,8 @@ def trigger_implementationquantity_sii(sender, instance,
         solution = Solution.objects.get(pk=sii.solution.id)
         for question in solution.question.all():
             new, is_created = ImplementationQuantity.objects.\
-                get_or_create(implementation=sii, question=question, value=0)
+                get_or_create(implementation=sii, question=question,
+                              value=question.min_value)
             if is_created:
                 new.save()
 
@@ -96,6 +88,4 @@ signals.post_save.connect(
     sender=SolutionInStrategy,
     weak=False,
     dispatch_uid='models.trigger_implementationquantity_sii')
-
-
 

@@ -132,18 +132,39 @@
   <div class="col-md-8">
     <ul class="nav nav-tabs">
       <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
-      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
       <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
+      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
     </ul>
     <div class="tab-content bordered" style="min-height: 500px;">
+      <div class="tab-pane fade in active" id="parts-tab">
+        <div class="row">
+          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
+          <div class="row">
+            <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
+          </div>
+          <button id="add-solution-part" class="btn btn-primary add square" title="add part">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add Part" %}
+          </button>
+        </div>
+      </div>
+      <div class="tab-pane fade in" id="questions-tab">
+        <div class="row">
+          <div class="row">
+            <div id="questions-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
+          </div>
+          <button id="add-question" class="btn btn-primary add square" title="add question">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add Question" %}
+          </button>
+        </div>
+      </div>
       <div class="tab-pane fade in" id="area-tab">
         <div class="row">
           <div class="col-md-6">
             <h4>{% trans "Map View" %}</h4>
-            <div name="area-map" style="min-height: 600px;"></div>
+            <div name="area-map" style="min-height: 450px;"></div>
           </div>
           <div class="col-md-6">
-            <h4>{% trans "Implementation Area as GeoJSON" %}</h4>
+            <h4>{% trans "Possible Implementation Area as GeoJSON" %}</h4>
             <div class="row">
               <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
             </div>
@@ -156,20 +177,6 @@
               <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
             </button>
           </div>
-        </div>
-      </div>
-      <div class="tab-pane fade in" id="questions-tab">
-      </div>
-      <div class="tab-pane fade in active" id="parts-tab">
-        <div class="row">
-          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
-          <div class="row">
-            <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered">
-          </div>
-          </div>
-          <button id="add-solution-part" class="btn btn-primary add square" title="add part">
-            <span class="glyphicon glyphicon-plus"></span> {% trans "Add part" %}
-          </button>
         </div>
       </div>
     </div>
@@ -194,13 +201,28 @@
     </div>
   </div>
 </div>
+<div id="question-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Edit Question" %}</h4>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      </div>
+    </div>
+  </div>
+</div>
 </script>
 
 <!-- solution part-->
 <script type="text/template" id="solution-part-template">
 <div class="row">
   <label>{% trans "Name" %} </label>
-  <input class="form-control" name="name" value="remove flow">
+  <input class="form-control" name="name">
 </div>
 <div class="row">
   <input type="checkbox" name="impl-new-flow"> {% trans "implements new flow" %}
@@ -250,22 +272,7 @@
       All flow definitions in this list have to be on activity level.
     {% endblocktrans %}
     </p>
-    <div class="row bordered">
-      {% trans "Material" %}
-      <select style="width: 100px"></select>
-      {% trans "from" %}
-      <select style="width: 100px"></select>
-      {% trans "to" %}
-      <select style="width: 100px"></select>
-    </div>
-    <div class="row bordered">
-      {% trans "Material" %}
-      <select style="width: 100px"></select>
-      {% trans "from" %}
-      <select style="width: 100px"></select>
-      {% trans "to" %}
-      <select style="width: 100px"></select>
-    </div>
+    <div id="affected-flows"></div>
     <button class="btn btn-primary add square">
       <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
     </button>
@@ -273,11 +280,11 @@
   <div class="tab-pane fade in" id="formula-tab">
     <div class="row">
       <label>a</label>
-      <input name='a' class="form-control">
+      <input name='a' type="number" step="0.0001" class="form-control">
     </div>
     <div class="row">
       <label>b</label>
-      <input name='b' class="form-control">
+      <input name='b' type="number" step="0.0001" class="form-control">
     </div>
     <div class="row">
       <label>{% trans "Question" %}</label>
@@ -285,7 +292,62 @@
     </div>
   </div>
   <div class="tab-pane fade in" id="target-tab">
+    <p style="max-width: 800px;">
+      Put some explanations here (new flow is derived from initial impact flow, either keeps origin or destination etc.)
+    </p>
+    <div class="row">
+      The
+      <select name="keep-origin" style="width: 100px;">
+        <option value="false"> {% trans "Origin" %} </option>
+        <option value="true"> {% trans "Destination" %} </option>
+      </select>
+      activity of the initial impact flow is replaced with the activity
+      <select name="new-target" style="width: 100px;"></select>
+    </div>
+    <div class="row">
+      {% trans "When implementing this solution in workshop mode, the user is asked to pick an Actor with the following words (BETTER TEXT IS WELCOME):" %}
+      <textarea name="map-request" rows="2" style="width: 100%; resize: vertical;"></textarea>
+    </div>
   </div>
+</div>
+</script>
+
+<!-- affected flow row-->
+<script type="text/template" id="affected-flow-row-template">
+  {% trans "Material" %}
+  <div name="material" style="width: 200px; display: inline-block;"></div>
+  {% trans "from" %}
+  <select name="origin" style="width: 200px; display: inline-block;"></select>
+  {% trans "to" %}
+  <select name="destination" style="width: 200px; display: inline-block;"></select>
+  <button class="btn btn-warning square remove" title="remove affected flow">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
+</script>
+
+<!-- question-->
+<script type="text/template" id="question-template">
+<div class="row">
+  <label>{% trans "Question (as asked in workshop mode)" %} </label>
+  <input class="form-control" name="question">
+</div>
+<br>
+<div class="row">
+  {% trans "absolute change (t/year)" %} <input type="radio" name="is-absolute" value="true">
+  <br>
+  {% trans "relative change (Percentage)" %} <input type="radio" name="is-absolute" value="false">
+</div>
+<div class="row">
+  <label>{% trans "minimum adjustable value" %} </label>
+  <br>
+  <input name="min-value" min="0" type="number" style="text-align: right; float: left; margin-right: 5px;">
+  <div name="unit">%</div>
+</div>
+<div class="row">
+  <label>{% trans "maximum adjustable value" %} </label>
+  <br>
+  <input name="max-value" min="0" type="number" style="text-align: right; float: left; margin-right: 5px;">
+  <div name="unit">%</div>
 </div>
 </script>
 

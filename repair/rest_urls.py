@@ -23,7 +23,6 @@ from repair.apps.changes.views import (
     StrategyViewSet,
     SolutionInStrategyViewSet,
     ImplementationQuestionViewSet,
-    ImplementationQuantityViewSet,
     SolutionPartViewSet
 )
 
@@ -179,11 +178,6 @@ strat_router = NestedSimpleRouter(kf_router, r'strategies',
                                 lookup='strategy')
 strat_router.register(r'solutions', SolutionInStrategyViewSet)
 
-# /casestudies/*/keyflows/*/strategies/*/solutions...
-sii_router = NestedSimpleRouter(strat_router, r'solutions',
-                                lookup='solution')
-sii_router.register(r'quantities', ImplementationQuantityViewSet)
-
 # /casestudies/*/keyflows/*/actors/...
 actors_router = NestedSimpleRouter(kf_router, r'actors',
                                    lookup='actor')
@@ -205,7 +199,6 @@ urlpatterns = [
     url(r'^', include(chart_router.urls)),
     url(r'^', include(sol_router.urls)),
     url(r'^', include(strat_router.urls)),
-    url(r'^', include(sii_router.urls)),
     url(r'^', include(kf_router.urls)),
     url(r'^', include(actors_router.urls)),
     url(r'^', include(levels_router.urls)),

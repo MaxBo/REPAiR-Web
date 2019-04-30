@@ -819,9 +819,16 @@ var EditActorView = BaseView.extend(
         }
         else addAdminBtn.style.display = 'block';
 
+        var polyOpt = {
+            projection: this.projection,
+            layername: 'background',
+            tooltip: gettext('Focus area'),
+            type: 'Multipolygon'
+        }
+
         // add polygon of focusarea to both maps
         if (this.focusarea != null)
-            var poly = this.globalMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            var poly = this.globalMap.addPolygon(this.focusarea.coordinates, polyOpt);
         // zoom to admin area
         if (adminLoc){
             this.globalMap.centerOnPoint(
@@ -831,7 +838,7 @@ var EditActorView = BaseView.extend(
         }
         // else zoom to focus area
         else if (this.focusarea){
-            this.localMap.addPolygon(this.focusarea.coordinates[0], { projection: this.projection, layername: 'background', tooltip: gettext('Focus area') });
+            this.localMap.addPolygon(this.focusarea.coordinates, polyOpt);
             this.centroid = this.globalMap.centerOnPolygon(poly, { projection: _this.projection });
             this.localMap.centerOnPolygon(poly, { projection: _this.projection });
         };

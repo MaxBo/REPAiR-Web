@@ -42,7 +42,6 @@ require(['models/casestudy', 'collections/gdsecollection', 'views/strategy/works
             solutions: solutions,
             categories: categories
         })
-        return;
         if(solutionsLogicView) solutionsLogicView.close();
         solutionsLogicView = new SolutionsLogicView({
             caseStudy: caseStudy,
