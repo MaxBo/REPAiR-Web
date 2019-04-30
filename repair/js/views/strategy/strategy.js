@@ -262,6 +262,7 @@ var StrategyView = BaseView.extend(
     */
     editSolution: function(solutionImpl, item){
         var _this = this;
+        this.selectedActors = {}
         var html = document.getElementById('view-solution-strategy-template').innerHTML,
             template = _.template(html);
         var modal = this.el.querySelector('#solution-strategy-modal');
@@ -370,18 +371,16 @@ var StrategyView = BaseView.extend(
         if (hasActorsToPick){
             var requestSelect = modal.querySelector('select[name="map-request"]');
             requestSelect.addEventListener('change', function(){
-                var part = solution.parts.get(this.value),
-                    activity = part.get('new_target_activity');
-                _this.renderSelectableActors(activity);
+                _this.renderSelectableActors(solution.parts.get(this.value));
             });
         }
     },
 
     // render the administrative locations of all actors of activity with given id
-    renderSelectableActors: function(activityId){
-        var _this = this;
+    renderSelectableActors: function(solutionpart){
+        var _this = this,
+            activityId = solutionpart.get('new_target_activity');
         if (!activityId) return;
-        this.activityCache = {}
 
         var cache = this.activityCache[activityId];
 
@@ -392,6 +391,7 @@ var StrategyView = BaseView.extend(
                 var properties = loc.get('properties'),
                     actor = cache.actors.get(properties.actor),
                     geom = loc.get('geometry');
+                console.log(actor)
                 if (geom) {
                     //_this.actorMap.addGeometry(geom.get('coordinates'), {
                         //projection: _this.projection,
@@ -399,16 +399,20 @@ var StrategyView = BaseView.extend(
                         //tooltip: actor.get('name'),
                         //type: 'Point'
                     //});
-                    console.log(actor)
-                    console.log(loc)
                     _this.actorMap.addmarker(geom.get('coordinates'), {
                         icon: '/static/img/map-marker-red.svg',
+                        selectIcon: '/static/img/map-marker-yellow.svg',
                         anchor: [0.5, 1],
                         projection: _this.projection,
                         name: actor.get('name'),
                         tooltip: actor.get('name'),
                         layername: 'pickable-actors',
-                        draggable: false
+                        draggable: false,
+                        selectable: true,
+                        onSelect: function(){
+                            _this.selectedActors[solutionpart.id] = actor;
+                            console.log(actor)
+                        }
                     });
                 }
             })

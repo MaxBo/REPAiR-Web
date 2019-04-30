@@ -440,14 +440,16 @@ define([
         * @param {Array.<number>} coordinates    (x,y) coordinates where marker will be added at
         * @param {Object} options
         * @param {Boolean} [options.draggable=true]  marker is draggable
-        * @param {Boolean} [options.selectable=true]  marker is selectable
+        * @param {Boolean} [options.selectable=true]  marker is selectable (only single select and no deselect atm!)
         * @param {string} [options.layername='basic']  layer to which the marker will be added
         * @param {string=} options.projection  projection the given coordinates are in, uses map projection if not given
         * @param {string=} [options.name='']   the name will be rendered below the marker
         * @param {string=} options.icon        url to image the marker will be rendered with
         * @param {Array.<number>} [options.anchor=[0.5, 0.5]] anchor of icon, defaults to icon center
         * @param {string=} options.dragIcon    url to image the marker will be rendered with while dragging
+        * @param {string=} options.selectIcon  url to image the marker will be rendered when selected
         * @param {module:visualizations/Map~onDrag=} options.onDrag      callback that will be called when the marker is dragged to new position
+        * @param {Object} options.onSelect      callback on Select
         *
         */
         addmarker(coordinates, options) {
@@ -466,8 +468,9 @@ define([
                 geometry: new ol.geom.Point(
                     this.toMapProjection(coordinates, proj))
             });
+            var iconStyle = null;
             if (options.icon){
-                var iconStyle = new ol.style.Style({
+                iconStyle = new ol.style.Style({
                     image: new ol.style.Icon({ scale: .08, src: options.icon, anchor: options.anchor }),
                     text: new ol.style.Text({
                         offsetY: 25,
@@ -476,18 +479,30 @@ define([
                         fill: new ol.style.Fill({ color: '#111' }),
                         stroke: new ol.style.Stroke({ color: '#eee', width: 2 })
                     })
-            });
-            feature.setStyle(iconStyle);
+                });
+                feature.setStyle(iconStyle);
             }
-            var dragStyle;
+            var dragStyle, selectStyle;
             if (options.dragIcon){
                 dragStyle = new ol.style.Style({
                     image: new ol.style.Icon({ scale: .08, src: options.dragIcon })
-            })
+                })
+            }
+            if (options.selectIcon){
+                selectStyle = new ol.style.Style({
+                    image: new ol.style.Icon({ scale: .08, src: options.selectIcon, anchor: options.anchor }),
+                    text: new ol.style.Text({
+                        offsetY: 25,
+                        text: options.name, //ol.coordinate.format(coordinate, template, 2),
+                        font: '15px Open Sans,sans-serif',
+                        fill: new ol.style.Fill({ color: 'yellow' }),
+                        stroke: new ol.style.Stroke({ color: '#111', width: 2 })
+                    })
+                })
             }
 
-            if (options.draggable){
-                // Dr{ag and drop feature
+            if (draggable){
+                // Drag and drop feature
                 var dragInteraction = new ol.interaction.Modify({
                     features: new ol.Collection([feature]),
                     style: dragStyle,
@@ -507,7 +522,30 @@ define([
 
                 this.map.addInteraction(dragInteraction);
             }
-            var id = this.idCounter;
+
+            if (options.selectable) {
+                var selectInteraction = new ol.interaction.Select({
+                    features: new ol.Collection([feature]),
+                    pixelTolerance: 20,
+                    condition: ol.events.condition.click
+                });
+                selectInteraction.on('select', function(evt){
+                    var selected = evt.selected,
+                        deselected = evt.deselected;
+                    layer.getSource().getFeatures().forEach(function(feature){
+                        feature.setStyle(iconStyle);
+                    })
+                    selected.forEach(function(feature){
+                        feature.setStyle(selectStyle);
+                    });
+                    if (options.onSelect) {
+                        options.onSelect(feature)
+                    }
+                }, feature);
+                this.map.addInteraction(selectInteraction);
+            }
+
+            var id = options.id || this.idCounter;
             feature.setId(id);
             // remember the interactions to access them on remove by setting them as attributes
             feature.onRemove = options.onRemove;
