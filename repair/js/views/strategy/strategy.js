@@ -372,6 +372,7 @@ var StrategyView = BaseView.extend(
             var requestSelect = modal.querySelector('select[name="map-request"]');
             requestSelect.addEventListener('change', function(){
                 _this.renderSelectableActors(solution.parts.get(this.value));
+                //_this.areaMap.selectFeature('areas', areaId);
             });
         }
     },
@@ -391,28 +392,14 @@ var StrategyView = BaseView.extend(
                 var properties = loc.get('properties'),
                     actor = cache.actors.get(properties.actor),
                     geom = loc.get('geometry');
-                console.log(actor)
                 if (geom) {
-                    //_this.actorMap.addGeometry(geom.get('coordinates'), {
-                        //projection: _this.projection,
-                        //layername: 'pickable-actors',
-                        //tooltip: actor.get('name'),
-                        //type: 'Point'
-                    //});
-                    _this.actorMap.addmarker(geom.get('coordinates'), {
-                        icon: '/static/img/map-marker-red.svg',
-                        selectIcon: '/static/img/map-marker-yellow.svg',
-                        anchor: [0.5, 1],
+                    _this.actorMap.addGeometry(geom.get('coordinates'), {
                         projection: _this.projection,
-                        name: actor.get('name'),
-                        tooltip: actor.get('name'),
                         layername: 'pickable-actors',
-                        draggable: false,
-                        selectable: true,
-                        onSelect: function(){
-                            _this.selectedActors[solutionpart.id] = actor;
-                            console.log(actor)
-                        }
+                        tooltip: actor.get('name'),
+                        label: actor.get('name'),
+                        id: actor.id,
+                        type: 'Point'
                     });
                 }
             })
@@ -504,7 +491,20 @@ var StrategyView = BaseView.extend(
             stroke: 'black',
             fill: 'red',
             strokeWidth: 1,
-            zIndex: 1
+            zIndex: 1,
+            icon: '/static/img/map-marker-red.svg',
+            anchor: [0.5, 1],
+            labelColor: '#111',
+            labelOutline: 'white',
+            select: {
+                selectable: true,
+                onChange: console.log,
+                multi: false,
+                icon: '/static/img/map-marker-yellow.svg',
+                anchor: [0.5, 1],
+                labelColor: 'yellow',
+                labelOutline: '#111'
+            }
         });
     },
 
@@ -548,24 +548,11 @@ var StrategyView = BaseView.extend(
 
         var implArea = solution.get('possible_implementation_area') || '';
         if(implArea) {
-            //var poly = this.editorMap.addPolygon(implArea.coordinates, {
-                //projection: this.projection,
-                //layername: 'implementation-area',
-                //tooltip: gettext('Focus area'),
-                //type: implArea.type.toLowerCase(),
-                //tooltip: gettext('possible implementation area')
-            //});
-            //var area = (implArea.type.toLowerCase() === 'polygon') ? new ol.geom.Polygon(implArea.coordinates) : new ol.geom.MultiPolygon(implArea.coordinates);
-            //console.log(implArea.coordinates)
-            //var cutout = new ol.geom.LinearRing(implArea.coordinates[0][0]),
-                //bbox = new ol.geom.Polygon([[[-180, 90], [180, 90], [180, -90], [-180, -90], [-180, 90]]]);
-            //console.log(bbox)
-            //bbox.appendLinearRing(cutout);
-            var edit_mask = solution.get('edit_mask');
-            var darkArea = this.editorMap.addPolygon(edit_mask.coordinates, {
+            var mask = solution.get('edit_mask');
+            var maskArea = this.editorMap.addPolygon(mask.coordinates, {
                 projection: this.projection,
                 layername: 'mask',
-                type: edit_mask.type,
+                type: mask.type,
                 tooltip: gettext('possible implementation area')
             });
             var area = this.editorMap.addPolygon(implArea.coordinates, {
