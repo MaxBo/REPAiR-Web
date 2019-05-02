@@ -19,12 +19,13 @@
       <span class="sub-icon fa fa-cogs" style="right: -5px;"></span>
     </div>
     <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon fas fa-puzzle-piece" style="margin-right: -5px"></span></a></li>
-    {% if request.session.mode != 1 %}
+    {% if request.session.mode == 1 %}
+    <li><a href="#graph" data-toggle="pill">{% trans "Graph" %} <span class="sub-icon fas fa-star-of-life"></span></a></li>
+    <li><a href="#solutions-logic" data-toggle="pill">{% trans "Solution Logic" %} <span class="sub-icon glyphicon glyphicon-flash" style="padding-top: 20px;"></span></a></li>
+    {% else %}
     <li><a href="#strategy" data-toggle="pill">{% trans "Define Strategy" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
     <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
     <li><a href="#flow-target-control" data-toggle="pill" style="font-size: 0.9em">{% trans "Flow Target Control" %} <span class="sub-icon fas fa-wrench"></span></a></li>
-    {% else %}
-    <li><a href="#solutions-logic" data-toggle="pill">{% trans "Solution Logic" %} <span class="sub-icon glyphicon glyphicon-flash" style="padding-top: 20px;"></span></a></li>
     {% endif %}
   </ul>
 {% endblock %}
@@ -36,7 +37,13 @@
   <div class="tab-pane fade in active" id="solutions" style="min-height: 600px;">
   </div>
   {% if request.session.mode != 1 %}
-  <div class="tab-pane fade" id="strategy">
+  <div class="tab-pane fade" id="strat-wrapper">
+    <button style="float: right;" title="{% trans "Calculate the strategy" %}" id="calculate-strategy" class="btn btn-primary">
+      {% trans "Calculate" %}
+    </button>
+    <div style="float: right; margin-right: 5px;" id="graph-note"> - </div>
+    <div id="strategy">
+    </div>
   </div>
   <div class="tab-pane fade" id="modified-flows">
     <h2>ToDo</h2>
