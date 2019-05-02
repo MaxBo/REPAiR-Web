@@ -91,9 +91,10 @@ class BaseGraph:
 
         for i in range(len(flows)):
             # get the start and and actor id's
-            v0 = actorids.get(flows[i].origin.id)
-            if(isinstance(flows[i], FractionFlow)):
-                v1 = actorids.get(flows[i].destination.id)
+            flow = flows[i]
+            v0 = actorids.get(flow.origin.id)
+            if not flow.to_stock:
+                v1 = actorids.get(flow.destination.id)
             else:
                 v1 = v0
 
