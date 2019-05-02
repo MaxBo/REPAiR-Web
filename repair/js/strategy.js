@@ -28,7 +28,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection', '
             caseStudy: caseStudy,
             el: document.getElementById('strategy'),
             template: 'strategy-template',
-            keyflowId: keyflowId,
+            keyflowId: keyflow.id,
             keyflowName: keyflowName,
             strategy: strategy
         })
@@ -156,7 +156,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection', '
                                 })
                             }
                             else
-                                renderWorkshop(caseStudy, keyflow);
+                                renderWorkshop(caseStudy, keyflow, strategy);
                         },
                         error: alert
                     })
