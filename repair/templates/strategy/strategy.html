@@ -85,8 +85,8 @@
     <div class="modal-body">
       <div class="row">
         <ul class="nav nav-tabs">
-          <li class="active"><a data-toggle="tab" href="#questions-tab"><i>Overview REPLACE</i></a></li>
-          <li><a data-toggle="tab" href="#actors-tab"><i>Pick Actors REPLACE</i></a></li>
+          <li class="active"><a data-toggle="tab" href="#questions-tab"><i>Overview</i></a></li>
+          <li><a data-toggle="tab" href="#actors-tab"><i>Pick Actors</i></a></li>
           <li><a data-toggle="tab" href="#strategy-area-tab">{% trans "Implementation Area" %}</a></li>
           <li><a data-toggle="tab" href="#notes-tab">{% trans "Notes" %}</a></li>
         </ul>
@@ -107,7 +107,7 @@
                   </select>
                 </div>
               </div>
-              <% if (solutionImpl.get('quantities')) { %>
+              <% if (solutionImpl.get('quantities').length > 0) { %>
                 {% trans "Questions" %}
                 <% solutionImpl.get('quantities').forEach(function(quantity){ %>
                 <div class="row">
