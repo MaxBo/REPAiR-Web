@@ -158,6 +158,12 @@ class StrategyGraph(BaseGraph):
             raise FileNotFoundError
         g = base_graph.load()
         gw = GraphWalker(g)
+        # ToDo: remove,
+        # atm returns the base graph, because the following code is only pseudo
+        return g;
+
+        # @Tom or @Balasz: please implement the pseudo-code below!
+
         # ToDo: get the solutions in this strategy and order them by
         # priority
         for solution in solutions:

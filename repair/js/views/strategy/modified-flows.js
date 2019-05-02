@@ -5,11 +5,11 @@ function(BaseView, FlowsView, GDSECollection, _){
 /**
 *
 * @author Christoph Franke
-* @name module:views/ModFlowsWorkshopView
+* @name module:views/ModifiedFlowsView
 * @augments module:views/BaseView
 */
-var ModFlowsWorkshopView = BaseView.extend(
-    /** @lends module:views/ModFlowsWorkshopView.prototype */
+var ModifiedFlowsView = BaseView.extend(
+    /** @lends module:views/ModifiedFlowsView.prototype */
     {
 
     /**
@@ -25,7 +25,7 @@ var ModFlowsWorkshopView = BaseView.extend(
     */
     initialize: function(options){
         var _this = this;
-        ModFlowsWorkshopView.__super__.initialize.apply(this, [options]);
+        ModifiedFlowsView.__super__.initialize.apply(this, [options]);
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.strategy = options.strategy;
@@ -127,11 +127,11 @@ var ModFlowsWorkshopView = BaseView.extend(
 
     close: function(){
         if (this.flowsView) this.flowsView.close();
-        ModFlowsWorkshopView.__super__.close.call(this);
+        ModifiedFlowsView.__super__.close.call(this);
     }
 
 });
-return ModFlowsWorkshopView;
+return ModifiedFlowsView;
 }
 );
 

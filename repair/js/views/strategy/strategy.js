@@ -1,5 +1,6 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection/',
-        'collections/geolocations/', 'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
+        'collections/geolocations/',
+        'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
         'app-config', 'bootstrap', 'bootstrap-select'],
 
 function(BaseView, _, GDSECollection, GeoLocations, Map, utils, Muuri, ol, config){

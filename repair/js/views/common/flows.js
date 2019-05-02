@@ -81,8 +81,6 @@ var FlowsView = BaseView.extend(
     getFlowFilterParams: function(){
         var filter = this.filter,
             filterParams = {};
-        if (this.strategy) filterParams['strategy'] = this.strategy.id;
-
 
         if(!filter) return filterParams;
 
@@ -197,8 +195,12 @@ var FlowsView = BaseView.extend(
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         this.loader.activate();
+        var data = {};
+        if (this.strategy)
+            data['strategy'] = this.strategy.id;
 
         flows.postfetch({
+            data: data,
             body: filterParams,
             success: function(response){
                 var idx = 0;
@@ -249,6 +251,9 @@ var FlowsView = BaseView.extend(
             queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
         queryParams['stock'] = (is_stock) ? 'True': 'False';
+
+        if (this.strategy)
+            data['strategy'] = this.strategy.id;
 
         var origin = flow.get('origin'),
             destination = flow.get('destination'),
