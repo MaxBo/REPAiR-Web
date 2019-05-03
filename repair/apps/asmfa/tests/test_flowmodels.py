@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+'''
 from repair.apps.asmfa.tests.flowmodeltestdata import (
     GenerateTestDataMixin,
     GenerateBigTestDataMixin)
@@ -78,7 +79,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         self.create_solutions()
         self.graphbase = BaseGraph(self.kic)
         self.graph = self.graphbase.build()
-        
+
     def test_graph_elements(self):
         """Test the Generation of the graph object"""
         # testdata
@@ -107,7 +108,7 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         assert gwalker.graph.num_vertices() == Actor.objects.count() - ActorStock.objects.count()
         assert gwalker.graph.num_vertices() == len(self.graph.vp.id.a)
         assert gwalker.graph.num_edges() == 38
-        
+
         pu = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "packaging_utrecht")
         pl = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "packaging_leiden")
         ah1 = gt_util.find_vertex(gwalker.graph, gwalker.graph.vp['name'], "ah_den_haag_1")
@@ -189,13 +190,13 @@ class GenerateGraphTest(GenerateTestDataMixin, TestCase):
         e = next(self.graph.edges())
         assert self.graph.ep.id[e] == graph2.ep.id[e]
         assert self.graph.ep.amount[e] * 2 == graph2.ep.amount[e]
-        
+
     def test_apply_solution(self):
         """Test applying the solutinos to the graph object"""
         gwsolution = GraphWalker(self.graph)
         for s in self.solutions:
             gwsolution.graph = gwsolution.calculate_solution(s.solution)
-        
+
         g = gwsolution.graph
         rig = gt_util.find_vertex(g, g.vp['name'], "oil_rig_den_haag")
         assert len(rig) == 1
@@ -223,7 +224,7 @@ class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
         # testdata
         assert Actor.objects.count() == 1000
         assert Actor2Actor.objects.count() == 10000
-        
+
     def test_big_graph_creation(self):
         """Test the Generation of the graph object"""
         assert path.isfile(self.graphbase.filename)
@@ -231,3 +232,5 @@ class GenerateBigGraphTest(GenerateBigTestDataMixin, TestCase):
         assert self.graph.num_vertices() == len(self.graph.vp.id.a)
         assert self.graph.num_edges() == 10000
         assert self.graph.num_edges() == len(self.graph.ep.id.a)
+
+'''
