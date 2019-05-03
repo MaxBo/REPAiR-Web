@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework import serializers
 
+from repair.apps.asmfa.graphs.graph import StrategyGraph
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
                                         ImplementationQuantity,
@@ -67,6 +68,7 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
         read_only=True)
     coordinating_stakeholder = IDRelatedField()
     user = IDRelatedField(read_only=True)
+    graph_build = serializers.SerializerMethodField()
 
     class Meta:
         model = Strategy
@@ -74,7 +76,12 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
                   'coordinating_stakeholder',
                   'solution_list',
                   'sii_set',
+                  'graph_build'
                   )
+
+    def get_graph_build(self, obj):
+        sgraph = StrategyGraph(obj)
+        return sgraph.date
 
     def update(self, instance, validated_data):
         """

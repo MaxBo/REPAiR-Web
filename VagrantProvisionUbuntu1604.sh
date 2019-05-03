@@ -38,6 +38,12 @@ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 apt-get update && apt-get install -y --allow-unauthenticated yarn
 
+echo "Installing graph-tools..."
+add-apt-repository 'deb http://downloads.skewed.de/apt/xenial xenial universe'
+apt-get update && apt-get install -y --allow-unauthenticated python3-graph-tool
+
+apt-get install libcairo2-dev libjpeg-dev libgif-dev
+
 echo "Installing Python and JS requirements..."
 cd $PRJ
 pip install -r requirements-dev.txt

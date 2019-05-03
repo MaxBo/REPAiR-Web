@@ -215,4 +215,13 @@ class ProductFractionFactory(DjangoModelFactory):
     avoidable = True
 
 
-
+class FractionFlowFactory(FlowFactory):
+    class Meta:
+        model = models.FractionFlow
+    origin = factory.SubFactory(ActorFactory)
+    destination = factory.SubFactory(ActorFactory)
+    material = factory.SubFactory(MaterialFactory)
+    composition_name = factory.Sequence(lambda n: "Composition #%s" % n)
+    nace = '52.Retail'
+    amount = 0.0
+    #solution_part = 

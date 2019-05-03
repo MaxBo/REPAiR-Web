@@ -7,7 +7,7 @@ from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 
 from repair.apps.changes.models import (ImplementationQuantity, SolutionPart,
                                         ActorInSolutionPart, AffectedFlow)
-from repair.apps.asmfa.models import Actor, Activity
+from repair.apps.asmfa.models import Actor, Activity, Material
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 
 from repair.apps.changes.factories import (
@@ -19,6 +19,7 @@ from repair.apps.asmfa.factories import (
     Actor2ActorFactory, FractionFlowFactory, KeyflowInCasestudyFactory,
     ProcessFactory, AdministrativeLocationFactory
 )
+from repair.apps.asmfa.tests.flowmodeltestdata import GenerateBreadToBeerData
 from repair.apps.statusquo.models import SpatialChoice
 
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -104,6 +105,84 @@ class ModelSolutionInStrategy(TestCase):
             )
             # ToDo: test sth meaningful here?
 
+class BreadToBeerSolution(GenerateBreadToBeerData):
+    """Define the Solution for the Bread to Beer case"""
+
+    @classmethod
+    def setUpClass(cls):
+        """Solution definition"""
+        super().setUpClass()
+        cls.solution = SolutionFactory(name='Bread to Beer')
+
+        cls.beer_question = ImplementationQuestionFactory(
+            question=("How much of the incinerated bread is sent to the Brewery?"),
+            solution=cls.solution,
+            min_value=0,
+            max_value=1,
+            is_absolute=False
+        )
+
+        ## Solution Parts ##
+        brewing_activity = Activity.objects.filter(name='Brewery', nace='A-0000')
+        household_activity = Activity.objects.filter(name='Household', nace='A-0001')
+        incinerator_activity = Activity.objects.filter(name='Incineration', nace='C-0001')
+        farming_activity = Activity.objects.filter(name='Farming', nace='C-0000')
+        bread = Material.objects.filter(name='bread', keyflow=cls.keyflow)
+        barley = Material.objects.filter(name='barley', keyflow=cls.keyflow)
+
+        cls.bread_to_brewery = SolutionPartFactory(
+            solution=cls.solution,
+            documentation='Bread goes to Brewery instead of Incineration',
+            question=cls.beer_question,
+            implements_new_flow=True,
+            implementation_flow_origin_activity = household_activity[0],
+            implementation_flow_destination_activity = incinerator_activity[0],
+            implementation_flow_material = bread[0],
+
+            a = 1,
+            b = 0,
+
+            keep_origin = True,
+            new_target_activity = brewing_activity[0],
+
+            map_request = 'Pick a brewery which will process the waste bread',
+
+            priority=1
+        )
+
+        ## Affected flows ##
+        AffectedFlow(origin_activity=farming_activity[0],
+                     destination_activity=brewing_activity[0],
+                     material=barley[0],
+                     solution_part=cls.bread_to_brewery)
+
+class BreadToBeerSolutionTest(BreadToBeerSolution):
+    """Test the Solution definition for the Bread to Beer case"""
+
+    def test_setup(self):
+        assert self.bread_to_brewery.new_target_activity.name == 'Brewery'
+        assert self.bread_to_brewery.new_target_activity.nace == 'A-0000'
+
+
+    def test_01_implementation(self):
+
+        ## implement the solution as the user would ##
+        implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))
+
+        user = UserInCasestudyFactory(casestudy=self.keyflow.casestudy,
+                                      user__user__username='Hans Norbert')
+        strategy = StrategyFactory(keyflow=self.keyflow, user=user)
+        implementation = SolutionInStrategyFactory(
+            solution=self.solution, strategy=strategy,
+            geom=GeometryCollection(implementation_area))
+
+        ActorInSolutionPart(solutionpart=self.bread_to_brewery,
+                            actor=self.brewery_1,
+                            implementation=implementation)
+        answer = ImplementationQuantity(question=self.beer_question,
+                                        implementation=implementation,
+                                        value=1)
 
 class ApplyStrategyTest(TestCase):
 
@@ -432,6 +511,7 @@ class ApplyStrategyTest(TestCase):
         # Note CF: poor pull leader has to define the affected flows for
         # every part, just taking the same ones for all parts
         # (marking the implementation flows as well, i guess that doesn't matter)
+        # B: who cares about the pull leader?!
 
         parts = [cls.new_fungus_insulation, reduction_existing_flow,
                  new_fungus_stock, cls.new_building_disposal,
