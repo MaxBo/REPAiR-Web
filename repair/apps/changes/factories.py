@@ -4,10 +4,10 @@ import factory
 from factory.django import DjangoModelFactory
 from repair.apps.login.factories import UserInCasestudyFactory, UserFactory
 from repair.apps.studyarea.factories import StakeholderFactory
-from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory,
+from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory, ActorFactory,
                                          ActivityFactory, MaterialFactory,
-                                         ProcessFactory)
-
+                                         ProcessFactory, FractionFlowFactory)
+from repair.apps.asmfa.models import StrategyFractionFlow
 from . import models
 
 
@@ -60,6 +60,16 @@ class StrategyFactory(DjangoModelFactory):
     user = factory.SubFactory(UserInCasestudyFactory)
     coordinating_stakeholder = factory.SubFactory(StakeholderFactory)
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
+
+
+class StrategyFractionFlowFactory(DjangoModelFactory):
+    class Meta:
+        model = StrategyFractionFlow
+    strategy = factory.SubFactory(StrategyFactory)
+    fractionflow = factory.SubFactory(FractionFlowFactory)
+    origin = factory.SubFactory(ActorFactory)
+    destination = factory.SubFactory(ActorFactory)
+    amount = 0.0
 
 
 class SolutionInStrategyFactory(DjangoModelFactory):

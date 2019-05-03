@@ -36,7 +36,6 @@ class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
                                          activitygroup=self.activitygroup1)
         self.activity3 = ActivityFactory(nace='NACE1',
                                          activitygroup=self.activitygroup1)
-
         self.activity4 = ActivityFactory(nace='NACE3',
                                          activitygroup=self.activitygroup2)
 

@@ -3,20 +3,19 @@ from __future__ import unicode_literals
 
 from django.db import models
 
-from repair.apps.asmfa.models.keyflows import (KeyflowInCasestudy, Composition,
-                                               Material, ProductFraction)
+from repair.apps.asmfa.models import (KeyflowInCasestudy, Composition,
+                                      Material, ProductFraction,
+                                      Process)
+from repair.apps.changes.models.strategies import Strategy
 from repair.apps.publications.models import PublicationInCasestudy
 from repair.apps.asmfa.models.nodes import (
     ActivityGroup,
     Activity,
     Actor
 )
+
 from repair.apps.login.models.bases import GDSEModel
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
-
-
-class Process(GDSEModel):
-    name = models.TextField()
 
 
 class Flow(GDSEModel):
@@ -215,11 +214,12 @@ class FractionFlow(Flow):
                               on_delete=models.CASCADE,
                               null=True,
                               related_name='f_stock')
-
+    # origin can be null in case of solution_part
     origin = models.ForeignKey(Actor,
+                               null=True,
                                on_delete=PROTECT_CASCADE,
                                related_name='f_outputs')
-    # destinations can be null in case of stocks
+    # destinations can be null in case of stocks or solution_part
     destination = models.ForeignKey(Actor,
                                     null=True,
                                     on_delete=PROTECT_CASCADE,
@@ -242,3 +242,25 @@ class FractionFlow(Flow):
     # composition related information
     nace = models.CharField(max_length=255, blank=True)
     composition_name = models.CharField(max_length=255, blank=True)
+
+    strategy = models.ForeignKey(Strategy, null=True,
+                                 on_delete=models.CASCADE,
+                                 related_name='f_newfractionflowstrategy')
+
+
+class StrategyFractionFlow(GDSEModel):
+    strategy = models.ForeignKey(Strategy,
+                             on_delete=models.CASCADE,
+                             related_name='f_fractionflowstrategy')
+    fractionflow = models.ForeignKey(FractionFlow,
+                                     on_delete=models.CASCADE,
+                                     related_name='f_strategyfractionflow')
+    amount = models.FloatField(default=0) # in tons
+    origin = models.ForeignKey(Actor,
+                               null=True,
+                               on_delete=models.CASCADE,
+                               related_name='f_strategyfractionflowoutputs')
+    destination = models.ForeignKey(Actor,
+                                    null=True,
+                                    on_delete=models.CASCADE,
+                                    related_name='f_strategyfractionflowinputs')

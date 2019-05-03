@@ -7,6 +7,12 @@ from django.utils.translation import ugettext_lazy as _
 from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.decorators import action
+
+from rest_framework.response import Response
+import json
+
+from repair.apps.asmfa.graphs.graph import BaseGraph
 
 from repair.apps.asmfa.models import (
     Keyflow,
@@ -62,6 +68,23 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = KeyflowInCasestudySerializer
     serializers = {'create': KeyflowInCasestudyPostSerializer,
                    'update': KeyflowInCasestudyPostSerializer, }
+
+    @action(methods=['get', 'post'], detail=True)
+    def build_graph(self, request, **kwargs):
+        keyflow = self.queryset.get(id=kwargs['pk'])
+        kfgraph = BaseGraph(keyflow)
+        graph = kfgraph.build()
+        #return Response(kfgraph.serialize(graph))
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    @action(methods=['get', 'post'], detail=True)
+    def validate_graph(self, request, **kwargs):
+        keyflow = self.queryset.get(id=kwargs['pk'])
+        kfgraph = BaseGraph(keyflow)
+        res = kfgraph.validate()
+        return Response(res)
 
 
 class CommaSeparatedValueFilter(Filter):

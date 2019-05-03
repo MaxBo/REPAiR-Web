@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
 from django.db.models import Q
 
+from repair.apps.asmfa.graphs.graph import BaseGraph
 from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import (Keyflow,
                                       KeyflowInCasestudy,
@@ -106,7 +107,7 @@ class KeyflowField(NestedHyperlinkedRelatedField):
     """This is fixed in rest_framework_nested, but not yet available on pypi"""
     def use_pk_only_optimization(self):
         return False
-
+    
 
 class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
@@ -132,6 +133,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                                  allow_blank=True, required=False)
     name = serializers.CharField(source='keyflow.name',
                                  allow_blank=True, required=False)
+    graph_build = serializers.SerializerMethodField()
 
     class Meta:
         model = KeyflowInCasestudy
@@ -154,7 +156,12 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actors',
                   'administrative_locations',
                   'operational_locations',
+                  'graph_build'
                   )
+    
+    def get_graph_build(self, obj):
+        kfgraph = BaseGraph(obj)
+        return kfgraph.date
 
 
 class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,

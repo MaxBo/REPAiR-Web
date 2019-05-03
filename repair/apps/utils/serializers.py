@@ -68,7 +68,7 @@ def TemporaryMediaFile():
     file.url - relative url to access file
     file.name - path to file
     '''
-    path = os.path.join(settings.MEDIA_ROOT, 'tmp')
+    path = settings.TEMP_MEDIA_ROOT
     if not os.path.exists(path):
         os.makedirs(path)
     wrapper = NamedTemporaryFile(mode='w', dir=path, delete=False)
