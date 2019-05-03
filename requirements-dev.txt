@@ -1,11 +1,11 @@
 -e .
 
-django>=2.0.10
+django>=2.2.1
 django-webpack-loader>=0.5
 djangorestframework>=3.8.2
 djangorestframework-gis>=0.12
 djangorestframework-datatables>=0.3
-django-filter>=2.0
+django-filter>=2.1
 django-test-plus
 django-enumfields
 django-money

@@ -253,7 +253,7 @@ var FlowsView = BaseView.extend(
         queryParams['stock'] = (is_stock) ? 'True': 'False';
 
         if (this.strategy)
-            data['strategy'] = this.strategy.id;
+            queryParams['strategy'] = this.strategy.id;
 
         var origin = flow.get('origin'),
             destination = flow.get('destination'),

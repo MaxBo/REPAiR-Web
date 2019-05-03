@@ -17,7 +17,6 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
                                      PostGetViewMixin)
 
-
 from repair.apps.asmfa.models import (
     Flow,
     AdministrativeLocation,
@@ -356,8 +355,10 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         serialize given queryset of fraction flows to JSON,
         aggregates flows between nodes on actor level to the levels determined
         by origin_model and destination_model,
+
         aggregation_map contains ids of materials as keys that should be
         aggregated to certain materials (values)
+        (e.g. to aggregate child materials to their parents)
         '''
         strategy = self.request.query_params.get('strategy', None)
         origin_filter = 'origin' + FILTER_SUFFIX[origin_model]
@@ -409,20 +410,23 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 'amount': Sum('amount')
             }
             if strategy is not None:
-                #annotation['strategy_amount'] = Sum('strategy_amount')
+                annotation['amount'] = Sum('strategy_amount')
+                # F('amount') takes Sum annotation instead of real field
+                annotation['delta'] = (Sum('strategy_amount') - F('amount'))
                 total_strategy_amount = \
                     list(grouped.aggregate(Sum('strategy_amount')).values())[0]
             grouped_mats = \
                 list(grouped.values('material').annotate(**annotation))
+            # aggregate materials according to mapping aggregation_map
             if aggregation_map:
                 aggregated = {}
                 for grouped_mat in grouped_mats:
                     mat_id = grouped_mat['material']
-                    amount = grouped_mat['amount'] # if strategy is not None \
-                       # else grouped_mat['strategy_amount']
+                    amount = grouped_mat['amount']
                     mapped = aggregation_map[mat_id]
 
                     agg_mat_ser = aggregated.get(mapped.id, None)
+                    # create dict for aggregated materials if there is none
                     if not agg_mat_ser:
                         agg_mat_ser = {
                             'material': mapped.id,
@@ -430,12 +434,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                             'level': mapped.level,
                             'amount': amount
                         }
-                        #if strategy is not None:
-                            #agg_mat_ser['amount'] = grouped_mat['strategy_amount']
-                            #agg_mat_ser['delta'] =
+                        # take the amount in strategy if strategy was passed
+                        if strategy is not None:
+                            agg_mat_ser['delta'] = grouped_mat['delta']
                         aggregated[mapped.id] = agg_mat_ser
+                    # just sum amounts up if dict is already there
                     else:
                         agg_mat_ser['amount'] += amount
+                        if strategy is not None:
+                            agg_mat_ser['delta'] += grouped_mat['delta']
                 grouped_mats = aggregated.values()
 
             flow_item = OrderedDict((
