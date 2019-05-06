@@ -116,6 +116,9 @@ class SolutionPart(GDSEModel):
     # order of calculation, lowest first
     priority = models.IntegerField(default=0)
 
+    # overriden by question, only of interest if there is no question
+    is_absolute = models.BooleanField(default=False)
+
 
 class AffectedFlow(GDSEModel):
     '''
