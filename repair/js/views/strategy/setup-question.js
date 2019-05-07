@@ -56,6 +56,7 @@ var QuestionView = BaseView.extend(
         this.isRelativeInput = this.el.querySelector('input[name="is-absolute"][value="false"]');
         this.minInput = this.el.querySelector('input[name="min-value"]');
         this.maxInput = this.el.querySelector('input[name="max-value"]');
+        this.stepInput = this.el.querySelector('input[name="step-size"]');
 
         this.minInput.addEventListener('change', function(){
             _this.maxInput.min = this.value;
@@ -88,7 +89,8 @@ var QuestionView = BaseView.extend(
         this.isAbsoluteInput.checked = is_abs;
         this.isRelativeInput.checked = !is_abs;
         this.minInput.value = this.model.get('min_value') || 1;
-        this.maxInput.value = this.model.get('max_value') || 100;
+        this.maxInput.value = this.model.get('max_value') || 1000000000000;
+        this.stepInput.value = this.model.get('step') || 0.1;
     },
 
     applyInputs: function(){
@@ -96,6 +98,7 @@ var QuestionView = BaseView.extend(
         this.model.set('is_absolute', this.isAbsoluteInput.checked);
         this.model.set('min_value', this.minInput.value);
         this.model.set('max_value', this.maxInput.value);
+        this.model.set('step', this.stepInput.value);
     },
 
 });
