@@ -209,6 +209,10 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 return flow.get('waste') ? 'Waste': 'Product';
             }
 
+            function processRepr(flow){
+                return gettext('Process') + ': ' + (flow.get('process') || '-');
+            }
+
             var amounts = flows.pluck('amount'),
                 //minAmount = Math.min(...amounts),
                 maxAmount = Math.max(...amounts),
@@ -243,7 +247,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     source: source,
                     target: target,
                     isStock: isStock,
-                    text: '<u>' + typeRepr(flow) + '</u><br>' + crepr,
+                    text: processRepr(flow) + '<br><br><u>' + typeRepr(flow) + '</u><br>' + crepr,
                     composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
                 });
             })
