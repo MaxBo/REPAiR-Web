@@ -93,6 +93,10 @@ var SolutionPartView = BaseView.extend(
             _this.toggleHasQuestion();
             _this.toggleAbsolute();
         });
+        this.keepOriginInput.addEventListener('change', function(){
+            var label = (this.value == "true") ? gettext('destination'): gettext('origin');
+            _this.el.querySelector('div[name="origdestlabel"]').innerHTML = label;
+        })
         this.isAbsoluteSelect.addEventListener('change', this.toggleAbsolute);
         this.questionSelect.addEventListener('change', this.toggleAbsolute);
 
@@ -130,6 +134,9 @@ var SolutionPartView = BaseView.extend(
         var hasQuestion = this.hasQuestionSelect.value == "true"
             questElements = this.el.querySelectorAll('.with-question'),
             noQuestElements = this.el.querySelectorAll('.no-question');
+
+        if (!hasQuestion)
+            this.aInput.value = 0;
 
         noQuestElements.forEach(function(el){
             el.style.display = (hasQuestion) ? 'none' :'inline-block';
@@ -171,7 +178,10 @@ var SolutionPartView = BaseView.extend(
 
         this.newTargetSelect.value = this.model.get('new_target_activity') || null;
         this.mapRequestArea.value = this.model.get('map_request') || '';
-        this.keepOriginInput.value = this.model.get('keep_origin') || false;
+        var keepOrigin = this.model.get('keep_origin') || false;
+        this.keepOriginInput.value = keepOrigin;
+        var label = (keepOrigin) ? gettext('destination'): gettext('origin');
+        _this.el.querySelector('div[name="origdestlabel"]').innerHTML = label;
 
         //this.spatialSelect.value = spatial.toLowerCase()
         this.aInput.value = this.model.get('a') || 0;

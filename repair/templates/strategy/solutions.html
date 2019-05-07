@@ -287,14 +287,18 @@
     </div>
     <div class="row new-flow">
       <h4> {% trans "New flow" %} </h4>
-      <p style="max-width: 800px;">
+      <div style="max-width: 800px;">
         {% trans "The new flow keeps the" %}
-        <select name="keep-origin" class="form-control" style="display: inline-block; width: 100px;">
-          <option value="false"> {% trans "Origin" %} </option>
-          <option value="true"> {% trans "Destination" %} </option>
+        <select name="keep-origin" class="form-control" style="display: inline-block; width: 150px;">
+          <option value="true"> {% trans "Origin" %} </option>
+          <option value="false"> {% trans "Destination" %} </option>
         </select>
-        {% trans "of the reference flow defined above. The other activity of the reference flow is replaced with the target activity" %}
+        {% trans "of the reference flow defined above." %} <br>
+        {% trans "The" %}
+        <div name="origdestlabel" style="display: inline;"></div>
+        {% trans "activity of the reference flow is replaced with the activity" %}
         <select name="new-target" style="width: 100px;"></select>
+        <br>
         <br>
         {% blocktrans %}
         When this solution is implemented by a user in the workshop mode, a specific actor with target activity above
@@ -302,7 +306,8 @@
         (e.g. “Please select the recycling facility the collected material goes to.”)
         {% endblocktrans %}
         <textarea name="map-request" rows="2" style="width: 100%; resize: vertical;"></textarea>
-      </p>
+      </div>
+      <br>
       <p style="max-width: 800px;">
         {% blocktrans %}
         The volume of the new flow is defined on the next tab (“New amount”).
@@ -359,21 +364,21 @@
         <option value="false"> {% trans "relative" %} </option>
       </select>
     </div>
-    <div class="row">
+    <div class="row" style="margin-top: 15px; font-size: 1.2em;">
       <div class="modified-flow"> {% trans "Flow amount with solution impact = Flow amount in status quo" %} </div>
       <div class="new-flow"> {% trans "Amount of new flow = Amount of reference flow" %} </div>
       <div class="is-absolute"> &nbsp;+&nbsp;{% trans "Delta" %}</div>
       <div class="is-relative"> &nbsp;*&nbsp;{% trans "Factor" %}</div>
     </div>
-    <div class="row">
+    <div class="row" style="font-size: 1.2em;">
       <div class="is-absolute"> {% trans "Delta" %} </div>
       <div class="is-relative"> {% trans "Factor" %} </div>
       &nbsp;=&nbsp;
-      <input name='a' type="number" step="0.0001" style="display: inline-block">
       <div class='with-question'>
+        <input name='a' type="number" step="0.0001" style="display: inline-block; width: 150px;">
         &nbsp;*&nbsp;{% trans "answer to selected question" %}&nbsp;+&nbsp;
-        <input name='b' type="number" step="0.0001" style="display: inline-block">
       </div>
+      <input name='b' type="number" step="0.0001" style="display: inline-block; width: 150px;">
     </div>
     <div class="row">
     </div>
@@ -402,22 +407,23 @@
 </div>
 <br>
 <div class="row">
-  {% trans "absolute value (t/year)" %} <input type="radio" name="is-absolute" value="true">
+  <label>{% trans "User's answer to this question are" %}</label>
   <br>
-  {% trans "relative value (Percentage)" %} <input type="radio" name="is-absolute" value="false">
+  {% trans "absolute values (t/year)" %} <input type="radio" name="is-absolute" value="true">
+  <br>
+  {% trans "relative values (Percentage)" %} <input type="radio" name="is-absolute" value="false">
 </div>
 <div class="row">
-  <label>{% trans "minimum adjustable value" %} </label>
+  <label> {% trans "and have to be in range" %} </label>
   <br>
-  <input name="min-value" min="0" type="number" style="text-align: right; float: left; margin-right: 5px;">
-  <div name="unit">%</div>
+  {% trans "min" %} <input name="min-value" min="0" type="number" style="display: inline-block; width: 150px; text-align: right;">
+  <div name="unit" style="display: inline-block;">%</div>
+  {% trans "and" %} {% trans "max" %} <input name="max-value" min="0" type="number" style="display: inline-block; width: 150px; text-align: right;">
+  <div name="unit" style="display: inline-block;">%</div>
 </div>
 <div class="row">
-  <label>{% trans "maximum adjustable value" %} </label>
-  <br>
-  <input name="max-value" min="0" type="number" style="text-align: right; float: left; margin-right: 5px;">
-  <div name="unit">%</div>
-</div>
+  {% trans "with step size" %}
+  <input name="step-size" min="0" type="number" style="display: inline-block; width: 150px; text-align: right;">
 </script>
 
 <script type="text/template" id="solutions-workshop-template">
