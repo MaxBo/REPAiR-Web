@@ -35,5 +35,6 @@ class FlowFilterSerializer(serializers.ModelSerializer):
                   'process_ids',
                   'hazardous',
                   'avoidable',
+                  'anonymize',
                   'included')
         extra_kwargs = {'included': {'required': False}}

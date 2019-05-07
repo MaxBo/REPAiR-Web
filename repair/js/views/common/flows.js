@@ -73,7 +73,8 @@ var FlowsView = BaseView.extend(
             caseStudy: this.caseStudy,
             keyflowId: this.keyflowId,
             materials: this.materials,
-            displayWarnings: this.displayWarnings
+            displayWarnings: this.displayWarnings,
+            anonymize: this.filter.get('anonymize')
         });
     },
 
@@ -222,7 +223,8 @@ var FlowsView = BaseView.extend(
                     flows: flows,
                     height: 600,
                     originLevel: displayLevel,
-                    destinationLevel: displayLevel
+                    destinationLevel: displayLevel,
+                    anonymize: _this.filter.get('anonymize')
                 })
             },
             error: function(error){

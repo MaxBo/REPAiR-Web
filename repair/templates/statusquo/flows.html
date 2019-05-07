@@ -194,6 +194,9 @@
             Each selection on a specific level limits the number of available selections in the more granular selects to its right.<br>
             When loading a filter the filter level will automatically be set to the lowest level where any selections where made (not "All").
             <br><br>
+            <b>Anonymize actors</b> -
+            Actor names will be anonymized in the sankey diagram and map in workshop mode.
+            <br><br>
             <b>Direction</b> - Limits the displayed flows to a set with flows going <i>to</i> the filtered activities and actors or originating <i>from</i> those (or both: <i>from/to</i>)
           {% endblocktrans %}'>
         </a>
@@ -205,6 +208,9 @@
               <option value="activity">{% trans "Activity" %}</option>
               <option value="actor">{% trans "Actor" %} </option>
             </select>
+          </div>
+          <div class="col-md-2">
+            <input name="anonymous" type="checkbox"/>&nbsp;{% trans "Anonymize actors" %}
           </div>
         </div>
         <div class="row" style="visibility: hidden;">

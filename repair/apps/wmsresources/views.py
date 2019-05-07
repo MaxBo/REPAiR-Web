@@ -11,6 +11,8 @@ from rest_framework.decorators import action
 from owslib.util import ServiceException
 from owslib.map.wms111 import CapabilitiesError
 from requests.exceptions import ReadTimeout, ConnectionError
+from wms_client.models import WMSLayer
+from owslib.wms import WebMapService
 
 from repair.apps.utils.views import ModelReadPermissionMixin
 from repair.apps.wmsresources.models import WMSResourceInCasestudy
@@ -51,7 +53,15 @@ class WMSResourceInCasestudyViewSet(RevisionMixin,
         queryset = self.get_queryset()
         for resource in queryset:
             try:
-                resource.wmsresource.populate_wms_resource()
+                wmsresource = resource.wmsresource
+                wmsresource.populate_wms_resource()
+                layers = WMSLayer.objects.filter(
+                    wmsresource=wmsresource)
+                wms = WebMapService(wmsresource.uri,
+                                    username=wmsresource.username,
+                                    password=wmsresource.password)
+                outdated = layers.exclude(name__in=wms.contents.keys())
+                outdated.delete()
             except (ServiceException, CapabilitiesError,
                     ReadTimeout, ConnectionError) as e:
                 print(e)

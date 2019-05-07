@@ -43,6 +43,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.flows = new Flows();
             this.hideMaterials = {};
             this.displayWarnings = options.displayWarnings || false;
+            this.anonymize = options.anonymize;
             this.render();
         },
 
@@ -545,6 +546,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 var name = node.name,
                     level = node.level,
                     key = level + id;
+                    code = node.code || node.nace || node.activity__nace;
+
+                if ((_this.anonymize) && (level === 'actor'))
+                    name = gettext('Actor');
+                name += ' (' + code + ')';
+
                 if (!node.geom){
                     var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + name;
                     warnings.push(warning);
@@ -634,7 +641,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         is_stock: is_stock,
                         amount: amount,
                         fractions: flow.get('materials'),
-                        waste: flow.get('waste')
+                        waste: flow.get('waste'),
+                        process: flow.get('process')
                     });
                 }
                 i += 1;
@@ -652,15 +660,17 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     target = pFlow.target,
                     fractions = pFlow.fractions;
 
-                var wasteLabel = (pFlow.waste) ? 'Waste' : 'Product',
+                var wasteLabel = (pFlow.waste) ? gettext('Waste') : gettext('Product'),
+                    processLabel = gettext('Process') + ': ' + (pFlow.process || '-'),
                     totalAmount = Math.round(pFlow.amount),
-                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel;
+                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel+ '<br>' + processLabel ;
 
                 if(splitByComposition){
                     var cl = []
                     fractions.forEach(function(material){
                         var amount = Math.round(material.amount),
-                            label = flowLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
+                            label = flowLabel + '<br><b>Material: </b>' + material.name +
+                                    '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
                             color;
                         if (!uniqueMaterials[material.material]){
                             color = utils.colorByName(material.name)

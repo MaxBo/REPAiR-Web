@@ -18,16 +18,9 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      PostGetViewMixin)
 
 from repair.apps.asmfa.models import (
-    Flow,
-    AdministrativeLocation,
-    Actor2Actor,
-    Group2Group,
-    Material,
-    FractionFlow,
-    Actor,
-    ActivityGroup,
-    Activity,
-    AdministrativeLocation
+    Flow, AdministrativeLocation, Actor2Actor, Group2Group,
+    Material, FractionFlow, Actor, ActivityGroup, Activity,
+    AdministrativeLocation, Process
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
@@ -158,6 +151,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 unaltered: [...], # ids of materials that should be kept as they are when aggregating
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
+
+            anonymize: true/false, # anonymize the actor names
 
             # exclusive to spatial_level
             aggregation_level: {
@@ -441,13 +436,14 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         if strategy is not None:
                             agg_mat_ser['delta'] += grouped_mat['delta']
                 grouped_mats = aggregated.values()
-
+            process = Process.objects.get(id=group['process']) \
+                if group['process'] else None
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
                 ('waste', group['waste']),
                 ('stock', group['to_stock']),
-                ('process', group['process']),
+                ('process', process.name if process else ''),
                 ('amount', total_amount),
                 ('materials', grouped_mats)
             ))
