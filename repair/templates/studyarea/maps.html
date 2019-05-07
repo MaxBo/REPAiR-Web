@@ -169,7 +169,8 @@
   <div id="layers<%= resource.id %>" class="collapse row">
     <div class="col-md-1"></div>
     <div class="col-md-11">
-      <a href="<%= resource.get('wms_uri') %>?REQUEST=getCapabilities" target="_blank"><i><%= resource.get('wms_uri') %></i></a>
+      <% var wmsURI = resource.get('wms_uri'); %>
+      <a href="<%= wmsURI %><% if(!wmsURI.endsWith('?')){ %>?<% } %>REQUEST=getCapabilities" target="_blank"><i><%= wmsURI %></i></a>
       <table style="margin: 0px; table-layout: fixed;" class="entry-table">
       <% _.each(resource.get('layers'), function(layer){ %>
         <tr>

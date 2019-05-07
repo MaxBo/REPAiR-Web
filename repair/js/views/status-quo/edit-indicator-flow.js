@@ -525,8 +525,8 @@ var IndicatorFlowEditView = BaseView.extend(
             flowType = flow.flow_type || 'both',
             spatial = flow.spatial_application || 'both',
             process_ids = flow.process_ids,
-            hazardous = flow.hazardous.toLowerCase(),
-            avoidable = flow.avoidable.toLowerCase();
+            hazardous = flow.hazardous || 'both',
+            avoidable = flow.avoidable || 'both';
 
         this.originSelects.levelSelect.value = originLevel.toLowerCase();
         this.destinationSelects.levelSelect.value = destinationLevel.toLowerCase();
@@ -546,8 +546,8 @@ var IndicatorFlowEditView = BaseView.extend(
         }
          $(this.processSelect).selectpicker('refresh');
 
-        this.hazardousSelect.value = hazardous;
-        this.avoidableSelect.value = avoidable;
+        this.hazardousSelect.value = hazardous.toLowerCase();
+        this.avoidableSelect.value = avoidable.toLowerCase();
     },
 
     getSelectedProcesses: function(){

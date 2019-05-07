@@ -108,12 +108,12 @@
                 </div>
               </div>
               <% if (solutionImpl.get('quantities').length > 0) { %>
-                {% trans "Questions" %}
+                <h4>{% trans "Questions" %}</h4>
                 <% solutionImpl.get('quantities').forEach(function(quantity){ %>
                 <div class="row">
                   <% var question = questions.get(quantity.question); %>
                   <%= question.get('question') %>
-                  <input name="quantity" value="<%= quantity.value %>" data-id="<%= question.id %>" type="number" min="<%= question.get('min_value') %>" max="<%= question.get('max_value') %>" style="margin-left: 10px; margin-right: 5px">
+                  <input class="form-control" name="quantity" value="<%= quantity.value %>" data-id="<%= question.id %>" type="number" step="<%= question.get('step') %>" min="<%= question.get('min_value') %>" max="<%= question.get('max_value') %>" style="margin-left: 10px; text-align: right; width: 150px; display: inline;">
                   <% if (question.get('is_absolute')) { %>
                   {% trans "t/year" %}
                   <% } else { %>

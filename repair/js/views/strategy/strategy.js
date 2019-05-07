@@ -463,7 +463,7 @@ var StrategyView = BaseView.extend(
         });
         var geom = solutionImpl.get('geom');
         if (geom != null){
-            previewMap.addLayer('geometry')
+            previewMap.addLayer('geometry');
             geom.geometries.forEach(function(g){
                 previewMap.addGeometry(g.coordinates, {
                     projection: 'EPSG:3857', layername: 'geometry',
