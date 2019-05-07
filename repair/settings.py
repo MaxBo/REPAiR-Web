@@ -178,7 +178,10 @@ if sys.platform == 'linux':
     GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgdal.so')
     GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
-                                     'lib', 'x86_64-linux-gnu', 'libgeos_c.so')
+                                     'lib', 'libgeos_c.so')
+    if not os.path.exists(GEOS_LIBRARY_PATH):
+        GEOS_LIBRARY_PATH = os.path.join(
+            sys.exec_prefix, 'lib', 'x86_64-linux-gnu', 'libgeos_c.so')
     PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libproj.so')
 elif sys.platform == 'darwin':
