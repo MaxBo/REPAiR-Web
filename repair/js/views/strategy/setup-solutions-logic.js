@@ -171,6 +171,22 @@ var SolutionsLogicView = BaseView.extend(
         this.editItem(part, onConfirm);
     },
 
+    clonePart: function(model){
+        var _this = this,
+            attr = Object.assign({}, model.attributes);
+        delete(attr.id)
+        delete(attr.url)
+        this.solutionParts.create(attr, {
+            success: function(clone){
+                _this.alert(model.get('name') + ' ' + gettext('successfully cloned'));
+                clone.apiTag = 'solutionparts';
+                _this.renderItem(clone);
+            },
+            wait: true,
+            error: _this.onError
+        })
+    },
+
     addQuestion: function(){
         var _this = this,
             question = new GDSEModel({}, {
@@ -236,8 +252,23 @@ var SolutionsLogicView = BaseView.extend(
         var grid = (type === 'solutionparts') ? this.solutionPartsGrid: this.questionsGrid,
             modal = (type === 'solutionparts') ? this.solutionPartModal: this.questionModal;
 
-        var editBtn = itemContent.querySelector("button.edit"),
-            removeBtn = itemContent.querySelector("button.remove");
+
+
+        var buttonGroup = itemContent.querySelector(".button-box"),
+            editBtn = buttonGroup.querySelector("button.edit"),
+            removeBtn = buttonGroup.querySelector("button.remove");
+
+        var cloneBtn = document.createElement('button'),
+            iconSpan = document.createElement('span');
+        cloneBtn.classList.add('square','inverted', 'btn','btn-secondary');
+        cloneBtn.title = gettext('clone item');
+        iconSpan.classList.add('glyphicon', 'glyphicon-duplicate');
+        cloneBtn.appendChild(iconSpan);
+        buttonGroup.appendChild(cloneBtn);
+        cloneBtn.addEventListener('click', function(){
+            _this.clonePart(model);
+        })
+
         editBtn.addEventListener('click', function(){
             function onConfirm(model){
                 model.save(null, {

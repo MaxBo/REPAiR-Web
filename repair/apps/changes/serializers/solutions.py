@@ -121,7 +121,7 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     new_target_activity = IDRelatedField(required=False, allow_null=True)
     implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
     affected_flows = AffectedFlowSerializer(source='affected_flow', many=True)
-    question = IDRelatedField()
+    question = IDRelatedField(allow_null=True)
 
     # ToDo: serialize affected flows as part of this serializer
 
@@ -137,7 +137,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                   'question', 'a', 'b',
                   'keep_origin', 'new_target_activity',
                   'map_request', 'priority',
-                  'affected_flows'
+                  'affected_flows',
+                  'is_absolute'
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
@@ -146,7 +147,8 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             #'new_target_activity': {'null': True, 'required': False},
             'map_request': {'required': False},
             'documentation': {'required': False, 'allow_blank': True},
-            'map_request': {'required': False, 'allow_blank': True}
+            'map_request': {'required': False, 'allow_blank': True},
+            'is_absolute': {'required': False}
         }
 
     def update(self, instance, validated_data):
