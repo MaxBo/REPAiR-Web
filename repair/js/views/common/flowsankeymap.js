@@ -43,6 +43,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.flows = new Flows();
             this.hideMaterials = {};
             this.displayWarnings = options.displayWarnings || false;
+            this.anonymize = options.anonymize;
             this.render();
         },
 
@@ -545,6 +546,11 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 var name = node.name,
                     level = node.level,
                     key = level + id;
+                    code = node.code || node.nace || node.activity__nace;
+
+                if ((_this.anonymize) && (level === 'actor'))
+                    name = gettext('Actor');
+
                 if (!node.geom){
                     var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + name;
                     warnings.push(warning);
@@ -553,7 +559,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 var coords = node.geom.coordinates;
                 var transNode = {
                     id: id,
-                    name: name,
+                    name: name + ' (' + code + ')',
                     label: name,
                     color: node.color,
                     group: node.group,

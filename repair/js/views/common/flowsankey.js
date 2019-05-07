@@ -51,8 +51,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.destinationLevel = options.destinationLevel;
             this.flows = options.flows;
             this.el.querySelector('#sankey-stretch').value = 1;
-            this.onSelect = options.onSelect;
-            this.onDeselect = options.onDeselect;
+            this.anonymize = options.anonymize;
             this.transformedData = this.transformData(this.flows);
             this.render(this.transformedData);
 
@@ -170,12 +169,14 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                     level = node.level,
                     code = node.code || node.nace || node.activity__nace;
                     key = level + id;
+                if ((_this.anonymize) && (level === 'actor'))
+                    name = gettext('Actor');
                 // we already got this one -> skip it
                 if(indices[key] != null)
                     return indices[key];
                 idx += 1;
                 var color = node.color || utils.colorByName(name);
-                nodes.push({ id: id, name: name, color: color, code: code });
+                nodes.push({ id: id, name: name + ' (' + code + ')', color: color, code: code });
                 indices[key] = idx;
                 return idx;
             }

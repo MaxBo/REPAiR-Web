@@ -159,6 +159,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
 
+            anonymize: true/false, # anonymize the actor names
+
             # exclusive to spatial_level
             aggregation_level: {
                 origin: 'activity' or 'activitygroup', defaults to actor level

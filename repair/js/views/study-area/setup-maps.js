@@ -288,9 +288,9 @@ var SetupMapsView = BaseMapView.extend(
         if (!this.selectedNode) return;
         var _this = this;
         var isCategory = (this.selectedNode.type === 'category'),
-            model = this.selectedNode.original.chart || this.selectedNode.original.category,
-            message = (!isCategory) ? gettext('Do you really want to delete the selected chart?') :
-                      gettext('Do you really want to delete the selected category and all its charts?');
+            model = this.selectedNode.original.layer || this.selectedNode.original.category,
+            message = (!isCategory) ? gettext('Do you really want to delete the selected layer?') :
+                      gettext('Do you really want to delete the selected category and all its layers?');
         function confirmRemoval(){
             $(_this.confirmationModal).modal('hide');
             var model = _this.selectedNode.original.layer || _this.selectedNode.original.category;
@@ -304,7 +304,7 @@ var SetupMapsView = BaseMapView.extend(
                         })
                         delete _this.categoryTree[model.id];
                     }
-                    // remove chart from category (if chart was selected)
+                    // remove layer from category (if layer was selected)
                     else {
                         _this.getTreeLayerNode(model, { pop: true })
                         selectCatId = model.get('category');
