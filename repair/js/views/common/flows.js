@@ -35,6 +35,7 @@ var FlowsView = BaseView.extend(
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
         this.materials = options.materials;
+        this.strategy = options.strategy;
         this.filter = options.filter;
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
@@ -194,8 +195,12 @@ var FlowsView = BaseView.extend(
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
         this.loader.activate();
+        var data = {};
+        if (this.strategy)
+            data['strategy'] = this.strategy.id;
 
         flows.postfetch({
+            data: data,
             body: filterParams,
             success: function(response){
                 var idx = 0;
@@ -246,6 +251,9 @@ var FlowsView = BaseView.extend(
             queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
         queryParams['stock'] = (is_stock) ? 'True': 'False';
+
+        if (this.strategy)
+            queryParams['strategy'] = this.strategy.id;
 
         var origin = flow.get('origin'),
             destination = flow.get('destination'),

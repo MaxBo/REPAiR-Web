@@ -141,6 +141,10 @@ class Composition(GDSEModel):
         return is_custom
 
 
+class Process(GDSEModel):
+    name = models.TextField()
+
+
 class Product(Composition):
 
     cpa = models.CharField(max_length=255, default='')

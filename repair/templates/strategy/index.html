@@ -19,33 +19,47 @@
       <span class="sub-icon fa fa-cogs" style="right: -5px;"></span>
     </div>
     <li class="active"><a href="#solutions" data-toggle="pill"> {% trans "Solutions" %} <span class="sub-icon fas fa-puzzle-piece" style="margin-right: -5px"></span></a></li>
-    {% if request.session.mode != 1 %}
-    <li><a href="#strategy" data-toggle="pill">{% trans "Define Strategy" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
+    {% if request.session.mode == 1 %}
+    <li><a href="#solutions-logic" data-toggle="pill">{% trans "Solution Logic" %} <span class="sub-icon glyphicon glyphicon-flash" style="padding-top: 20px;"></span></a></li>
+    <li><a href="#graph" data-toggle="pill">{% trans "Graph" %} <span class="sub-icon fas fa-star-of-life"></span></a></li>
+    {% else %}
+    <li><a href="#strat-wrapper" data-toggle="pill">{% trans "Define Strategy" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
     <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
     <li><a href="#flow-target-control" data-toggle="pill" style="font-size: 0.9em">{% trans "Flow Target Control" %} <span class="sub-icon fas fa-wrench"></span></a></li>
-    {% else %}
-    <li><a href="#solutions-logic" data-toggle="pill">{% trans "Solution Logic" %} <span class="sub-icon glyphicon glyphicon-flash" style="padding-top: 20px;"></span></a></li>
     {% endif %}
   </ul>
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
 <div class="tab-content">
   <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
   <div class="tab-pane fade in active" id="solutions" style="min-height: 600px;">
   </div>
-  {% if request.session.mode != 1 %}
-  <div class="tab-pane fade" id="strategy">
+  {% if request.session.mode == 1 %}
+  <div class="tab-pane fade" id="solutions-logic" style="min-height: 600px;">
+  </div>
+  <div class="tab-pane fade" id="graph">
+    <div class="row">
+      <div style="float: left;"> {% trans "Graph build" %}:&nbsp;</div>
+      <div id="graph-note"> - </div>
+    </div>
+    <button id="build-graph" class="btn btn-primary"> {% trans "Build Graph" %} </button>
+  </div>
+  {% else %}
+  <div class="tab-pane fade" id="strat-wrapper">
+    <button style="float: right;" title="{% trans "Calculate the strategy" %}" id="calculate-strategy" class="btn btn-primary">
+      {% trans "Calculate" %}
+    </button>
+    <div style="float: right; margin-right: 5px;" id="graph-note"> - </div>
+    <div id="strategy">
+    </div>
   </div>
   <div class="tab-pane fade" id="modified-flows">
-    <h2>ToDo</h2>
   </div>
   <div class="tab-pane fade" id="flow-target-control">
     <h2>ToDo</h2>
-  </div>
-  {% else %}
-  <div class="tab-pane fade" id="solutions-logic" style="min-height: 600px;">
   </div>
   {% endif %}
 </div>
@@ -53,6 +67,7 @@
 {% include "strategy/solutions.html" %}
 {% if request.session.mode != 1 %}
 {% include "strategy/strategy.html" %}
+{% include "statusquo/flows.html" %}
 {% endif %}
 {% render_bundle 'Strategy' %}
 {% endblock %}
