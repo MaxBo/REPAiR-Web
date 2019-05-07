@@ -88,10 +88,6 @@ class RestrictedAdminSite(AdminSite):
         # check if the requested url is part of the permitted models
         permitted_apps = self.get_app_list(request)
         permitted_urls = []
-        # change is not in the urls, look directly in the models
-        if request.path.endswith('change/'):
-            if models[0]['perms']['change']:
-                return True
         for app in permitted_apps:
             permitted_urls.append(app['app_url'])
             models = app['models']
@@ -99,7 +95,16 @@ class RestrictedAdminSite(AdminSite):
                                   if 'add_url' in m)
             permitted_urls.extend(m['admin_url'] for m in models
                                   if 'admin_url' in m)
-        if request.path in permitted_urls:
+            # change url is not in model urls yet
+            for m in models:
+                if 'change' in m['perms'] and 'admin_url' in m:
+                    permitted_urls.append(m['admin_url'] + 'change/')
+        path = request.path
+        # remove specific resource from change path
+        if path.endswith('change/'):
+            path = request.path.split('/change')[0]
+            path = path.rpartition('/')[0] + '/change/'
+        if path in permitted_urls:
             return True
         return False
 
