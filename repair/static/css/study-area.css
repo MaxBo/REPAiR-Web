@@ -29,6 +29,14 @@
     background: rgba(255, 255, 255, 1);
     padding: 0px;
     border-radius: 2px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-height: 70%;
+    scrollbar-width: none;
+}
+
+.layer-tree::-webkit-scrollbar {
+    width: 0px;
 }
 
 #layer-tree {
@@ -36,8 +44,8 @@
 }
 
 #legend-items {
-    overflow: auto;
-    height: 500px;
+    overflow-x: auto;
+    max-height: 70%;
     resize: vertical;
 }
 
