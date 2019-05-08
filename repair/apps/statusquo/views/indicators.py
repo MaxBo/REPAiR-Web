@@ -61,7 +61,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         process_ids = indicator_flow.process_ids
         if (process_ids):
             process_ids = process_ids.split(',')
-            flows.filter(process__id__in=process_ids)
+            flows = flows.filter(process__id__in=process_ids)
 
         # filter flows by origin/destination nodes
         origin_node_ids = indicator_flow.origin_node_ids

@@ -405,7 +405,6 @@ var IndicatorFlowEditView = BaseView.extend(
 
     // render the sankey diagram
     renderSankey: function(){
-        console.log('rendering')
         if (this.flowsView != null) this.flowsView.close();
         var el = this.el.querySelector('.sankey-wrapper'),
             originLevel = this.originSelects.levelSelect.value,
