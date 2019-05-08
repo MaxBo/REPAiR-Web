@@ -216,6 +216,13 @@ var StrategyView = BaseView.extend(
             stakeholderIds = solutionInStrategy.get('participants'),
             stakeholderNames = [];
 
+        // workaround: remove artifact solutions in strategy
+        // ToDo: check where those come from
+        if (!solution) {
+            solutionInStrategy.destroy();
+            return;
+        };
+
         stakeholderIds.forEach(function(id){
             var stakeholder = _this.getStakeholder(id);
             stakeholderNames.push(stakeholder.get('name'));

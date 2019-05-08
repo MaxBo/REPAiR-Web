@@ -243,6 +243,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 aniToggleDiv.style.visibility = (aniToggleDiv.style.visibility == 'hidden') ? 'visible': 'hidden';
             });
             aniToggleDiv.addEventListener("click", function(){
+                if (_this.aniDotsRadio.checked)
+                    _this.aniLinesRadio.checked = true;
+                else
+                    _this.aniDotsRadio.checked = true;
                 _this.rerender();
             });
 
@@ -394,7 +398,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
         resetMapData: function(data, zoomToFit) {
             this.data = data;
             this.flowMap.clear();
-
             this.flowMap.addNodes(data.nodes);
 
             if (this.stockCheck.checked)
@@ -522,6 +525,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     name: label,
                     label: label,
                     color: cluster.color,
+                    opacity: 0.8,
                     lon: cluster.lon,
                     lat: cluster.lat,
                     radius: Math.min(40, 15 + nNodes / 2),
@@ -563,6 +567,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     name: name,
                     label: name,
                     color: node.color,
+                    opacity: 0.8,
                     group: node.group,
                     lon: coords[0].toFixed(4),
                     lat: coords[1].toFixed(4),

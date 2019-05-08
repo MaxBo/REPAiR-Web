@@ -218,14 +218,16 @@ define([
                             gap: 4,
                             offset: 0
                         };
-                        if (_this.dottedLines && strokeWidth > calcWidth) {
-                            var dashLength = 2,
-                                dashGaps = 204 - (calcWidth * 200) / 2,
+                        if (_this.dottedLines) {
+                            var dashLength = 0,
+                                // the smaller the calculated width (might be below 1) the bigger the gaps
+                                dashGaps = strokeWidth * (6 - (calcWidth / _this.maxFlowWidth) * 4),
                                 offset = Math.floor(Math.random() * Math.floor(dashGaps));
                             dash = {
                                 length: dashLength,
                                 gap: dashGaps,
-                                offset: offset
+                                offset: offset,
+                                rounded: true
                             };
                         }
                     }
@@ -272,7 +274,7 @@ define([
                     if(_this.hideTags[first.tag]) return;
                     // calculate radius by value, if radius is not given
                     var radius = Math.max(5, first.radius || calcRadius(first.value));
-                    _this.addPoint(x, y, first.label, first.innerLabel, first.color, radius);
+                    _this.addPoint(x, y, first.label, first.innerLabel, first.color, radius, first.opacity);
                 }
                 // multiple nodes at same position -> piechart
                 else {
@@ -348,7 +350,7 @@ define([
         }
 
         //function to add source nodes to the map
-        addPoint(x, y, label, innerLabel, color, radius) {
+        addPoint(x, y, label, innerLabel, color, radius, opacity) {
             var _this = this;
 
             var point = this.g.append("g").attr("class", "node");
@@ -357,7 +359,7 @@ define([
                  .attr("cy", y)
                  .attr("r", radius)
                  .style("fill", color)
-                 .style("fill-opacity", 1)
+                 .style("fill-opacity", opacity || 1)
                  .style("stroke", 'lightgrey')
                  .style("stroke-width", 1)
                  .on("mouseover", function (d) {
@@ -368,14 +370,15 @@ define([
                          .style("opacity", 0.9);
                      _this.tooltip.html(label)
                          .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
-                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
+                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px");
+                     d3.select(this).style("fill-opacity", 1);
                  })
                  .on("mouseout", function (d) {
-                     _this.tooltip.transition()
-                         .duration(500)
-                         .style("opacity", 0)
-                     }
-                 );
+                    _this.tooltip.transition()
+                        .duration(500)
+                        .style("opacity", 0)
+                    d3.select(this).style("fill-opacity", opacity);
+                 });
             point.append("text")
                  .attr("x", x)
                  .attr("y", y + 5)
@@ -415,8 +418,8 @@ define([
                 .attr("stroke", color)
                 .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
-                //.attr("stroke-linecap", "round")
-                .style("pointer-events", 'all')
+                .attr("stroke-linecap", (!options.animate || (options.dash && options.dash.rounded)) ? "round": "unset")
+                .style("pointer-events", 'stroke')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");
