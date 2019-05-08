@@ -50,7 +50,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
             this.originLevel = options.originLevel;
             this.destinationLevel = options.destinationLevel;
             this.flows = options.flows;
-            this.el.querySelector('#sankey-stretch').value = 1;
+            this.stretchInput = this.el.querySelector('#sankey-stretch');
+            if (this.stretchInput) this.stretchInput.value = 1;
             this.anonymize = options.anonymize;
             this.transformedData = this.transformData(this.flows);
             this.render(this.transformedData);
@@ -101,7 +102,7 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 language: config.session.get('language'),
                 selectable: true,
                 gradient: false,
-                stretchFactor: this.el.querySelector('#sankey-stretch').value
+                stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1
             })
 
             // redirect the event with same properties
@@ -159,7 +160,8 @@ function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
                 links = [],
                 indices = {},
                 colorCat = d3.scale.category20(),
-                norm = this.el.querySelector('#sankey-scale').value;
+                scaleInput = this.el.querySelector('#sankey-scale'),
+                norm = (scaleInput) ? scaleInput.value: 1;
 
             var idx = -1;
 
