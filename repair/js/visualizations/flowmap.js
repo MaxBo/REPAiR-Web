@@ -218,14 +218,16 @@ define([
                             gap: 4,
                             offset: 0
                         };
-                        if (_this.dottedLines && strokeWidth > calcWidth) {
-                            var dashLength = 2,
-                                dashGaps = 204 - (calcWidth * 200) / 2,
+                        if (_this.dottedLines) {
+                            var dashLength = 0,
+                                // the smaller the calculated width (might be below 1) the bigger the gaps
+                                dashGaps = strokeWidth * (6 - (calcWidth / _this.maxFlowWidth) * 4),
                                 offset = Math.floor(Math.random() * Math.floor(dashGaps));
                             dash = {
                                 length: dashLength,
                                 gap: dashGaps,
-                                offset: offset
+                                offset: offset,
+                                rounded: true
                             };
                         }
                     }
@@ -416,7 +418,7 @@ define([
                 .attr("stroke", color)
                 .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
-                //.attr("stroke-linecap", "round")
+                .attr("stroke-linecap", (!options.animate || (options.dash && options.dash.rounded)) ? "round": "unset")
                 .style("pointer-events", 'stroke')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
