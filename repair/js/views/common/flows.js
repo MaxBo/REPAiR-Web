@@ -247,12 +247,17 @@ var FlowsView = BaseView.extend(
         if (this.nodeLevel === 'activitygroup')
             filterSuffix += '__activitygroup';
         var queryParams = {},
-            is_stock = flow.get('stock');
+            is_stock = flow.get('stock'),
+            process = flow.get('process_id');
         queryParams['origin__' + filterSuffix] = flow.get('origin').id;
         if (!is_stock)
             queryParams['destination__' + filterSuffix] = flow.get('destination').id;
         queryParams['waste'] = (flow.get('waste')) ? 'True': 'False';
         queryParams['stock'] = (is_stock) ? 'True': 'False';
+        if (process)
+            queryParams['process'] = process;
+        else
+            queryParams['process__isnull'] = true;
 
         if (this.strategy)
             queryParams['strategy'] = this.strategy.id;
