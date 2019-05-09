@@ -220,9 +220,10 @@ define([
                         };
                         if (_this.dottedLines) {
                             var dashLength = 0,
-                                // the smaller the calculated width (might be below 1) the bigger the gaps
-                                dashGaps = strokeWidth * (6 - (calcWidth / _this.maxFlowWidth) * 4),
-                                offset = Math.floor(Math.random() * Math.floor(dashGaps));
+                                dashGaps = strokeWidth * 2;
+                            // the smaller the calculated width (might be below 1) the bigger the gaps
+                            dashGaps += 20 + 200 * flow.value / _this.maxFlowValue;
+                            var offset = Math.floor(Math.random() * dashGaps);
                             dash = {
                                 length: dashLength,
                                 gap: dashGaps,

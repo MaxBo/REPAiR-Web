@@ -444,6 +444,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 ('waste', group['waste']),
                 ('stock', group['to_stock']),
                 ('process', process.name if process else ''),
+                ('process_id', process.id if process else None),
                 ('amount', total_amount),
                 ('materials', grouped_mats)
             ))
