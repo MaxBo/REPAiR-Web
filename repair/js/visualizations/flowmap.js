@@ -204,10 +204,18 @@ define([
                         console.log('Warning: missing actor for flow');
                         return;
                     }
-                    //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
-                    var calcWidth = (flow.value) / _this.maxFlowValue * _this.maxFlowWidth,
-                        strokeWidth = Math.max(_this.minFlowWidth, calcWidth);
+                    // smaller dots for ainimation
+                    var maxFlowWidth = (_this.animate && _this.dottedLines) ? 20 : _this.maxFlowWidth,
+                        minFlowWidth = (_this.animate && _this.dottedLines) ? 2 : _this.minFlowWidth,
+                        normFactor = maxFlowWidth / _this.maxFlowValue;
 
+                    // this one is logarithmic but producing too many big lines
+                    //var calcWidth = maxFlowWidth * Math.log2(1 + flow.value) / Math.log2(1 + _this.maxFlowValue),
+                        //strokeWidth = Math.max(minFlowWidth, calcWidth);;
+
+                    //var strokeWidth = Math.max(_this.minFlowWidth, (flow.value * scale) / _this.maxFlowValue * _this.maxFlowWidth );
+                    var calcWidth = (flow.value) * normFactor,
+                        strokeWidth = Math.max(minFlowWidth, calcWidth);
 
                     var sourceCoords = _this.projection([source['lon'], source['lat']]),
                         targetCoords = _this.projection([target['lon'], target['lat']]);
@@ -220,9 +228,9 @@ define([
                         };
                         if (_this.dottedLines) {
                             var dashLength = 0,
-                                dashGaps = strokeWidth * 2;
-                            // the smaller the calculated width (might be below 1) the bigger the gaps
-                            dashGaps += 20 + 200 * flow.value / _this.maxFlowValue;
+                                dashGaps = strokeWidth * 3;
+                            // the smaller the flow value the bigger the gaps
+                            dashGaps += 50 - 50 * flow.value / _this.maxFlowValue;
                             var offset = Math.floor(Math.random() * dashGaps);
                             dash = {
                                 length: dashLength,
