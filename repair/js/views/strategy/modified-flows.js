@@ -73,7 +73,8 @@ var ModifiedFlowsView = BaseView.extend(
     */
     events: {
         'change select[name="filter"]': 'changeFilter',
-        'change select[name="display-level-select"]': 'draw'
+        'change select[name="display-level-select"]': 'draw',
+        'change select[name="abs-delta-select"]': 'draw'
     },
 
     /*
@@ -84,10 +85,14 @@ var ModifiedFlowsView = BaseView.extend(
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
         this.el.innerHTML = template({ filters: this.filters });
+        var deltaEl = this.el.querySelector('div[name="abs-delta"]');
+        deltaEl.style.display = 'block';
+
         this.flowFilterSelect = this.el.querySelector('select[name="filter"]');
         this.descriptionLabel = this.el.querySelector('#filter-description');
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.flowsEl = this.el.querySelector('#flows-render-content');
+        this.deltaDisplaySelect = this.el.querySelector('select[name="abs-delta-select"]')
         this.displayLevelSelect.disabled = true;
         this.flowsEl.style.visibility = 'hidden';
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
@@ -102,6 +107,7 @@ var ModifiedFlowsView = BaseView.extend(
         var selected = this.flowFilterSelect.value,
             filter = this.filters.get(selected);
         this.displayLevelSelect.disabled = false;
+        this.deltaDisplaySelect.disabled = false;
         this.flowsEl.style.visibility = 'visible';
         this.descriptionLabel.innerHTML = filter.get('description');
         if (this.flowsView) this.flowsView.close();
@@ -121,8 +127,9 @@ var ModifiedFlowsView = BaseView.extend(
     },
 
     draw: function(){
-        var displayLevel = this.displayLevelSelect.value;
-        if (this.flowsView) this.flowsView.draw(displayLevel);
+        var displayLevel = this.displayLevelSelect.value,
+            showDelta = this.deltaDisplaySelect.value === 'delta';
+        if (this.flowsView) this.flowsView.draw(displayLevel, showDelta);
     },
 
     close: function(){

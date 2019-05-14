@@ -168,7 +168,7 @@ var FlowsView = BaseView.extend(
         return filterParams;
     },
 
-    draw: function(displayLevel){
+    draw: function(displayLevel, showDelta){
         this.flowMem = {};
         if (this.flowMapView != null) this.flowMapView.clear();
         if (this.flowSankeyView != null) this.flowSankeyView.close();
@@ -184,54 +184,66 @@ var FlowsView = BaseView.extend(
         var collection = (displayLevel == 'actor') ? this.actors:
             (displayLevel == 'activity') ? this.activities:
             this.activityGroups;
-        var filterParams = this.getFlowFilterParams();
 
-        filterParams['aggregation_level'] = {
-            origin: displayLevel,
-            destination: displayLevel
-        };
+        function draw(flows){
+            _this.flowSankeyView = new FlowSankeyView({
+                el: el,
+                width:  el.clientWidth - 10,
+                flows: flows,
+                height: 600,
+                originLevel: displayLevel,
+                destinationLevel: displayLevel,
+                anonymize: _this.filter.get('anonymize'),
+                showDelta: showDelta
+            })
+        }
+        // no need to fetch flows if display level didn't change from last time
+        if (this.displayLevel != displayLevel) {
+            var filterParams = this.getFlowFilterParams();
 
-        var flows = new GDSECollection([], {
-            apiTag: 'flows',
-            apiIds: [ this.caseStudy.id, this.keyflowId]
-        });
-        this.loader.activate();
-        var data = {};
-        if (this.strategy)
-            data['strategy'] = this.strategy.id;
+            filterParams['aggregation_level'] = {
+                origin: displayLevel,
+                destination: displayLevel
+            };
 
-        flows.postfetch({
-            data: data,
-            body: filterParams,
-            success: function(response){
-                var idx = 0;
-                flows.forEach(function(flow){
-                    var origin = flow.get('origin'),
-                        destination = flow.get('destination');
-                    // api aggregates flows and doesn't return an id
-                    // generate an internal one to assign interactions
-                    flow.set('id', idx);
-                    idx++;
-                    origin.color = utils.colorByName(origin.name);
-                    if (!flow.get('stock'))
-                        destination.color = utils.colorByName(destination.name)
-                })
-                _this.loader.deactivate();
-                _this.flowSankeyView = new FlowSankeyView({
-                    el: el,
-                    width:  el.clientWidth - 10,
-                    flows: flows,
-                    height: 600,
-                    originLevel: displayLevel,
-                    destinationLevel: displayLevel,
-                    anonymize: _this.filter.get('anonymize')
-                })
-            },
-            error: function(error){
-                _this.loader.deactivate();
-                _this.onError(error);
-            }
-        })
+            this.flows = new GDSECollection([], {
+                apiTag: 'flows',
+                apiIds: [ this.caseStudy.id, this.keyflowId]
+            });
+            this.loader.activate();
+            var data = {};
+            if (this.strategy)
+                data['strategy'] = this.strategy.id;
+
+            this.flows.postfetch({
+                data: data,
+                body: filterParams,
+                success: function(response){
+                    var idx = 0;
+                    _this.flows.forEach(function(flow){
+                        var origin = flow.get('origin'),
+                            destination = flow.get('destination');
+                        // api aggregates flows and doesn't return an id
+                        // generate an internal one to assign interactions
+                        flow.set('id', idx);
+                        idx++;
+                        origin.color = utils.colorByName(origin.name);
+                        if (!flow.get('stock'))
+                            destination.color = utils.colorByName(destination.name)
+                    })
+                    _this.loader.deactivate();
+                    draw(_this.flows)
+                },
+                error: function(error){
+                    _this.loader.deactivate();
+                    _this.onError(error);
+                }
+            })
+        }
+        else {
+            draw(this.flows)
+        }
+        this.displayLevel = displayLevel;
     },
 
     addGroupedActors: function(flow){

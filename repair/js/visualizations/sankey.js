@@ -240,13 +240,13 @@ class Sankey{
                     .attr("id", gradientId);
                 linearGradient.append("stop")
                     .attr("offset", "0%")
-                    .attr("stop-color", d.source.color);
+                    .attr("stop-color", d.color || d.source.color);
                 linearGradient.append("stop")
                     .attr("offset", "100%")
-                    .attr("stop-color", d.target.color);
+                    .attr("stop-color", d.color || d.target.color);
                 return "url(#" + gradientId + ")";
             }
-            return d.source.color || '#000';
+            return d.color || d.source.color || '#000';
         }
 
         var link = g.append("g").attr("class", "link-container")
@@ -257,7 +257,7 @@ class Sankey{
             .attr("d", path)
             .sort(function(a, b) { return b.dy - a.dy; })
             .style("stroke", strokeColor)
-            .style("fill", function(d){ return (d.causesCycle ? d.source.color : "none") })
+            .style("fill", function(d){ return (d.causesCycle ? d.color || d.source.color : "none") })
             .on('mousemove', function(event) {
                 tipLinks
                     .style("top", function() {

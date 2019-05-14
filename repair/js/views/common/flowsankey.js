@@ -48,6 +48,7 @@ var FlowSankeyView = BaseView.extend(
         this.height = options.height || this.width / 3;
         this.forceSideBySide = options.forceSideBySide || false;
         this.originLevel = options.originLevel;
+        this.showDelta = options.showDelta;
         this.destinationLevel = options.destinationLevel;
         this.flows = options.flows;
         this.stretchInput = this.el.querySelector('#sankey-stretch');
@@ -55,7 +56,6 @@ var FlowSankeyView = BaseView.extend(
         this.anonymize = options.anonymize;
         this.transformedData = this.transformData(this.flows);
         this.render(this.transformedData);
-
     },
 
     /*
@@ -238,6 +238,8 @@ var FlowSankeyView = BaseView.extend(
                 amount = flow.get('amount'),
                 value = (norm === 'log')? normalize(amount): Math.round(amount);
 
+            var color = (!_this.showDelta) ? source.color : (value > 0) ? 'green': 'red';
+
             links.push({
                 id: flow.id,
                 originalData: flow,
@@ -246,6 +248,7 @@ var FlowSankeyView = BaseView.extend(
                 units: gettext('t/year'),
                 source: source,
                 target: target,
+                color: color,
                 isStock: isStock,
                 text: processRepr(flow) + '<br><br><u>' + typeRepr(flow) + '</u><br>' + crepr,
                 composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')

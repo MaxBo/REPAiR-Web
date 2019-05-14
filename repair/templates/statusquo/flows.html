@@ -50,16 +50,16 @@
 <!-- workshop view filters -->
 <script type="text/template" id="workshop-flows-template">
 <div class="row bordered">
-  <div class="col-md-4" style="border-right: 1px solid lightgrey;">
+  <div class="col-md-4">
     <div class="row">
       <h4 style="margin-right: 10px; float: left;">{% trans "View" %}</h4>
-      <select name="filter" class="form-control" style="max-width: 70%; float: left;">
+      <select name="filter" class="form-control" style="max-width: 60%; float: left;">
         <option disabled selected value="-1"> {% trans "Select" %} </option>
         <% filters.each(function(filter) { %>
           <option value="<%= filter.id %>"> <%= filter.get('name') %></option>
         <% });  %>
       </select>
-      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="View" style="float: left; margin-right: 10px;" data-html="true" tabindex="0"
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="{% trans "View" %}" style="float: left; margin-right: 10px;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
           Select a predefined view. The flows in a view are filtered to match certain criteria.
         {% endblocktrans %}">
@@ -67,17 +67,31 @@
       <div id="filter-description" class="input-label"></div>
     </div>
   </div>
-  <div class="col-md-5">
+  <div class="col-md-3" style="border-left: 1px solid lightgrey;">
     <div class="row">
       <h4 style="margin-right: 10px; float: left;">{% trans "Level" %} </h4>
-      <select class="form-control" name="display-level-select" style="max-width: 200px; float: left;">
+      <select class="form-control" name="display-level-select" style="max-width: 60%; float: left;">
         <option value="activitygroup">{% trans "Activity Group" %}</option>
         <option value="activity">{% trans "Activity" %}</option>
         <option value="actor">{% trans "Actor" %} </option>
       </select>
-      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Level" style="float: left;" data-html="true" tabindex="0"
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="{% trans "Level" %}" style="float: left;" data-html="true" tabindex="0"
         data-content="{% blocktrans %}
           All data is based on flows between actors. The data will be aggregated to the selected level.
+        {% endblocktrans %}">
+      </a>
+    </div>
+  </div>
+  <div name="abs-delta" class="col-md-4" style="border-left: 1px solid lightgrey; display: None;">
+    <div class="row">
+      <h4 style="margin-right: 10px; float: left;">{% trans "Values" %} </h4>
+      <select disabled class="form-control" name="abs-delta-select" style="max-width: 60%; float: left;">
+        <option value="absolute">{% trans "Absolute Values of Strategy" %}</option>
+        <option value="delta">{% trans "Difference of Strategy compared to Status Quo" %} </option>
+      </select>
+      <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="{% trans "Values" %}" style="float: left;" data-html="true" tabindex="0"
+        data-content="{% blocktrans %}
+          Display the absolute values calculated for your implemented strategy or the difference compared to the Status Quo.
         {% endblocktrans %}">
       </a>
     </div>
