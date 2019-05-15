@@ -433,7 +433,7 @@ define([
                 .attr("fill", 'none')
                 .attr("stroke-opacity", 0.5)
                 .attr("stroke-linecap", (!options.animate || (options.dash && options.dash.rounded)) ? "round": "unset")
-                .style("pointer-events", 'stroke')
+                .style("pointer-events", (options.animate && (options.dash && options.dash.rounded)) ? 'none' : 'stroke')
                 .on("mouseover", function () {
                     d3.select(this).node().parentNode.appendChild(this);
                     d3.select(this).style("cursor", "pointer");
