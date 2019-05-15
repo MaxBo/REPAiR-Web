@@ -544,12 +544,15 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 var id = node.id,
                     clusterId = clusterMap[id];
 
-                // node already clustered
+                // node is clustered, take cluster as origin resp. destination
                 if (clusterId != null) return nodes[clusterId];
 
+                // already transformed
+                var transNode = nodes[id];
+                if (transNode) return transNode;
+
                 var name = node.name,
-                    level = node.level,
-                    key = level + id;
+                    level = node.level;
                     code = node.code || node.nace || node.activity__nace;
 
                 if ((_this.anonymize) && (level === 'actor'))
@@ -562,7 +565,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     return;
                 }
                 var coords = node.geom.coordinates;
-                var transNode = {
+                transNode = {
                     id: id,
                     name: name,
                     label: name,
@@ -582,8 +585,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             function aggregate(flow, source, target) {
                 var key = flow.get('waste') + source.id,
                     is_stock = flow.get('stock');
-                if (!is_stock) key += + '-' + target.id;
+                if (!is_stock) key += '-' + target.id;
                 var mapped = aggMap[key];
+                // not mapped yet -> create mapped flow
                 if (!mapped){
                     mapped = {
                         id: key,
@@ -601,6 +605,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     aggMap[key] = mapped;
                     pFlows.push(mapped);
                 }
+                // mapped -> add to mapped flow
                 else {
                     fractions = mapped.fractions;
                     flow.get('materials').forEach(function(material){
@@ -616,7 +621,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     mapped.amount += flow.get('amount');
                 }
             }
-
             i = 0;
             // add the flows that don't have to be aggregated, because origin and destination are not clustered
             flows.forEach(function(flow) {
@@ -653,6 +657,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 }
                 i += 1;
             })
+
             var maxClusterStock = 0;
             // posproc the aggregation (just dict to list)
             Object.values(aggMap).forEach(function(flow){
