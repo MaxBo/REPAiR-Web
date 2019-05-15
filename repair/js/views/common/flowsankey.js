@@ -55,7 +55,6 @@ var FlowSankeyView = BaseView.extend(
         this.anonymize = options.anonymize;
         this.transformedData = this.transformData(this.flows);
         this.render(this.transformedData);
-
     },
 
     /*
@@ -195,7 +194,8 @@ var FlowSankeyView = BaseView.extend(
                 totalAmount = flow.get('amount');
 
             fractions.forEach(function(material){
-                var fraction = material.amount / totalAmount,
+                var amount = (material.value != null) ? material.value : material.amount,
+                    fraction = amount / totalAmount,
                     value = Math.round(fraction * 100000) / 1000;
                 text += _this.format(value) + '% ' + material.name;
                 if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
@@ -221,7 +221,8 @@ var FlowSankeyView = BaseView.extend(
 
         flows.forEach(function(flow){
             var value = flow.get('amount');
-            if (value < 0.5) return;
+            // skip flows with zero amount
+            if (value === 0) return;
             var origin = flow.get('origin'),
                 destination = flow.get('destination'),
                 isStock = flow.get('stock');
@@ -242,10 +243,11 @@ var FlowSankeyView = BaseView.extend(
                 id: flow.id,
                 originalData: flow,
                 amount: amount,
-                value: value,
+                value: Math.abs(value),
                 units: gettext('t/year'),
                 source: source,
                 target: target,
+                color: (flow.color) ? flow.color: source.color,
                 isStock: isStock,
                 text: processRepr(flow) + '<br><br><u>' + typeRepr(flow) + '</u><br>' + crepr,
                 composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')

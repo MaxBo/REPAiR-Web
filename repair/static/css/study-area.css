@@ -45,8 +45,12 @@
 
 #legend-items {
     overflow-x: auto;
-    max-height: 70%;
+    height: 400px;
     resize: vertical;
+}
+
+#legend-items>li {
+    max-width: 400px;
 }
 
 #legend.workshop {
@@ -73,6 +77,10 @@
 
 #legend.workshop>.row>h4{
     float: left;
+}
+
+#layer-tree .jstree-leaf {
+    max-width: 400px;
 }
 
 #layer-tree-buttons {

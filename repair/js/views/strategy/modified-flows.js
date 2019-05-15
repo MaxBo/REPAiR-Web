@@ -84,6 +84,7 @@ var ModifiedFlowsView = BaseView.extend(
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
         this.el.innerHTML = template({ filters: this.filters });
+
         this.flowFilterSelect = this.el.querySelector('select[name="filter"]');
         this.descriptionLabel = this.el.querySelector('#filter-description');
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
