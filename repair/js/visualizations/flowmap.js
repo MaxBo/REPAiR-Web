@@ -296,7 +296,8 @@ define([
                         label += node.label + '<br><br>';
                         data.push({
                             'color': node.color,
-                            'value': node.value || 1
+                            'value': node.value || 1,
+                            'opacity': node.opacity
                         })
                     })
                     radius = Math.max(5, (radius + calcRadius(total)) * scaleFactor);
@@ -337,6 +338,9 @@ define([
                 .style("fill", function(d, i) {
                     return d.data.color;
                 })
+                //.style("fill-opacity", function(d, i) {
+                    //return d.data.opacity || 1;
+                //})
                 .style("stroke", 'lightgrey')
                 .style("stroke-width", 1)
                 .style("pointer-events", 'all')
@@ -349,13 +353,14 @@ define([
                     _this.tooltip.html(label)
                         .style("left", (d3.event.pageX - rect.x - window.pageXOffset) + "px")
                         .style("top", (d3.event.pageY - rect.y - 28 - window.pageYOffset) + "px")
+                    //d3.select(this).style("fill-opacity", 1);
                 })
                 .on("mouseout", function (d) {
                     _this.tooltip.transition()
                         .duration(500)
                         .style("opacity", 0)
-                    }
-                );
+                    //d3.select(this).style("fill-opacity", d.data.opacity || 1);
+                });
         }
 
         //function to add source nodes to the map

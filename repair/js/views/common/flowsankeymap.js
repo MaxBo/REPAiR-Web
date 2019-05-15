@@ -41,7 +41,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             this.locations = {};
             this.flows = new Flows();
-            this.hideMaterials = {};
+            this.showMaterials = {};
             this.displayWarnings = options.displayWarnings || false;
             this.anonymize = options.anonymize;
             this.render();
@@ -306,7 +306,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 colorDiv.style.background = color;
                 colorDiv.style.float = 'left';
                 check.type = 'checkbox';
-                check.checked = !_this.hideMaterials[matId];
+                check.checked = _this.showMaterials[matId] === true;
                 check.style.pointerEvents = 'none';
                 div.appendChild(colorDiv);
                 div.appendChild(text);
@@ -314,7 +314,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this.legend.appendChild(div);
                 div.addEventListener('click', function(){
                     check.checked = !check.checked;
-                    _this.hideMaterials[matId] = !check.checked;
+                    _this.showMaterials[matId] = check.checked;
                     _this.flowMap.toggleTag(matId, check.checked);
                     _this.rerender();
                 })
@@ -528,7 +528,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     opacity: 0.8,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: Math.min(40, 15 + nNodes / 2),
+                    radius: Math.min(25, 10 + nNodes / 3),
                     innerLabel: nNodes,
                     cluster: cluster,
                     tag: 'actor'
@@ -757,6 +757,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         group: source.group,
                         lon: source.lon,
                         lat: source.lat,
+                        opacity: 0.8,
                         //radius: radius,
                         value: Math.abs(totalAmount),
                         tag: 'stock'
