@@ -47,6 +47,7 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'change select[name="abs-delta-select"]': 'redraw'
     },
 
     /*
@@ -65,6 +66,12 @@ var FlowsView = BaseView.extend(
         this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
         this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
         this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
+
+        var deltaEl = this.el.querySelector('div[name="abs-delta"]');
+        this.deltaDisplaySelect = this.el.querySelector('select[name="abs-delta-select"]')
+        if(this.strategy){
+            deltaEl.style.display = 'block';
+        }
     },
     // render the empty sankey map
     renderSankeyMap: function(){
@@ -168,7 +175,12 @@ var FlowsView = BaseView.extend(
         return filterParams;
     },
 
-    draw: function(displayLevel, showDelta){
+    redraw: function(){
+        if (!this.displayLevel) return;
+        this.draw(this.displayLevel)
+    },
+
+    draw: function(displayLevel){
         this.flowMem = {};
         if (this.flowMapView != null) this.flowMapView.clear();
         if (this.flowSankeyView != null) this.flowSankeyView.close();
@@ -177,6 +189,7 @@ var FlowsView = BaseView.extend(
         this.nodeLevel = displayLevel.toLowerCase();
 
         var el = this.sankeyWrapper,
+            showDelta = this.deltaDisplaySelect.value === 'delta',
             _this = this;
 
         // pass all known nodes to sankey (not only the filtered ones) to avoid
@@ -186,6 +199,17 @@ var FlowsView = BaseView.extend(
             this.activityGroups;
 
         function draw(flows){
+            // override value and color
+            _this.flows.forEach(function(flow){
+                var amount = (showDelta) ? flow.get('delta') : flow._amount;
+                flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
+                flow.set('amount', amount)
+                var materials = flow.get('materials');
+                flow.get('materials').forEach(function(material){
+                    material.amount = (showDelta) ? material.delta : material._amount;
+                })
+                flow.set('materials', materials);
+            });
             _this.flowSankeyView = new FlowSankeyView({
                 el: el,
                 width:  el.clientWidth - 10,
@@ -193,8 +217,7 @@ var FlowsView = BaseView.extend(
                 height: 600,
                 originLevel: displayLevel,
                 destinationLevel: displayLevel,
-                anonymize: _this.filter.get('anonymize'),
-                showDelta: showDelta
+                anonymize: _this.filter.get('anonymize')
             })
         }
         // no need to fetch flows if display level didn't change from last time
@@ -221,15 +244,27 @@ var FlowsView = BaseView.extend(
                 success: function(response){
                     var idx = 0;
                     _this.flows.forEach(function(flow){
+                        // for testing only!!!
+                        //var delta = (Math.random() * 2000) - 1000;
+                        //flow.set('delta', delta);
                         var origin = flow.get('origin'),
                             destination = flow.get('destination');
                         // api aggregates flows and doesn't return an id
                         // generate an internal one to assign interactions
                         flow.set('id', idx);
                         idx++;
+
+                        // remember original amounts to be able to swap amount with delta and back
+                        flow._amount = flow.get('amount');
+                        var materials = flow.get('materials');
+                        flow.get('materials').forEach(function(material){
+                            material._amount =  material.amount;
+                        })
+                        flow.set('materials', materials);
+
                         origin.color = utils.colorByName(origin.name);
                         if (!flow.get('stock'))
-                            destination.color = utils.colorByName(destination.name)
+                            destination.color = utils.colorByName(destination.name);
                     })
                     _this.loader.deactivate();
                     draw(_this.flows)
@@ -250,7 +285,8 @@ var FlowsView = BaseView.extend(
         // put filter params defined by user in filter section into body
         var bodyParams = this.getFlowFilterParams(),
             filterSuffix = 'activity',
-            _this = this;
+            _this = this,
+            showDelta = this.deltaDisplaySelect.value === 'delta';
         // there might be multiple flows in between the same actors,
         // force to aggregate them to one flow
         bodyParams['aggregation_level'] = { origin:"actor", destination:"actor" }
@@ -294,6 +330,21 @@ var FlowsView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
 
+        function addFlows(flows){
+            // override value and color
+            flows.forEach(function(flow){
+                var amount = (showDelta) ? flow.get('delta') : flow._amount;
+                flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
+                flow.set('amount', amount)
+                var materials = flow.get('materials');
+                flow.get('materials').forEach(function(material){
+                    material.amount = (showDelta) ? material.delta : material._amount;
+                })
+                flow.set('materials', materials);
+            });
+            _this.flowMapView.addFlows(flows);
+        }
+
         var promise = new Promise(function(resolve, reject){
             var mem = _this.flowMem[flow.id];
             // flows were not fetched yet
@@ -313,8 +364,15 @@ var FlowsView = BaseView.extend(
                                 d.group = destination_group;
                                 d.color = destination.color;
                             }
-                            _this.flowMapView.addFlows(f);
+                            // remember original amounts to be able to swap amount with delta and back
+                            f._amount = f.get('amount');
+                            var materials = f.get('materials');
+                            f.get('materials').forEach(function(material){
+                                material._amount =  material.amount;
+                            })
+                            f.set('materials', materials);
                         })
+                        addFlows(flows);
                         _this.flowMem[flow.id] = flows;
                         resolve();
                     },
@@ -323,7 +381,7 @@ var FlowsView = BaseView.extend(
             }
             // add already fetched nodes
             else {
-                _this.flowMapView.addFlows(mem);
+                addFlows(mem);
                 resolve();
             }
         })
@@ -339,6 +397,7 @@ var FlowsView = BaseView.extend(
         var promises = [];
         this.loader.activate();
         data.forEach(function(d){
+
             // display level actor
             if (_this.nodeLevel === 'actor'){
                 _this.flowMapView.addFlows(d);

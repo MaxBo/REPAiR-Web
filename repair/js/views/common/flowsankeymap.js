@@ -584,7 +584,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     is_stock = flow.get('stock');
                 if (!is_stock) key += + '-' + target.id;
                 var mapped = aggMap[key];
-                // not
                 if (!mapped){
                     mapped = {
                         id: key,
@@ -610,8 +609,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             mat = Object.assign({}, material);
                             fractions[material.material] = mat;
                         }
-                        else
+                        else{
                             mat.amount += material.amount;
+                        }
                     })
                     mapped.amount += flow.get('amount');
                 }
@@ -645,6 +645,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         target: target,
                         is_stock: is_stock,
                         amount: amount,
+                        color: flow.color,
                         fractions: flow.get('materials'),
                         waste: flow.get('waste'),
                         process: flow.get('process')
@@ -691,7 +692,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             label: label,
                             source: source.id,
                             target: target.id,
-                            value: amount,
+                            value: Math.abs(amount),
                             material: material.material,
                             tag: material.material,
                             color: color
@@ -706,8 +707,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         label: label,
                         source: source.id,
                         target: target.id,
-                        color: source.color,
-                        value: totalAmount
+                        color: pFlow.color || source.color,
+                        value: Math.abs(totalAmount)
                     }]
                 }
             }
@@ -741,7 +742,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             lon: source.lon,
                             lat: source.lat,
                             //radius: radius,
-                            value: amount,
+                            value: Math.abs(amount),
                             tag: material.material
                         })
                     })
@@ -757,7 +758,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         lon: source.lon,
                         lat: source.lat,
                         //radius: radius,
-                        value: totalAmount,
+                        value: Math.abs(totalAmount),
                         tag: 'stock'
                     }]
                     return stock;

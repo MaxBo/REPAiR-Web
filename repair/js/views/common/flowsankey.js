@@ -48,7 +48,6 @@ var FlowSankeyView = BaseView.extend(
         this.height = options.height || this.width / 3;
         this.forceSideBySide = options.forceSideBySide || false;
         this.originLevel = options.originLevel;
-        this.showDelta = options.showDelta;
         this.destinationLevel = options.destinationLevel;
         this.flows = options.flows;
         this.stretchInput = this.el.querySelector('#sankey-stretch');
@@ -195,7 +194,8 @@ var FlowSankeyView = BaseView.extend(
                 totalAmount = flow.get('amount');
 
             fractions.forEach(function(material){
-                var fraction = material.amount / totalAmount,
+                var amount = (material.value != null) ? material.value : material.amount,
+                    fraction = amount / totalAmount,
                     value = Math.round(fraction * 100000) / 1000;
                 text += _this.format(value) + '% ' + material.name;
                 if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
@@ -221,7 +221,8 @@ var FlowSankeyView = BaseView.extend(
 
         flows.forEach(function(flow){
             var value = flow.get('amount');
-            if (value < 0.5) return;
+            // skip flows with zero amount
+            if (value === 0) return;
             var origin = flow.get('origin'),
                 destination = flow.get('destination'),
                 isStock = flow.get('stock');
@@ -238,17 +239,15 @@ var FlowSankeyView = BaseView.extend(
                 amount = flow.get('amount'),
                 value = (norm === 'log')? normalize(amount): Math.round(amount);
 
-            var color = (!_this.showDelta) ? source.color : (value > 0) ? 'green': 'red';
-
             links.push({
                 id: flow.id,
                 originalData: flow,
                 amount: amount,
-                value: value,
+                value: Math.abs(value),
                 units: gettext('t/year'),
                 source: source,
                 target: target,
-                color: color,
+                color: (flow.color) ? flow.color: source.color,
                 isStock: isStock,
                 text: processRepr(flow) + '<br><br><u>' + typeRepr(flow) + '</u><br>' + crepr,
                 composition: crepr.replace(new RegExp('<br>', 'g'), ' | ')
