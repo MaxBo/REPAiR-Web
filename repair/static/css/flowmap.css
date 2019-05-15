@@ -28,19 +28,19 @@ div.sankeymaptooltip {
 
 .animated.flow {
   /*stroke-dasharray: 10, 4;*/
-  animation: flow 10s linear infinite;
-  -webkit-animation: flow 10s linear infinite;
+  animation: flow 30s linear infinite;
+  -webkit-animation: flow 30s linear infinite;
 }
 
 @keyframes flow {
   to {
-    stroke-dashoffset: -100;
+    stroke-dashoffset: -300;
   }
 }
 
 @-webkit-keyframes flow {
   to {
-    stroke-dashoffset: -100;
+    stroke-dashoffset: -300;
   }
 }
 
