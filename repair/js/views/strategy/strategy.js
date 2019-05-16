@@ -542,16 +542,13 @@ var StrategyView = BaseView.extend(
     */
     setupEditor: function(solutionImpl){
         var _this = this,
-            solution = this.solutions.get(solutionImpl.get('solution'));
-        // remove old map
-        //if (this.editorMap){
-            //this.editorMap.map.setTarget(null);
-            //this.editorMap.map = null;
-            //this.editorMap = null;
-        //}
-        //this.editorMap = new Map({
-            //el: el
-        //});
+            solution = this.solutions.get(solutionImpl.get('solution')),
+            html = document.getElementById('drawing-tools-template').innerHTML,
+            template = _.template(html),
+            toolsDiv = document.createElement('div');
+
+        toolsDiv.innerHTML = template();
+        this.el.querySelector('#base-map').prepend(toolsDiv);
 
         this.editorMap = this.editorMapView.map;
 
@@ -563,13 +560,13 @@ var StrategyView = BaseView.extend(
             stroke: 'grey',
             fill: 'rgba(70, 70, 70, 0.5)',
             strokeWidth: 1,
-            zIndex: 0
+            zIndex: 999
         });
         this.editorMap.addLayer('implementation-area', {
             stroke: '#aad400',
             fill: 'rgba(170, 212, 0, 0)',
             strokeWidth: 1,
-            zIndex: 0
+            zIndex: 998
         });
 
         var geom = solutionImpl.get('geom');
@@ -632,7 +629,6 @@ var StrategyView = BaseView.extend(
             //tool.addEventListener('change', toolChanged);
             $(tool).on('change', toolChanged)
         }
-
 
         var implArea = solution.get('possible_implementation_area') || '';
         if(implArea) {
