@@ -26,6 +26,7 @@ from django.views.i18n import JavaScriptCatalog
 from django.views.generic import TemplateView
 from repair.apps.wmsresources.views import (WMSProxyView)
 from repair.apps import admin
+from repair.apps.changes.serializers import reset_strategy_status
 #from django.contrib import admin
 
 
@@ -66,3 +67,5 @@ urlpatterns = [
 ] \
 + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) \
 + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+reset_strategy_status()

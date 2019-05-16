@@ -163,6 +163,16 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         '''
         self.check_permission(request, 'view')
 
+        strategy_id = request.query_params.get('strategy', None)
+        if strategy_id is not None:
+            strategy = Strategy.objects.get(id=strategy_id)
+            if strategy.status == 0:
+                return HttpResponseBadRequest(
+                    _('calculation is not done yet'))
+            if strategy.status == 1:
+                return HttpResponseBadRequest(
+                    _('calculation is still in process'))
+
         # filter by query params
         queryset = self._filter(kwargs, query_params=request.query_params,
                                 SerializerClass=self.get_serializer_class())
