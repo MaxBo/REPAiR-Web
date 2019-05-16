@@ -60,21 +60,21 @@ def reset_strategy_status():
     # there won't be any strategies anyway
     try:
         strategies = Strategy.objects.all()
+        # look for strategies marked as being calculated and update their status
+        # according to found graph
+        for strategy in strategies:
+            if strategy.status != 1:
+                continue
+            sgraph = StrategyGraph(strategy)
+            if not sgraph.exists:
+                strategy.status = 0
+                strategy.date = null
+            else:
+                strategy.status = 2
+                strategy.date = sgraph.date
+            strategy.save()
     except OperationalError:
         return
-    # look for strategies marked as being calculated and update their status
-    # according to found graph
-    for strategy in strategies:
-        if strategy.status != 1:
-            continue
-        sgraph = StrategyGraph(strategy)
-        if not sgraph.exists:
-            strategy.status = 0
-            strategy.date = null
-        else:
-            strategy.status = 2
-            strategy.date = sgraph.date
-        strategy.save()
 
 
 class StrategySerializer(CreateWithUserInCasestudyMixin,
