@@ -1,9 +1,10 @@
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection/',
-        'collections/geolocations/',
+        'collections/geolocations/','views/study-area/workshop-maps',
         'visualizations/map', 'utils/utils', 'muuri', 'openlayers',
         'app-config', 'bootstrap', 'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, GeoLocations, Map, utils, Muuri, ol, config){
+function(BaseView, _, GDSECollection, GeoLocations, BaseMapView, Map, utils,
+         Muuri, ol, config){
 /**
 *
 * @author Christoph Franke
@@ -288,7 +289,15 @@ var StrategyView = BaseView.extend(
         }
         $(stakeholderSelect).selectpicker();
 
-        this.renderEditorMap('editor-map', solutionImpl);
+        if (this.editorMapView) this.editorMapView.close();
+        this.editorMapView = new BaseMapView({
+            template: 'base-maps-template',
+            el: document.getElementById('editor-map'),
+            caseStudy: this.caseStudy,
+            onReady: function(){
+                _this.setupEditor(solutionImpl);
+            }
+        });
 
         var hasActorsToPick = false;
         solution.parts.forEach(function(part){
@@ -531,22 +540,17 @@ var StrategyView = BaseView.extend(
     /*
     * render the map to draw on inside the solution modal
     */
-    renderEditorMap: function(divid, solutionImpl){
+    setupEditor: function(solutionImpl){
         var _this = this,
-            el = document.getElementById(divid),
-            solution = this.solutions.get(solutionImpl.get('solution'));
-        // calculate (min) height
-        var height = document.body.clientHeight * 0.6;
-        el.style.height = height + 'px';
-        // remove old map
-        if (this.editorMap){
-            this.editorMap.map.setTarget(null);
-            this.editorMap.map = null;
-            this.editorMap = null;
-        }
-        this.editorMap = new Map({
-            el: el
-        });
+            solution = this.solutions.get(solutionImpl.get('solution')),
+            html = document.getElementById('drawing-tools-template').innerHTML,
+            template = _.template(html),
+            toolsDiv = document.createElement('div');
+
+        toolsDiv.innerHTML = template();
+        this.el.querySelector('#base-map').prepend(toolsDiv);
+
+        this.editorMap = this.editorMapView.map;
 
         if (this.focusPoly){
             this.editorMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
@@ -556,40 +560,21 @@ var StrategyView = BaseView.extend(
             stroke: 'grey',
             fill: 'rgba(70, 70, 70, 0.5)',
             strokeWidth: 1,
-            zIndex: 0
+            zIndex: 999
         });
         this.editorMap.addLayer('implementation-area', {
             stroke: '#aad400',
             fill: 'rgba(170, 212, 0, 0)',
             strokeWidth: 1,
-            zIndex: 0
+            zIndex: 998
         });
-
-
-        var implArea = solution.get('possible_implementation_area') || '';
-        if(implArea) {
-            var mask = solution.get('edit_mask');
-            var maskArea = this.editorMap.addPolygon(mask.coordinates, {
-                projection: this.projection,
-                layername: 'mask',
-                type: mask.type,
-                tooltip: gettext('possible implementation area')
-            });
-            var area = this.editorMap.addPolygon(implArea.coordinates, {
-                projection: this.projection,
-                layername: 'implementation-area',
-                type: implArea.type,
-                tooltip: gettext('possible implementation area')
-            });
-            this.editorMap.centerOnPolygon(area, { projection: this.projection });
-        }
-
 
         var geom = solutionImpl.get('geom');
 
         this.editorMap.addLayer('drawing', {
             select: { selectable: true },
-            strokeWidth: 3
+            strokeWidth: 3,
+            zIndex: 1000
         });
 
         if (geom){
@@ -603,15 +588,16 @@ var StrategyView = BaseView.extend(
         }
         var drawingTools = this.el.querySelector('.drawing-tools'),
             removeBtn = drawingTools.querySelector('.remove'),
-            freehand = drawingTools.querySelector('.freehand'),
-            tools = drawingTools.querySelectorAll('.tool');
+            tools = drawingTools.querySelectorAll('.tool'),
+            togglePossibleArea = this.el.querySelector('input[name="show-possible-area"]');
 
         function toolChanged(){
             var checkedTool = drawingTools.querySelector('.active').querySelector('input'),
                 type = checkedTool.dataset.tool,
                 selectable = false,
                 useDragBox = false,
-                removeActive = false;
+                removeActive = false,
+                freehand = checkedTool.dataset.freehand === 'true';
             if (type === 'Move'){
                 _this.editorMap.toggleDrawing('drawing');
             }
@@ -624,7 +610,7 @@ var StrategyView = BaseView.extend(
             else {
                 _this.editorMap.toggleDrawing('drawing', {
                     type: type,
-                    freehand: freehand.checked
+                    freehand: freehand
                 });
                 _this.editorMap.enableDragBox('drawing');
             }
@@ -643,7 +629,31 @@ var StrategyView = BaseView.extend(
             //tool.addEventListener('change', toolChanged);
             $(tool).on('change', toolChanged)
         }
-        freehand.addEventListener('change', toolChanged);
+
+        var implArea = solution.get('possible_implementation_area') || '';
+        if(implArea) {
+            var mask = solution.get('edit_mask');
+            var maskArea = this.editorMap.addPolygon(mask.coordinates, {
+                projection: this.projection,
+                layername: 'mask',
+                type: mask.type,
+                tooltip: gettext('possible implementation area')
+            });
+            var area = this.editorMap.addPolygon(implArea.coordinates, {
+                projection: this.projection,
+                layername: 'implementation-area',
+                type: implArea.type,
+                tooltip: gettext('possible implementation area')
+            });
+            this.editorMap.centerOnPolygon(area, { projection: this.projection });
+        } else {
+            togglePossibleArea.parentElement.style.display = 'none';
+        }
+
+        togglePossibleArea.addEventListener('change', function(){
+            _this.editorMap.setVisible('implementation-area', this.checked);
+            _this.editorMap.setVisible('mask', this.checked);
+        })
 
         removeBtn.addEventListener('click', function(){
             _this.editorMap.removeSelectedFeatures('drawing');

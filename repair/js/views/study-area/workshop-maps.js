@@ -45,6 +45,7 @@ var BaseMapView = BaseView.extend(
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
+        this.onReady = options.onReady;
 
         // tag for seperating layer views (e.g. distinguish study area maps and wastescapes)
         this.tag = options.tag || '';
@@ -211,6 +212,7 @@ var BaseMapView = BaseView.extend(
 
         var popovers = this.el.querySelectorAll('[data-toggle="popover"]');
         $(popovers).popover({ trigger: "focus", container: 'body' });
+        if (this.onReady) this.onReady();
     },
 
     renderTemplate: function(){
@@ -385,7 +387,7 @@ var BaseMapView = BaseView.extend(
             el: el,
             renderOSM: false
         });
-        this.map.map.on('singleclick', this.showFeatureInfo );
+        //this.map.map.on('singleclick', this.showFeatureInfo );
 
         var focusarea = this.caseStudy.get('properties').focusarea;
 

@@ -154,7 +154,9 @@ var SolutionPartView = BaseView.extend(
         if (this.hasQuestionSelect.value == "false"){
             isAbsolute = this.isAbsoluteSelect.value == "true";
         } else {
-            isAbsolute = this.questions.get(this.questionSelect.value).get('is_absolute') === true;
+            var question = this.questions.get(this.questionSelect.value);
+            if (question)
+                isAbsolute = question.get('is_absolute') === true;
         }
 
         relElements.forEach(function(el){

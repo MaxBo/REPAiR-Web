@@ -15,6 +15,15 @@
     position: fixed;
 }
 
+#editor-map #base-map {
+    max-height: calc(100vh * 0.6);
+    position: relative;
+    overflow: hidden;
+}
+#base-map.workshop {
+    position: fixed;
+}
+
 .workshop .ol-control {
     transform: scale(1.3);
     margin: 20px 20px 20px 80px;
@@ -33,6 +42,13 @@
     overflow-y: auto;
     max-height: 70%;
     scrollbar-width: none;
+}
+
+#editor-map .layer-tree.workshop {
+    left: 10px;
+}
+#editor-map .ol-control {
+    margin-left: 10px;
 }
 
 .layer-tree::-webkit-scrollbar {
