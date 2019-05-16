@@ -651,7 +651,7 @@ var StrategyView = BaseView.extend(
             });
             this.editorMap.centerOnPolygon(area, { projection: this.projection });
         } else {
-            togglePossibleArea.style.display = 'none';
+            togglePossibleArea.parentElement.style.display = 'none';
         }
 
         togglePossibleArea.addEventListener('change', function(){
