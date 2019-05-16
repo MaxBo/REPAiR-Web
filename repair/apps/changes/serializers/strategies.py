@@ -2,6 +2,7 @@ from django.utils.translation import ugettext_lazy as _
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework import serializers
 from django.utils import timezone
+from django.db.utils import OperationalError
 
 from repair.apps.asmfa.graphs.graph import StrategyGraph
 from repair.apps.changes.models import (Strategy,
@@ -55,7 +56,12 @@ class StakeholderOfStrategyField(InCasestudyField):
 
 def reset_strategy_status():
     '''reset strategy calculation status'''
-    strategies = Strategy.objects.all()
+    # if strategy is not set up (e.g. while testing),
+    # there won't be any strategies anyway
+    try:
+        strategies = Strategy.objects.all()
+    except OperationalError:
+        return
     # look for strategies marked as being calculated and update their status
     # according to found graph
     for strategy in strategies:
