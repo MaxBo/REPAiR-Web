@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext_lazy as _
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from rest_framework import serializers
-from datetime import datetime
+from django.utils import timezone
 
 from repair.apps.asmfa.graphs.graph import StrategyGraph
 from repair.apps.changes.models import (Strategy,
@@ -71,7 +71,6 @@ def reset_strategy_status():
         strategy.save()
 
 
-
 class StrategySerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -103,7 +102,7 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
         if obj.status == 0:
             return _('not calculated yet')
         if obj.status == 1:
-            delta = datetime.now() - obj.date.replace(tzinfo=None)
+            delta = timezone.now() - obj.date
             return '{} @{} {} - {}s {}'.format(
                 _('calculation started'),
                 obj.date.strftime("%d.%m.%Y, %H:%M:%S"),

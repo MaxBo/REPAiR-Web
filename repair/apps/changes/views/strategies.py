@@ -2,7 +2,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponseNotFound
 from django.utils.translation import gettext as _
-from datetime import datetime
+from django.utils import timezone
 
 from repair.apps.utils.views import CasestudyViewSetMixin, ReadUpdateViewSet
 from repair.apps.asmfa.models import KeyflowInCasestudy
@@ -64,7 +64,7 @@ class StrategyViewSet(CasestudyViewSetMixin,
     def build_graph(self, request, **kwargs):
         strategy = self.get_object()
         strategy.status = 1
-        strategy.date = datetime.now()
+        strategy.date = timezone.now()
         strategy.save()
 
         sgraph = StrategyGraph(strategy)
@@ -78,10 +78,10 @@ class StrategyViewSet(CasestudyViewSetMixin,
 
         # for testing purposes only
         import time
-        time.sleep(120)
+        time.sleep(60)
 
         strategy.status = 2
-        strategy.date = datetime.now()
+        strategy.date = timezone.now()
         strategy.save()
         return Response(serializer.data)
 

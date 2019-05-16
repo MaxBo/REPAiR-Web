@@ -68,8 +68,22 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
 
         calcClone.addEventListener('click', function(){
             var url = '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/build_graph/'.format(caseStudy.id, keyflow.id, strategy.id);
-            fetch(url);
+            fetch(url).then(
+                function(response) {
+                    if (!response.ok) {
+                        response.text().then(alert);
+                        throw Error(response.statusText);
+                    }
+                    loader.deactivate();
+                    return response.json();
+                }).then(function(json) {
+                    strategy.set('status', json['status']);
+                    strategy.set('status_text', json['status_text']);
+                    setStatus();
+                }).catch(//sth to catch?
+                );
             strategy.fetch({ success: setStatus });
+            alert(gettext('Calculation started. Please wait till it is finished (check Status).'));
         })
     }
 
