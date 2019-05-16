@@ -10,7 +10,7 @@ class LayerCategory(GDSEUniqueNameModel):
     name = models.TextField()
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     order = models.IntegerField(default=1)
-    tag = models.CharField(max_length=20, default='')
+    tag = models.CharField(max_length=20, default='', blank=True)
 
 
 class Layer(GDSEModel):

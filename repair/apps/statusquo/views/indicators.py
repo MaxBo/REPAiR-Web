@@ -61,7 +61,16 @@ class ComputeIndicator(metaclass=ABCMeta):
         process_ids = indicator_flow.process_ids
         if (process_ids):
             process_ids = process_ids.split(',')
-            flows.filter(process__id__in=process_ids)
+            flows = flows.filter(process__id__in=process_ids)
+
+        if materials:
+            mats = descend_materials(list(materials))
+            flows = flows.filter(material__id__in=mats)
+
+        # ToDo: implement new filter attribute sinks and sources only
+        #destinations_to_exclude = flows.exclude(destination__isnull=True).values('destination__id').distinct()
+        ##flows_to_exclude = flows.filter(origin__in=destinations_to_exclude)
+        #flows2 = flows.exclude(origin__id__in=destinations_to_exclude)
 
         # filter flows by origin/destination nodes
         origin_node_ids = indicator_flow.origin_node_ids
@@ -84,10 +93,6 @@ class ComputeIndicator(metaclass=ABCMeta):
 
         flows = flows.filter(
             Q(origin__in=origins) & Q(destination__in=destinations))
-
-        if materials:
-            mats = descend_materials(list(materials))
-            flows = flows.filter(material__id__in=mats)
 
         # sum up amounts to single value
         amount = flows.aggregate(amount=Sum('amount'))['amount'] or 0

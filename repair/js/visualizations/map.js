@@ -173,7 +173,7 @@ define([
         * @param {string} [options.select.strokeWidth=3]            width of outline of selected feature
         * @param {string} [options.select.fill='rgba(230, 230, 0, 0.1)'] color of filling of selected feature
         * @param {string} [options.select.labelColor='#e69d00']     color of label selected feature
-        * @param {Boolean} [options.select.multi=true]            single select feature (others are deselected)
+        * @param {Boolean} [options.select.multi=true]              multi select feature (others are deselected)
         * @param {Object} options.select.onChange                   callback
         *
         * @returns {ol.layer.Vector}                                the added vector layer
@@ -272,8 +272,9 @@ define([
                 }
                 var multi = options.select.multi;
                 if (multi == null) multi = true;
+
                 var interaction = new ol.interaction.Select({
-                    toggleCondition: ol.events.condition.click,
+                    toggleCondition: (multi) ? ol.events.condition.always: ol.events.condition.click,
                     features: layer.selected,
                     layers: [layer],
                     style: layer.selectStyle,

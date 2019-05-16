@@ -153,6 +153,8 @@ var FlowAssessmentSetupView = BaseView.extend(
                 el: elB,
                 indicatorFlow: indicator.get('flow_b')
             }, options);
+        if(this.flowAView) this.flowAView.close();
+        if(this.flowBView) this.flowBView.close();
         this.flowAView = new IndicatorFlowEditView(optA);
         this.flowBView = new IndicatorFlowEditView(optB);
     },

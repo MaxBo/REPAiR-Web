@@ -41,6 +41,7 @@ class FlowFilter(GDSEModel):
         enum=TriState, default=TriState.BOTH)
     avoidable = EnumIntegerField(
         enum=TriState, default=TriState.BOTH)
+    anonymize = models.BooleanField(default=False)
     aggregate_materials = models.BooleanField(default=True)
     area_level = models.ForeignKey(AdminLevels,
                                    on_delete=models.SET_NULL,

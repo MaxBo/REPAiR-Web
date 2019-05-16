@@ -232,6 +232,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             minValue = 0,
             maxValue = 0,
             unit = indicator.get('unit'),
+            type = indicator.get('indicator_type'),
             sr = indicator.get('spatial_reference');
         //this.map.setVisible('focusarea', (sr == 'FOCUSAREA' ))
         //this.map.setVisible('region', (sr == 'REGION' ))
@@ -242,6 +243,11 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             maxValue = Math.max(value, maxValue);
             minValue = Math.min(value, minValue);
         })
+        // Indicator A / B should always be in range 0 to 100 for consistent colors
+        if (type.toLowerCase() === 'indicatorab'){
+            minValue = 0;
+            maxValue = 100;
+        }
 
         var step = (maxValue - minValue) / 10,
             entries = (step > 0) ? utils.range(minValue, maxValue, step): [0],

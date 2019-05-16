@@ -41,8 +41,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             this.locations = {};
             this.flows = new Flows();
-            this.hideMaterials = {};
+            this.showMaterials = {};
             this.displayWarnings = options.displayWarnings || false;
+            this.anonymize = options.anonymize;
             this.render();
         },
 
@@ -242,6 +243,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 aniToggleDiv.style.visibility = (aniToggleDiv.style.visibility == 'hidden') ? 'visible': 'hidden';
             });
             aniToggleDiv.addEventListener("click", function(){
+                if (_this.aniDotsRadio.checked)
+                    _this.aniLinesRadio.checked = true;
+                else
+                    _this.aniDotsRadio.checked = true;
                 _this.rerender();
             });
 
@@ -301,7 +306,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 colorDiv.style.background = color;
                 colorDiv.style.float = 'left';
                 check.type = 'checkbox';
-                check.checked = !_this.hideMaterials[matId];
+                check.checked = _this.showMaterials[matId] === true;
                 check.style.pointerEvents = 'none';
                 div.appendChild(colorDiv);
                 div.appendChild(text);
@@ -309,7 +314,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this.legend.appendChild(div);
                 div.addEventListener('click', function(){
                     check.checked = !check.checked;
-                    _this.hideMaterials[matId] = !check.checked;
+                    _this.showMaterials[matId] = check.checked;
                     _this.flowMap.toggleTag(matId, check.checked);
                     _this.rerender();
                 })
@@ -393,7 +398,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
         resetMapData: function(data, zoomToFit) {
             this.data = data;
             this.flowMap.clear();
-
             this.flowMap.addNodes(data.nodes);
 
             if (this.stockCheck.checked)
@@ -521,9 +525,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     name: label,
                     label: label,
                     color: cluster.color,
+                    opacity: 0.8,
                     lon: cluster.lon,
                     lat: cluster.lat,
-                    radius: Math.min(40, 15 + nNodes / 2),
+                    radius: Math.min(25, 10 + nNodes / 3),
                     innerLabel: nNodes,
                     cluster: cluster,
                     tag: 'actor'
@@ -539,23 +544,33 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 var id = node.id,
                     clusterId = clusterMap[id];
 
-                // node already clustered
+                // node is clustered, take cluster as origin resp. destination
                 if (clusterId != null) return nodes[clusterId];
 
+                // already transformed
+                var transNode = nodes[id];
+                if (transNode) return transNode;
+
                 var name = node.name,
-                    level = node.level,
-                    key = level + id;
+                    level = node.level;
+                    code = node.code || node.nace || node.activity__nace;
+
+                if ((_this.anonymize) && (level === 'actor'))
+                    name = gettext('Actor');
+                name += ' (' + code + ')';
+
                 if (!node.geom){
                     var warning = gettext('Actor referenced by flow, but missing a location:') + ' ' + name;
                     warnings.push(warning);
                     return;
                 }
                 var coords = node.geom.coordinates;
-                var transNode = {
+                transNode = {
                     id: id,
                     name: name,
                     label: name,
                     color: node.color,
+                    opacity: 0.8,
                     group: node.group,
                     lon: coords[0].toFixed(4),
                     lat: coords[1].toFixed(4),
@@ -570,9 +585,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             function aggregate(flow, source, target) {
                 var key = flow.get('waste') + source.id,
                     is_stock = flow.get('stock');
-                if (!is_stock) key += + '-' + target.id;
+                if (!is_stock) key += '-' + target.id;
                 var mapped = aggMap[key];
-                // not
+                // not mapped yet -> create mapped flow
                 if (!mapped){
                     mapped = {
                         id: key,
@@ -590,6 +605,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     aggMap[key] = mapped;
                     pFlows.push(mapped);
                 }
+                // mapped -> add to mapped flow
                 else {
                     fractions = mapped.fractions;
                     flow.get('materials').forEach(function(material){
@@ -598,13 +614,13 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             mat = Object.assign({}, material);
                             fractions[material.material] = mat;
                         }
-                        else
+                        else{
                             mat.amount += material.amount;
+                        }
                     })
                     mapped.amount += flow.get('amount');
                 }
             }
-
             i = 0;
             // add the flows that don't have to be aggregated, because origin and destination are not clustered
             flows.forEach(function(flow) {
@@ -633,12 +649,15 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         target: target,
                         is_stock: is_stock,
                         amount: amount,
+                        color: flow.color,
                         fractions: flow.get('materials'),
-                        waste: flow.get('waste')
+                        waste: flow.get('waste'),
+                        process: flow.get('process')
                     });
                 }
                 i += 1;
             })
+
             var maxClusterStock = 0;
             // posproc the aggregation (just dict to list)
             Object.values(aggMap).forEach(function(flow){
@@ -652,15 +671,17 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     target = pFlow.target,
                     fractions = pFlow.fractions;
 
-                var wasteLabel = (pFlow.waste) ? 'Waste' : 'Product',
+                var wasteLabel = (pFlow.waste) ? gettext('Waste') : gettext('Product'),
+                    processLabel = gettext('Process') + ': ' + (pFlow.process || '-'),
                     totalAmount = Math.round(pFlow.amount),
-                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel;
+                    flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel+ '<br>' + processLabel ;
 
                 if(splitByComposition){
                     var cl = []
                     fractions.forEach(function(material){
                         var amount = Math.round(material.amount),
-                            label = flowLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
+                            label = flowLabel + '<br><b>Material: </b>' + material.name +
+                                    '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
                             color;
                         if (!uniqueMaterials[material.material]){
                             color = utils.colorByName(material.name)
@@ -676,7 +697,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             label: label,
                             source: source.id,
                             target: target.id,
-                            value: amount,
+                            value: Math.abs(amount),
                             material: material.material,
                             tag: material.material,
                             color: color
@@ -691,8 +712,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         label: label,
                         source: source.id,
                         target: target.id,
-                        color: source.color,
-                        value: totalAmount
+                        color: pFlow.color || source.color,
+                        value: Math.abs(totalAmount)
                     }]
                 }
             }
@@ -726,7 +747,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             lon: source.lon,
                             lat: source.lat,
                             //radius: radius,
-                            value: amount,
+                            value: Math.abs(amount),
                             tag: material.material
                         })
                     })
@@ -741,8 +762,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         group: source.group,
                         lon: source.lon,
                         lat: source.lat,
+                        opacity: 0.8,
                         //radius: radius,
-                        value: totalAmount,
+                        value: Math.abs(totalAmount),
                         tag: 'stock'
                     }]
                     return stock;

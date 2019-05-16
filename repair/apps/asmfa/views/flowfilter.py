@@ -18,16 +18,9 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      PostGetViewMixin)
 
 from repair.apps.asmfa.models import (
-    Flow,
-    AdministrativeLocation,
-    Actor2Actor,
-    Group2Group,
-    Material,
-    FractionFlow,
-    Actor,
-    ActivityGroup,
-    Activity,
-    AdministrativeLocation
+    Flow, AdministrativeLocation, Actor2Actor, Group2Group,
+    Material, FractionFlow, Actor, ActivityGroup, Activity,
+    AdministrativeLocation, Process
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
@@ -159,6 +152,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
 
+            anonymize: true/false, # anonymize the actor names
+
             # exclusive to spatial_level
             aggregation_level: {
                 origin: 'activity' or 'activitygroup', defaults to actor level
@@ -167,6 +162,16 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         }
         '''
         self.check_permission(request, 'view')
+
+        strategy_id = request.query_params.get('strategy', None)
+        if strategy_id is not None:
+            strategy = Strategy.objects.get(id=strategy_id)
+            if strategy.status == 0:
+                return HttpResponseBadRequest(
+                    _('calculation is not done yet'))
+            if strategy.status == 1:
+                return HttpResponseBadRequest(
+                    _('calculation is still in process'))
 
         # filter by query params
         queryset = self._filter(kwargs, query_params=request.query_params,
@@ -441,13 +446,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         if strategy is not None:
                             agg_mat_ser['delta'] += grouped_mat['delta']
                 grouped_mats = aggregated.values()
-
+            process = Process.objects.get(id=group['process']) \
+                if group['process'] else None
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
                 ('waste', group['waste']),
                 ('stock', group['to_stock']),
-                ('process', group['process']),
+                ('process', process.name if process else ''),
+                ('process_id', process.id if process else None),
                 ('amount', total_amount),
                 ('materials', grouped_mats)
             ))

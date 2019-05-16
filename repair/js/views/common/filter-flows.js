@@ -144,6 +144,7 @@ var FilterFlowsView = BaseView.extend(
         });
         this.displayLevelSelect = this.el.querySelector('select[name="display-level-select"]');
         this.nodeLevelSelect = this.el.querySelector('select[name="node-level-select"]');
+        this.anonymousSelect = this.el.querySelector('input[name="anonymous"]');
         this.showFlowOnlyCheck = this.el.querySelector('input[name="show-flow-only"]');
         this.groupSelect = this.el.querySelector('select[name="group"]');
         this.activitySelect = this.el.querySelector('select[name="activity"]');
@@ -528,6 +529,7 @@ var FilterFlowsView = BaseView.extend(
         filter.set('flow_type', this.flowTypeSelect.value);
         filter.set('hazardous', this.hazardousSelect.value);
         filter.set('avoidable', this.avoidableSelect.value);
+        filter.set('anonymize', this.anonymousSelect.checked);
 
         var areas = [];
         this.selectedAreas.forEach(function(area){
@@ -606,6 +608,7 @@ var FilterFlowsView = BaseView.extend(
 
         this.hazardousSelect.value = filter.get('hazardous').toLowerCase();
         this.avoidableSelect.value = filter.get('avoidable').toLowerCase();
+        this.anonymousSelect.checked = filter.get('anonymize');
 
         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
         var material = filter.get('material'),

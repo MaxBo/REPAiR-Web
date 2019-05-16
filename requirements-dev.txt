@@ -43,7 +43,6 @@ pytest-splinter
 pytest-xdist
 codecov
 gitpython
-selenium
 
 pycairo
 ipython

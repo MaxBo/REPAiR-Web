@@ -2,6 +2,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponseNotFound
 from django.utils.translation import gettext as _
+from django.utils import timezone
 
 from repair.apps.utils.views import CasestudyViewSetMixin, ReadUpdateViewSet
 from repair.apps.asmfa.models import KeyflowInCasestudy
@@ -62,6 +63,10 @@ class StrategyViewSet(CasestudyViewSetMixin,
     @action(methods=['get', 'post'], detail=True)
     def build_graph(self, request, **kwargs):
         strategy = self.get_object()
+        strategy.status = 1
+        strategy.date = timezone.now()
+        strategy.save()
+
         sgraph = StrategyGraph(strategy)
         try:
             graph = sgraph.build()
@@ -70,7 +75,16 @@ class StrategyViewSet(CasestudyViewSetMixin,
                 'The base data is not set up. '
                 'Please contact your workshop leader.'))
         serializer = self.get_serializer(strategy)
+
+        # for testing purposes only
+        import time
+        time.sleep(60)
+
+        strategy.status = 2
+        strategy.date = timezone.now()
+        strategy.save()
         return Response(serializer.data)
+
 
 class SolutionInStrategyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionInStrategySerializer
