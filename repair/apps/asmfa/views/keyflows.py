@@ -70,7 +70,7 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
                    'update': KeyflowInCasestudyPostSerializer, }
 
     @action(methods=['get', 'post'], detail=True)
-    def build_graph(self, request, **kwargs):
+    def build_graph(self, request, **kwargs ):
         keyflow = self.queryset.get(id=kwargs['pk'])
         kfgraph = BaseGraph(keyflow)
         graph = kfgraph.build()

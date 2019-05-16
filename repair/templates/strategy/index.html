@@ -49,11 +49,17 @@
   </div>
   {% else %}
   <div class="tab-pane fade" id="strat-wrapper">
-    <button style="float: right;" title="{% trans "Calculate the strategy" %}" id="calculate-strategy" class="btn btn-primary">
-      {% trans "Calculate" %}
-    </button>
-    <div style="float: right; margin-right: 5px;" id="graph-note"> - </div>
-    <div id="strategy">
+    <div id="strategy" class="col-md-10">
+    </div>
+    <div class="col-md-2">
+      <button title="{% trans "Calculate the strategy" %}" id="calculate-strategy" class="btn btn-primary">
+        {% trans "Calculate" %}
+      </button>
+      <br><br>
+      <button title="{% trans "Refresh Status" %}" id="show-status" class="btn">
+        {% trans "Refresh Status" %}
+      </button>
+      <div id="graph-status"></div>
     </div>
   </div>
   <div class="tab-pane fade" id="modified-flows">
@@ -67,6 +73,7 @@
 {% include "strategy/solutions.html" %}
 {% if request.session.mode != 1 %}
 {% include "strategy/strategy.html" %}
+{% include "studyarea/maps.html" %}
 {% include "statusquo/flows.html" %}
 {% endif %}
 {% render_bundle 'Strategy' %}
