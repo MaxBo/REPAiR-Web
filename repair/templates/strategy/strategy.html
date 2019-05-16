@@ -141,34 +141,30 @@
           </div>
           <div class="tab-pane fade in" id="strategy-area-tab">
             <div class="col-md-12 bordered">
-              <div class="olmap" id='editor-map'>
-                <div class="drawing-tools row">
-                  <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-secondary active" title="{% trans "Move Map" %}">
-                      <input type="radio" class="tool" name="options" data-tool="Move" autocomplete="off" checked>
-                      <span class="fas fa-arrows-alt"></span>
-                    </label>
-                    <label class="btn btn-secondary" title="{% trans "Select features" %}">
-                      <input type="radio" class="tool" name="options" data-tool="Select" autocomplete="off">
-                      <span class="far fa-hand-point-up"></span>
-                    </label>
-                    <label class="btn btn-secondary" title="{% trans "Draw Polygons" %}">
-                      <input type="radio" class="tool" name="options" data-tool="Polygon" autocomplete="off">
-                      <span class="fas fa-draw-polygon"></span>
-                    </label>
-                    <label class="btn btn-secondary" title="{% trans "Draw Points" %}">
-                      <input type="radio" class="tool" name="options" data-tool="Point" autocomplete="off">
-                      <span class="fas fa-circle" style="font-size: 10px;"></span>
-                    </label>
-                    <label class="btn btn-secondary" title="{% trans "Draw Lines" %}">
-                      <input type="radio" class="tool" name="options" data-tool="LineString" autocomplete="off">
-                      <span class="glyphicon glyphicon-minus"></span>
-                    </label>
-                  </div>
-                  <input class="freehand" type="checkbox" checked style="transform: scale(2); margin-left: 20px; margin-right: 8px;">
-                  <label style="text-shadow: 0 0 0.2em #fff, 0 0 0.2em #fff, 0 0 0.2em #fff;">{% trans "freehand" %}</label>
-                  <button class="remove btn btn-danger round" style="margin-left: 10px; display: none;"> <span class="glyphicon glyphicon-remove-sign" ></span> {% trans "selection" %} </button>
+              <div class="drawing-tools row">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-secondary active" title="{% trans "Move Map" %}">
+                    <input type="radio" class="tool" name="options" data-tool="Move" autocomplete="off" checked>
+                    <span class="fas fa-arrows-alt"></span>
+                  </label>
+                  <label class="btn btn-secondary" title="{% trans "Select features" %}">
+                    <input type="radio" class="tool" name="options" data-tool="Select" autocomplete="off">
+                    <span class="far fa-hand-point-up"></span>
+                  </label>
+                  <label class="btn btn-secondary" title="{% trans "Draw Polygons" %}">
+                    <input type="radio" class="tool" name="options" data-tool="Polygon" autocomplete="off">
+                    <span class="fas fa-draw-polygon"></span>
+                  </label>
+                  <label class="btn btn-secondary" title="{% trans "Draw Polygons Freehand" %}">
+                    <input type="radio" class="tool" name="options" data-tool="Polygon" data-freehand="true" autocomplete="off">
+                    <span class="fas fa-pencil-alt" style="font-size: 10px;"></span>
+                  </label>
                 </div>
+                <button class="remove btn btn-danger round" style="margin-left: 10px; display: none;"> <span class="glyphicon glyphicon-remove-sign" ></span> {% trans "remove selection" %} </button>
+                <input name="show-possible-area" type="checkbox" checked style="transform: scale(2); margin-left: 20px; margin-right: 8px;">
+                <label style="text-shadow: 0 0 0.2em #fff, 0 0 0.2em #fff, 0 0 0.2em #fff;">{% trans "show possible implementation area" %}</label>
+              </div>
+              <div id='editor-map'>
               </div>
             </div>
           </div>
