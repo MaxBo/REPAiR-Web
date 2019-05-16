@@ -44,30 +44,32 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
         })
 
         loader = new utils.Loader(document.getElementById('content'), {disable: true})
-        // lazy way to reset the button to build graph
-        var btn = document.getElementById('calculate-strategy'),
-            note = document.getElementById('graph-note'),
-            clone = btn.cloneNode(true);
-        note.innerHTML = keyflow.get('graph_build') || '-';
-        btn.parentNode.replaceChild(clone, btn);
-        clone.addEventListener('click', function(){
-            loader.activate();
-            var url = '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/build_graph/'.format(caseStudy.id, keyflow.id, strategy.id);
-            fetch(url).then(
-                function(response) {
-                    if (!response.ok) {
-                        response.text().then(alert);
-                        throw Error(response.statusText);
-                    }
-                    loader.deactivate();
-                    return response.json();
-                }).then(function(json) {
-                    note.innerHTML = json['graph_build'];
-                    alert(gettext('Graph was successfully build.'));
-                }).catch(function(error) {
-                    loader.deactivate();
-            });
 
+        // lazy way to reset the buttons by cloning (avoid multiple event listeners)
+        var calcBtn = document.getElementById('calculate-strategy'),
+            statusBtn = document.getElementById('show-status'),
+            statusDiv = document.getElementById('graph-status'),
+            calcClone = calcBtn.cloneNode(true),
+            statusClone = statusBtn.cloneNode(true);
+        calcBtn.parentNode.replaceChild(calcClone, calcBtn);
+        statusBtn.parentNode.replaceChild(statusClone, statusBtn);
+
+        function setStatus(){
+            var status = strategy.get('status');
+            statusClone.className = (status === 0) ? 'btn btn-primary' : (status === 2) ? 'btn btn-secondary' : 'btn btn-tertiary'
+            statusDiv.innerHTML = strategy.get('status_text');
+            calcClone.disabled = (status === 1) ? true: false;
+        }
+        setStatus();
+
+        statusClone.addEventListener('click', function(){
+            strategy.fetch({ success: setStatus });
+        });
+
+        calcClone.addEventListener('click', function(){
+            var url = '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/build_graph/'.format(caseStudy.id, keyflow.id, strategy.id);
+            fetch(url);
+            strategy.fetch({ success: setStatus });
         })
     }
 
@@ -110,7 +112,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
                     loader.deactivate();
                     return response.json();
                 }).then(function(json) {
-                    note.innerHTML = json['graph_build'];
+                    note.innerHTML = json['graph_date'];
                     alert(gettext('Graph was successfully build.'));
                 }).catch(function(error) {
                     alert(error);

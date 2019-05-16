@@ -25,6 +25,11 @@ class Strategy(GDSEModel):
                                                  null=True)
     solutions = models.ManyToManyField(Solution,
                                        through='SolutionInStrategy')
+    # ToDo: enum for status
+    # 0 - no calculation, 1 - calculating, 2 - ready
+    status = models.IntegerField(default=0)
+    # calculation started resp. finished
+    date = models.DateTimeField(null=True)
 
 
 class SolutionInStrategy(GDSEModel):
