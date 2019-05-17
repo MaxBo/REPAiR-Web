@@ -73,7 +73,7 @@ def reset_strategy_status():
                 strategy.status = 2
                 strategy.date = sgraph.date
             strategy.save()
-    except OperationalError:
+    except:
         return
 
 
