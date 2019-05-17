@@ -115,9 +115,15 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
         'keyflow_pk': 'solution__solution_category__keyflow__id',
         'solution_pk': 'solution__id'
     }
-    implementation_flow_origin_activity = IDRelatedField()
-    implementation_flow_destination_activity = IDRelatedField()
-    implementation_flow_material = IDRelatedField()
+    implementation_flow_origin_activity = IDRelatedField(
+        required=False, allow_null=True)
+    implementation_flow_destination_activity = IDRelatedField(
+        required=False, allow_null=True)
+    implementation_flow_material = IDRelatedField(
+        required=False, allow_null=True)
+    implementation_flow_solution_part = IDRelatedField(
+        required=False, allow_null=True)
+    new_material = IDRelatedField(required=False, allow_null=True)
     new_target_activity = IDRelatedField(required=False, allow_null=True)
     implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
     affected_flows = AffectedFlowSerializer(source='affected_flow', many=True)
@@ -128,23 +134,24 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     class Meta:
         model = SolutionPart
         fields = ('url', 'id', 'name', 'solution', 'documentation',
-                  'implements_new_flow',
+                  'implements_new_flow', 'references_part',
                   'implementation_flow_origin_activity',
                   'implementation_flow_destination_activity',
                   'implementation_flow_material',
                   'implementation_flow_process',
                   'implementation_flow_spatial_application',
+                  'implementation_flow_solution_part',
+                  'new_material',
                   'question', 'a', 'b',
                   'keep_origin', 'new_target_activity',
                   'map_request', 'priority',
                   'affected_flows',
-                  'is_absolute'
+                  'is_absolute',
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
             'implementation_question': {'null': True, 'required': False},
             'keep_origin': {'required': False},
-            #'new_target_activity': {'null': True, 'required': False},
             'map_request': {'required': False},
             'documentation': {'required': False, 'allow_blank': True},
             'map_request': {'required': False, 'allow_blank': True},
@@ -159,4 +166,13 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             for f in new_flows:
                 flow = AffectedFlow(solution_part=instance, **f)
                 flow.save()
+        if instance.references_part:
+            instance.implementation_flow_origin_activity = None
+            instance.implementation_flow_destination_activity = None
+            instance.implementation_flow_material = None
+            instance.implementation_flow_process = None
+        else:
+            instance.implementation_flow_solution_part = None
+        instance.save()
         return instance
+
