@@ -226,7 +226,7 @@
 </div>
 <div class="row">
   <select name="impl-new-flow" class="form-control">
-    <option value="false"> {% trans "This solution part modifies an existing flow." %}</option>
+    <option value="false" selected> {% trans "This solution part modifies an existing flow." %}</option>
     <option value="true"> {% trans "This solution part creates a new flow (based on an existing flow)." %}</option>
   </select>
 </div>
@@ -256,25 +256,36 @@
         The reference flow is the flow which the solution part uses as reference for defining the new flow.
         {% endblocktrans %}
       </p>
+      <select name="references-part" class="form-control">
+        <option value="false" selected> {% trans "Reference to an existing flow." %}</option>
+        <option value="true"> {% trans "Reference a solution part implementing a new flow." %}</option>
+      </select>
+      <div class="reference-part">
+        <select name="referenced-part" class="form-control">
+          <option value="-1" disabled> {% trans "Select a solution part that is defining a new flow" %}</option>
+        </select>
+      </div>
     </div>
-    <div class="row">
-      {% trans "Material" %}
-      <div name="material" style="display: inline-block;"></div>
+    <div class="reference-flow">
+      <div class="row">
+        {% trans "Material" %}
+        <div name="material" style="display: inline-block;"></div>
+      </div>
+      <div class="row">
+        {% trans "going from activity" %}
+        <select name="origin"></select>
+        <input name="origin-in-area" type="checkbox">
+        &nbsp;{% trans "activity has to be in the implementation area *)" %}
+      </div>
+      <div class="row">
+        {% trans "to activity" %}
+        <select name="destination"></select>
+        <input name="destination-in-area" type="checkbox">
+        &nbsp;{% trans "activity has to be in the implementation area *)" %}
+      </div>
+      <p style="font-size: 0.8em;">{% trans "*) defined by the users in the workshop mode when implementing the solution" %}</p>
+      <br>
     </div>
-    <div class="row">
-      {% trans "going from activity" %}
-      <select name="origin"></select>
-      <input name="origin-in-area" type="checkbox">
-      &nbsp;{% trans "activity has to be in the implementation area *)" %}
-    </div>
-    <div class="row">
-      {% trans "to activity" %}
-      <select name="destination"></select>
-      <input name="destination-in-area" type="checkbox">
-      &nbsp;{% trans "activity has to be in the implementation area *)" %}
-    </div>
-    <p style="font-size: 0.8em;">{% trans "*) defined by the users in the workshop mode when implementing the solution" %}</p>
-    <br>
     <div class="row modified-flow">
       <p style="max-width: 800px;">
         {% blocktrans %}
