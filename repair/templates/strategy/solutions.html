@@ -296,6 +296,14 @@
         {% endblocktrans %}
       </p>
     </div>
+    <div class="row">
+      <h4>{% trans "Material" %}</h4>
+      <select name="material-changes" class="form-control" style="max-width: 150px; display: inline-block;">
+        <option value="false">{% trans "no change" %}</option>
+        <option value="true">{% trans "changes to" %}</option>
+      </select>
+      <div name="new-material" style="display: inline-block;"></div>
+    </div>
     <div class="row new-flow">
       <h4> {% trans "New flow" %} </h4>
       <div style="max-width: 800px;">

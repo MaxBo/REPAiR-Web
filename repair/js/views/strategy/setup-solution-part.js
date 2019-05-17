@@ -33,6 +33,7 @@ var SolutionPartView = BaseView.extend(
         _.bindAll(this, 'toggleAbsolute');
         _.bindAll(this, 'toggleReferencePart');
         _.bindAll(this, 'addAffectedFlow');
+        _.bindAll(this, 'toggleNewMaterial');
 
         this.template = options.template;
 
@@ -65,6 +66,8 @@ var SolutionPartView = BaseView.extend(
         this.implNewFlowSelect = this.el.querySelector('select[name="impl-new-flow"]');
         this.referencesPartSelect = this.el.querySelector('select[name="references-part"]');
         this.solutionPartSelect = this.el.querySelector('select[name="referenced-part"]');
+        this.materialChangeSelect = this.el.querySelector('select[name="material-changes"]');
+        this.newMaterialSelect = this.el.querySelector('div[name="new-material"]');
         this.materialSelect = this.el.querySelector('div[name="material"]');
         this.originSelect = this.el.querySelector('select[name="origin"]');
         this.destinationSelect = this.el.querySelector('select[name="destination"]');
@@ -92,6 +95,7 @@ var SolutionPartView = BaseView.extend(
         this.affectedDiv = this.el.querySelector('#affected-flows');
 
         this.renderMatFilter(this.materialSelect);
+        this.renderMatFilter(this.newMaterialSelect);
 
         this.implNewFlowSelect.addEventListener('change', this.toggleNewFlow);
         this.referencesPartSelect.addEventListener('change', this.toggleReferencePart);
@@ -115,6 +119,7 @@ var SolutionPartView = BaseView.extend(
         this.spatialDestinationCheck.addEventListener('change', function(){
             if (!this.checked) _this.spatialOriginCheck.checked = true;
         })
+        this.materialChangeSelect.addEventListener('change', this.toggleNewMaterial);
 
         // forbid html escape codes in name
         this.nameInput.addEventListener('keyup', function(){
@@ -122,6 +127,11 @@ var SolutionPartView = BaseView.extend(
         })
         // for some reasons jquery doesn't find this element when declared in 'events' attribute
         this.el.querySelector('#affected-flows-tab button.add').addEventListener('click', this.addAffectedFlow);
+    },
+
+    toggleNewMaterial: function(){
+        var materialChanges = this.materialChangeSelect.value == 'true';
+        this.newMaterialSelect.style.display = (materialChanges) ? 'inline-block' : 'none';
     },
 
     toggleNewFlow: function(){
@@ -178,8 +188,6 @@ var SolutionPartView = BaseView.extend(
         var referencePart = this.implNewFlowSelect.value == 'true' && this.referencesPartSelect.value == 'true',
             refElements = this.el.querySelectorAll('.reference-part'),
             flowElements = this.el.querySelectorAll('.reference-flow');
-        console.log(this.referencesPartSelect)
-        console.log(this)
         flowElements.forEach(function(el){
             el.style.display = (referencePart) ? 'none' :'inline-block';
         })
@@ -224,12 +232,24 @@ var SolutionPartView = BaseView.extend(
             var matItem = li.querySelector('a');
             matItem.click();
         }
+        var material = this.model.get('new_material');
+        if (material) {
+            this.materialChangeSelect.value = true;
+            var li = this.newMaterialSelect.querySelector('li[data-value="' + material + '"]');
+            if(li){
+                var matItem = li.querySelector('a');
+                matItem.click();
+            }
+        } else {
+            this.materialChangeSelect.value = false;
+        }
         $(this.originSelect).selectpicker('refresh');
         $(this.destinationSelect).selectpicker('refresh');
         $(this.newTargetSelect).selectpicker('refresh');
         this.toggleNewFlow();
         this.toggleHasQuestion();
         this.toggleAbsolute();
+        this.toggleNewMaterial();
         this.toggleReferencePart();
 
         var affected = this.model.get('affected_flows') || [];
@@ -248,6 +268,8 @@ var SolutionPartView = BaseView.extend(
         this.model.set('implementation_flow_destination_activity', (this.destinationSelect.value != "-1") ? this.destinationSelect.value: null);
         var selectedMaterial = this.materialSelect.dataset.selected;
         this.model.set('implementation_flow_material', selectedMaterial);
+        var newMaterial = (this.materialChangeSelect.value == 'true') ? this.newMaterialSelect.dataset.selected: null;
+        this.model.set('new_material', newMaterial);
         var spatial = (this.spatialOriginCheck.checked && this.spatialDestinationCheck.checked) ? 'both':
                       (this.spatialOriginCheck.checked) ? 'origin': 'destination';
         this.model.set('implementation_flow_spatial_application', spatial);
