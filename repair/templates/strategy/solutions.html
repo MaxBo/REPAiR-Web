@@ -257,11 +257,12 @@
         {% endblocktrans %}
       </p>
       <select name="references-part" class="form-control">
-        <option value="false" selected> {% trans "Reference to an existing flow." %}</option>
-        <option value="true"> {% trans "Reference a solution part implementing a new flow." %}</option>
+        <option value="false" selected> {% trans "Reference an existing Status Quo flow." %}</option>
+        <option value="true"> {% trans "Reference a solution part that is implementing a new flow." %}</option>
       </select>
-      <div class="reference-part">
-        <select name="referenced-part" class="form-control">
+      <div class="row reference-part">
+        {% trans "Referenced part" %}
+        <select name="referenced-part" class="form-control" style='display: inline-block;'>
           <option value="-1" disabled> {% trans "Select a solution part that is defining a new flow" %}</option>
         </select>
       </div>
