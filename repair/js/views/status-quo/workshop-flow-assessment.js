@@ -199,7 +199,10 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                     mapLoader.deactivate();
                     _this.renderIndicatorOnMap(data, areas, indicator)
                 },
-                error: _this.onError
+                error: function(res, data){
+                    mapLoader.deactivate();
+                    _this.onError(res, data);
+                },
             })
         }
         mapLoader.activate();
@@ -238,7 +241,9 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         //this.map.setVisible('region', (sr == 'REGION' ))
 
         data.forEach(function(d){
-            var value = Math.round(d.value)
+            //continue if no data
+            if (d.value == null) return;
+            var value = Math.round(d.value);
             values[d.area] = value;
             maxValue = Math.max(value, maxValue);
             minValue = Math.min(value, minValue);
@@ -278,9 +283,10 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             }
         );
         areas.forEach(function(area){
+            var value = values[area.id];
+            if (value == null) return;
             var coords = area.get('geometry').coordinates,
                 name = area.get('name'),
-                value = values[area.id],
                 fValue = _this.format(value);
             _this.map.addPolygon(coords, {
                 projection: 'EPSG:4326', layername: 'areas',
@@ -444,7 +450,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         // focus area or case study region
         var indicator = this.indicators.get(this.indicatorId),
             spatialRef = indicator.get('spatial_reference'),
-            geom = (spatialRef == 'REGION') ? this.caseStudy.get('geom') : this.caseStudy.get('properties').focusarea,
+            geom = (spatialRef == 'REGION') ? this.caseStudy.get('geometry') : this.caseStudy.get('properties').focusarea,
             text = (spatialRef == 'REGION') ? gettext('Case Study <br> Region') : gettext('Focus <br> Area'),
             fontSize = (spatialRef == 'REGION') ? '30px' : '40px',
             indicatorId = _this.indicatorId;
@@ -455,6 +461,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         label.style.fontSize = fontSize;
         label.innerHTML = text;
 
+        console.log(this.caseStudy)
         promises.push(
             indicator.compute({
                 method: "POST",
@@ -618,7 +625,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             this.map.setVisible('focusarea', false);
         }
         if(region){
-            this.map.addPolygon(region.get('coordinates'), {
+            this.map.addPolygon(region.coordinates, {
                 layername: 'region',
                 type: 'MultiPolygon',
                 label: gettext('Casestudy Region'),
