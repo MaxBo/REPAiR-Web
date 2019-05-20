@@ -535,16 +535,12 @@ class StrategyFractionFlowTest(TestCase):
         strategyfraction1 = StrategyFractionFlowFactory(
             strategy=strategy,
             fractionflow=self.fractionflow1,
-            amount=self.new_amount1,
-            origin=self.actor1,
-            destination=self.actor2
+            amount=self.new_amount1
         )
         strategyfraction2 = StrategyFractionFlowFactory(
             strategy=strategy,
             fractionflow=self.fractionflow2,
-            amount=self.new_amount2,
-            origin=self.actor2,
-            destination=self.actor3
+            amount=self.new_amount2
         )
 
         flows = FractionFlow.objects.filter(
@@ -554,9 +550,7 @@ class StrategyFractionFlowTest(TestCase):
                 Q(f_strategyfractionflow__strategy = strategy_id)
             )
         ).annotate(
-            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
-            actual_origin=Coalesce('f_strategyfractionflow__origin', 'origin'),
-            actual_destination=Coalesce('f_strategyfractionflow__destination', 'destination')
+            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount')
         )
         assert flows.get(flow_id=self.flowid1).actual_amount == self.new_amount1
         assert flows.get(flow_id=self.flowid2).actual_amount == self.new_amount2
