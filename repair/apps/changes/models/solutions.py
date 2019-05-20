@@ -63,15 +63,13 @@ class ImplementationQuestion(GDSEModel):
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
                                  related_name='question')
     unit = models.CharField(blank=True, default='', max_length=100)
-    select_values = models.TextField(blank=True, validators=[double_list_validator])
+    select_values = models.TextField(
+        blank=True, validators=[double_list_validator])
     step = models.FloatField(null=True)
     min_value = models.FloatField(default=0)
     max_value = models.FloatField(default=1)
     # value is absolute or relative (defining fraction)
     is_absolute = models.BooleanField(default=False)
-
-
-# TODO: ImplementationQuantity is missing
 
 
 class SolutionPart(GDSEModel):
@@ -84,43 +82,65 @@ class SolutionPart(GDSEModel):
     name = models.TextField()
     documentation = models.TextField(default='')
     implements_new_flow = models.BooleanField(default=False)
+    references_part = models.BooleanField(default=False)
 
     # starting point of calculation (possible new flow is derived from it)
-    # on activity level
+    # on activity level (only when references_part == False)
     implementation_flow_origin_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
-        related_name='implementation_origin')
+        related_name='implementation_origin', null=True)
     implementation_flow_destination_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
         related_name='implementation_destination', null=True)
     implementation_flow_material = models.ForeignKey(
         Material, on_delete=PROTECT_CASCADE,
-        related_name='implementation_material')
+        related_name='implementation_material', null=True)
     implementation_flow_process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE,
         related_name='implementation_process', null=True)
+
+    # alternative: derive from another solution part that implements a new flow
+    # (references_part == True)
+    implementation_flow_solution_part = models.ForeignKey(
+        "SolutionPart", on_delete=PROTECT_CASCADE,
+        related_name='implementation_part', null=True)
+
+    # where is solution part applied (origin, destination or both)
     implementation_flow_spatial_application = EnumIntegerField(
         enum=SpatialChoice, default=SpatialChoice.BOTH)
 
-    # parameters for formula changing the implementation flow
+    # question for user inputs for the formula changing the implementation flow
+    # (null when no question is asked)
     question = models.ForeignKey(ImplementationQuestion, null=True,
                                  on_delete=PROTECT_CASCADE)
+
+    # only of interest if there is no question (question is null)
+    # is overriden by question.is_absolute
+    is_absolute = models.BooleanField(default=False)
+
+    # general parameters for formula
     a = models.FloatField()
     b = models.FloatField()
 
-    # fields only of interest for new flow
-    keep_origin = models.BooleanField(default=True)  # if False: keep dest.
-    # new origin resp. activity (depending on keep_origin)
-    new_target_activity = models.ForeignKey(
-        Activity, on_delete=PROTECT_CASCADE,
-        related_name='new_target', null=True)
-    map_request = models.TextField(default='') # tells user what to pick on map
+    # material changes (null if stays same)
+    new_material = models.ForeignKey(Material, null=True,
+                                     on_delete=PROTECT_CASCADE)
 
     # order of calculation, lowest first
     priority = models.IntegerField(default=0)
 
-    # overriden by question, only of interest if there is no question
-    is_absolute = models.BooleanField(default=False)
+    ### fields only of interest for new flow (implements_new_flow == True) ###
+
+    # origin is kept the same (True) -> new destination
+    # destination is kept the same (False) -> new origin
+    keep_origin = models.BooleanField(default=True)
+    # new origin resp. destination (depending on keep_origin)
+    # should not be null when implementing new flow
+    new_target_activity = models.ForeignKey(
+        Activity, on_delete=PROTECT_CASCADE,
+        related_name='new_target', null=True)
+    # text telling user what to pick on map (actor from new_target_activity)
+    map_request = models.TextField(default='')
 
 
 class AffectedFlow(GDSEModel):
