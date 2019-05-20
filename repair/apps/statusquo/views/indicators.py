@@ -17,6 +17,7 @@ from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.statusquo.models import FlowIndicator, IndicatorType
 from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area
+from django.contrib.gis.geos import GEOSGeometry
 
 
 def filter_actors_by_area(actors, geom):
@@ -288,6 +289,7 @@ class IndicatorArea(ComputeIndicator):
             total_ha += ha
             areas_ha[area.id] = ha
         if geom:
+            geom = GEOSGeometry(geom)
             sm = geom.transform(3035, clone=True).area
             ha = sm / 10000
             total_ha += ha
