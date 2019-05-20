@@ -255,12 +255,7 @@ class StrategyFractionFlow(GDSEModel):
     fractionflow = models.ForeignKey(FractionFlow,
                                      on_delete=models.CASCADE,
                                      related_name='f_strategyfractionflow')
-    amount = models.FloatField(default=0) # in tons
-    origin = models.ForeignKey(Actor,
-                               null=True,
-                               on_delete=models.CASCADE,
-                               related_name='f_strategyfractionflowoutputs')
-    destination = models.ForeignKey(Actor,
-                                    null=True,
-                                    on_delete=models.CASCADE,
-                                    related_name='f_strategyfractionflowinputs')
+    amount = models.FloatField(default=0)
+    material = models.ForeignKey(Material, null=True,
+                                 on_delete=PROTECT_CASCADE,
+                                 related_name='f_strategyfractionflowmaterials')
