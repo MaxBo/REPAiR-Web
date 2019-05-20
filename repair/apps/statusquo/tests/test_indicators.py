@@ -124,4 +124,4 @@ class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
 
     def test_ComputeIndicator(self):
         ci = ComputeIndicator()
-        ci.sum(self.flow_a)
+        ci.calculate_indicator_flow(self.flow_a)
