@@ -36,7 +36,7 @@ class ActivityGroup(Node):
                               # of activity groups/activities/actors
                               ("imp", "Import"),
                               ("exp", "Export"))
-    code = models.CharField(max_length=10, choices=activity_group_choices)
+    code = models.CharField(max_length=255, choices=activity_group_choices)
     name = models.CharField(max_length=255)
     keyflow = models.ForeignKey(KeyflowInCasestudy,
                                 on_delete=PROTECT_CASCADE)
