@@ -289,9 +289,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 name = area.get('name'),
                 fValue = _this.format(value);
             _this.map.addPolygon(coords, {
-                projection: 'EPSG:4326', layername: 'areas',
-                type: 'MultiPolygon', tooltip: name + ': ' + fValue + ' ' + unit,
-                label: fValue + ' ' + unit, id: area.id,
+                projection: 'EPSG:4326',
+                layername: 'areas',
+                type: 'MultiPolygon',
+                tooltip: name + ': ' + fValue + ' ' + unit,
+                label: fValue + ' ' + unit,
+                id: area.id,
                 value: value
             });
         })
@@ -461,7 +464,6 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         label.style.fontSize = fontSize;
         label.innerHTML = text;
 
-        console.log(this.caseStudy)
         promises.push(
             indicator.compute({
                 method: "POST",

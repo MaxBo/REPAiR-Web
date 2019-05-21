@@ -96,35 +96,34 @@ define([
 
             this.div = options.el;
 
-            var tooltip = this.div.querySelector('.tooltip');
+            var tooltip = this.div.querySelector('.oltooltip');
             if (!tooltip){
                 tooltip = document.createElement('div');
-                tooltip.classList.add('tooltip');
+                tooltip.classList.add('oltooltip');
                 this.div.appendChild(tooltip);
             }
-            if (tooltip){
-                var overlay = new ol.Overlay({
-                    element: tooltip,
-                    offset: [10, 0],
-                    positioning: 'bottom-left'
+            var overlay = new ol.Overlay({
+                element: tooltip,
+                offset: [10, 0],
+                positioning: 'bottom-left'
+            });
+            this.map.addOverlay(overlay);
+
+            function displayTooltip(evt) {
+                var pixel = evt.pixel;
+                var feature = _this.map.forEachFeatureAtPixel(pixel, function(feature) {
+                    return feature;
                 });
-                this.map.addOverlay(overlay);
+                if (feature && feature.get('tooltip')) {
+                    overlay.setPosition(evt.coordinate);
+                    tooltip.innerHTML = feature.get('tooltip');
+                    tooltip.style.display = '';
+                }
+                else tooltip.style.display = 'none';
+            };
 
-                function displayTooltip(evt) {
-                    var pixel = evt.pixel;
-                    var feature = _this.map.forEachFeatureAtPixel(pixel, function(feature) {
-                        return feature;
-                    });
-                    if (feature && feature.get('tooltip')) {
-                        overlay.setPosition(evt.coordinate);
-                        tooltip.innerHTML = feature.get('tooltip');
-                        tooltip.style.display = '';
-                    }
-                    else tooltip.style.display = 'none';
-                };
+            this.map.on('pointermove', displayTooltip);
 
-                this.map.on('pointermove', displayTooltip);
-            }
         }
 
         /**
