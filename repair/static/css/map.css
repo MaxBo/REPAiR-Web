@@ -4,6 +4,11 @@
  * @author Christoph Franke
  */
 
+.oltooltip {
+  background: white;
+  padding: 4px;
+}
+
 .sankeymap * path {
   fill: none;
   stroke: #4682B4;
