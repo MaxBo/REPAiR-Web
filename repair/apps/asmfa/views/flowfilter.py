@@ -250,6 +250,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = super()._filter(lookup_args, query_params=query_params,
                                    SerializerClass=SerializerClass)
         if strategy:
+            # ToDo: material
             queryset = queryset.filter(
                 (
                     Q(f_strategyfractionflow__isnull = True) |
@@ -257,11 +258,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 )
             ).annotate(
                 strategy_amount=Coalesce(
-                    'f_strategyfractionflow__amount', 'amount'),
-                #actual_origin=Coalesce(
-                    #'f_strategyfractionflow__origin', 'origin'),
-                #actual_destination=Coalesce(
-                    #'f_strategyfractionflow__destination', 'destination')
+                    'f_strategyfractionflow__amount', 'amount')
             )
         else:
             queryset = queryset.filter(strategy__isnull=True)

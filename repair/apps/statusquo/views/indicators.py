@@ -17,6 +17,7 @@ from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.statusquo.models import FlowIndicator, IndicatorType
 from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area
+from django.contrib.gis.geos import GEOSGeometry
 
 
 def filter_actors_by_area(actors, geom):
@@ -36,17 +37,37 @@ class ComputeIndicator(metaclass=ABCMeta):
     description = ''
     name = ''
     default_unit = ''
-    def sum(self, indicator_flow, geom=None):
-        '''
-        aggregation sum
-        '''
+
+    def __init__(self, strategy=None):
+        self.strategy = strategy
+
+    def get_queryset(self, indicator_flow, geom=None):
+        '''filter all flows by IndicatorFlow attributes,
+        optionally filter for geometry'''
+        # there might be unset indicators -> return empty queryset
+        # (calculation will return zero)
+        if not indicator_flow:
+            return FractionFlow.objects.none()
         materials = indicator_flow.materials.all()
+
         flow_type = indicator_flow.flow_type.name
         hazardous = indicator_flow.hazardous.name
         avoidable = indicator_flow.avoidable.name
 
         # filter flows by type (waste/product/both)
-        flows = FractionFlow.objects.filter()
+        flows = FractionFlow.objects.all()
+
+        if self.strategy:
+            # ToDo: material
+            flows = flows.filter(
+                (
+                    Q(f_strategyfractionflow__isnull = True) |
+                    Q(f_strategyfractionflow__strategy = self.strategy)
+                )
+            ).annotate(
+                amount=Coalesce(
+                    'f_strategyfractionflow__amount', 'amount')
+            )
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
@@ -75,14 +96,14 @@ class ComputeIndicator(metaclass=ABCMeta):
         # filter flows by origin/destination nodes
         origin_node_ids = indicator_flow.origin_node_ids
         origin_node_ids = origin_node_ids.split(',') \
-            if len(origin_node_ids) > 0 else []
+                if len(origin_node_ids) > 0 else []
         destination_node_ids = indicator_flow.destination_node_ids
         destination_node_ids = destination_node_ids.split(',') \
-            if len(destination_node_ids) > 0 else []
+                if len(destination_node_ids) > 0 else []
         origins = self.get_actors(origin_node_ids,
-                                  indicator_flow.origin_node_level)
+                                      indicator_flow.origin_node_level)
         destinations = self.get_actors(destination_node_ids,
-                                       indicator_flow.destination_node_level)
+                                           indicator_flow.destination_node_level)
 
         if geom:
             spatial = indicator_flow.spatial_application.name
@@ -92,8 +113,11 @@ class ComputeIndicator(metaclass=ABCMeta):
                 destinations = filter_actors_by_area(destinations, geom)
 
         flows = flows.filter(
-            Q(origin__in=origins) & Q(destination__in=destinations))
+                Q(origin__in=origins) & Q(destination__in=destinations))
+        return flows
 
+    def sum(self, flows, strategy=None):
+        '''sum up flow amounts'''
         # sum up amounts to single value
         amount = flows.aggregate(amount=Sum('amount'))['amount'] or 0
         return amount
@@ -110,156 +134,188 @@ class ComputeIndicator(metaclass=ABCMeta):
             actors = actors.filter(**kwargs)
         return actors
 
-    def filter_by_area(self, actors, area):
-        return actors
+    def calculate(self, indicator, areas=[], geom=None, aggregate=False):
+        ''' calculate Indicator by filtering and aggregating flows
+
+        Parameters
+        ----------
+            indicator_flow : IndicatorFlow
+                indicator flow used for filtering flows
+            geom : dict, optional
+                geoJSON with geometry of an area, filter and calculate for this
+                area
+            areas : list of Area, optional
+                filter and calculate for each area seperately
+            aggregate : str, optional
+                aggregate the calculated amounts to single amount
+                (only when calculating areas)
+
+        Returns
+        -------
+           amounts: list of OrderedDict
+              keys area and value, value of 'area' is area id,
+              value of 'value' is (aggregated) value of area,
+              area = -1 if not associated to a specific area, (e.g. when
+              aggregating areas)
+        '''
+        raise NotImplementedError
+
+    def calculate_indicator_flow(self, indicator_flow, areas=[],
+                                 geom=None, aggregate=False, func='sum'):
+        ''' calculate single IndicatorFlow by filtering and aggregating flows
+
+        Parameters
+        ----------
+            indicator_flow : IndicatorFlow
+                indicator flow used for filtering flows
+            geom : dict, optional
+                geoJSON with geometry of an area, filter and calculate for this
+                area
+            areas : list of Area, optional
+                filter and calculate for each area seperately
+            func : str,
+                name of class method to aggregate flows (default is 'sum'),
+                addressed method has to have queryset of FractionFlow as
+                single parameter
+            aggregate : str, optional
+                aggregate the calculated amounts to single amount
+                (only when calculating areas)
+
+        Returns
+        -------
+           amounts: dict,
+              keys area area ids, values are the calculated amounts for this
+              area,
+              key = -1 if not associated to a specific area, (e.g. when
+              aggregating areas)
+        '''
+
+        agg_func = getattr(self, func)
+        # single value (nothing to iterate)
+        if (not areas or len(areas)) == 0 and not geom:
+            flows = self.get_queryset(indicator_flow, geom=geom)
+            amount = agg_func(flows)
+            return {-1: amount}
+        amounts = {}
+        geometries = []
+        if geom:
+            geometries.append(('geom', geom))
+        for area in areas:
+            geom = area.geom
+            geometries.append((area.id, geom))
+        for g_id, geometry in geometries:
+            flows = self.get_queryset(indicator_flow, geom=geometry)
+            amount = agg_func(flows)
+            amounts[g_id] = amount
+        if aggregate:
+            total_sum = 0
+            for a in amounts.values():
+                total_sum += a
+            return {-1: total_sum}
+        return amounts
 
 
 class IndicatorA(ComputeIndicator):
-    '''
-    Aggregated Flow A
-    '''
+    ''' Aggregated Flow A '''
     description = _('SUM aggregation Flow A')
     name = _('Flow A')
     default_unit = _('t / year')
 
-    def process(self, indicator, areas=[], geom=None, aggregate=False):
-        flow_a = indicator.flow_a
-        if not areas and not geom:
-            amount = self.sum(flow_a)
-            return [OrderedDict({'area': -1, 'value': amount})]
-        amounts = []
-        if geom:
-            amount = self.sum(flow_a, geom) if flow_a else 0
-            amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
-        for area in areas:
-            geom = Area.objects.get(id=area).geom
-            amount = self.sum(flow_a, geom) if flow_a else 0
-            amounts.append(OrderedDict({'area': area, 'value': amount}))
-        if aggregate:
-            total_sum = 0
-            for a in amounts:
-                total_sum += a['value']
-            return [OrderedDict({'area': -1, 'value': total_sum})]
-        return amounts
+    def calculate(self, indicator, areas=[], geom=None, aggregate=False):
+        amounts = self.calculate_indicator_flow(
+            indicator.flow_a, areas=areas, geom=geom, aggregate=aggregate,
+            func='sum')
+        results = [OrderedDict({'area': area_id, 'value': amount})
+                   for area_id, amount in amounts.items()]
+        return results
 
 
 class IndicatorAB(ComputeIndicator):
-    '''
-    Aggregated Flow A / aggregated Flow B
-    '''
+    ''' Aggregated Flow A / aggregated Flow B '''
     description = _('SUM aggregation Flow A / SUM aggregation Flow B')
     name = _('(Flow A / Flow B) * 100')
     default_unit = '%'
 
-    def process(self, indicator, areas=[], geom=None, aggregate=False):
-        flow_a = indicator.flow_a
-        flow_b = indicator.flow_b
-        if not areas and not geom:
-            amount = self.sum(flow_a) / self.sum(flow_b)
-            return [OrderedDict({'area': -1, 'value': amount})]
-        amounts = []
-        total_sum_a = 0
-        total_sum_b = 0
-        if geom:
-            if flow_a and flow_b:
-                sum_a = self.sum(flow_a, geom)
-                # ToDo: what if sum_b = 0?
-                sum_b = self.sum(flow_b, geom)
-                total_sum_a += sum_a
-                total_sum_b += sum_b
-                amount = 100 * sum_a / sum_b if sum_b > 0 else 0
-            else:
-                amount = 0
-            amounts.append(OrderedDict({'area': 'geom', 'value': amount}))
-        for area in areas:
-            if flow_a and flow_b:
-                geom = Area.objects.get(id=area).geom
-                sum_a = self.sum(flow_a, geom)
-                # ToDo: what if sum_b = 0?
-                sum_b = self.sum(flow_b, geom)
-                total_sum_a += sum_a
-                total_sum_b += sum_b
-                amount = 100 * sum_a / sum_b if sum_b > 0 else 0
-            else:
-                amount = 0
-            amounts.append(OrderedDict({'area': area, 'value': amount}))
-        if aggregate:
-            amount = 100 * total_sum_a / total_sum_b if total_sum_b > 0 else 0
-            return [OrderedDict({'area': -1, 'value': amount})]
-        return amounts
+    def calculate(self, indicator, areas=[], geom=None, aggregate=False):
+        result_a = self.calculate_indicator_flow(
+            indicator.flow_a, areas=areas, geom=geom,
+            aggregate=aggregate, func='sum')
+        result_b = self.calculate_indicator_flow(
+            indicator.flow_b, areas=areas, geom=geom,
+            aggregate=aggregate, func='sum')
+
+        result_merged = []
+        area_ids = np.unique(list(result_a.keys()) + list(result_b.keys()))
+
+        for area_id in area_ids:
+            sum_a = result_a.get(area_id, 0)
+            sum_b = result_b.get(area_id, 0)
+            amount = 100 * sum_a / sum_b if sum_b > 0 else None
+            result_merged.append(OrderedDict({'area': area_id, 'value': amount}))
+        return result_merged
 
 
-# ToDo: almost same as IndicatorAB, subclass this
-class IndicatorInhabitants(ComputeIndicator):
+class IndicatorInhabitants(IndicatorAB):
     description = _('SUM aggregation Flow A / Inhabitants in Area')
     name = _('Flow A / Inhabitants')
-    default_unit = _('t / inhabitant and year')
+    default_unit = _('kg / inhabitant and year')
 
-    def process(self, indicator, areas=[], geom=None, aggregate=False):
-        if not areas and not geom:
-            return [OrderedDict({'area': -1, 'value': 0})]
-        amounts = []
-        #  ToDo: how to calc for geometries?
-        #        inhabitant data is attached to the areas only
-        if geom:
-            amounts.append(OrderedDict({'area': 'geom', 'value': 0}))
-        total_sum_a = 0
-        total_sum_b = 0
-        flow_a = indicator.flow_a
-        for area_id in areas:
-            if flow_a:
-                area = Area.objects.get(id=area_id)
-                geom = area.geom
-                sum_a = self.sum(flow_a, geom)
-                # ToDo: what if sum_b = 0?
-                sum_b = area.inhabitants
-                total_sum_a += sum_a
-                total_sum_b += sum_b
-                amount = sum_a / sum_b if sum_b > 0 else 0
-            else:
-                amount = 0
-            amounts.append(OrderedDict({'area': area_id, 'value': amount}))
-        if aggregate:
-            amount = total_sum_a / total_sum_b if total_sum_b > 0 else 0
-            return [OrderedDict({'area': -1, 'value': amount})]
-        return amounts
+    def calculate(self, indicator, areas=[], geom=None, aggregate=False):
+        amounts = self.calculate_indicator_flow(
+            indicator.flow_a, areas=areas, geom=geom, aggregate=aggregate,
+            func='sum')
+        total_inhabitants = 0
+        area_inhabitants = {}
+        for area in areas:
+            inhabitants = area.inhabitants
+            total_inhabitants += inhabitants
+            area_inhabitants[area.id] = inhabitants
+        # ToDo: how to calc for geometries?
+        #       inhabitant data is attached to the areas only
+        area_inhabitants['geom'] = 0
+        area_inhabitants[-1] = total_inhabitants
+
+        results = []
+
+        for area, amount in amounts.items():
+            inhabitants = area_inhabitants[area]
+            res = 1000 * amount / inhabitants if inhabitants > 0 else None
+            results.append(OrderedDict({'area': area, 'value': res}))
+
+        return results
 
 
-# ToDo: almost same as IndicatorAB, subclass this
 class IndicatorArea(ComputeIndicator):
     description = _('SUM aggregation Flow A / geometrical area in hectar')
     name = _('Flow A / Area (ha)')
     default_unit = _('t / hectar and year')
 
-    def process(self, indicator, areas=[], geom=None, aggregate=False):
-        if not areas and not geom:
-            return [OrderedDict({'area': -1, 'value': 0})]
-        amounts = []
+    def calculate(self, indicator, areas=[], geom=None, aggregate=False):
+        amounts = self.calculate_indicator_flow(
+            indicator.flow_a, areas=areas, geom=geom, aggregate=aggregate,
+            func='sum')
+        total_ha = 0
+        areas_ha = {}
+        for area in areas:
+            ha = area.ha
+            total_ha += ha
+            areas_ha[area.id] = ha
         if geom:
+            geom = GEOSGeometry(geom)
             sm = geom.transform(3035, clone=True).area
             ha = sm / 10000
-            amounts.append(OrderedDict({'area': 'geom', 'value': ha}))
-        total_sum_a = 0
-        total_ha = 0
-        flow_a = indicator.flow_a
-        for area_id in areas:
-            if flow_a:
-                area = Area.objects.get(id=area_id)
-                geom = area.geom
-                sm = area.geom.transform(3035, clone=True).area
-                sum_a = self.sum(flow_a, geom)
-                # ToDo: what if sum_b = 0?
-                ha = sm / 10000
-                total_sum_a += sum_a
-                total_ha += ha
-                amount = sum_a / ha if ha > 0 else 0
-            else:
-                amount = 0
-            amounts.append(OrderedDict({'area': area_id, 'value': amount}))
-        if aggregate:
-            amount = total_sum_a / total_ha if total_ha > 0 else 0
-            return [OrderedDict({'area': -1, 'value': amount})]
-        return amounts
+            total_ha += ha
+            areas_ha['geom'] = ha
+        areas_ha[-1] = total_ha
+
+        results = []
+
+        for area_id, amount in amounts.items():
+            ha = areas_ha[area_id]
+            res = amount / ha if ha > 0 else None
+            results.append(OrderedDict({'area': area_id, 'value': res}))
+
+        return results
 
 
 class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
@@ -286,19 +342,26 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
         if not indicator:
             raise Http404
         typ = indicator.indicator_type
-        computer_class = globals().get(typ.name, None)
-        assert issubclass(computer_class, ComputeIndicator)
-        computer = computer_class()
+        compute_class = globals().get(typ.name, None)
+        assert issubclass(compute_class, ComputeIndicator)
         geom = body_params.get('geom', None) or query_params.get('geom', None)
+        if geom == 'null':
+            geom = None
         areas = (body_params.get('areas', None) or
                  query_params.get('areas', None))
         aggregate = (body_params.get('aggregate', None) or
                      query_params.get('aggregate', None))
+        strategy = (body_params.get('strategy', None) or
+                    query_params.get('strategy', None))
+        if strategy:
+            strategy = Strategy.objects.get(id=strategy)
+        compute = compute_class(strategy=strategy)
         if aggregate is not None:
             aggregate = aggregate.lower() == 'true'
         if areas:
             areas = areas.split(',')
-        values = computer.process(indicator, areas=areas or [], geom=geom,
+            areas = Area.objects.filter(id__in=areas)
+        values = compute.calculate(indicator, areas=areas or [], geom=geom,
                                   aggregate=aggregate)
         return Response(values)
 
