@@ -335,7 +335,8 @@ var SolutionsLogicView = BaseView.extend(
             materials: this.materials,
             activityGroups: this.activityGroups,
             activities: this.activities,
-            questions: this.questions
+            questions: this.questions,
+            solutionParts: this.solutionParts
         })
         confirmBtn = utils.removeEventListeners(confirmBtn);
         confirmBtn.addEventListener('click', function(){

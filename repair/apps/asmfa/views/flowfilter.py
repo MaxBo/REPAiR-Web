@@ -250,6 +250,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = super()._filter(lookup_args, query_params=query_params,
                                    SerializerClass=SerializerClass)
         if strategy:
+            # ToDo: material
             queryset = queryset.filter(
                 (
                     Q(f_strategyfractionflow__isnull = True) |

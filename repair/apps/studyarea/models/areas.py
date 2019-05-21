@@ -35,4 +35,10 @@ class Area(GDSEModel):
                                      on_delete=models.CASCADE)
     inhabitants = models.BigIntegerField(default=0)
 
+    @property
+    def ha(self):
+        sm = self.geom.transform(3035, clone=True).area
+        ha = sm / 10000
+        return ha
+
 
