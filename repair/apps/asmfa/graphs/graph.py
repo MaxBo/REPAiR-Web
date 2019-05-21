@@ -155,20 +155,16 @@ class StrategyGraph(BaseGraph):
     def build(self):
         base_graph = BaseGraph(self.keyflow)
         if not base_graph.exists:
-            raise FileNotFoundError
+            base_graph.build()
         g = base_graph.load()
         gw = GraphWalker(g)
-        # ToDo: remove,
-        # atm returns the base graph, because the following code is only pseudo
-        return g;
 
-        # @Tom or @Balasz: please implement the pseudo-code below!
-
-        # ToDo: get the solutions in this strategy and order them by
-        # priority
+        # get the solutions in this strategy and order them by priority
+        solutions = self.strategy.solutions.order_by('solutioninstrategy__priority')
         for solution in solutions:
-            # ToDo: get the solution part
-            for solution_part in solution_parts:
+            # get the solution parts using the reverse relation
+            for solution_part in solution.solution_parts.all():
+                solution
                 # ToDo: get the implementation and its quantity
                 # ToDo: SolutionInStrategy geometry for filtering?
                 self.graph = gw.calculate_solution(solution, solution_part,

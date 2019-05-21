@@ -78,7 +78,7 @@ class SolutionPart(GDSEModel):
     create new one by deriving it from existing)
     '''
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
-                                 related_name='solution_part')
+                                 related_name='solution_parts')
     name = models.TextField()
     documentation = models.TextField(default='')
     implements_new_flow = models.BooleanField(default=False)
