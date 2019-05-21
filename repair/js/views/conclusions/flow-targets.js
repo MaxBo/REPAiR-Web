@@ -186,6 +186,7 @@ function(_, BaseView, GDSECollection, Muuri){
                             sat = 100 - 70 * Math.abs(Math.min(amount, 1)),
                             hsl = 'hsla(' + hue + ', 50%, ' + sat + '%, 1)';
                         if (sat < 50) item.style.color = 'white';
+                        item.style.backgroundImage = 'none';
                         item.style.backgroundColor = hsl;
                     }
                 })

@@ -1,10 +1,11 @@
 require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
          'views/strategy/workshop-solutions', 'views/strategy/modified-flows',
          'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
-         'views/strategy/strategy', 'app-config', 'utils/utils', 'utils/overrides', 'base'
+         'views/strategy/strategy', 'views/strategy/flow-target-control',
+         'app-config', 'utils/utils', 'utils/overrides', 'base'
 ], function (CaseStudy, GDSEModel, GDSECollection, SolutionsWorkshopView,
              ModifiedFlowsView, SolutionsSetupView, SolutionsLogicView,
-             StrategyView, appConfig, utils) {
+             StrategyView, FlowTargetControlView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -40,6 +41,15 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             el: document.getElementById('modified-flows'),
             keyflowId: keyflow.id,
             template: 'workshop-flows-template',
+            strategy: strategy
+        })
+
+        if (flowTargetControlView) flowTargetControlView.close();
+        var flowTargetControlView = new FlowTargetControlView({
+            caseStudy: caseStudy,
+            el: document.getElementById('flow-target-control'),
+            keyflowId: keyflow.id,
+            template: 'flow-target-control-template',
             strategy: strategy
         })
 
