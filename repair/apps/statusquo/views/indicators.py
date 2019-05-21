@@ -38,14 +38,14 @@ class ComputeIndicator(metaclass=ABCMeta):
     name = ''
     default_unit = ''
 
-    def __init__(self,  strategy=None):
+    def __init__(self, strategy=None):
         self.strategy = strategy
 
     def get_queryset(self, indicator_flow, geom=None):
         '''filter all flows by IndicatorFlow attributes,
         optionally filter for geometry'''
-        # there might be unset indicators, return empty queryset
-        # -> calculation will return zero
+        # there might be unset indicators -> return empty queryset
+        # (calculation will return zero)
         if not indicator_flow:
             return FractionFlow.objects.none()
         materials = indicator_flow.materials.all()
@@ -55,7 +55,19 @@ class ComputeIndicator(metaclass=ABCMeta):
         avoidable = indicator_flow.avoidable.name
 
         # filter flows by type (waste/product/both)
-        flows = FractionFlow.objects.filter()
+        flows = FractionFlow.objects.all()
+
+        if self.strategy:
+            # ToDo: material
+            flows = flows.filter(
+                (
+                    Q(f_strategyfractionflow__isnull = True) |
+                    Q(f_strategyfractionflow__strategy = self.strategy)
+                )
+            ).annotate(
+                amount=Coalesce(
+                    'f_strategyfractionflow__amount', 'amount')
+            )
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
@@ -104,7 +116,7 @@ class ComputeIndicator(metaclass=ABCMeta):
                 Q(origin__in=origins) & Q(destination__in=destinations))
         return flows
 
-    def sum(self, flows):
+    def sum(self, flows, strategy=None):
         '''sum up flow amounts'''
         # sum up amounts to single value
         amount = flows.aggregate(amount=Sum('amount'))['amount'] or 0
