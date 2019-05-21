@@ -123,6 +123,7 @@ class SessionView(View):
         if not request.user.is_authenticated:
             return HttpResponse(_('Unauthorized'), status=401)
         _next = None
+        casestudy = None
 
         # form data
         if request.content_type in ['application/x-www-form-urlencoded',
@@ -137,6 +138,9 @@ class SessionView(View):
             mode = json_body.get('mode')
             for k, v in json_body.items():
                 request.session[k] = v
+
+        if not self.request.user.has_perm('login.setupmode'):
+            mode = 0
 
         if casestudy is not None:
             request.session['casestudy'] = casestudy
@@ -176,7 +180,11 @@ class SessionView(View):
                 response[k] = v
 
         response['language'] = request.LANGUAGE_CODE
-        response['mode'] = request.session.get('mode', self.MODES['Workshop'])
+        mode = request.session.get('mode', self.MODES['Workshop'])
+        if not self.request.user.has_perm('login.setupmode'):
+            mode = 0
+            request.session['mode'] = 0
+        response['mode'] = mode
 
         return JsonResponse(response)
 
