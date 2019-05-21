@@ -139,14 +139,24 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 data: { keyflow: keyflowId, all: true },
                 error: alert
             }));
-            promises.push(consensusLevels.fetch({ error: alert }));
-            promises.push(sections.fetch({ error: alert }));
-            promises.push(users.fetch({error: alert}));
+
+            //function alert_res(res){
+                //if res.
+            //}
+
+            promises.push(consensusLevels.fetch());
+            promises.push(sections.fetch());
+            promises.push(users.fetch());
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
                 var participants = users.filterBy({'gets_evaluated' : true});
                 renderWorkshop(caseStudy, keyflowId, keyflowName, participants);
+            }).catch(function(res){
+                if (res.responseText)
+                    alert(res.responseText);
+                else alert(gettext('Error'))
+                loader.deactivate()
             });
         }
 
