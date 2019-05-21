@@ -469,7 +469,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 method: "POST",
                 data: { geom: JSON.stringify(geom) },
                 success: function(data){
-                    value = Math.round(data[0].value);
+                    value = (data[0]) ? Math.round(data[0].value) : 0;
                     // always prepend focus area
                     _this.chartData[indicatorId][0] = {
                         name: text,
