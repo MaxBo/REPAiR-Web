@@ -1,5 +1,6 @@
 define(['views/common/baseview', 'collections/gdsecollection',
-        'views/status-quo/workshop-flow-assessment', 'underscore'],
+        'views/status-quo/workshop-flow-assessment', 'underscore',
+        'static/css/status-quo.css'],
 
 function(BaseView, GDSECollection, FlowAssessmentWorkshopView, _){
 /**

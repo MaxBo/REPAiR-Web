@@ -345,6 +345,8 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
         compute_class = globals().get(typ.name, None)
         assert issubclass(compute_class, ComputeIndicator)
         geom = body_params.get('geom', None) or query_params.get('geom', None)
+        if geom == 'null':
+            geom = None
         areas = (body_params.get('areas', None) or
                  query_params.get('areas', None))
         aggregate = (body_params.get('aggregate', None) or
