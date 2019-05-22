@@ -47,7 +47,7 @@ var FlowsView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change select[name="abs-delta-select"]': 'redraw'
+        'change select[name="modification-select"]': 'redraw'
     },
 
     /*
@@ -67,8 +67,8 @@ var FlowsView = BaseView.extend(
         this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
         this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
 
-        var deltaEl = this.el.querySelector('div[name="abs-delta"]');
-        this.deltaDisplaySelect = this.el.querySelector('select[name="abs-delta-select"]')
+        var deltaEl = this.el.querySelector('div[name="modifications"]');
+        this.modDisplaySelect = this.el.querySelector('select[name="modification-select"]');
         if(this.strategy){
             deltaEl.style.display = 'block';
         }
@@ -180,6 +180,64 @@ var FlowsView = BaseView.extend(
         this.draw(this.displayLevel)
     },
 
+    // fetch flows and calls options.success(flows) on success
+    // options.displayLevel
+    // options.strategy to fetch strategy flows
+    fetchFlows: function(options){
+        var filterParams = this.getFlowFilterParams(),
+            displayLevel = options.displayLevel || 'activitygroup',
+            _this = this;
+        filterParams['aggregation_level'] = {
+            origin: displayLevel,
+            destination: displayLevel
+        };
+
+        var flows = new GDSECollection([], {
+            apiTag: 'flows',
+            apiIds: [ this.caseStudy.id, this.keyflowId]
+        });
+
+        this.loader.activate();
+        var data = {};
+        if (options.strategy)
+            data['strategy'] = this.strategy.id;
+
+        flows.postfetch({
+            data: data,
+            body: filterParams,
+            success: function(response){
+                var idx = 0;
+                flows.forEach(function(flow){
+                    var origin = flow.get('origin'),
+                        destination = flow.get('destination');
+                    // api aggregates flows and doesn't return an id
+                    // generate an internal one to assign interactions
+                    flow.set('id', idx);
+                    idx++;
+
+                    // remember original amounts to be able to swap amount with delta and back
+                    flow._amount = flow.get('amount');
+                    var materials = flow.get('materials');
+                    flow.get('materials').forEach(function(material){
+                        material._amount =  material.amount;
+                    })
+                    flow.set('materials', materials);
+
+                    origin.color = utils.colorByName(origin.name);
+                    if (!flow.get('stock'))
+                        destination.color = utils.colorByName(destination.name);
+                })
+                _this.loader.deactivate();
+                if (options.success)
+                    options.success(flows);
+            },
+            error: function(error){
+                _this.loader.deactivate();
+                _this.onError(error);
+            }
+        })
+    },
+
     draw: function(displayLevel){
         this.flowMem = {};
         if (this.flowMapView != null) this.flowMapView.clear();
@@ -189,18 +247,13 @@ var FlowsView = BaseView.extend(
         this.nodeLevel = displayLevel.toLowerCase();
 
         var el = this.sankeyWrapper,
-            showDelta = this.deltaDisplaySelect.value === 'delta',
+            showDelta = this.modDisplaySelect.value === 'delta',
             _this = this;
 
-        // pass all known nodes to sankey (not only the filtered ones) to avoid
-        // fetching missing nodes
-        var collection = (displayLevel == 'actor') ? this.actors:
-            (displayLevel == 'activity') ? this.activities:
-            this.activityGroups;
-
-        function draw(flows){
+        function drawSankey(){
+            var flows = (_this.strategy && _this.modDisplaySelect.value != 'statusquo') ? _this.strategyFlows : _this.flows;
             // override value and color
-            _this.flows.forEach(function(flow){
+            flows.forEach(function(flow){
                 var amount = (showDelta) ? flow.get('delta') : flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
                 flow.set('amount', amount)
@@ -224,61 +277,26 @@ var FlowsView = BaseView.extend(
         }
         // no need to fetch flows if display level didn't change from last time
         if (this.displayLevel != displayLevel) {
-            var filterParams = this.getFlowFilterParams();
-
-            filterParams['aggregation_level'] = {
-                origin: displayLevel,
-                destination: displayLevel
-            };
-
-            this.flows = new GDSECollection([], {
-                apiTag: 'flows',
-                apiIds: [ this.caseStudy.id, this.keyflowId]
-            });
-            this.loader.activate();
-            var data = {};
-            if (this.strategy)
-                data['strategy'] = this.strategy.id;
-
-            this.flows.postfetch({
-                data: data,
-                body: filterParams,
-                success: function(response){
-                    var idx = 0;
-                    _this.flows.forEach(function(flow){
-                        // for testing only!!!
-                        //var delta = (Math.random() * 2000) - 1000;
-                        //flow.set('delta', delta);
-                        var origin = flow.get('origin'),
-                            destination = flow.get('destination');
-                        // api aggregates flows and doesn't return an id
-                        // generate an internal one to assign interactions
-                        flow.set('id', idx);
-                        idx++;
-
-                        // remember original amounts to be able to swap amount with delta and back
-                        flow._amount = flow.get('amount');
-                        var materials = flow.get('materials');
-                        flow.get('materials').forEach(function(material){
-                            material._amount =  material.amount;
+            this.fetchFlows({
+                displayLevel: displayLevel,
+                success: function(flows){
+                    _this.flows = flows;
+                    if (_this.strategy){
+                        _this.fetchFlows({
+                            strategy: _this.strategy,
+                            displayLevel: displayLevel,
+                            success: function(strategyFlows){
+                                _this.strategyFlows = strategyFlows;
+                                drawSankey();
+                            }
                         })
-                        flow.set('materials', materials);
-
-                        origin.color = utils.colorByName(origin.name);
-                        if (!flow.get('stock'))
-                            destination.color = utils.colorByName(destination.name);
-                    })
-                    _this.loader.deactivate();
-                    draw(_this.flows)
-                },
-                error: function(error){
-                    _this.loader.deactivate();
-                    _this.onError(error);
+                    } else
+                        drawSankey();
                 }
             })
         }
         else {
-            draw(this.flows)
+            drawSankey();
         }
         this.displayLevel = displayLevel;
     },
@@ -288,7 +306,7 @@ var FlowsView = BaseView.extend(
         var bodyParams = this.getFlowFilterParams(),
             filterSuffix = 'activity',
             _this = this,
-            showDelta = this.deltaDisplaySelect.value === 'delta';
+            showDelta = this.modDisplaySelect.value === 'delta';
         // there might be multiple flows in between the same actors,
         // force to aggregate them to one flow
         bodyParams['aggregation_level'] = { origin:"actor", destination:"actor" }
@@ -309,7 +327,7 @@ var FlowsView = BaseView.extend(
         else
             queryParams['process__isnull'] = true;
 
-        if (this.strategy)
+        if (this.strategy && this.modDisplaySelect.value != 'statusquo')
             queryParams['strategy'] = this.strategy.id;
 
         var origin = flow.get('origin'),

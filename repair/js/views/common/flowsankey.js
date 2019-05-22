@@ -232,7 +232,7 @@ var FlowSankeyView = BaseView.extend(
         flows.forEach(function(flow){
             var value = flow.get('amount');
             // skip flows with zero amount
-            if (value === 0) return;
+            if (value == 0) return;
             var origin = flow.get('origin'),
                 destination = flow.get('destination'),
                 isStock = flow.get('stock');
