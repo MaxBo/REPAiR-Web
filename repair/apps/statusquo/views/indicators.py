@@ -9,15 +9,18 @@ import numpy as np
 from django.db.models import Q, Sum
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
+from django.contrib.gis.geos import GEOSGeometry
+from django.db.models.functions import Coalesce
+
 from repair.apps.asmfa.views import descend_materials
 from repair.apps.utils.views import (ModelPermissionViewSet,
                                      CasestudyViewSetMixin)
 from repair.apps.asmfa.models import Actor, FractionFlow, AdministrativeLocation
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
+from repair.apps.changes.models import Strategy
 from repair.apps.statusquo.models import FlowIndicator, IndicatorType
 from repair.apps.statusquo.serializers import FlowIndicatorSerializer
 from repair.apps.studyarea.models import Area
-from django.contrib.gis.geos import GEOSGeometry
 
 
 def filter_actors_by_area(actors, geom):
@@ -65,9 +68,11 @@ class ComputeIndicator(metaclass=ABCMeta):
                     Q(f_strategyfractionflow__strategy = self.strategy)
                 )
             ).annotate(
-                amount=Coalesce(
+                strategy_amount=Coalesce(
                     'f_strategyfractionflow__amount', 'amount')
             )
+        else:
+            flows = flows.filter(strategy__isnull=True)
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
@@ -116,10 +121,12 @@ class ComputeIndicator(metaclass=ABCMeta):
                 Q(origin__in=origins) & Q(destination__in=destinations))
         return flows
 
-    def sum(self, flows, strategy=None):
+    def sum(self, flows, field='amount'):
         '''sum up flow amounts'''
         # sum up amounts to single value
-        amount = flows.aggregate(amount=Sum('amount'))['amount'] or 0
+        if len(flows) == 0:
+            return 0
+        amount = flows.aggregate(amount=Sum(field))['amount'] or 0
         return amount
 
     def get_actors(self, node_ids, node_level):
@@ -153,8 +160,9 @@ class ComputeIndicator(metaclass=ABCMeta):
         Returns
         -------
            amounts: list of OrderedDict
-              keys area and value, value of 'area' is area id,
-              value of 'value' is (aggregated) value of area,
+              keys area, value and delta, value of 'area' is area id,
+              value of 'value' is (aggregated) value of area, 'delta' is
+              aggregated difference to status quo;
               area = -1 if not associated to a specific area, (e.g. when
               aggregating areas)
         '''
@@ -184,8 +192,8 @@ class ComputeIndicator(metaclass=ABCMeta):
         Returns
         -------
            amounts: dict,
-              keys area area ids, values are the calculated amounts for this
-              area,
+              keys area area ids, values are the tuples of calculated amounts
+              and the amounts in strategy (if there is one, else 0)
               key = -1 if not associated to a specific area, (e.g. when
               aggregating areas)
         '''
@@ -195,7 +203,9 @@ class ComputeIndicator(metaclass=ABCMeta):
         if (not areas or len(areas)) == 0 and not geom:
             flows = self.get_queryset(indicator_flow, geom=geom)
             amount = agg_func(flows)
-            return {-1: amount}
+            strategy_amount = agg_func(flows, field='strategy_amount') \
+                if self.strategy else 0
+            return {-1: (amount, strategy_amount)}
         amounts = {}
         geometries = []
         if geom:
@@ -206,12 +216,16 @@ class ComputeIndicator(metaclass=ABCMeta):
         for g_id, geometry in geometries:
             flows = self.get_queryset(indicator_flow, geom=geometry)
             amount = agg_func(flows)
-            amounts[g_id] = amount
+            strategy_amount = agg_func(flows, field='strategy_amount') \
+                if self.strategy else 0
+            amounts[g_id] = (amount, strategy_amount)
         if aggregate:
             total_sum = 0
+            total_strategy_amount = 0
             for a in amounts.values():
-                total_sum += a
-            return {-1: total_sum}
+                total_sum += a[0]
+                total_strategy_amount += a[1]
+            return {-1: (total_sum, total_strategy_amount)}
         return amounts
 
 
@@ -225,8 +239,11 @@ class IndicatorA(ComputeIndicator):
         amounts = self.calculate_indicator_flow(
             indicator.flow_a, areas=areas, geom=geom, aggregate=aggregate,
             func='sum')
-        results = [OrderedDict({'area': area_id, 'value': amount})
-                   for area_id, amount in amounts.items()]
+        results = [OrderedDict({
+            'area': area_id,
+            'value': amount[1] if self.strategy else amount[0],
+            'delta': amount[1] - amount[0]
+        }) for area_id, amount in amounts.items()]
         return results
 
 
@@ -248,10 +265,20 @@ class IndicatorAB(ComputeIndicator):
         area_ids = np.unique(list(result_a.keys()) + list(result_b.keys()))
 
         for area_id in area_ids:
-            sum_a = result_a.get(area_id, 0)
-            sum_b = result_b.get(area_id, 0)
-            amount = 100 * sum_a / sum_b if sum_b > 0 else None
-            result_merged.append(OrderedDict({'area': area_id, 'value': amount}))
+            sum_a = result_a.get(area_id, (0, 0))
+            sum_b = result_b.get(area_id, (0, 0))
+            amount = 100 * sum_a[0] / sum_b[0] if sum_b[0] > 0 else None
+            strategy_amount = 100 * sum_a[1] / sum_b[1] if sum_b[1] > 0 else None
+            if (strategy_amount is None or amount is None):
+                delta = None
+            else:
+                delta = strategy_amount - amount
+            amount = strategy_amount if self.strategy else amount
+            result_merged.append(OrderedDict({
+                'area': area_id,
+                'value': strategy_amount if self.strategy else amount,
+                'delta': delta
+            }))
         return result_merged
 
 
@@ -267,9 +294,9 @@ class IndicatorInhabitants(IndicatorAB):
         total_inhabitants = 0
         area_inhabitants = {}
         for area in areas:
-            inhabitants = area.inhabitants
-            total_inhabitants += inhabitants
-            area_inhabitants[area.id] = inhabitants
+            inh = area.inhabitants
+            total_inhabitants += inh
+            area_inhabitants[area.id] = inh
         # ToDo: how to calc for geometries?
         #       inhabitant data is attached to the areas only
         area_inhabitants['geom'] = 0
@@ -278,9 +305,18 @@ class IndicatorInhabitants(IndicatorAB):
         results = []
 
         for area, amount in amounts.items():
-            inhabitants = area_inhabitants[area]
-            res = 1000 * amount / inhabitants if inhabitants > 0 else None
-            results.append(OrderedDict({'area': area, 'value': res}))
+            inh = area_inhabitants[area]
+            res = 1000 * amount[0] / inh if inh > 0 else None
+            strategy_res = 1000 * amount[1] / inh if inh > 0 else None
+            if (strategy_amount is None or amount is None):
+                delta = None
+            else:
+                delta = strategy_res - res
+            results.append(OrderedDict({
+                'area': area,
+                'value': strategy_res if self.strategy else res,
+                'delta': delta
+            }))
 
         return results
 
@@ -312,8 +348,17 @@ class IndicatorArea(ComputeIndicator):
 
         for area_id, amount in amounts.items():
             ha = areas_ha[area_id]
-            res = amount / ha if ha > 0 else None
-            results.append(OrderedDict({'area': area_id, 'value': res}))
+            res = amount[0] / ha if ha > 0 else None
+            strategy_res = amount[1] / ha if ha > 0 else None
+            if (strategy_amount is None or amount is None):
+                delta = None
+            else:
+                delta = strategy_res - res
+            results.append(OrderedDict({
+                'area': area_id,
+                'value': strategy_res if self.strategy else res,
+                'delta': delta
+            }))
 
         return results
 
@@ -355,6 +400,12 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
                     query_params.get('strategy', None))
         if strategy:
             strategy = Strategy.objects.get(id=strategy)
+            if strategy.status == 0:
+                return HttpResponseBadRequest(
+                    _('calculation is not done yet'))
+            if strategy.status == 1:
+                return HttpResponseBadRequest(
+                    _('calculation is still in process'))
         compute = compute_class(strategy=strategy)
         if aggregate is not None:
             aggregate = aggregate.lower() == 'true'

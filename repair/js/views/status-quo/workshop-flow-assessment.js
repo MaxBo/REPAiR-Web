@@ -33,6 +33,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         _.bindAll(this, 'addAreaSelectItem');
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.strategy = options.strategy;
 
         this.spatialItemColor = '#aad400';
         this.indicators = new GDSECollection([], {
@@ -189,12 +190,16 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         var mapTab = this.el.querySelector('#indicator-map-tab'),
             mapLoader = new utils.Loader(mapTab, {disable: true});
+
         function fetchCompute(areas){
-            var areaIds = areas.pluck('id');
+            var areaIds = areas.pluck('id'),
+                data = { areas: areaIds.join(',') };
+            if (_this.strategy)
+                data['strategy'] = _this.strategy.id;
 
             indicator.compute({
                 method: "POST",
-                data: { areas: areaIds.join(',') },
+                data: data,
                 success: function(data){
                     mapLoader.deactivate();
                     _this.renderIndicatorOnMap(data, areas, indicator)
