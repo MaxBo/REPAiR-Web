@@ -164,7 +164,7 @@ class StrategyGraph(BaseGraph):
         strat_flows = []
         for flow in picked_flows:
             # vary between -25% and +25%
-            new_amount = flow.amount * (np.random.random() / 2 - 0.25)
+            new_amount = flow.amount * (1 + (np.random.random() / 2 - 0.25))
             strat_flow = StrategyFractionFlow(
                 strategy=self.strategy, amount=new_amount, fractionflow=flow)
             strat_flows.append(strat_flow)

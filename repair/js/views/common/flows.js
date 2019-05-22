@@ -217,7 +217,9 @@ var FlowsView = BaseView.extend(
                 height: 600,
                 originLevel: displayLevel,
                 destinationLevel: displayLevel,
-                anonymize: _this.filter.get('anonymize')
+                anonymize: _this.filter.get('anonymize'),
+                showRelativeComposition: !showDelta,
+                forceSignum: showDelta
             })
         }
         // no need to fetch flows if display level didn't change from last time

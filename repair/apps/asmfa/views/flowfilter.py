@@ -395,6 +395,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         for group in groups:
             grouped = queryset.filter(**group)
+            grouped.order_by()
             # sum over all rows in group
             total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
             origin_item = origin_dict[group[origin_filter]]
@@ -409,11 +410,11 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 'amount': Sum('amount')
             }
             if strategy is not None:
-                annotation['amount'] = Sum('strategy_amount')
-                # F('amount') takes Sum annotation instead of real field
-                annotation['delta'] = (Sum('strategy_amount') - F('amount'))
                 total_strategy_amount = \
                     list(grouped.aggregate(Sum('strategy_amount')).values())[0]
+                annotation['strategy_amount'] = F('strategy_amount')
+                # F('amount') takes Sum annotation instead of real field
+                annotation['delta'] = (F('strategy_amount') - F('amount'))
             grouped_mats = \
                 list(grouped.values('material').annotate(**annotation))
             # aggregate materials according to mapping aggregation_map
@@ -421,7 +422,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 aggregated = {}
                 for grouped_mat in grouped_mats:
                     mat_id = grouped_mat['material']
-                    amount = grouped_mat['amount']
+                    amount = grouped_mat['amount'] if not strategy \
+                        else grouped_mat['strategy_amount']
                     mapped = aggregation_map[mat_id]
 
                     agg_mat_ser = aggregated.get(mapped.id, None)
