@@ -68,7 +68,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             var status = strategy.get('status');
             statusClone.className = (status === 0) ? 'btn btn-primary' : (status === 2) ? 'btn btn-secondary' : 'btn btn-tertiary'
             statusDiv.innerHTML = strategy.get('status_text');
-            calcClone.disabled = (status === 1) ? true: false;
+            //calcClone.disabled = (status === 1) ? true: false;
         }
         setStatus();
 
