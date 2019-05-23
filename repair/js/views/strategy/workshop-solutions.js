@@ -284,20 +284,15 @@ var SolutionsWorkshopView = BaseView.extend(
     renderSolutionItem: function(panel, solution){
         var _this = this;
         // render panel item from template (in templates/common.html)
-        var html = document.getElementById('panel-item-template').innerHTML,
-            template = _.template(html);
-        var panelItem = document.createElement('div');
-        panelItem.classList.add('panel-item');
-        panelItem.classList.add('noselect');
-        panelItem.innerHTML = template({ name: solution.get('name') });
+        //var html = document.getElementById('panel-item-template').innerHTML,
+            //template = _.template(html);
+        var panelItem = _this.panelItem(solution.get('name'), {
+            overlayText: '<span style="font-size: 29px;" class="glyphicon glyphicon-info-sign"></span>'
+        })
         panel.appendChild(panelItem);
         panelItem.addEventListener('click', function(){
             _this.showSolution(solution);
         })
-        var btns = panelItem.querySelectorAll('button');
-        _.each(btns, function(button){
-            button.style.display = 'none';
-        });
     }
 
 });

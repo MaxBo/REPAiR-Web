@@ -245,9 +245,12 @@ var BaseView = Backbone.View.extend(
             var overlay = panelItem.querySelector('.overlay');
             overlay.style.display = 'inline-block';
             overlay.innerHTML = overlayText;
-            // make space for the overlay
-            panelItem.querySelector('label').style.paddingLeft = '30px';
         };
+
+        // make space for the overlay and buttons
+        if (showButtons || overlayText) {
+            panelItem.querySelector('label').style.maxWidth = 'calc(100% - 50px)';
+        }
 
         if (popoverText){
             $(panelItem).popover({

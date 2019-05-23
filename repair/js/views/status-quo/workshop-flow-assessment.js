@@ -33,6 +33,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         _.bindAll(this, 'addAreaSelectItem');
         this.caseStudy = options.caseStudy;
         this.keyflowId = options.keyflowId;
+        this.strategy = options.strategy;
 
         this.spatialItemColor = '#aad400';
         this.indicators = new GDSECollection([], {
@@ -73,6 +74,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
     */
     events: {
         'change select[name="indicator"]': 'changeIndicator',
+        'change select[name="modification-select"]': 'renderIndicator',
         'change select[name="spatial-level-select"]': 'computeMapIndicator',
         'click #add-area-select-item-btn': 'onAddAreaSelect',
         'click button.remove-item': 'removeAreaSelectItem',
@@ -142,6 +144,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             _this.updateBarChart();
         });
 
+        var deltaEl = this.el.querySelector('div[name="modifications"]');
+        this.modDisplaySelect = this.el.querySelector('select[name="modification-select"]');
+        if(this.strategy){
+            deltaEl.style.display = 'block';
+        }
+
         this.initIndicatorMap();
         this.renderAreaModal();
         this.addSpatialItem();
@@ -189,12 +197,16 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         var mapTab = this.el.querySelector('#indicator-map-tab'),
             mapLoader = new utils.Loader(mapTab, {disable: true});
+
         function fetchCompute(areas){
-            var areaIds = areas.pluck('id');
+            var areaIds = areas.pluck('id'),
+                data = { areas: areaIds.join(',') };
+            if (_this.strategy && _this.modDisplaySelect.value != 'statusquo')
+                data['strategy'] = _this.strategy.id;
 
             indicator.compute({
                 method: "POST",
-                data: { areas: areaIds.join(',') },
+                data: data,
                 success: function(data){
                     mapLoader.deactivate();
                     _this.renderIndicatorOnMap(data, areas, indicator)

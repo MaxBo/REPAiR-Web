@@ -775,6 +775,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
 
             var uniqueMaterials = {};
             pFlows.forEach(function(pFlow) {
+                if (pFlow.amount == 0) return;
                 if (!pFlow.is_stock)
                     links = links.concat(transformFlow(pFlow));
                 else
