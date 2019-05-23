@@ -54,6 +54,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         this.chartData = {};
 
         this.mapColorRange = chroma.scale(['#edf8b1', '#7fcdbb', '#2c7fb8']); //'Spectral')//['yellow', 'navy'])
+        this.mapDeltaColorRange = chroma.scale(['red', 'white', '#23FE01']);
         // ToDo: replace with another scale
         this.barChartColor = utils.colorByName;
 
@@ -256,6 +257,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             //continue if no data
             if (d.value == null) return;
             var value = Math.round(d.value);
+            if (_this.strategy && _this.modDisplaySelect.value == 'delta')
+                value = d.delta
             values[d.area] = value;
             maxValue = Math.max(value, maxValue);
             minValue = Math.min(value, minValue);
@@ -268,7 +271,10 @@ var FlowAssessmentWorkshopView = BaseView.extend(
 
         var step = (maxValue - minValue) / 10,
             entries = (step > 0) ? utils.range(minValue, maxValue, step): [0],
-            colorRange = this.mapColorRange.domain([minValue, maxValue]);
+            colorRange = this.mapColorRange.domain([minValue, 0, maxValue]);
+
+        if (_this.strategy && _this.modDisplaySelect.value == 'delta')
+            colorRange = this.mapDeltaColorRange.domain([minValue, maxValue]);
 
         this.elLegend.innerHTML = '';
         entries.forEach(function(entry){
@@ -405,11 +411,12 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             },
             xAxis: {
                 minorTickLength: 0,
-                tickLength: 0
+                tickLength: 0,
+                //lineWidth: 2
             },
-            yAxis: {
-                min: 0
-            },
+            //yAxis: {
+                //min: 0
+            //},
             title: '',
             legend: {
                 enabled: false
@@ -431,17 +438,28 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         if (!indicator) return;
 
         if (areas.length > 0){
+            var data = { areas: areas.join(','), aggregate: true };
+            if (_this.strategy && _this.modDisplaySelect.value != 'statusquo')
+                data['strategy'] = _this.strategy.id;
+
             // compute and return promise
             return indicator.compute({
                 method: "POST",
-                data: { areas: areas.join(','), aggregate: true },
+                data: data,
                 success: function(data){
                     //var sum = data.reduce((a, b) => a + b.value, 0);
-                    var value = Math.round(data[0].value)
+                    var value = data[0].value,
+                        color = item.color;
+                    if (_this.strategy && _this.modDisplaySelect.value == 'delta'){
+                        value = data[0].delta;
+                        color = (value >= 0) ? '#23FE01': 'red';
+                    }
+
+                    Math.round(data[0].value)
                     _this.chartData[indicator.id][id] = {
                         name: id,
-                        value: value,
-                        color: item.color
+                        value: Math.round(value),
+                        color: color
                     };
                 },
                 error: _this.onError
