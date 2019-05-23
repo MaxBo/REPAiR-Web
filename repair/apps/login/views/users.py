@@ -181,7 +181,7 @@ class SessionView(View):
 
         response['language'] = request.LANGUAGE_CODE
         mode = request.session.get('mode', self.MODES['Workshop'])
-        if not self.request.user.has_perm('login.setupmode'):
+        if not self.request.user.has_perm('login.setupmode_casestudy'):
             mode = 0
             request.session['mode'] = 0
         response['mode'] = mode
