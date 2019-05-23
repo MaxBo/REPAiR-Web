@@ -149,16 +149,6 @@ function(_, BaseView, GDSECollection, Muuri){
                 overlayText: '#' + rank
             })
             panelItem.style.maxWidth = '500px';
-            var overlay = panelItem.querySelector('.overlay');
-            overlay.innerHTML = '#' + rank;
-            // ToDo: put next lines into style sheet
-            // adjust overlay offset, because parent div pos. is not absolute
-            // move it left
-            overlay.style.top = '-15px';
-            overlay.style.left = '15px';
-            overlay.style.right = 'auto';
-            // make space for the overlay
-            panelItem.querySelector('label').style.paddingLeft = '30px';
             return panelItem;
         },
     });
