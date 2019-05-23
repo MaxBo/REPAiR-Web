@@ -4,7 +4,8 @@ from reversion.views import RevisionMixin
 from rest_framework.response import Response
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
-from django.db.models import Q, Subquery, Min, IntegerField, OuterRef, Sum, F
+from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
+                              Case, When, Value)
 import time
 import numpy as np
 import copy
@@ -257,11 +258,20 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                     Q(f_strategyfractionflow__strategy = strategy[0])
                 )
             ).annotate(
+                # strategy fraction flow overrides amounts
                 strategy_amount=Coalesce(
-                    'f_strategyfractionflow__amount', 'amount')
+                    'f_strategyfractionflow__amount', 'amount'),
+                # set new flow amounts to zero for status quo
+                statusquo_amount=Case(
+                    When(strategy__isnull=True, then=F('amount')),
+                    default=Value(0),
+                )
             )
         else:
+            # flows without filters for status quo
             queryset = queryset.filter(strategy__isnull=True)
+            # just for convenience, use field statusquo_amount
+            queryset = queryset.annotate(statusquo_amount=F('amount'))
         return queryset
 
     def list(self, request, **kwargs):
@@ -331,16 +341,13 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def serialize_nodes(nodes, add_locations=False, add_fields=[]):
         '''
         serialize actors, activities or groups in the same way
-        add_locations works only for actors
+        add_locations works, only for actors
         '''
         args = ['id', 'name'] + add_fields
         if add_locations:
             args.append('administrative_location__geom')
-
-        node_dict = dict(
-            zip(nodes.values_list('id', flat=True),
-                nodes.values(*args))
-        )
+        values = nodes.values(*args)
+        node_dict = {v['id']: v for v in values}
         if add_locations:
             for k, v in node_dict.items():
                 geom = v.pop('administrative_location__geom')
@@ -365,7 +372,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         origin_level = LEVEL_KEYWORD[origin_model]
         destination_level = LEVEL_KEYWORD[destination_model]
         data = []
-        flow_ids = queryset.values('id')
         origins = origin_model.objects.filter(
             id__in=queryset.values(origin_filter))
         destinations = destination_model.objects.filter(
@@ -395,9 +401,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         for group in groups:
             grouped = queryset.filter(**group)
-            grouped.order_by()
             # sum over all rows in group
-            total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            total_amount = list(grouped.aggregate(Sum('statusquo_amount')).values())[0]
             origin_item = origin_dict[group[origin_filter]]
             origin_item['level'] = origin_level
             dest_item = destination_dict[group[destination_filter]]
@@ -407,14 +412,14 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             annotation = {
                 'name':  F('material__name'),
                 'level': F('material__level'),
-                'amount': Sum('amount')
+                'statusquo_amount': Sum('statusquo_amount')
             }
             if strategy is not None:
                 total_strategy_amount = \
                     list(grouped.aggregate(Sum('strategy_amount')).values())[0]
                 annotation['strategy_amount'] = F('strategy_amount')
                 # F('amount') takes Sum annotation instead of real field
-                annotation['delta'] = (F('strategy_amount') - F('amount'))
+                annotation['delta'] = (F('strategy_amount') - F('statusquo_amount'))
             grouped_mats = \
                 list(grouped.values('material').annotate(**annotation))
             # aggregate materials according to mapping aggregation_map
@@ -422,7 +427,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 aggregated = {}
                 for grouped_mat in grouped_mats:
                     mat_id = grouped_mat['material']
-                    amount = grouped_mat['amount'] if not strategy \
+                    amount = grouped_mat['statusquo_amount'] if not strategy \
                         else grouped_mat['strategy_amount']
                     mapped = aggregation_map[mat_id]
 

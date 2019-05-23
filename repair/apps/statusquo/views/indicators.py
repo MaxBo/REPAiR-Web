@@ -6,7 +6,7 @@ from django.http import Http404
 from abc import ABCMeta
 from enum import Enum
 import numpy as np
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Case, When, F, Value
 from collections import OrderedDict
 from django.utils.translation import ugettext as _
 from django.contrib.gis.geos import GEOSGeometry
@@ -68,11 +68,20 @@ class ComputeIndicator(metaclass=ABCMeta):
                     Q(f_strategyfractionflow__strategy = self.strategy)
                 )
             ).annotate(
+                # strategy fraction flow overrides amounts
                 strategy_amount=Coalesce(
-                    'f_strategyfractionflow__amount', 'amount')
+                    'f_strategyfractionflow__amount', 'amount'),
+                # set new flow amounts to zero for status quo
+                statusquo_amount=Case(
+                    When(strategy__isnull=True, then=F('amount')),
+                    default=Value(0),
+                )
             )
         else:
+            # flows without filters for status quo
             flows = flows.filter(strategy__isnull=True)
+            # just for convenience, use field statusquo_amount
+            flows = flows.annotate(statusquo_amount=F('amount'))
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
             flows = flows.filter(waste=is_waste)
@@ -121,7 +130,7 @@ class ComputeIndicator(metaclass=ABCMeta):
                 Q(origin__in=origins) & Q(destination__in=destinations))
         return flows
 
-    def sum(self, flows, field='amount'):
+    def sum(self, flows, field='statusquo_amount'):
         '''sum up flow amounts'''
         # sum up amounts to single value
         if len(flows) == 0:
@@ -242,7 +251,7 @@ class IndicatorA(ComputeIndicator):
         results = [OrderedDict({
             'area': area_id,
             'value': amount[1] if self.strategy else amount[0],
-            'delta': amount[1] - amount[0]
+            'delta': amount[1] - amount[0] if self.strategy else None
         }) for area_id, amount in amounts.items()]
         return results
 
@@ -268,15 +277,18 @@ class IndicatorAB(ComputeIndicator):
             sum_a = result_a.get(area_id, (0, 0))
             sum_b = result_b.get(area_id, (0, 0))
             amount = 100 * sum_a[0] / sum_b[0] if sum_b[0] > 0 else None
-            strategy_amount = 100 * sum_a[1] / sum_b[1] if sum_b[1] > 0 else None
-            if (strategy_amount is None or amount is None):
-                delta = None
+            if self.strategy:
+                strategy_amount = 100 * sum_a[1] / sum_b[1] if sum_b[1] > 0 else None
+                if (strategy_amount is None or amount is None):
+                    delta = None
+                else:
+                    delta = strategy_amount - amount
+                amount = strategy_amount
             else:
-                delta = strategy_amount - amount
-            amount = strategy_amount if self.strategy else amount
+                delta = None
             result_merged.append(OrderedDict({
                 'area': area_id,
-                'value': strategy_amount if self.strategy else amount,
+                'value': amount,
                 'delta': delta
             }))
         return result_merged
@@ -307,14 +319,18 @@ class IndicatorInhabitants(IndicatorAB):
         for area, amount in amounts.items():
             inh = area_inhabitants[area]
             res = 1000 * amount[0] / inh if inh > 0 else None
-            strategy_res = 1000 * amount[1] / inh if inh > 0 else None
-            if (strategy_amount is None or amount is None):
-                delta = None
+            if self.strategy:
+                strategy_res = 1000 * amount[1] / inh if inh > 0 else None
+                if (strategy_res is None or amount is None):
+                    delta = None
+                else:
+                    delta = strategy_res - res
+                res = strategy_res
             else:
-                delta = strategy_res - res
+                delta = None
             results.append(OrderedDict({
                 'area': area,
-                'value': strategy_res if self.strategy else res,
+                'value': res,
                 'delta': delta
             }))
 
@@ -349,14 +365,18 @@ class IndicatorArea(ComputeIndicator):
         for area_id, amount in amounts.items():
             ha = areas_ha[area_id]
             res = amount[0] / ha if ha > 0 else None
-            strategy_res = amount[1] / ha if ha > 0 else None
-            if (strategy_amount is None or amount is None):
-                delta = None
+            if self.strategy:
+                strategy_res = amount[1] / ha if ha > 0 else None
+                if (strategy_amount is None or amount is None):
+                    delta = None
+                else:
+                    delta = strategy_res - res
+                res = strategy_res
             else:
-                delta = strategy_res - res
+                delta = None
             results.append(OrderedDict({
                 'area': area_id,
-                'value': strategy_res if self.strategy else res,
+                'value': res,
                 'delta': delta
             }))
 
