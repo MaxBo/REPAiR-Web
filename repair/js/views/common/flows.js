@@ -255,7 +255,7 @@ var FlowsView = BaseView.extend(
             // override value and color
             flows.forEach(function(flow){
                 var amount = (showDelta) ? flow.get('delta') : flow._amount;
-                flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
+                flow.color = (!showDelta) ? null: (amount >= 0) ? '#23FE01': 'red';
                 flow.set('amount', amount)
                 var materials = flow.get('materials');
                 flow.get('materials').forEach(function(material){
