@@ -1,10 +1,11 @@
 require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
          'views/strategy/workshop-solutions', 'views/strategy/modified-flows',
          'views/strategy/setup-solutions', 'views/strategy/setup-solutions-logic',
-         'views/strategy/strategy', 'app-config', 'utils/utils', 'utils/overrides', 'base'
+         'views/strategy/strategy', 'views/strategy/flow-target-control',
+         'app-config', 'utils/utils', 'utils/overrides', 'base'
 ], function (CaseStudy, GDSEModel, GDSECollection, SolutionsWorkshopView,
              ModifiedFlowsView, SolutionsSetupView, SolutionsLogicView,
-             StrategyView, appConfig, utils) {
+             StrategyView, FlowTargetControlView, appConfig, utils) {
     /**
      * entry point for views on subpages of "Changes" menu item
      *
@@ -43,6 +44,15 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             strategy: strategy
         })
 
+        if (flowTargetControlView) flowTargetControlView.close();
+        var flowTargetControlView = new FlowTargetControlView({
+            caseStudy: caseStudy,
+            el: document.getElementById('flow-target-control'),
+            keyflowId: keyflow.id,
+            template: 'flow-target-control-template',
+            strategy: strategy
+        })
+
         loader = new utils.Loader(document.getElementById('content'), {disable: true})
 
         // lazy way to reset the buttons by cloning (avoid multiple event listeners)
@@ -58,7 +68,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
             var status = strategy.get('status');
             statusClone.className = (status === 0) ? 'btn btn-primary' : (status === 2) ? 'btn btn-secondary' : 'btn btn-tertiary'
             statusDiv.innerHTML = strategy.get('status_text');
-            calcClone.disabled = (status === 1) ? true: false;
+            //calcClone.disabled = (status === 1) ? true: false;
         }
         setStatus();
 

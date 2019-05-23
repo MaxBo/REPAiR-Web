@@ -52,11 +52,11 @@
     <div id="strategy" class="col-md-10">
     </div>
     <div class="col-md-2">
-      <button title="{% trans "Calculate the strategy" %}" id="calculate-strategy" class="btn btn-primary">
+      <button disabled title="{% trans "Calculate the strategy" %}" id="calculate-strategy" class="btn btn-primary">
         {% trans "Calculate" %}
       </button>
       <br><br>
-      <button title="{% trans "Refresh Status" %}" id="show-status" class="btn">
+      <button disabled title="{% trans "Refresh Status" %}" id="show-status" class="btn">
         {% trans "Refresh Status" %}
       </button>
       <div id="graph-status"></div>
@@ -65,7 +65,6 @@
   <div class="tab-pane fade" id="modified-flows">
   </div>
   <div class="tab-pane fade" id="flow-target-control">
-    <h2>ToDo</h2>
   </div>
   {% endif %}
 </div>
@@ -75,6 +74,7 @@
 {% include "strategy/strategy.html" %}
 {% include "studyarea/maps.html" %}
 {% include "statusquo/flows.html" %}
+{% include "strategy/flow-target-control.html" %}
 {% endif %}
 {% render_bundle 'Strategy' %}
 {% endblock %}
