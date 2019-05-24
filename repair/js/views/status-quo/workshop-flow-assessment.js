@@ -246,7 +246,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         var _this = this,
             values = {},
             minValue = 0,
-            maxValue = 0,
+            maxValue = 1,
             unit = indicator.get('unit'),
             type = indicator.get('indicator_type'),
             sr = indicator.get('spatial_reference');
@@ -268,13 +268,17 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             minValue = 0;
             maxValue = 100;
         }
+        var showDelta = _this.strategy && _this.modDisplaySelect.value == 'delta';
+        var step = (maxValue - minValue) / 10;
+        if (showDelta){
+            minValue = Math.min(value, -step);
+        }
 
-        var step = (maxValue - minValue) / 10,
-            entries = (step > 0) ? utils.range(minValue, maxValue, step): [0],
-            colorRange = this.mapColorRange.domain([minValue, 0, maxValue]);
+        var entries = (step > 0) ? utils.range(minValue, maxValue, step): [0],
+            colorRange = this.mapColorRange.domain([minValue, maxValue]);
 
-        if (_this.strategy && _this.modDisplaySelect.value == 'delta')
-            colorRange = this.mapDeltaColorRange.domain([minValue, maxValue]);
+        if (showDelta)
+            colorRange = this.mapDeltaColorRange.domain([minValue, 0, maxValue]);
 
         this.elLegend.innerHTML = '';
         entries.forEach(function(entry){
@@ -286,7 +290,10 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             square.style.float = 'left';
             square.style.backgroundColor = color;
             square.style.marginRight = '5px';
-            label.innerHTML = _this.format(Math.round(entry)) + ' ' + unit;
+            var entryLabel = _this.format(Math.round(entry)) + ' ' + unit;
+            if (showDelta && entry > 0)
+                entryLabel = '+' + entryLabel;
+            label.innerHTML = entryLabel;
             _this.elLegend.appendChild(square);
             _this.elLegend.appendChild(label);
             _this.elLegend.appendChild(document.createElement('br'));
@@ -306,6 +313,8 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             var coords = area.get('geometry').coordinates,
                 name = area.get('name'),
                 fValue = _this.format(value);
+            if (showDelta && value > 0)
+                fValue = '+' + fValue
             _this.map.addPolygon(coords, {
                 projection: 'EPSG:4326',
                 layername: 'areas',
