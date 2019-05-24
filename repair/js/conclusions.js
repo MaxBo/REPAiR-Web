@@ -1,20 +1,20 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
-         'views/conclusions/flow-targets',
+         'views/conclusions/flow-targets', 'views/conclusions/strategies',
          'collections/gdsecollection', 'app-config', 'utils/utils',
-         'underscore', 'html2canvas', 'viewerjs', 'base',
-         'viewerjs/dist/viewer.css'
+         'underscore', 'html2canvas', 'viewerjs', 'base', 'viewerjs/dist/viewer.css'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
-             EvalFlowTargetsView, GDSECollection, appConfig, utils, _,
-             html2canvas, Viewer) {
+             EvalFlowTargetsView, EvalStrategiesView, GDSECollection, appConfig,
+             utils, _, html2canvas, Viewer) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
      *
      * @author Christoph Franke
-     * @module Recommendations
+     * @module Conclusions
      */
 
-    var objectivesView, aims, users, objectives, consensusLevels, sections, modal;
+    var objectivesView, flowTargetsView, aims, users, objectives, strategiesView,
+        consensusLevels, sections, modal;
 
 
     html2image = function(container, onSuccess){
@@ -65,7 +65,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             return;
         }
         if (objectivesView) objectivesView.close();
-        var objectivesView = new EvalObjectivesView({
+        objectivesView = new EvalObjectivesView({
             caseStudy: caseStudy,
             el: document.getElementById('objectives'),
             template: 'objectives-template',
@@ -76,7 +76,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             objectives: objectives
         })
         if (flowTargetsView) flowTargetsView.close();
-        var flowTargetsView = new EvalFlowTargetsView({
+        flowTargetsView = new EvalFlowTargetsView({
             caseStudy: caseStudy,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template',
@@ -85,6 +85,14 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             users: participants,
             aims: aims,
             objectives: objectives
+        })
+        if (strategiesView) strategiesView.close();
+        strategiesView = new EvalStrategiesView({
+            caseStudy: caseStudy,
+            keyflowId: keyflowId,
+            el: document.getElementById('strategies'),
+            template: 'strategies-template',
+            users: participants
         })
 
         document.getElementById('add-conclusion').addEventListener('click', addConclusion);
@@ -140,12 +148,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 loader.deactivate();
                 var participants = users.filterBy({'gets_evaluated' : true});
                 renderWorkshop(caseStudy, keyflowId, keyflowName, participants);
-            }).catch(function(res){
-                if (res.responseText)
-                    alert(res.responseText);
-                else alert(gettext('Error'))
-                loader.deactivate()
-            });
+            })//.catch(function(res){
+                //if (res.responseText)
+                    //alert(res.responseText);
+                //else alert(gettext('Error'))
+                //loader.deactivate()
+            //});
         }
 
         var keyflowSession = session.get('keyflow');

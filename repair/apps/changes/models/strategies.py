@@ -38,7 +38,8 @@ class SolutionInStrategy(GDSEModel):
     '''
     solution = models.ForeignKey(Solution, on_delete=PROTECT_CASCADE)
     strategy = models.ForeignKey(Strategy,
-                                 on_delete=PROTECT_CASCADE)
+                                 on_delete=PROTECT_CASCADE,
+                                 related_name='solutioninstrategy')
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
     geom = models.GeometryCollectionField(verbose_name='geom', null=True)
@@ -68,7 +69,7 @@ class ImplementationQuantity(GDSEModel):
                                        on_delete=models.CASCADE,
                                        related_name='implementation_quantity')
     question = models.ForeignKey(ImplementationQuestion,
-                                 on_delete=PROTECT_CASCADE)
+                                 on_delete=models.CASCADE)
     value = models.FloatField()
 
 
