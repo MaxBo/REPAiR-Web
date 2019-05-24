@@ -120,16 +120,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 apiTag: 'userObjectives',
                 apiIds: [caseStudy.id]
             });
-            consensusLevels = new GDSECollection([], {
-                apiTag: 'consensusLevels',
-                apiIds: [caseStudy.id],
-                comparator: 'priority'
-            });
-            sections = new GDSECollection([], {
-                apiTag: 'sections',
-                apiIds: [caseStudy.id],
-                comparator: 'priority'
-            });
             var promises = [];
             promises.push(aims.fetch({
                 data: { keyflow: keyflowId },
@@ -144,8 +134,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 //if res.
             //}
 
-            promises.push(consensusLevels.fetch());
-            promises.push(sections.fetch());
             promises.push(users.fetch());
 
             Promise.all(promises).then(function(){
@@ -188,9 +176,25 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 caseStudyId = session.get('casestudy'),
                 caseStudy = new CaseStudy({id: caseStudyId});
 
-            caseStudy.fetch({success: function(){
+            consensusLevels = new GDSECollection([], {
+                apiTag: 'consensusLevels',
+                apiIds: [caseStudyId],
+                comparator: 'priority'
+            });
+            sections = new GDSECollection([], {
+                apiTag: 'sections',
+                apiIds: [caseStudyId],
+                comparator: 'priority'
+            });
+
+            promises = [];
+            promises.push(caseStudy.fetch())
+            promises.push(consensusLevels.fetch());
+            promises.push(sections.fetch());
+
+            Promise.all(promises).then(function(){
                 render(caseStudy, mode);
-            }});
+            })
         }
     });
 });
