@@ -468,7 +468,6 @@
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
-          <li><a data-toggle="tab" href="#actors-tab">{% trans "Actors" %}</a></li>
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade in active" id="description-tab">
@@ -502,6 +501,7 @@
               </div>
             </div>
           </div>
+          <% if(activitiesSrc) { %>
           <div class="tab-pane fade in" id="activities-tab">
             <div class="col-md-12 bordered">
               <h4>{% trans "Activities involved" %}</h4>
@@ -514,22 +514,7 @@
               </div>
             </div>
           </div>
-          <div class="tab-pane fade in" id="actors-tab">
-            <div class="col-md-12 bordered">
-              <div class="olmap" id='actors-map'>
-                <div id='legend' class="bordered workshop">
-                  <div class="row" data-toggle="collapse" data-target="#legend>.items">
-                    <button class="btn btn-primary square inverted">
-                      <span class="glyphicon glyphicon-eye-open"></span>
-                    </button>
-                    <h4> {% trans "Legend" %} </h4>
-                  </div>
-                  <div class="items collapse" style="padding: 5px; list-style: none;">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <% } %>
         </div>
       </div>
     </div>

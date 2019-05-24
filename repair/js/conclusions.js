@@ -1,20 +1,20 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
-         'views/conclusions/flow-targets',
+         'views/conclusions/flow-targets', 'views/conclusions/strategies',
          'collections/gdsecollection', 'app-config', 'utils/utils',
-         'underscore', 'html2canvas', 'viewerjs', 'base',
-         'viewerjs/dist/viewer.css'
+         'underscore', 'html2canvas', 'viewerjs', 'base', 'viewerjs/dist/viewer.css'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
-             EvalFlowTargetsView, GDSECollection, appConfig, utils, _,
-             html2canvas, Viewer) {
+             EvalFlowTargetsView, EvalStrategiesView, GDSECollection, appConfig,
+             utils, _, html2canvas, Viewer) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
      *
      * @author Christoph Franke
-     * @module Recommendations
+     * @module Conclusions
      */
 
-    var objectivesView, aims, users, objectives, consensusLevels, sections, modal;
+    var objectivesView, flowTargetsView, aims, users, objectives, strategiesView,
+        consensusLevels, sections, modal;
 
 
     html2image = function(container, onSuccess){
@@ -65,7 +65,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             return;
         }
         if (objectivesView) objectivesView.close();
-        var objectivesView = new EvalObjectivesView({
+        objectivesView = new EvalObjectivesView({
             caseStudy: caseStudy,
             el: document.getElementById('objectives'),
             template: 'objectives-template',
@@ -76,7 +76,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             objectives: objectives
         })
         if (flowTargetsView) flowTargetsView.close();
-        var flowTargetsView = new EvalFlowTargetsView({
+        flowTargetsView = new EvalFlowTargetsView({
             caseStudy: caseStudy,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template',
@@ -85,6 +85,14 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             users: participants,
             aims: aims,
             objectives: objectives
+        })
+        if (strategiesView) strategiesView.close();
+        strategiesView = new EvalStrategiesView({
+            caseStudy: caseStudy,
+            keyflowId: keyflowId,
+            el: document.getElementById('strategies'),
+            template: 'strategies-template',
+            users: participants
         })
 
         document.getElementById('add-conclusion').addEventListener('click', addConclusion);
@@ -120,16 +128,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 apiTag: 'userObjectives',
                 apiIds: [caseStudy.id]
             });
-            consensusLevels = new GDSECollection([], {
-                apiTag: 'consensusLevels',
-                apiIds: [caseStudy.id],
-                comparator: 'priority'
-            });
-            sections = new GDSECollection([], {
-                apiTag: 'sections',
-                apiIds: [caseStudy.id],
-                comparator: 'priority'
-            });
             var promises = [];
             promises.push(aims.fetch({
                 data: { keyflow: keyflowId },
@@ -144,20 +142,18 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 //if res.
             //}
 
-            promises.push(consensusLevels.fetch());
-            promises.push(sections.fetch());
             promises.push(users.fetch());
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
                 var participants = users.filterBy({'gets_evaluated' : true});
                 renderWorkshop(caseStudy, keyflowId, keyflowName, participants);
-            }).catch(function(res){
-                if (res.responseText)
-                    alert(res.responseText);
-                else alert(gettext('Error'))
-                loader.deactivate()
-            });
+            })//.catch(function(res){
+                //if (res.responseText)
+                    //alert(res.responseText);
+                //else alert(gettext('Error'))
+                //loader.deactivate()
+            //});
         }
 
         var keyflowSession = session.get('keyflow');
@@ -188,9 +184,25 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 caseStudyId = session.get('casestudy'),
                 caseStudy = new CaseStudy({id: caseStudyId});
 
-            caseStudy.fetch({success: function(){
+            consensusLevels = new GDSECollection([], {
+                apiTag: 'consensusLevels',
+                apiIds: [caseStudyId],
+                comparator: 'priority'
+            });
+            sections = new GDSECollection([], {
+                apiTag: 'sections',
+                apiIds: [caseStudyId],
+                comparator: 'priority'
+            });
+
+            promises = [];
+            promises.push(caseStudy.fetch())
+            promises.push(consensusLevels.fetch());
+            promises.push(sections.fetch());
+
+            Promise.all(promises).then(function(){
                 render(caseStudy, mode);
-            }});
+            })
         }
     });
 });
