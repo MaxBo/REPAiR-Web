@@ -76,10 +76,6 @@ class StrategyViewSet(CasestudyViewSetMixin,
                 'Please contact your workshop leader.'))
         serializer = self.get_serializer(strategy)
 
-        # for testing purposes only
-        import time
-        time.sleep(60)
-
         strategy.status = 2
         strategy.date = timezone.now()
         strategy.save()

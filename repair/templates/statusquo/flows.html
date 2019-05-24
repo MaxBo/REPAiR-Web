@@ -88,10 +88,11 @@
 
 <!-- template for viewing flows as sankey or map  -->
 <script type="text/template" id="flows-render-template">
-<div name="abs-delta" class="row" style="display: None;">
+<div name="modifications" class="row" style="display: None;">
   <div class="col-md-5">
-    <select class="form-control" name="abs-delta-select" style='max-width: 70%; float: left;'>
-      <option value="absolute">{% trans "Absolute Values of Strategy" %}</option>
+    <select class="form-control" name="modification-select" style='max-width: 70%; float: left;'>
+      <option value="statusquo">{% trans "Status Quo" %}</option>
+      <option value="absolute">{% trans "Strategy" %}</option>
       <option value="delta">{% trans "Difference of Strategy compared to Status Quo" %} </option>
     </select>
     <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="{% trans "Values" %}" style="float: left;" data-html="true" tabindex="0"
@@ -381,6 +382,20 @@
     <% });  %>
   </select>
   <div id="indicator-description" class="input-label"></div>
+</div>
+<div name="modifications" class="row" style="display: None;">
+  <div class="col-md-5">
+    <select class="form-control" name="modification-select" style='max-width: 70%; float: left;'>
+      <option value="statusquo">{% trans "Status Quo" %}</option>
+      <option value="absolute">{% trans "Strategy" %}</option>
+      <option value="delta">{% trans "Difference of Strategy compared to Status Quo" %} </option>
+    </select>
+    <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="{% trans "Values" %}" style="float: left;" data-html="true" tabindex="0"
+      data-content="{% blocktrans %}
+        Display the absolute values calculated for your implemented strategy or the difference compared to the Status Quo.
+      {% endblocktrans %}">
+    </a>
+  </div>
 </div>
 <div class="col-md-12" style="margin-top: 20px;">
   <ul class="nav nav-tabs">
