@@ -30,7 +30,6 @@ function(_, BaseView, GDSECollection, Muuri){
             this.template = options.template;
             this.caseStudy = options.caseStudy;
 
-            this.loader.activate();
             this.consensusLevels = options.consensusLevels;
             this.sections = options.sections;
             this.render();
