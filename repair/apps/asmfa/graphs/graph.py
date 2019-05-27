@@ -2,12 +2,15 @@ from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
-import graph_tool as gt
-from graph_tool import stats as gt_stats
+try:
+    import graph_tool as gt
+    from graph_tool import stats as gt_stats
+    import cairo
+except ModuleNotFoundError:
+    pass
 from django.db.models import Q
 import numpy as np
 import datetime
-import cairo
 from io import StringIO
 from django.conf import settings
 import os
