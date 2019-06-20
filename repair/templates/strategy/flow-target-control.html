@@ -9,13 +9,81 @@
 </ul>
 <div class="tab-content">
   <div class="tab-pane fade in active bordered" id="target-control">
-    <div class="upload-column">
-      <h2> ToDo </h2>
-    </div>
   </div>
   <div class="tab-pane row sunken fade in bordered" id="modified-indicators">
   </div>
 </div>
 </script>
+
+<script type="text/template" id="objective-control-template">
+<div class="row">
+  <div class="col-md-10">
+    <div class="panel panel-default">
+      <div class="overlay"> </div>
+      <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
+        <h4 style="margin-top: 0; margin-bottom: 0;">
+          <a role="button" data-toggle="collapse" href="#flow-targets-<%= id %>" aria-expanded="false" aria-controls="#flow-targets-<%= id %>" class="toggle-details accordion-toggle collapsed">
+            <%= title %>
+          </a>
+        </h4>
+      </div>
+      <div id="flow-targets-<%= id %>" class="panel-collapse collapse" style="padding: 10px;">
+        <div name="indicator-rows">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="indicator-control-template">
+<h4> <%= title %> </h4>
+<div class="row">
+  <div class="col-md-1 bordered" style="max-width: 20px; min-height: 300px; background-color: <% if (status == 1) { %> #aad400 <% } else { %> red <%}%>">
+  </div>
+  <div class="col-md-4 bordered" style="min-height: 300px">
+    <table>
+      <tr>
+        <td>
+          {% trans "status quo" %}
+        </td>
+        <td style="text-align:right">
+          <%= statusquoValue %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          {% trans "in strategy" %}
+        </td>
+        <td style="text-align:right">
+          <%= strategyValue %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          {% trans "changes by strategy" %}
+        </td>
+        <td style="text-align:right">
+          <%= deltaValue %>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          {% trans "target" %}
+        </td>
+        <td style="text-align:right">
+          <%= targetValue %>
+        </td>
+      </tr>
+    </table>
+    <br>
+    <% if (status == 1) { %> {% trans "Target reached" %} <% } else { %> {% trans "Target not reached" %}  <%}%>
+  </div>
+  <div class="col-md-5 bordered" style="min-height: 300px">
+    <div name="chart" style="height: 100%"></div>
+  </div>
+</div>
+</script>
+
 
 {% endblock %}
