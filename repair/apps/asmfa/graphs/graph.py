@@ -1,6 +1,7 @@
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
+from repair.apps.changes.models import SolutionInStrategy, ImplementationQuantity
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 import graph_tool as gt
 from graph_tool import stats as gt_stats
@@ -199,11 +200,16 @@ class StrategyGraph(BaseGraph):
         self.mock_changes()
 
         # get the solutions in this strategy and order them by priority
-        solutions = self.strategy.solutions.order_by('solutioninstrategy__priority')
-        for solution in solutions:
+        # solutions = self.strategy.solutions.order_by('solutioninstrategy__priority')
+        solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy)
+        for solution_in_strategy in solutions_in_strategy:
+            solution = solution_in_strategy.solution
             # get the solution parts using the reverse relation
             for solution_part in solution.solution_parts.all():
-                solution
+                question = solution_part.implementation_question
+                quantity = ImplementationQuantity.objects.get(
+                    question=implementation_question,
+                    implementation=solution_in_strategy)
                 # ToDo: get the implementation and its quantity
                 # ToDo: SolutionInStrategy geometry for filtering?
                 self.graph = gw.calculate_solution(solution, solution_part,
