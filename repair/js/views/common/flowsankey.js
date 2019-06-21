@@ -50,6 +50,8 @@ var FlowSankeyView = BaseView.extend(
         this.originLevel = options.originLevel;
         this.destinationLevel = options.destinationLevel;
         this.flows = options.flows;
+        this.showRelativeComposition = (options.showRelativeComposition == null) ? true : options.showRelativeComposition;
+        this.forceSignum = options.forceSignum || false;
         this.stretchInput = this.el.querySelector('#sankey-stretch');
         if (this.stretchInput) this.stretchInput.value = 1;
         this.anonymize = options.anonymize;
@@ -192,12 +194,19 @@ var FlowSankeyView = BaseView.extend(
                 i = 0,
                 fractions = flow.get('materials'),
                 totalAmount = flow.get('amount');
-
             fractions.forEach(function(material){
-                var amount = (material.value != null) ? material.value : material.amount,
+                var amount = (material.value != null) ? material.value : material.amount || material.statusquo_amount;
+                if (amount == 0) return;
+                if (_this.forceSignum && amount >= 0)
+                    text += '+';
+                if (_this.showRelativeComposition){
                     fraction = amount / totalAmount,
                     value = Math.round(fraction * 100000) / 1000;
-                text += _this.format(value) + '% ' + material.name;
+                    text += _this.format(value) + '%';
+                } else {
+                    text += _this.format(amount) + ' ' + gettext('t/year');
+                }
+                text += ' ' + material.name
                 if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
                 if (i < fractions.length - 1) text += '<br>';
                 i++;
@@ -222,7 +231,7 @@ var FlowSankeyView = BaseView.extend(
         flows.forEach(function(flow){
             var value = flow.get('amount');
             // skip flows with zero amount
-            if (value === 0) return;
+            if (value == 0) return;
             var origin = flow.get('origin'),
                 destination = flow.get('destination'),
                 isStock = flow.get('stock');
@@ -239,6 +248,8 @@ var FlowSankeyView = BaseView.extend(
                 amount = flow.get('amount'),
                 value = (norm === 'log')? normalize(amount): Math.round(amount);
 
+            if (_this.forceSignum && amount >= 0)
+                amount = '+' + amount.toLocaleString(this.language);
             links.push({
                 id: flow.id,
                 originalData: flow,
@@ -308,6 +319,8 @@ var FlowSankeyView = BaseView.extend(
                 amount = _this.format(link.amount) + ' ' + link.units,
                 composition = link.composition;
 
+            if (_this.forceSignum && amount >= 0)
+                amount = '-' + amount;
             var originCode = origin.code,
                 destinationCode = (destination) ? destination.code: '';
 

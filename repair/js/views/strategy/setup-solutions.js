@@ -308,7 +308,9 @@ var SolutionsSetupView = BaseView.extend(
             },
             {
                 wait: true,
-                success: function(){
+                success: function(){                    
+                    solution.apiIds = _this.solutions.apiIds;
+                    solution.apiTag = _this.solutions.apiTag;
                     $(_this.newSolutionModal).modal('hide');
                     _this.populateSolutions(solution.id);
                     _this.editSolutionBtn.click();

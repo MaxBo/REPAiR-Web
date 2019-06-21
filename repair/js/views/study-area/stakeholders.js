@@ -112,8 +112,8 @@ var StakeholdersView = BaseView.extend(
             // create the panel (ToDo: use template for panels instead?)
             var div = document.createElement('div'),
                 panel = document.createElement('div');
-            div.classList.add('col-md-3', 'bordered', 'item-panel');
-            div.style.margin = '5px';
+            div.classList.add('bordered', 'item-panel');
+            div.style.minWidth = '300px';
             panelList.appendChild(div);
 
             var label = document.createElement('label'),
@@ -174,14 +174,15 @@ var StakeholdersView = BaseView.extend(
 
     addPanelItems(panel, category){
         var _this = this;
-        // render panel items from template (in templates/common.html)
-        var html = document.getElementById('panel-item-template').innerHTML,
-            template = _.template(html);
         category.stakeholders.forEach(function(stakeholder){
-            var panelItem = document.createElement('div');
-            panelItem.classList.add('panel-item');
-            panelItem.classList.add('noselect');
-            panelItem.innerHTML = template({ name: stakeholder.get('name') });
+            var options = {
+                showButtons: _this.mode != 0
+            }
+            var desc = stakeholder.get('description');
+            if (_this.mode == 0 && desc)
+                options['overlayText'] = '<span style="font-size: 29px;" class="glyphicon glyphicon-info-sign"></span>'
+            var panelItem = _this.panelItem(stakeholder.get('name'), options)
+            panel.appendChild(panelItem);
             var button_edit = panelItem.getElementsByClassName(
                 "btn btn-primary square edit inverted").item(0);
             var button_remove = panelItem.getElementsByClassName(
@@ -192,11 +193,9 @@ var StakeholdersView = BaseView.extend(
             button_remove.addEventListener('click', function(){
                 _this.removeStakeholder(stakeholder, category);
             });
-            panel.appendChild(panelItem);
 
             // show description on tap in workshop mode
-            if (_this.mode == 0){
-                var desc = stakeholder.get('description') || '-';
+            if (_this.mode == 0 && desc){
                 // html formatting
                 desc = desc.replace(/\n/g, "<br/>");
                 panelItem.addEventListener('click', function(){

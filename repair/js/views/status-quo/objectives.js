@@ -180,29 +180,25 @@ function(_, BaseView, GDSECollection, GDSEModel, Muuri){
         },
 
         renderItem(grid, model, type){
-            var html = document.getElementById('panel-item-template').innerHTML,
-                template = _.template(html),
-                panelItem = document.createElement('div'),
-                itemContent = document.createElement('div'),
-                _this = this;
-            panelItem.classList.add('panel-item');
-            if (this.mode == 1) panelItem.classList.add('draggable');
-            panelItem.style.position = 'absolute';
+            var _this = this,
+                options = { showButtons: _this.mode != 0 },
+                desc = model.get('description');
+            if (_this.mode == 0 && desc)
+                options['overlayText'] = '<span style="font-size: 29px;" class="glyphicon glyphicon-info-sign"></span>'
+            var panelItem = _this.panelItem(model.get('text'), options);
             panelItem.dataset.id = model.id;
-            itemContent.classList.add('noselect', 'item-content');
-            itemContent.innerHTML = template({ name: model.get('text') });
-            var editBtn = itemContent.querySelector("button.edit");
-            var removeBtn = itemContent.querySelector("button.remove");
+            if (this.mode == 1) panelItem.classList.add('draggable');
+            var editBtn = panelItem.querySelector("button.edit"),
+                removeBtn = panelItem.querySelector("button.remove");
             editBtn.addEventListener('click', function(){
                 _this.editPanelItem(panelItem, model, type);
             });
             removeBtn.addEventListener('click', function(){
                 _this.removePanelItem(panelItem, model, grid, type);
             });
-            panelItem.appendChild(itemContent);
             grid.add(panelItem);
             // show description on tap in workshop mode
-            if (_this.mode == 0){
+            if (_this.mode == 0 && desc){
                 var desc = model.get('description') || '-';
                 // html formatting
                 desc = desc.replace(/\n/g, "<br/>");

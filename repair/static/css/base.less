@@ -641,6 +641,10 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   cursor: pointer;
 }
 
+.item-panel.muuri .panel-item{
+  position: absolute;
+}
+
 .panel-item.draggable, .panel-item.draggable label {
   cursor: move;
 }
@@ -663,11 +667,12 @@ button.square:hover, button.round:hover, button.square:focus, button.round:focus
   border-radius: 50%;
   background-color: @main-color;
   display: None;float: right;
-  position: absolute;
+  /*position: absolute;*/
   right: 0px;
   bottom: 0px;
   top: 0px;
   margin: auto;
+  margin-top: 10px;
   color: white;
   font-family: 'Roboto', 'sans-serif';
 }

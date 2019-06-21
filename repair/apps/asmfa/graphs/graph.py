@@ -3,12 +3,15 @@ from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       StrategyFractionFlow)
 from repair.apps.changes.models import SolutionInStrategy, ImplementationQuantity
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
-import graph_tool as gt
-from graph_tool import stats as gt_stats
+try:
+    import graph_tool as gt
+    from graph_tool import stats as gt_stats
+    import cairo
+except ModuleNotFoundError:
+    pass
 from django.db.models import Q
 import numpy as np
 import datetime
-import cairo
 from io import StringIO
 from django.conf import settings
 import os
@@ -165,7 +168,7 @@ class StrategyGraph(BaseGraph):
         strat_flows = []
         for flow in picked_flows:
             # vary between -25% and +25%
-            new_amount = flow.amount * (np.random.random() / 2 - 0.25)
+            new_amount = flow.amount * (1 + (np.random.random() / 2 - 0.25))
             strat_flow = StrategyFractionFlow(
                 strategy=self.strategy, amount=new_amount, fractionflow=flow)
             strat_flows.append(strat_flow)

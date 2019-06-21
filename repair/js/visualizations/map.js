@@ -46,6 +46,7 @@ define([
                 initlayers.push(new ol.layer.Tile({
                     source: new ol.source.OSM({crossOrigin: 'anonymous'}),
                     crossOrigin: 'anonymous',
+                    opacity: options.opacity || 1,
                     tileOptions: {crossOriginKeyword: 'anonymous'},
                 }))
             }
@@ -66,7 +67,6 @@ define([
                     mouseWheelZoom: enableZoom,
                     dragZoom: enableZoom
                 };
-
 
             if (!enableDrag) {
                 interactOptions.keyboardPan = false;
@@ -219,6 +219,7 @@ define([
             }
 
             var layer = new ol.layer.Vector({
+                opacity: options.opacity || 1,
                 source: source || new ol.source.Vector(),
                 style: (options.colorRange != null) ? colorRangeStyle: defaultStyle
             });

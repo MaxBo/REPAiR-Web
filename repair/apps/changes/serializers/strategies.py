@@ -8,7 +8,7 @@ from repair.apps.asmfa.graphs.graph import StrategyGraph
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
                                         ImplementationQuantity,
-                                        ActorInSolutionPart
+                                        ActorInSolutionPart,
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -83,26 +83,22 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
         'casestudy_pk': 'keyflow__casestudy__id',
         'keyflow_pk': 'keyflow__id',
     }
-    solution_list = SolutionInStrategyListField(
-        source='solutioninstrategy_set',
-        view_name='solutioninstrategy-list')
-    sii_set = SolutionInStrategySetField(
-        source='solutioninstrategy_set',
-        view_name='solutioninstrategy-detail',
-        many=True,
-        read_only=True)
     coordinating_stakeholder = IDRelatedField()
     user = IDRelatedField(read_only=True)
     status_text = serializers.SerializerMethodField()
+    solutions = serializers.SerializerMethodField()
 
     class Meta:
         model = Strategy
         fields = ('url', 'id', 'name', 'user',
-                  'coordinating_stakeholder',
-                  'solution_list', 'sii_set',
+                  'coordinating_stakeholder', 'solutions',
                   'status', 'status_text')
 
         extra_kwargs = {'status': {'read_only': True}}
+
+    def get_solutions(self, obj):
+        sii = obj.solutioninstrategy.all()
+        return sii.values_list('solution__id', flat=True)
 
     def get_status_text(self, obj):
         if obj.status == 0:

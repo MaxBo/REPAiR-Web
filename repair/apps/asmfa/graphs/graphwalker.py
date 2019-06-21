@@ -1,6 +1,10 @@
-import graph_tool as gt
-from graph_tool import util
-from graph_tool import search
+try:
+    import graph_tool as gt
+    from graph_tool import util, search
+    from graph_tool.search import BFSVisitor
+except ModuleNotFoundError:
+    class BFSVisitor:
+        pass
 import copy
 import numpy as np
 from django.db.models import Q
@@ -10,7 +14,7 @@ from repair.apps.asmfa.models import Actor
 from repair.apps.changes.models.solutions import ImplementationQuestion
 
 
-class NodeVisitor(search.BFSVisitor):
+class NodeVisitor(BFSVisitor):
 
     def __init__(self, name, solution, amount, visited, change):
         self.id = name
