@@ -1,9 +1,10 @@
 define([
-    'openlayers', //'ol-contextmenu',
+    'openlayers', //'ol-contextmenu',,
+    'turf',
     'openlayers/css/ol.css',
     //'ol-contextmenu/dist/ol-contextmenu.min.css',
     'static/css/map.css'
-], function(ol, ContextMenu)
+], function(ol, turf, ContextMenu)
 {
     /**
     *
@@ -746,6 +747,7 @@ define([
         * @param {string} layername          layer to draw on
         * @param {Object} options
         * @param {string} [options.type='None']      type of geometry to draw ('Polygon', 'Point', 'Circle', 'LineString', 'None')
+        * @param {string=} [options.intersectionLayer]  intersect drawings with features of layer
         * @param {Boolean} [options.freehand=false]  freehand drawing or drawing by setting points
         *
         */
@@ -767,17 +769,60 @@ define([
                     return touchEvent.length === 1;
                 return true;
             }
+            var drawIntersect = options.intersectionLayer && this.layers[options.intersectionLayer];
 
-            var source = layer.getSource(),
-                draw = new ol.interaction.Draw({
-                    source: source,
-                    type: type,
-                    freehand: freehand,
-                    //condition: oneFingerCondition
-                });
+            var source = layer.getSource();
+
+            // draw in a temporary source and add it to layer after intersecting
+            // if intersection requested, draw directly on layer else
+            if(drawIntersect){
+                source = new ol.source.Vector({
+                    format: new ol.format.GeoJSON(),
+                    url: source.getUrl(),
+                    projection : source.getProjection()
+                })
+            }
+            var draw = new ol.interaction.Draw({
+                source: source,
+                type: type,
+                freehand: freehand
+            });
+
             layer.drawingInteraction = draw;
             this.map.addInteraction(draw);
+            if(drawIntersect){
+                var intersectionLayer = this.layers[options.intersectionLayer],
+                    geojsonFormat = new ol.format.GeoJSON();
+                draw.on('drawend', function(event) {
+                    var poly1 = geojsonFormat.writeFeatureObject(event.feature),
+                        extent1 = event.feature.getGeometry().getExtent(),
+                        source = intersectionLayer.getSource(),
+                        features = source.getFeatures();
+                    features.forEach(function(feature) {
+                        if (!ol.extent.intersects(extent1, feature.getGeometry().getExtent())) {
+                            return;
+                        }
+                        var poly2 = geojsonFormat.writeFeatureObject(feature),
+                            intersection;
+                        try {
+                            intersection = turf.intersect(poly1, poly2);
+                        }
+                        catch (e){
+                            console.log(e)
+                            // ToDo: package @turf/unkink-polygon,
+                            //       iterate unkinked polygons
+                            //var unkinked = turf.unkinkPolygon(poly1);
+                            //console.log(unkinked)
+                            //intersection = turf.intersect(unkinked[0], poly2);
+                        }
+                        if (intersection) {
+                            layer.getSource().addFeature(geojsonFormat.readFeature(intersection));
+                        }
+                    });
+                });
             }
+
+        }
 
         /**
         * enable/disable drag box to select features
