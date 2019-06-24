@@ -28,56 +28,61 @@
 {% endblock %}
 
 {% block content %}
+{% if not conclusions_permitted %}
+  <h3>{% trans "You do not have the permission to view the conclusions." %}</h3>
+  {% render_bundle 'Base' %}
+{% else %}
 
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
-<div class="tab-content" style="padding-right: 50px"><!--col-md-10-->
-  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
-  <div class="tab-pane fade in active" id="objectives" data-step="Objectives">
-  </div>
-  <div class="tab-pane fade" id="flow-targets" data-step="Flow Targets">
-    <h2> ToDo </h2>
-  </div>
-  <div class="tab-pane fade" id="strategies" data-step="Strategies">
-  </div>
-  <div class="tab-pane fade" id="modified-flows" data-step="Modified Flows">
-    <h2> ToDo </h2>
-  </div>
-  <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
-    <h2> ToDo </h2>
-  </div>
-  <div class="tab-pane fade" id="conclusions">
-    <h2> ToDo </h2>
-  </div>
-</div>
-<div id='comment-section'> <!--class="col-md-2"-->
-    <div class="row">
-      <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
-        <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
-      </button>
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
+  <div class="tab-content" style="padding-right: 50px"><!--col-md-10-->
+    <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+    <div class="tab-pane fade in active" id="objectives" data-step="Objectives">
     </div>
-    <div class="row">
-      <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
-        <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
-      </button>
+    <div class="tab-pane fade" id="flow-targets" data-step="Flow Targets">
+      <h2> ToDo </h2>
     </div>
-</div>
-<div id="conclusion-modal" class="modal fade" role="dialog">
-<div id="manage-conclusions-modal"></div>
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content col-md-12">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">{% trans "Manage Conclusions" %} &nbsp; </h4>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
-      </div>
+    <div class="tab-pane fade" id="strategies" data-step="Strategies">
+    </div>
+    <div class="tab-pane fade" id="modified-flows" data-step="Modified Flows">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
+      <h2> ToDo </h2>
+    </div>
+    <div class="tab-pane fade" id="conclusions">
+      <h2> ToDo </h2>
     </div>
   </div>
-</div>
+  <div id='comment-section'> <!--class="col-md-2"-->
+      <div class="row">
+        <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
+          <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
+        </button>
+      </div>
+      <div class="row">
+        <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
+          <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
+        </button>
+      </div>
+  </div>
+  <div id="conclusion-modal" class="modal fade" role="dialog">
+  <div id="manage-conclusions-modal"></div>
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Manage Conclusions" %} &nbsp; </h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
 
 {% render_bundle 'Recommendations' %}
 

@@ -22,7 +22,7 @@ class CaseStudy(GDSEModel):
 
     class Meta:
         default_permissions = ('add', 'change', 'delete', 'view',
-                               'setupmode', 'dataentry')
+                               'setupmode', 'dataentry', 'conclusions')
 
     @property
     def stakeholder_categories(self):
