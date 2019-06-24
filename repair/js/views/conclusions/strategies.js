@@ -37,10 +37,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 apiTag: 'solutions',
                 apiIds: [this.caseStudy.id, this.keyflowId]
             });
-            this.strategies = new GDSECollection([], {
-                apiTag: 'strategies',
-                apiIds: [this.caseStudy.id, this.keyflowId]
-            });
+            this.strategies = options.strategies;
             this.stakeholderCategories = new GDSECollection([], {
                 apiTag: 'stakeholderCategories',
                 apiIds: [this.caseStudy.id]
@@ -49,12 +46,20 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
 
             promises.push(this.stakeholderCategories.fetch({ error: this.onError }));
             promises.push(this.solutions.fetch({ error: this.onError }));
-            promises.push(this.strategies.fetch({
-                data: { 'user__in': this.users.pluck('id').join(',') },
-                error: this.onError
-            }));
             promises.push(this.stakeholderCategories.fetch({ error: this.onError }))
             this.implementations = {};
+            this.strategies.forEach(function(strategy){
+                var implementations = new GDSECollection([], {
+                    apiTag: 'solutionsInStrategy',
+                    apiIds: [_this.caseStudy.id, _this.keyflowId, strategy.id]
+                });
+                promises.push(implementations.fetch({
+                    success: function (){
+                        _this.implementations[strategy.id] = implementations;
+                    },
+                    error: _this.onError
+                }));
+            })
             this.stakeholders = {};
             this.loader.activate();
             Promise.all(promises).then(function(){
@@ -71,19 +76,6 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                         },
                         error: _this.onError
                     }));
-                })
-                _this.strategies.forEach(function(strategy){
-                    var implementations = new GDSECollection([], {
-                        apiTag: 'solutionsInStrategy',
-                        apiIds: [_this.caseStudy.id, _this.keyflowId, strategy.id]
-                    });
-                    promises.push(implementations.fetch({
-                        success: function (){
-                            _this.implementations[strategy.id] = implementations;
-                        },
-                        error: _this.onError
-                    }));
-
                 })
                 Promise.all(promises).then(function(){
                     _this.loader.deactivate();

@@ -2,7 +2,8 @@ from reversion.views import RevisionMixin
 from rest_framework.response import Response
 from rest_framework.utils.serializer_helpers import ReturnList
 from rest_framework.decorators import action
-from django.http import Http404
+from django.http import Http404, HttpResponseBadRequest
+from django.utils.translation import ugettext as _
 
 from repair.apps.utils.views import (ModelPermissionViewSet,
                                      CasestudyViewSetMixin)

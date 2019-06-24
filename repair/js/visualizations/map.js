@@ -809,6 +809,7 @@ define([
                         }
                         catch (e){
                             console.log(e)
+                            _this.alert(gettext('Self-intersection in polygon. Please try again'))
                             // ToDo: package @turf/unkink-polygon,
                             //       iterate unkinked polygons
                             //var unkinked = turf.unkinkPolygon(poly1);

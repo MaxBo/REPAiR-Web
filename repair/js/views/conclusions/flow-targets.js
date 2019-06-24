@@ -38,16 +38,11 @@ function(_, BaseView, GDSECollection, Muuri){
                 apiTag: 'targetvalues',
             });
 
-            this.indicators = new GDSECollection([], {
-                apiTag: 'flowIndicators',
-                apiIds: [this.caseStudy.id, this.keyflowId],
-                comparator: 'name'
-            });
+            this.indicators = options.indicators;
 
             var promises = [];
             this.loader.activate();
-            promises.push(this.targetValues.fetch({error: _this.onError}))
-            promises.push(this.indicators.fetch({error: _this.onError}))
+            promises.push(this.targetValues.fetch({error: _this.onError}));
 
             // stores targets {user1-id: {objective1-id: target-collection, objective2-id: target-collection, ...}, user2-id: ...}
             this.userTargetsPerIndicator = {};
@@ -106,7 +101,7 @@ function(_, BaseView, GDSECollection, Muuri){
         // render Step 2
         renderIndicators: function(){
             var _this = this,
-                table = this.el.querySelector('#indicator-table'),
+                table = this.el.querySelector('table[name="indicator-table"]'),
                 header = table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
             fTh.innerHTML = gettext('Objectives for key flow <i>' + this.keyflowName + '</i>');
