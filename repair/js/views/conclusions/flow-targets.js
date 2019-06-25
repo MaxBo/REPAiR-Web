@@ -50,36 +50,27 @@ function(_, BaseView, GDSECollection, Muuri){
             this.indicatorCountPerAim = {};
             this.maxIndCount = 0;
             this.users.forEach(function(user){
-                var userObjectives = _this.objectives.filterBy({'user': user.get('user')});
+                var userObjectives = _this.objectives.where({'user': user.get('user')});
                 userObjectives.forEach(function(objective){
-                    var targetsInObj = new GDSECollection([], {
-                            apiTag: 'flowTargets',
-                            apiIds: [_this.caseStudy.id, objective.id]
-                        }),
-                        aimId = objective.get('aim');
-                    var indicatorCount = _this.indicatorCountPerAim[aimId];
+                    var aimId = objective.get('aim'),
+                        indicatorCount = _this.indicatorCountPerAim[aimId];
                     if (!indicatorCount) indicatorCount = _this.indicatorCountPerAim[aimId] = {};
-                    promises.push(targetsInObj.fetch({
-                        success: function(){
-                            // store used targets in set to avoid duplicates
-                            var indUsed = new Set()
-                            targetsInObj.forEach(function(target){
-                                var indicatorId = target.get('indicator');
-                                indUsed.add(indicatorId);
-                                var targets = _this.userTargetsPerIndicator[indicatorId];
-                                if (!targets) targets = _this.userTargetsPerIndicator[indicatorId] = {};
-                                targets[user.id] = target;
-                            })
-                            indUsed.forEach(function(indicator){
-                                if (!indicatorCount[indicator])
-                                    indicatorCount[indicator] = 1;
-                                else
-                                    indicatorCount[indicator] += 1;
-                                _this.maxIndCount = Math.max(_this.maxIndCount, indicatorCount[indicator])
-                            })
-                        },
-                        error: _this.onError
-                    }));
+                    // store used targets in set to avoid duplicates
+                    var indUsed = new Set()
+                    objective.targets.forEach(function(target){
+                        var indicatorId = target.get('indicator');
+                        indUsed.add(indicatorId);
+                        var targets = _this.userTargetsPerIndicator[indicatorId];
+                        if (!targets) targets = _this.userTargetsPerIndicator[indicatorId] = {};
+                        targets[user.id] = target;
+                    })
+                    indUsed.forEach(function(indicator){
+                        if (!indicatorCount[indicator])
+                            indicatorCount[indicator] = 1;
+                        else
+                            indicatorCount[indicator] += 1;
+                        _this.maxIndCount = Math.max(_this.maxIndCount, indicatorCount[indicator])
+                    })
                 })
             })
 

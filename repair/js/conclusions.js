@@ -59,7 +59,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         })
     };
 
-    renderWorkshop = function(caseStudy, keyflowId, keyflowName, objectives, participants, indicators, strategies, aims){
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName, objectives,
+                              participants, indicators, strategies, aims){
         if (participants.size() === 0){
             var warning = document.createElement('h3');
             warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
@@ -107,7 +108,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             users: participants,
             keyflowName: keyflowName,
             indicators: indicators,
-            strategies: strategies
+            strategies: strategies,
+            objectives: objectives
         })
 
         document.getElementById('add-conclusion').addEventListener('click', addConclusion);
@@ -139,10 +141,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 apiTag: 'usersInCasestudy',
                 apiIds: [caseStudy.id]
             });
-            var objectives = new GDSECollection([], {
-                apiTag: 'userObjectives',
-                apiIds: [caseStudy.id]
-            });
             var indicators = new GDSECollection([], {
                 apiTag: 'flowIndicators',
                 apiIds: [caseStudy.id, keyflowId],
@@ -152,10 +150,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             var promises = [];
             promises.push(aims.fetch({
                 data: { keyflow: keyflowId },
-                error: alert
-            }));
-            promises.push(objectives.fetch({
-                data: { keyflow: keyflowId, all: true },
                 error: alert
             }));
             promises.push(users.fetch());
@@ -168,13 +162,41 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                     apiTag: 'strategies',
                     apiIds: [caseStudy.id, keyflowId]
                 });
-                strategies.fetch({
-                    data: { 'user__in': participants.pluck('id').join(',') },
-                    error: this.onError,
-                    success: function(){
-                        renderWorkshop(caseStudy, keyflowId, keyflowName, objectives, participants, indicators, strategies, aims);
-                    }
+                var objectives = new GDSECollection([], {
+                    apiTag: 'userObjectives',
+                    apiIds: [caseStudy.id]
                 });
+                var promises = [];
+                promises.push(strategies.fetch({
+                    data: { 'user__in': participants.pluck('id').join(',') },
+                    error: alert
+                }));
+                // here we need profile resp. user id (same ids)
+                // shitty naming, there is a chain of 3 different 'user' models
+                promises.push(objectives.fetch({
+                    data: { keyflow: keyflowId, 'user__in': participants.pluck('user').join(',') },
+                    error: alert
+                }));
+                Promise.all(promises).then(function(){
+                    var promises = [];
+                    objectives.forEach(function(objective){
+                        var targetsInObj = new GDSECollection([], {
+                                apiTag: 'flowTargets',
+                                apiIds: [caseStudy.id, objective.id]
+                            }),
+                            aimId = objective.get('aim');
+                        promises.push(targetsInObj.fetch({
+                            success: function(){
+                                objective.targets = targetsInObj;
+                            },
+                            error: alert
+                        }));
+                    });
+                    Promise.all(promises).then(function(){
+                        renderWorkshop(caseStudy, keyflowId, keyflowName, objectives,
+                                       participants, indicators, strategies, aims);
+                    });
+                })
             })//.catch(function(res){
                 //if (res.responseText)
                     //alert(res.responseText);
