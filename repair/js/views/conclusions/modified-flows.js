@@ -194,7 +194,7 @@ function(_, BaseView, GDSECollection, BarChart){
                         dt = (deltaPerc > 0) ? '+' + _this.format(deltaPerc) : _this.format(deltaPerc);
 
                     chartData.push({
-                        group: user.get('name'),
+                        group:  user.get('alias') || user.get('name'),
                         values: [
                             { name: gettext('Strategy'), text: dt + '%', value: deltaPerc, color: '#4a8ef9' },
                             { name: gettext('Target'), text: targetText, value: targetPerc, color: '#cecece' }

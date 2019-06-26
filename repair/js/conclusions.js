@@ -1,12 +1,12 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets', 'views/conclusions/strategies',
-         'views/conclusions/modified-flows', 'models/indicator',
-         'collections/gdsecollection', 'app-config', 'utils/utils',
+         'views/conclusions/modified-flows', 'views/conclusions/sustainability',
+         'models/indicator', 'collections/gdsecollection', 'app-config', 'utils/utils',
          'underscore', 'html2canvas', 'viewerjs', 'base', 'viewerjs/dist/viewer.css'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
              EvalFlowTargetsView, EvalStrategiesView, EvalModifiedFlowsView,
-             Indicator, GDSECollection, appConfig,
+             SustainabilityView, Indicator, GDSECollection, appConfig,
              utils, _, html2canvas, Viewer) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
@@ -15,8 +15,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      * @module Conclusions
      */
 
-    var objectivesView, flowTargetsView, strategiesView,
-        modifiedFlowsView, consensusLevels, sections, modal;
+    var consensusLevels, sections, modal;
 
 
     html2image = function(container, onSuccess){
@@ -57,6 +56,20 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             consensusLevels: consensusLevels,
             sections: sections
         })
+        var sustainabilityView,
+            el = document.getElementById('sustainability-content'),
+            keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+        keyflowSelect.disabled = false;
+        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+        keyflowSelect.addEventListener('change', function(){
+            if (sustainabilityView) sustainabilityView.close();
+            sustainabilityView = new SustainabilityView({
+                caseStudy: caseStudy,
+                el: el,
+                template: 'sustainability-template',
+                keyflowId: keyflowSelect.value
+            })
+        })
     };
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName, objectives,
@@ -67,8 +80,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             document.getElementById('content').innerHTML = warning.outerHTML;
             return;
         }
-        if (objectivesView) objectivesView.close();
-        objectivesView = new EvalObjectivesView({
+        var objectivesView = new EvalObjectivesView({
             caseStudy: caseStudy,
             el: document.getElementById('objectives'),
             template: 'objectives-template',
@@ -78,8 +90,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             aims: aims,
             objectives: objectives
         })
-        if (flowTargetsView) flowTargetsView.close();
-        flowTargetsView = new EvalFlowTargetsView({
+        var flowTargetsView = new EvalFlowTargetsView({
             caseStudy: caseStudy,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template',
@@ -90,8 +101,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             objectives: objectives,
             indicators: indicators
         })
-        if (strategiesView) strategiesView.close();
-        strategiesView = new EvalStrategiesView({
+        var strategiesView = new EvalStrategiesView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
             el: document.getElementById('strategies'),
@@ -99,8 +109,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             users: participants,
             strategies: strategies
         })
-        if (modifiedFlowsView) modifiedFlowsView.close();
-        modifiedFlowsView = new EvalModifiedFlowsView({
+        var modifiedFlowsView = new EvalModifiedFlowsView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
             el: document.getElementById('modified-flows'),
