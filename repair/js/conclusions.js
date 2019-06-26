@@ -120,6 +120,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             strategies: strategies,
             objectives: objectives
         })
+        var sustainabilityView = new SustainabilityView({
+            caseStudy: caseStudy,
+            el: document.getElementById('sustainability'),
+            template: 'sustainability-template',
+            keyflowId: keyflowId
+        })
 
         document.getElementById('add-conclusion').addEventListener('click', addConclusion);
     };

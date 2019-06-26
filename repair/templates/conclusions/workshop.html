@@ -255,4 +255,20 @@
 </div>
 </script>
 
+<script type="text/template" id="sustainability-template">
+  <div class="bordered sunken" id="canvas-wrapper" style='background-color: white; text-align: center; display: none; overflow: auto;'>
+    <div class="row">
+      <div style="float: left;">
+        <h4 id="page-status" style="float: left; margin: 5px 10px 0px 0px;"></h4>
+        <button class="btn btn-primary square" id="prev">{% trans "Previous" %}</button>
+        <button class="btn btn-primary square" id="next">{% trans "Next" %}</button>
+      </div>
+      <div style="float: right;">
+        <button class="fullscreen-toggle fas fa-expand btn btn-primary"></button>
+      </div>
+    </div>
+    <canvas></canvas>
+  </div>
+</script>
+
 {% endblock %}

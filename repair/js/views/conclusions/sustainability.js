@@ -102,7 +102,6 @@ var SustainabilityView = BaseView.extend(
         this.pdfDocument.getPage(number).then(function(page) {
             var viewport = page.getViewport(_this.scale),
                 ctx = _this.canvas.getContext('2d');
-            console.log(viewport)
             _this.canvas.height = viewport.height;
             _this.canvas.width = viewport.width;
 
