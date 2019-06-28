@@ -14,7 +14,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
     {
 
         /**
-        * render workshop view on overall objective-ranking by involved users
+        * render workshop view on strategies implemented by users
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                      element the view will be rendered in
@@ -31,6 +31,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             this.template = options.template;
             this.caseStudy = options.caseStudy;
             this.keyflowId = options.keyflowId;
+            this.keyflowName = options.keyflowName;
             this.users = options.users;
 
             this.solutions = new GDSECollection([], {
@@ -61,6 +62,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 }));
             })
             this.stakeholders = {};
+            this.questions = {};
             this.loader.activate();
             Promise.all(promises).then(function(){
                 var promises = [];
@@ -73,6 +75,18 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                     promises.push(stakeholders.fetch({
                         success: function (){
                             _this.stakeholders[category.id] = stakeholders;
+                        },
+                        error: _this.onError
+                    }));
+                })
+                _this.solutions.forEach(function(solution){
+                    var questions = new GDSECollection([], {
+                        apiTag: 'questions',
+                        apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
+                    });
+                    promises.push(questions.fetch({
+                        success: function (){
+                            _this.questions[solution.id] = questions;
                         },
                         error: _this.onError
                     }));
@@ -98,8 +112,10 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             this.el.innerHTML = template({ solutions: this.solutions });
             this.solutionSelect = this.el.querySelector('select[name="solutions"]')
             this.elLegend = this.el.querySelector('.legend');
-            // step 5
             this.setupUsers();
+            // step 4
+            this.renderQuestions();
+            // step 5
             this.setupStrategiesMap();
             // step 7
             this.stakeholderCategories.forEach(function(category){
@@ -166,7 +182,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             var _this = this;
             this.strategiesMap = new Map({
                 el: this.el.querySelector('#strategies-map'),
-                opacity: 0.5
+                opacity: 0.8
             });
             this.users.forEach(function(user){
                 var color = _this.userColors[user.id];
@@ -180,6 +196,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             })
         },
 
+        // Step 5
         drawImplementations: function(){
             var solution = this.solutions.get(this.solutionSelect.value),
                 possImplArea = solution.get('possible_implementation_area'),
@@ -218,6 +235,79 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             });
         },
 
+        // Step 4
+        renderQuestions: function(){
+            var _this = this,
+                table = this.el.querySelector('#solution-question-table'),
+                header = table.createTHead().insertRow(0),
+                fTh = document.createElement('th');
+            fTh.innerHTML = gettext('Solutions for key flow <i>' + this.keyflowName + '</i>');
+            header.appendChild(fTh);
+            var userColumns = [];
+            this.users.forEach(function(user){
+                userColumns.push(user.id);
+                var name = user.get('alias') || user.get('name'),
+                    th = document.createElement('th');
+                th.innerHTML = name;
+                header.appendChild(th.cloneNode(true));
+            })
+
+            //var colorStep = 70 / this.maxStakeholderCount;
+
+            function renderItem(count, cell){
+                var item = _this.panelItem(count + ' x');
+                item.style.backgroundImage = 'none';
+                item.style.width = '50px';
+                cell.appendChild(item);
+                var sat = 100 - colorStep * count,
+                    hsl = 'hsla(90, 50%, ' + sat + '%, 1)';
+                if (sat < 50) item.style.color = 'white';
+                item.style.backgroundColor = hsl;
+            }
+
+            this.solutions.forEach(function(solution){
+                var row = table.insertRow(-1),
+                    text = solution.get('name'),
+                    questions = _this.questions[solution.id];
+                var solItem = _this.panelItem(text, { overlayText: '0x' });
+                solItem.style.maxWidth = '600px';
+                row.insertCell(0).appendChild(solItem);
+                var implCount = 0;
+                _this.users.forEach(function(user){
+                    // insert empty cells so that the lines are drawn
+                    row.insertCell(-1)
+                    var strategies = _this.strategies.where({user: user.id});
+                    if(strategies.length == 0) return;
+                    var implementations = _this.implementations[strategies[0].id].where({ solution: solution.id });
+                    implCount += implementations.length;
+                });
+                console.log(implCount)
+                solItem.querySelector('.overlay').innerHTML = implCount + 'x';
+                questions.forEach(function(question){
+                    var qrow = table.insertRow(-1),
+                        panelItem = _this.panelItem(question.get('question'));
+                    panelItem.style.maxWidth = '400px';
+                    panelItem.style.marginLeft = '200px';
+                    var cell = qrow.insertCell(0);
+                    cell.style.border = '0px';
+                    cell.appendChild(panelItem);
+                    _this.users.forEach(function(user){
+                        var strategies = _this.strategies.where({user: user.id});
+                        if(strategies.length == 0) return;
+                        var strategy = strategies[0],
+                            implementations = _this.implementations[strategy.id],
+                            implementations = implementations.where({ solution: solution.id })
+                        if (implementations.length == 0) return;
+                        var implementation = implementations[0],
+                            quantities = implementation.get('quantities');
+                        // ToDo: multiple implementations?
+                        console.log(quantities)
+                    });
+                });
+            })
+
+        },
+
         // render Step 7
         renderStakeholders: function(category){
             var _this = this,
@@ -239,7 +329,6 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 header.appendChild(th.cloneNode(true));
             })
 
-            // ToDo: max
             var colorStep = 70 / this.maxStakeholderCount;
 
             function renderItem(count, cell){
@@ -259,35 +348,20 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 var panelItem = _this.panelItem(text);
                 panelItem.style.maxWidth = '500px';
                 row.insertCell(0).appendChild(panelItem);
-                if (!_this.stakeholderCount[stakeholder.id]) return;
-                var countItem = _this.stakeholderCount[stakeholder.id],
-                    total = countItem['total'],
-                    totalCell = row.insertCell(-1);
-                if (total) renderItem(total, totalCell);
 
+                var valid = _this.stakeholderCount[stakeholder.id] != null;
+                if (valid) {
+                    var countItem = _this.stakeholderCount[stakeholder.id],
+                        total = countItem['total'],
+                        totalCell = row.insertCell(-1);
+                    if (total) renderItem(total, totalCell);
+                }
                 _this.users.forEach(function(user){
-                    var cell = row.insertCell(-1),
-                        count = _this.stakeholderCount[stakeholder.id][user.id];
+                    var cell = row.insertCell(-1);
+                    if (!valid) return;
+                    var count = _this.stakeholderCount[stakeholder.id][user.id];
                     if (count) renderItem(count, cell);
                 })
-                //var userTargets = _this.userTargetsPerIndicator[indicator.id];
-                //if (!userTargets) return;
-                //userColumns.forEach(function(userId){
-                    //var target = userTargets[userId],
-                        //cell = row.insertCell(-1);
-                    //if (target != null){
-                        //var targetValue = _this.targetValues.get(target.get('target_value')),
-                            //amount = targetValue.get('number'),
-                            //item = _this.panelItem(targetValue.get('text'));
-                        //cell.appendChild(item);
-                        //var hue = (amount >= 0) ? 90 : 0, // green or red
-                            //sat = 100 - 70 * Math.abs(Math.min(amount, 1)),
-                            //hsl = 'hsla(' + hue + ', 50%, ' + sat + '%, 1)';
-                        //if (sat < 50) item.style.color = 'white';
-                        //item.style.backgroundImage = 'none';
-                        //item.style.backgroundColor = hsl;
-                    //}
-                //})
 
             })
 

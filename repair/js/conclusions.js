@@ -108,6 +108,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         strategiesView = new EvalStrategiesView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
+            keyflowName: keyflowName,
             el: document.getElementById('strategies'),
             template: 'strategies-template',
             users: participants,
