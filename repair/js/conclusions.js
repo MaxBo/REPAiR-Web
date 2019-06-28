@@ -15,7 +15,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      * @module Conclusions
      */
 
-    var consensusLevels, sections, modal;
+    var consensusLevels, sections, modal, objectivesView, flowTargetsView,
+        strategiesView, modifiedFlowsView, sustainabilityView;
 
 
     html2image = function(container, onSuccess){
@@ -80,7 +81,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             document.getElementById('content').innerHTML = warning.outerHTML;
             return;
         }
-        var objectivesView = new EvalObjectivesView({
+        if (objectivesView) objectivesView.close();
+        objectivesView = new EvalObjectivesView({
             caseStudy: caseStudy,
             el: document.getElementById('objectives'),
             template: 'objectives-template',
@@ -90,7 +92,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             aims: aims,
             objectives: objectives
         })
-        var flowTargetsView = new EvalFlowTargetsView({
+        if (flowTargetsView) flowTargetsView.close();
+        flowTargetsView = new EvalFlowTargetsView({
             caseStudy: caseStudy,
             el: document.getElementById('flow-targets'),
             template: 'flow-targets-template',
@@ -101,7 +104,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             objectives: objectives,
             indicators: indicators
         })
-        var strategiesView = new EvalStrategiesView({
+        if (strategiesView) strategiesView.close();
+        strategiesView = new EvalStrategiesView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
             el: document.getElementById('strategies'),
@@ -109,7 +113,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             users: participants,
             strategies: strategies
         })
-        var modifiedFlowsView = new EvalModifiedFlowsView({
+        if (modifiedFlowsView) modifiedFlowsView.close();
+        modifiedFlowsView = new EvalModifiedFlowsView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
             el: document.getElementById('modified-flows'),
@@ -120,7 +125,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             strategies: strategies,
             objectives: objectives
         })
-        var sustainabilityView = new SustainabilityView({
+        if (sustainabilityView) sustainabilityView.close();
+        sustainabilityView = new SustainabilityView({
             caseStudy: caseStudy,
             el: document.getElementById('sustainability'),
             template: 'sustainability-template',
