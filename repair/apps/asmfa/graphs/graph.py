@@ -199,8 +199,6 @@ class StrategyGraph(BaseGraph):
             base_graph.build()
         g = base_graph.load()
         gw = GraphWalker(g)
-        self.clean()
-        self.mock_changes()
 
         # get the solutions in this strategy and order them by priority
         # solutions = self.strategy.solutions.order_by('solutioninstrategy__priority')
@@ -220,6 +218,7 @@ class StrategyGraph(BaseGraph):
         self.graph.save(self.filename)
 
         # ToDo:
+        self.clean()
 
         # ToDo: put modifications and new flows into database
         self.translate_to_db()

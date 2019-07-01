@@ -69,7 +69,8 @@ class ImplementationQuantity(GDSEModel):
                                        on_delete=models.CASCADE,
                                        related_name='implementation_quantity')
     question = models.ForeignKey(ImplementationQuestion,
-                                 on_delete=models.CASCADE)
+                                 on_delete=models.CASCADE,
+                                 related_name='implementation_question')
     value = models.FloatField()
 
 
