@@ -6,7 +6,8 @@ from repair.tests.test import LoginTestCase, AdminAreaTest
 from repair.apps.asmfa.factories import (ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
-                                         MaterialFactory
+                                         MaterialFactory,
+                                         FractionFlowFactory
                                         )
 from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionInStrategyFactory,
@@ -98,25 +99,24 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             solution=self.solution1
         )
 
-        self.solutionpart1 = SolutionPartFactory(
-            solution=self.solution1,
-            question=question1,
-            a=0,
-            b=1
-        )
-        self.solutionpart2 = SolutionPartFactory(
-            solution=self.solution1,
-            question=question2
-        )
+        #self.solutionpart1 = SolutionPartFactory(
+            #solution=self.solution1,
+            #question=question1,
+            #a=0,
+            #b=1
+        #)
+        #self.solutionpart2 = SolutionPartFactory(
+            #solution=self.solution1,
+            #question=question2
+        #)
         
         # new origin with new actor
         origin_activity = ActivityFactory(name='origin_activity')
-        ActorFactory(activity=origin_activity)
+        origin_actor = ActorFactory(activity=origin_activity)
 
         # new target with new actors
         target_activity = ActivityFactory(name='target_activity')
-        for i in range(3):
-            ActorFactory(activity=target_activity)
+        destination_actor = ActorFactory(activity=target_activity)
         
         # new material
         wool = MaterialFactory(name='wool insulation', 
@@ -129,11 +129,23 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             implementation_flow_material=wool,
             #implementation_flow_process=,
             question=question1,
+            a=1,
+            b=1,
             implements_new_flow=True,
             keep_origin=True,
             new_target_activity=target_activity,
             map_request="pick an actor"
         )
+        
+        # TODO T: create fraction flows
+        new_flow = FractionFlowFactory(origin=origin_actor, 
+                                destination=destination_actor,
+                                material=wool,
+                                #composition_name=,
+                                #nace=,
+                                amount=1,
+                                strategy=self.strategy
+                                )        
         
         implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
                                        (56.0, 0.0), (0.0, 0.0)))        
