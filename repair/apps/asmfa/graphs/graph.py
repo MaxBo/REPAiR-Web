@@ -1,7 +1,7 @@
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
-from repair.apps.changes.models import SolutionInStrategy, ImplementationQuantity
+from repair.apps.changes.models import SolutionInStrategy
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
@@ -201,20 +201,21 @@ class StrategyGraph(BaseGraph):
         gw = GraphWalker(g)
 
         # get the solutions in this strategy and order them by priority
-        # solutions = self.strategy.solutions.order_by('solutioninstrategy__priority')
-        solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy)
+        solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy).order_by('priority')
         for solution_in_strategy in solutions_in_strategy:
-            solution = solution_in_strategy.solution
+            # ToDo: SolutionInStrategy geometry for filtering?            
+            self.graph = gw.calculate_solution(solution_in_strategy)            
+            
+            #solution = solution_in_strategy.solution
             # get the solution parts using the reverse relation
-            for solution_part in solution.solution_parts.all():
-                question = solution_part.implementation_question
-                quantity = ImplementationQuantity.objects.get(
-                    question=implementation_question,
-                    implementation=solution_in_strategy)
-                # ToDo: get the implementation and its quantity
+            #for solution_part in solution.solution_parts.all():
+                # get the implementation and its quantity
+                #quantity = ImplementationQuantity.objects.get(
+                #    question=solution_part.question,
+                #    implementation=solution_in_strategy)
                 # ToDo: SolutionInStrategy geometry for filtering?
-                self.graph = gw.calculate_solution(solution, solution_part,
-                                                   quantity)
+                #self.graph = gw.calculate_solution(solution_in_strategy, solution_part)
+                
         self.graph.save(self.filename)
 
         # ToDo:
@@ -230,36 +231,33 @@ class StrategyGraph(BaseGraph):
         and related new FractionFlows
         '''
         flows = FractionFlow.objects.filter(strategy=self.strategy)
-        flows.delete()
+        #flows.delete()
         modified = StrategyFractionFlow.objects.filter(strategy=self.strategy)
-        modified.delete()
+        #modified.delete()
 
     def translate_to_db(self):
 
-        # ToDo: get edges from self.graph with no fractionflow id
-        for edge in edges:
-            origin = Actor.objects.get(edge.originid)
-            new_flow = FractionFlow(origin=origin, destination=destination,
-                                    amount=edge.amount,
-                                    strategy=self.strategy,
-                                    # ToDo: all other attributes like material,
-                                    # maybe get some of those from the flow the
-                                    # new edge was derived from
-                                    )
-
-        # ToDo: get modified flows from self.graph:
-        for edge in modified_edges:
-            mod_flow = StrategyFractionFlow(fractionflow=edge.fractionflowid,
-                                            amount=edge.amount,
-                                            strategy=self.strategy)
-
-        # ToDo: deleted flows? keep track of those (ids are sufficient) somehow
-        # or set amounts to zero in graph instead of actual deleting (then you
-        # don't need this part, the one before would deal with it)
-        for del_id in deleted_flow_ids:
-            mod_flow = StrategyFractionFlow(fractionflow=del_id,
-                                            amount=0,
-                                            strategy=self.strategy)
+        for e in self.graph.edges():
+            new_flow = self.graph.ep.new_flow[e]
+            amount = self.graph.ep.amount[e]
+            if(new_flow):
+                origin = Actor.objects.get(self.graph.vp.id[e.source()])
+                destination = Actor.objects.get(self.graph.vp.id[e.target()])
+                new_flow = FractionFlow(origin=origin, 
+                                        destination=destination,
+                                        #material=,
+                                        #composition_name=,
+                                        #nace=,
+                                        amount=amount,
+                                        strategy=self.strategy,
+                                        # ToDo: all other attributes like material,
+                                        # maybe get some of those from the flow the
+                                        # new edge was derived from
+                                        )
+            else:
+                mod_flow = StrategyFractionFlow(fractionflow=self.graph.ep.id[e],
+                                                amount=amount,
+                                                strategy=self.strategy)
 
     def to_queryset(self):
         if not self.graph:

@@ -11,7 +11,7 @@ from django.db.models import Q
 
 from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
-from repair.apps.changes.models.solutions import ImplementationQuestion
+from repair.apps.changes.models import ImplementationQuantity
 
 
 class NodeVisitor(BFSVisitor):
@@ -176,13 +176,19 @@ class GraphWalker:
                 self.edge_mask[e] = True
             else:
                 self.edge_mask[e] = False
-        
-    def calculate_solution(self, solution, solution_parts, quantity):
+    
+    def calculate_solution(self, solution_in_strategy):
         """Calculate the changes on flows for a solution"""
         g = copy.deepcopy(self.graph)
+        new_flow = g.new_edge_property("bool", val=False)
+        g.edge_properties["new_flow"] = new_flow
+        
         # need to traverse_graph() for each SolutionPart and then sum the changes
         # TODO B: store the changes for each part for testing, but this should be replaces by simply adding the changes from the Actor-Actor flows to the final changes edge property map
         changes_solution = dict()
+        solution = solution_in_strategy.solution
+        solution_parts = solution.solution_parts.all()
+        
         # TODO B: get the solution_parts using SolutionPart model
         for part in solution_parts:
             changes_solution_part = g.new_edge_property("float",val=0.0)
@@ -195,20 +201,23 @@ class GraphWalker:
                 Q(origin__in=actors_origin.values('id')) &
                 Q(destination__in=actors_destination.values('id')),
                 material=part.implementation_flow_material)
-
-            # !!! QUANTITY SHOULD COME FROM THE ImplementationQuantity model !!!
-            question = ImplementationQuestion.objects.filter(id=part.question.id)
-            implementation_quantity = quantity
-
+    
+            # get the quantity from implementation_question using the solution_in_strategy
+            implementation_quantity = ImplementationQuantity.objects.get(
+                question=part.question,
+                implementation=solution_in_strategy)
+            # TODO: what if actorflows is empty list?
             if part.implements_new_flow:
+                e = util.find_edge(g, g.ep['id'], actorflows[0].id)
+                # set the new_flow property needed for storing the changes
+                g.ep.new_flow[e] = True
                 if question[0].is_absolute:
-                    e = util.find_edge(g, g.ep['id'], actorflows[0].id)
                     if g.ep.amount[e] < 0:
                         raise ValueError("FractionFlow (id %s) is < 0" % g.ep.id[e])
                     value = (part.a * implementation_quantity + part.b) / g.ep.amount[e]
                 else:
                     value = part.a * implementation_quantity + part.b
-
+    
             # this we need because we work with Actors and not Activities, while the user defines the solution
             # with Activities, thus potentially there many Actor-Actor flows in a single Activity
             for implementation_flow in actorflows:

@@ -5,7 +5,8 @@ from repair.tests.test import LoginTestCase, AdminAreaTest
 
 from repair.apps.asmfa.factories import (ActorFactory,
                                          ActivityFactory,
-                                         ActivityGroupFactory
+                                         ActivityGroupFactory,
+                                         MaterialFactory
                                         )
 from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionInStrategyFactory,
@@ -107,14 +108,26 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             solution=self.solution1,
             question=question2
         )
+        
+        # new origin with new actor
+        origin_activity = ActivityFactory(name='origin_activity')
+        ActorFactory(activity=origin_activity)
 
         # new target with new actors
         target_activity = ActivityFactory(name='target_activity')
         for i in range(3):
             ActorFactory(activity=target_activity)
+        
+        # new material
+        wool = MaterialFactory(name='wool insulation', 
+                               keyflow=self.kic)
 
         part_new_flow = SolutionPartFactory(
             solution=self.solution1,
+            implementation_flow_origin_activity=origin_activity,
+            implementation_flow_destination_activity=target_activity,
+            implementation_flow_material=wool,
+            #implementation_flow_process=,
             question=question1,
             implements_new_flow=True,
             keep_origin=True,
@@ -129,12 +142,12 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             geom=GeometryCollection(implementation_area), priority=0)
         answer = ImplementationQuantity(question=question1,
                                         implementation=solution_in_strategy1,
-                                        value=1)    
+                                        value=1)
         
         self.solution2 = SolutionFactory(name='Solution 2')
         solution_in_strategy2 = SolutionInStrategyFactory(
             solution=self.solution2, strategy=self.strategy,
-            priority=1)    
+            priority=1)
         
     def test_graph(self):
         self.graph = StrategyGraph(self.strategy)
