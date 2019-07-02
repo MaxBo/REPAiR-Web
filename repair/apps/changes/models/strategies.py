@@ -85,13 +85,13 @@ def trigger_implementationquantity_sii(sender, instance,
         for question in solution.question.all():
             new, is_created = ImplementationQuantity.objects.\
                 get_or_create(implementation=sii, question=question,
-                              value=question.min_value)
+                              value=9958.0)
             if is_created:
                 new.save()
 
-signals.post_save.connect(
-    trigger_implementationquantity_sii,
-    sender=SolutionInStrategy,
-    weak=False,
-    dispatch_uid='models.trigger_implementationquantity_sii')
+    signals.post_save.connect(
+        trigger_implementationquantity_sii,
+        sender=SolutionInStrategy,
+        weak=False,
+        dispatch_uid='models.trigger_implementationquantity_sii')
 

@@ -1,4 +1,4 @@
-
+import os
 from test_plus import APITestCase
 from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
 from repair.tests.test import LoginTestCase, AdminAreaTest
@@ -14,12 +14,14 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionCategoryFactory,
                                            SolutionFactory,
                                            SolutionPartFactory,
-                                           ImplementationQuestionFactory
+                                           ImplementationQuestionFactory,
+                                           ImplementationQuantityFactory
                                         )
-from repair.apps.changes.models import ImplementationQuantity
+from repair.apps.asmfa.models import FractionFlow
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
+from django.db.models.functions import Coalesce
 
 #class GraphTest(LoginTestCase, APITestCase):
 
@@ -46,10 +48,13 @@ from django.contrib.gis.geos import Polygon, Point, GeometryCollection
         #self.graph = BaseGraph(self.kic)
 
 class StrategyGraphTest(LoginTestCase, APITestCase):
-
     stakeholdercategoryid = 48
     stakeholderid = 21
     strategyid = 1
+    actor_originid = 1
+    actor_old_targetid = 2
+    actor_new_targetid = 3
+    materialname = 'wool insulation'
     
     @classmethod
     def setUpClass(cls):
@@ -88,7 +93,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         question1 = ImplementationQuestionFactory(
             question="What is the answer to life, the universe and everything?",
-            select_values='0.0,3.14,42,1234.4321',
+            min_value=0.0,
+            max_value=10000.0,
+            step=0.01,
+            select_values='0.0,3.14,42,1234.43',
             solution=self.solution1
         )
         question2 = ImplementationQuestionFactory(
@@ -112,55 +120,81 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         
         # new origin with new actor
         origin_activity = ActivityFactory(name='origin_activity')
-        origin_actor = ActorFactory(activity=origin_activity)
+        origin_actor = ActorFactory(id=self.actor_originid,
+                                    activity=origin_activity)
 
-        # new target with new actors
-        target_activity = ActivityFactory(name='target_activity')
-        destination_actor = ActorFactory(activity=target_activity)
+        # old target with actor
+        old_target_activity = ActivityFactory(name='old_target_activity')
+        old_destination_actor = ActorFactory(id=self.actor_old_targetid,
+                                             activity=old_target_activity)
+        
+        # new target with new actor
+        new_target_activity = ActivityFactory(name='target_activity')
+        new_destination_actor = ActorFactory(id=self.actor_new_targetid,
+                                             activity=new_target_activity)
         
         # new material
-        wool = MaterialFactory(name='wool insulation', 
+        wool = MaterialFactory(name=self.materialname, 
                                keyflow=self.kic)
 
         part_new_flow = SolutionPartFactory(
             solution=self.solution1,
             implementation_flow_origin_activity=origin_activity,
-            implementation_flow_destination_activity=target_activity,
+            implementation_flow_destination_activity=old_target_activity,
             implementation_flow_material=wool,
             #implementation_flow_process=,
             question=question1,
-            a=1,
-            b=1,
+            a=1.0,
+            b=1.0,
             implements_new_flow=True,
             keep_origin=True,
-            new_target_activity=target_activity,
+            new_target_activity=new_target_activity,
             map_request="pick an actor"
         )
         
-        # TODO T: create fraction flows
+        # create fraction flow
         new_flow = FractionFlowFactory(origin=origin_actor, 
-                                destination=destination_actor,
+                                destination=old_destination_actor,
                                 material=wool,
-                                #composition_name=,
-                                #nace=,
                                 amount=1,
-                                strategy=self.strategy
-                                )        
+                                strategy=self.strategy,
+                                keyflow=self.kic
+                                )
         
         implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
                                        (56.0, 0.0), (0.0, 0.0)))        
         solution_in_strategy1 = SolutionInStrategyFactory(
             solution=self.solution1, strategy=self.strategy,
             geom=GeometryCollection(implementation_area), priority=0)
-        answer = ImplementationQuantity(question=question1,
+        answer = ImplementationQuantityFactory(question=question1,
                                         implementation=solution_in_strategy1,
-                                        value=1)
+                                        value=1.0)
         
-        self.solution2 = SolutionFactory(name='Solution 2')
-        solution_in_strategy2 = SolutionInStrategyFactory(
-            solution=self.solution2, strategy=self.strategy,
-            priority=1)
+        #self.solution2 = SolutionFactory(name='Solution 2')
+        #solution_in_strategy2 = SolutionInStrategyFactory(
+            #solution=self.solution2, strategy=self.strategy,
+            #priority=1)
         
     def test_graph(self):
         self.graph = StrategyGraph(self.strategy)
+        # delete stored graph file to test creation of data
+        if self.graph.exists:
+            os.remove(self.graph.filename)
+        
+        self.graph.build()
+        
+        flows = FractionFlow.objects.filter(origin_id=self.actor_originid,
+                                            destination_id=self.actor_new_targetid).annotate(
+            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))
+        assert len(flows) == 1
+        ff = flows[0]
+        assert ff.material.name == self.materialname
+        assert ff.destination.id == self.actor_new_targetid
+        print("amount")
+        print(ff.amount)
+        print("actual_amount")
+        print(ff.actual_amount)
+        assert ff.actual_amount == 2.0
+        
+        # test again but now with loading the stored graph
         self.graph.build()

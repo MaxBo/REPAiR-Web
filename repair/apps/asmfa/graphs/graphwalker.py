@@ -180,8 +180,10 @@ class GraphWalker:
     def calculate_solution(self, solution_in_strategy):
         """Calculate the changes on flows for a solution"""
         g = copy.deepcopy(self.graph)
-        new_flow = g.new_edge_property("bool", val=False)
-        g.edge_properties["new_flow"] = new_flow
+        
+        # create new property to store if the flow is created new
+        #r = (False for x in g.get_edges())
+        g.ep['newflow'] = g.new_edge_property("bool")
         
         # need to traverse_graph() for each SolutionPart and then sum the changes
         # TODO B: store the changes for each part for testing, but this should be replaces by simply adding the changes from the Actor-Actor flows to the final changes edge property map
@@ -208,23 +210,33 @@ class GraphWalker:
                 implementation=solution_in_strategy)
             # TODO: what if actorflows is empty list?
             if part.implements_new_flow:
-                e = util.find_edge(g, g.ep['id'], actorflows[0].id)
-                # set the new_flow property needed for storing the changes
-                g.ep.new_flow[e] = True
-                if question[0].is_absolute:
+                edges = util.find_edge(g, g.ep['id'], actorflows[0].id)
+                # select first result from search query
+                if len(edges) > 0:
+                    e = edges[0]
+                else:
+                    print ("No edge found in graph with id: " + str(actorflows[0].id))
+                
+                # set the newflow property needed for storing the changes
+                g.ep.newflow[e] = True
+                
+                # calculate the new value
+                if part.question.is_absolute:
                     if g.ep.amount[e] < 0:
                         raise ValueError("FractionFlow (id %s) is < 0" % g.ep.id[e])
-                    value = (part.a * implementation_quantity + part.b) / g.ep.amount[e]
+                    value = (part.a * implementation_quantity.value + part.b) / g.ep.amount[e]
                 else:
-                    value = part.a * implementation_quantity + part.b
+                    value = part.a * implementation_quantity.value + part.b
     
             # this we need because we work with Actors and not Activities, while the user defines the solution
             # with Activities, thus potentially there many Actor-Actor flows in a single Activity
             for implementation_flow in actorflows:
                 edges = util.find_edge(g, g.ep['id'], implementation_flow.id)
                 if len(edges) > 0:
-                    changes_actors.append(traverse_graph(g, edge=edges[0],
-                                                         solution=value, amount=g.ep.amount))
+                    e = edges[0]                    
+                    changes_actors.append(traverse_graph(g, edge=e,
+                                                         solution=value,
+                                                         amount=g.ep.amount))
                 else:
                     # not sure what if no edges are found
                     pass
@@ -233,9 +245,11 @@ class GraphWalker:
             for edge in g.edges():
                 changes_solution_part[edge] = sum(ch[edge] for ch in changes_actors)
             changes_solution[part.id] = changes_solution_part
-        # TODO B: return the signed changes for now, later this could return the graph itself with the modified amounts
+        # return the graph itself with the modified amounts
         changes = g.new_edge_property("float", val=0.0)
         g.ep.change = changes
         for e in g.edges():
             g.ep.change[e] = sum(part[e] for id,part in changes_solution.items())
+        print(g.ep.id.a)
+        print(g.ep.newflow.a)
         return g

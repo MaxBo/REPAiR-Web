@@ -224,4 +224,3 @@ class FractionFlowFactory(FlowFactory):
     composition_name = factory.Sequence(lambda n: "Composition #%s" % n)
     nace = '52.Retail'
     amount = 0.0
-    #solution_part = 

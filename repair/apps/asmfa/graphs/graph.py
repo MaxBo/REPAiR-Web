@@ -6,6 +6,7 @@ from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
     from graph_tool import stats as gt_stats
+    from graph_tool import draw
     import cairo
 except ModuleNotFoundError:
     pass
@@ -111,19 +112,27 @@ class BaseGraph:
 
         self.save()
         # save graph image
-        #pos = gt.draw.fruchterman_reingold_layout(g, n_iter=1000)
-        #gt.draw.graph_draw(g, pos, vertex_size=20, vertex_text=g.vp.name,
+        #fn = "keyflow-{}-base.png".format(self.keyflow.id)
+        #fn = os.path.join(self.path, fn)        
+        #pos = gt.draw.fruchterman_reingold_layout(self.graph, n_iter=1000)
+        #gt.draw.graph_draw(self.graph, pos, vertex_size=20, vertex_text=self.graph.vp.name,
         #                       vprops={"text_position":0, "font_weight": cairo.FONT_WEIGHT_BOLD, "font_size":14},
-        #                       output_size=(700,600), output="test.png")
+        #                       output_size=(700,600), output=fn)
         return self.graph
 
     def validate(self):
         """Validate flows for a graph"""
         invalid = []
         self.load()
+        
+        if self.graph.num_vertices() < 1:
+            return 'Graph is invalid, no vertices'
+        
+        if self.graph.num_edges() < 1:
+            return 'Graph is invalid, no edges'        
 
         for v in self.graph.vertices():
-            if(len(v.all_edges()) == 0):
+            if(v.in_degree() + v.out_degree() == 0):
                 invalid.append(v)
 
         if len(invalid) != 0:
@@ -150,12 +159,21 @@ class StrategyGraph(BaseGraph):
     def __init__(self, strategy):
         self.keyflow = strategy.keyflow
         self.strategy = strategy
+        self.graph = None
 
     @property
     def filename(self):
         fn = "keyflow-{}-s{}.gt".format(self.keyflow.id, self.strategy.id)
         return os.path.join(self.path, fn)
-
+    
+    @property
+    def exists(self):
+        return os.path.exists(self.filename)
+    
+    def load(self):
+        self.graph = gt.load_graph(self.filename)
+        return self.graph
+    
     def mock_changes(self):
         '''make some random changes for testing'''
         flows = FractionFlow.objects.filter(
@@ -194,35 +212,49 @@ class StrategyGraph(BaseGraph):
             flow.save()
 
     def build(self):
-        base_graph = BaseGraph(self.keyflow)
-        if not base_graph.exists:
-            base_graph.build()
-        g = base_graph.load()
-        gw = GraphWalker(g)
-
-        # get the solutions in this strategy and order them by priority
-        solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy).order_by('priority')
-        for solution_in_strategy in solutions_in_strategy:
-            # ToDo: SolutionInStrategy geometry for filtering?            
-            self.graph = gw.calculate_solution(solution_in_strategy)            
+        if self.exists:
+            self.load()
+        else:
+            base_graph = BaseGraph(self.keyflow)
+            if not base_graph.exists:
+                base_graph.build()
+            g = base_graph.load()
+            msg = base_graph.validate()
+            if msg != 'Graph is valid':
+                print(msg)
             
-            #solution = solution_in_strategy.solution
-            # get the solution parts using the reverse relation
-            #for solution_part in solution.solution_parts.all():
-                # get the implementation and its quantity
-                #quantity = ImplementationQuantity.objects.get(
-                #    question=solution_part.question,
-                #    implementation=solution_in_strategy)
-                # ToDo: SolutionInStrategy geometry for filtering?
-                #self.graph = gw.calculate_solution(solution_in_strategy, solution_part)
+            gw = GraphWalker(g)
+    
+            # get the solutions in this strategy and order them by priority
+            solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy).order_by('priority')
+            for solution_in_strategy in solutions_in_strategy:
+                # ToDo: SolutionInStrategy geometry for filtering?            
+                self.graph = gw.calculate_solution(solution_in_strategy)
                 
-        self.graph.save(self.filename)
-
-        # ToDo:
-        self.clean()
-
-        # ToDo: put modifications and new flows into database
-        self.translate_to_db()
+                #TODO T: filter the FractionFlow (or SolutionParts?) and annotate with:
+                # new_origin
+                # new_target
+                # quantity
+                # from the StrategyFractionFlows 
+                # based on keep_origin True/False Coalesce new_target_activity
+                
+                #solution = solution_in_strategy.solution
+                # get the solution parts using the reverse relation
+                #for solution_part in solution.solution_parts.all():
+                    # get the implementation and its quantity
+                    #quantity = ImplementationQuantity.objects.get(
+                    #    question=solution_part.question,
+                    #    implementation=solution_in_strategy)
+                    # ToDo: SolutionInStrategy geometry for filtering?
+                    #self.graph = gw.calculate_solution(solution_in_strategy, solution_part)
+                    
+            self.graph.save(self.filename)
+    
+            # ToDo:
+            self.clean()
+    
+            # ToDo: put modifications and new flows into database
+            self.translate_to_db()
         return self.graph
 
     def clean(self):
@@ -230,34 +262,39 @@ class StrategyGraph(BaseGraph):
         wipe all related StrategyFractionFlows
         and related new FractionFlows
         '''
-        flows = FractionFlow.objects.filter(strategy=self.strategy)
+        # TODO: not all flows need to be deleted, find out what to do here
+        #flows = FractionFlow.objects.filter(strategy=self.strategy)
         #flows.delete()
         modified = StrategyFractionFlow.objects.filter(strategy=self.strategy)
         #modified.delete()
 
     def translate_to_db(self):
-
+        # store edges (flows) to database
         for e in self.graph.edges():
-            new_flow = self.graph.ep.new_flow[e]
+            newflow = self.graph.ep.newflow[e]
+            print(newflow)
             amount = self.graph.ep.amount[e]
-            if(new_flow):
+            if(newflow):
                 origin = Actor.objects.get(self.graph.vp.id[e.source()])
                 destination = Actor.objects.get(self.graph.vp.id[e.target()])
-                new_flow = FractionFlow(origin=origin, 
-                                        destination=destination,
-                                        #material=,
-                                        #composition_name=,
-                                        #nace=,
-                                        amount=amount,
-                                        strategy=self.strategy,
-                                        # ToDo: all other attributes like material,
-                                        # maybe get some of those from the flow the
-                                        # new edge was derived from
-                                        )
+                # create a new fractionflow
+                FractionFlow(origin=origin, 
+                             destination=destination,
+                             #material=,
+                             #composition_name=,
+                             #nace=,
+                             amount=self.graph.ep.amount[e],
+                             strategy=self.strategy
+                             # ToDo: all other attributes like material,
+                             # maybe get some of those from the flow the
+                             # new edge was derived from
+                             )
             else:
-                mod_flow = StrategyFractionFlow(fractionflow=self.graph.ep.id[e],
-                                                amount=amount,
-                                                strategy=self.strategy)
+                # create a strategyfractionflow to store the amount
+                ff = FractionFlow.objects.filter(id=self.graph.ep.id[e])
+                StrategyFractionFlow(fractionflow=ff[0],
+                                     amount=self.graph.ep.change[e],
+                                     strategy=self.strategy)
 
     def to_queryset(self):
         if not self.graph:
