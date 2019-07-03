@@ -133,6 +133,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 _this = this;
             this.userColors = {};
             this.stakeholderCount = {};
+            this.quantities = {};
             var i = 0;
             this.users.forEach(function(user){
 
@@ -173,7 +174,13 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                                 'solutions': []
                             };
                         _this.stakeholderCount[stakeholderId][user.id]['count'] += 1;
-                        _this.stakeholderCount[stakeholderId][user.id]['solutions'].push(solution.get('name'));
+                        _this.stakeholderCount[stakeholderId][user.id]['solutions'].push('<li>' + solution.get('name') + '</li>');
+                    })
+                    implementation.get('quantities').forEach(function(quantity){
+                        if (!_this.quantities[user.id]) _this.quantities[user.id] = {};
+                        if (!_this.quantities[user.id][quantity.question])
+                            _this.quantities[user.id][quantity.question] = [];
+                        _this.quantities[user.id][quantity.question].push(quantity.value);
                     })
                 })
             })
@@ -298,24 +305,26 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                         panelItem = _this.panelItem(question.get('question'));
                     panelItem.style.maxWidth = '400px';
                     panelItem.style.marginLeft = '200px';
+                    panelItem.style.backgroundImage = 'none';
+                    panelItem.style.pointerEvents = 'none';
                     var cell = qrow.insertCell(0);
                     cell.style.border = '0px';
                     cell.appendChild(panelItem);
                     _this.users.forEach(function(user){
-                        var strategies = _this.strategies.where({user: user.id});
-                        if(strategies.length == 0) return;
-                        var strategy = strategies[0],
-                            implementations = _this.implementations[strategy.id],
-                            implementations = implementations.where({ solution: solution.id })
-                        if (implementations.length == 0) return;
-                        var implementation = implementations[0],
-                            quantities = implementation.get('quantities');
-                        // ToDo: multiple implementations?
-                        console.log(quantities)
+                        var cell = qrow.insertCell(-1);
+                        if (!_this.quantities[user.id]) return;
+                        var values = _this.quantities[user.id][question.id],
+                            isAbsolute = question.get('is_absolute');
+                        values.forEach(function(value){
+                            var v = (isAbsolute) ? value + ' ' + gettext('t/year') : parseFloat(value) * 100 + '%',
+                                t = '<b>' + (user.get('alias') || user.get('name')) + '</b><br><i>' + question.get('question') + '</i>:<br>' + v,
+                                panelItem = _this.panelItem(v, { popoverText: t });
+                            panelItem.style.float = 'left';
+                            cell.appendChild(panelItem);
+                        })
                     });
                 });
             })
-
         },
 
         // render Step 7
@@ -377,7 +386,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                         total = countItem['count'],
                         totalCell = row.insertCell(-1);
                     if (total) renderItem(total, totalCell, {
-                        popoverText: '<b>' + stakeholder.get('name') + ' ' + gettext('assigned to') + '</b><br>' + countItem['solutions'].join('<br>')
+                        popoverText: '<b>' + stakeholder.get('name') + ' ' + gettext('assigned to') + '</b><br>' + countItem['solutions'].join('')
                     });
                 }
                 _this.users.forEach(function(user){
@@ -385,12 +394,10 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                     if (!valid) return;
                     var count = _this.stakeholderCount[stakeholder.id][user.id];
                     if (count) renderItem(count['count'], cell, {
-                        popoverText: '<b>' + stakeholder.get('name') + ' ' + gettext('assigned to') + '</b><br>' + count['solutions'].join('<br>')
+                        popoverText: '<b>' + stakeholder.get('name') + ' ' + gettext('assigned to') + '</b><br>' + count['solutions'].join('')
                     });
                 })
-
             })
-
         },
 
     });
