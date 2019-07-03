@@ -75,6 +75,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     effect_image = serializers.ImageField(required=False, allow_null=True)
     edit_mask = serializers.ReadOnlyField()
     implementation_count = serializers.SerializerMethodField()
+    affected_activities = serializers.SerializerMethodField()
 
     class Meta:
         model = Solution
@@ -83,7 +84,8 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'activities_image',
                   'currentstate_image', 'effect_image',
                   'possible_implementation_area',
-                  'edit_mask', 'implementation_count'
+                  'edit_mask', 'implementation_count',
+                  'affected_activities'
                   )
         read_only_fields = ('url', 'id', )
         extra_kwargs = {
@@ -97,6 +99,22 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
 
     def get_implementation_count(self, obj):
         return obj.strategy_set.count()
+
+    def get_affected_activities(self, obj):
+        parts = SolutionPart.objects.filter(solution=obj)
+        activities = parts.values_list(
+            'implementation_flow_origin_activity__id',
+            'implementation_flow_destination_activity__id',
+            'new_target_activity__id',
+            'affected_flow__destination_activity__id',
+            'affected_flow__origin_activity__id'
+        )
+        activities = set([i for s in activities for i in s])
+        try:
+            activities.remove(None)
+        except:
+            pass
+        return activities
 
 
 class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,
