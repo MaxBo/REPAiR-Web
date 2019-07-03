@@ -149,7 +149,7 @@ function(PageableCollection, _, GDSEModel, config) {
 
         // function to compare models by the preset attribute (id per default) whenever you call sort
         comparator: function(model) {
-          return model.get(this.comparatorAttr);
+            return model.get(this.comparatorAttr);
         },
 
         /**

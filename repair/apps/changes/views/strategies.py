@@ -86,4 +86,8 @@ class SolutionInStrategyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     serializer_class = SolutionInStrategySerializer
     queryset = SolutionInStrategy.objects.all()
 
+    def get_queryset(self):
+        strategy_pk = self.kwargs.get('strategy_pk')
+        return self.queryset.filter(strategy=strategy_pk)
+
 

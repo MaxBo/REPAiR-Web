@@ -179,6 +179,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
+                indicators.sort();
                 var participants = users.filterBy({'gets_evaluated' : true});
                 var strategies = new GDSECollection([], {
                     apiTag: 'strategies',
@@ -186,7 +187,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 });
                 var objectives = new GDSECollection([], {
                     apiTag: 'userObjectives',
-                    apiIds: [caseStudy.id]
+                    apiIds: [caseStudy.id],
+                    comparator: 'name'
                 });
                 var promises = [];
                 promises.push(strategies.fetch({
@@ -201,6 +203,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 }));
                 Promise.all(promises).then(function(){
                     var promises = [];
+                    objectives.sort();
                     objectives.forEach(function(objective){
                         var targetsInObj = new GDSECollection([], {
                                 apiTag: 'flowTargets',

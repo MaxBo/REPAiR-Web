@@ -36,7 +36,8 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
 
             this.solutions = new GDSECollection([], {
                 apiTag: 'solutions',
-                apiIds: [this.caseStudy.id, this.keyflowId]
+                apiIds: [this.caseStudy.id, this.keyflowId],
+                comparator: 'implementation_count'
             });
             this.strategies = options.strategies;
             this.stakeholderCategories = new GDSECollection([], {
@@ -75,10 +76,13 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                     promises.push(stakeholders.fetch({
                         success: function (){
                             _this.stakeholders[category.id] = stakeholders;
+                            stakeholders.sort();
                         },
                         error: _this.onError
                     }));
                 })
+                _this.solutions.sort();
+                _this.solutions.models.reverse();
                 _this.solutions.forEach(function(solution){
                     var questions = new GDSECollection([], {
                         apiTag: 'questions',
@@ -157,23 +161,35 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                     implementations = _this.implementations[strategy.id];
 
                 implementations.forEach(function(implementation){
+                    var solution = _this.solutions.get(implementation.get('solution'));
+                    // workaround for incorrect implementations in backend
+                    if (!solution) return;
                     implementation.get('participants').forEach(function(stakeholderId){
                         if (!_this.stakeholderCount[stakeholderId])
                             _this.stakeholderCount[stakeholderId] = {};
                         if (!_this.stakeholderCount[stakeholderId][user.id])
-                            _this.stakeholderCount[stakeholderId][user.id] = 0;
-                        _this.stakeholderCount[stakeholderId][user.id] += 1;
+                            _this.stakeholderCount[stakeholderId][user.id] = {
+                                'count': 0,
+                                'solutions': []
+                            };
+                        _this.stakeholderCount[stakeholderId][user.id]['count'] += 1;
+                        _this.stakeholderCount[stakeholderId][user.id]['solutions'].push(solution.get('name'));
                     })
                 })
             })
             // sum up stakeholder counts
             this.maxStakeholderCount = 0;
             for (var stakeholderId in this.stakeholderCount) {
-                var total = 0;
+                var total = 0,
+                    solutions = [];
                 Object.values(this.stakeholderCount[stakeholderId]).forEach(function(count){
-                    total += count;
+                    total += count['count'];
+                    solutions = solutions.concat(count['solutions']);
                 })
-                this.stakeholderCount[stakeholderId]['total'] = total;
+                this.stakeholderCount[stakeholderId]['total'] = {
+                    'count': total,
+                    'solutions': [...new Set(solutions)]
+                };
                 this.maxStakeholderCount = Math.max(this.maxStakeholderCount, total);
             }
         },
@@ -272,17 +288,11 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 var solItem = _this.panelItem(text, { overlayText: '0x' });
                 solItem.style.maxWidth = '600px';
                 row.insertCell(0).appendChild(solItem);
-                var implCount = 0;
                 _this.users.forEach(function(user){
                     // insert empty cells so that the lines are drawn
-                    row.insertCell(-1)
-                    var strategies = _this.strategies.where({user: user.id});
-                    if(strategies.length == 0) return;
-                    var implementations = _this.implementations[strategies[0].id].where({ solution: solution.id });
-                    implCount += implementations.length;
+                    row.insertCell(-1);
                 });
-                console.log(implCount)
-                solItem.querySelector('.overlay').innerHTML = implCount + 'x';
+                solItem.querySelector('.overlay').innerHTML = solution.get('implementation_count') + 'x';
                 questions.forEach(function(question){
                     var qrow = table.insertRow(-1),
                         panelItem = _this.panelItem(question.get('question'));
@@ -331,9 +341,11 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
 
             var colorStep = 70 / this.maxStakeholderCount;
 
-            function renderItem(count, cell){
-                var item = _this.panelItem(count + ' x');
+            function renderItem(count, cell, options){
+                //var options = (renderInfo) ? { 'overlayText' : '<span style="font-size: 29px;" class="glyphicon glyphicon-info-sign"></span>' } : {};
+                var item = _this.panelItem(count + ' x', options);
                 item.style.backgroundImage = 'none';
+                //item.style.width = (renderInfo) ? '100px' : '50px';
                 item.style.width = '50px';
                 cell.appendChild(item);
                 var sat = 100 - colorStep * count,
@@ -341,8 +353,18 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 if (sat < 50) item.style.color = 'white';
                 item.style.backgroundColor = hsl;
             }
+            var stakeholders = this.stakeholders[category.id];
 
-            this.stakeholders[category.id].forEach(function(stakeholder){
+            stakeholders.forEach(function(stakeholder){
+                var count = _this.stakeholderCount[stakeholder.id] || 0;
+                if (count) count = count['total']['count'];
+                stakeholder.set('totalCount', count);
+            })
+            stakeholders.comparatorAttr = 'totalCount';
+            stakeholders.sort();
+            stakeholders.models.reverse();
+
+            stakeholders.forEach(function(stakeholder){
                 var row = table.insertRow(-1),
                     text = stakeholder.get('name');
                 var panelItem = _this.panelItem(text);
@@ -351,16 +373,20 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
 
                 var valid = _this.stakeholderCount[stakeholder.id] != null;
                 if (valid) {
-                    var countItem = _this.stakeholderCount[stakeholder.id],
-                        total = countItem['total'],
+                    var countItem = _this.stakeholderCount[stakeholder.id]['total'],
+                        total = countItem['count'],
                         totalCell = row.insertCell(-1);
-                    if (total) renderItem(total, totalCell);
+                    if (total) renderItem(total, totalCell, {
+                        popoverText: '<b>' + stakeholder.get('name') + ' ' + gettext('assigned to') + '</b><br>' + countItem['solutions'].join('<br>')
+                    });
                 }
                 _this.users.forEach(function(user){
                     var cell = row.insertCell(-1);
                     if (!valid) return;
                     var count = _this.stakeholderCount[stakeholder.id][user.id];
-                    if (count) renderItem(count, cell);
+                    if (count) renderItem(count['count'], cell, {
+                        popoverText: '<b>' + stakeholder.get('name') + ' ' + gettext('assigned to') + '</b><br>' + count['solutions'].join('<br>')
+                    });
                 })
 
             })
