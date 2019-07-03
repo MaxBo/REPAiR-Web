@@ -153,7 +153,7 @@ function(_, BaseView, GDSECollection, BarChart){
             })
         },
 
-        // render Step 8
+        // render Step 9
         renderComparison: function(){
             var _this = this,
                 table = this.el.querySelector('table[name="comparison-table"]'),
@@ -196,8 +196,8 @@ function(_, BaseView, GDSECollection, BarChart){
                     chartData.push({
                         group:  user.get('alias') || user.get('name'),
                         values: [
-                            { name: gettext('Strategy'), text: dt + '%', value: deltaPerc, color: '#4a8ef9' },
-                            { name: gettext('Target'), text: targetText, value: targetPerc, color: '#cecece' }
+                            { name: gettext('Strategy'), text: dt + '%', value: deltaPerc, color: '#4a8ef9', offset: 10 },
+                            { name: gettext('Target'), text: targetText, value: targetPerc, color: '#cecece', offset: -10 }
                         ]
                     })
 

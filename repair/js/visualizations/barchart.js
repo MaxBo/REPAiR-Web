@@ -107,7 +107,7 @@ define(['d3', 'd3-tip'], function(d3, d3tip){
                     .data(data)
             }
             de.enter().append("rect")
-              .attr("x", function(d, i) { return _this.x(d.name || i); })
+              .attr("x", function(d, i) { return _this.x(d.name || i) + d.offset || 0; })
               .attr("y", function(d) { return _this.y(Math.min(0, -d.value)); })
               .attr("height", function(d) { return Math.abs(_this.y(d.value) - _this.y(0)); })
               .attr("width", this.x.rangeBand())
@@ -125,7 +125,7 @@ define(['d3', 'd3-tip'], function(d3, d3tip){
                 this.svg.selectAll(".value")
                   .data(data)
                   .enter().append("text")
-                    .attr("x", function(d) { return _this.x(d.name) + _this.x.rangeBand() / 2; })
+                    .attr("x", function(d) { return _this.x(d.name) + d.offset || 0 + _this.x.rangeBand() / 2; })
                     .attr("y", function(d) { return _this.y(-d.value); })
                     .attr("dy", ".35em")
                     .text(function(d) { return (_this.showValues) ? d.text || d.value : ''});
