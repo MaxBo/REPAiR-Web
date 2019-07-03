@@ -3,46 +3,43 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: .\node_modules\d3-selection\dist\d3-selection.min.js:2
-#: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:25
-#: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-05-29 10:51+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2019-06-17 18:18+0200\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2.3\n"
 
 #: .\docs\views_baseview.js.html:181 .\repair\js\views\common\baseview.js:176
 msgid "Warning"
-msgstr ""
+msgstr "Avvertenze"
 
 #: .\docs\views_baseview.js.html:197 .\repair\js\views\common\baseview.js:299
 msgid "The server responded with: "
-msgstr ""
+msgstr "Il Server ha risposto con:"
 
 #: .\docs\views_baseview.js.html:198
 msgid "Server does not respond."
-msgstr ""
+msgstr "Il Server non risponde"
 
 #: .\docs\views_baseview.js.html:199
 #: .\docs\views_data-entry_edit-node.js.html:646
 #: .\repair\js\views\data-entry\bulk-upload.js:399
 #: .\repair\js\views\data-entry\edit-node.js:697 .\repair\js\welcome.js:119
 msgid "Error"
-msgstr ""
+msgstr "Errore"
 
 #: .\docs\views_changes_solutions.js.html:107
 msgid "Solution"
-msgstr ""
+msgstr "Soluzione"
 
 #: .\docs\views_changes_solutions.js.html:168
 #: .\docs\views_changes_solutions.js.html:169
@@ -57,23 +54,23 @@ msgstr ""
 #: .\repair\js\views\data-entry\edit-actor.js:825
 #: .\repair\js\views\strategy\setup-solutions-logic.js:427
 msgid "Focus area"
-msgstr ""
+msgstr "Focus area"
 
 #: .\docs\views_data-entry_actors.js.html:132
 #: .\docs\views_data-entry_edit-node.js.html:797
 #: .\repair\js\views\data-entry\edit-node.js:868
 msgid "Search"
-msgstr ""
+msgstr "Ricerca"
 
 #: .\docs\views_data-entry_actors.js.html:252
 #: .\repair\js\views\data-entry\actors-flows.js:389
 msgid "Add Actor"
-msgstr ""
+msgstr "Aggiungi Attore"
 
 #: .\docs\views_data-entry_actors.js.html:264
 #: .\repair\js\views\data-entry\actors-flows.js:399
 msgid "Do you really want to delete the actor"
-msgstr ""
+msgstr "Vuoi davvero eliminare l’attore?"
 
 #: .\docs\views_data-entry_actors.js.html:289
 #: .\docs\views_data-entry_materials.js.html:308
@@ -87,12 +84,12 @@ msgstr ""
 #: .\repair\js\views\study-area\stakeholders.js:230
 #: .\repair\js\views\study-area\stakeholders.js:263
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: .\docs\views_data-entry_edit-actor.js.html:496
 #: .\repair\js\views\data-entry\edit-actor.js:490
 msgid "select an area"
-msgstr ""
+msgstr "Seleziona un’area"
 
 #: .\docs\views_data-entry_edit-node.js.html:268
 #: .\docs\views_flowsankey.js.html:190 .\docs\views_flowsankey.js.html:206
@@ -101,69 +98,69 @@ msgstr ""
 #: .\repair\js\views\data-entry\edit-node.js:258
 #: .\repair\js\views\strategy\setup-question.js:67
 msgid "t/year"
-msgstr ""
+msgstr "t/anno"
 
 #: .\docs\views_data-entry_edit-node.js.html:306
 #: .\repair\js\views\common\flowsankeymap.js:674
 #: .\repair\js\views\data-entry\edit-node.js:328
 msgid "Waste"
-msgstr ""
+msgstr "Rifiuti"
 
 #: .\docs\views_data-entry_edit-node.js.html:309
 #: .\repair\js\views\common\flowsankeymap.js:674
 #: .\repair\js\views\data-entry\edit-node.js:331
 msgid "Product"
-msgstr ""
+msgstr "Prodotto"
 
 #: .\docs\views_data-entry_edit-node.js.html:323
 #: .\repair\js\views\data-entry\edit-node.js:349
 msgid "Composition"
-msgstr ""
+msgstr "Composizione"
 
 #: .\docs\views_data-entry_edit-node.js.html:439
 msgid "edit datasource"
-msgstr ""
+msgstr "modifica la  sorgente dati"
 
 #: .\docs\views_data-entry_edit-node.js.html:495
 #: .\docs\views_data-entry_edit-node.js.html:655
 #: .\repair\js\views\data-entry\edit-node.js:534
 #: .\repair\js\views\data-entry\edit-node.js:706
 msgid "custom"
-msgstr ""
+msgstr "personalizzato"
 
 #: .\docs\views_data-entry_edit-node.js.html:573
 #: .\repair\js\views\data-entry\edit-node.js:630
 msgid "remove fraction"
-msgstr ""
+msgstr "rimuovi la frazione"
 
 #: .\docs\views_data-entry_edit-node.js.html:626
 #: .\repair\js\views\data-entry\edit-node.js:683
 msgid "The fractions have to sum up to 100!"
-msgstr ""
+msgstr "Le frazioni devono essere pari a 100!"
 
 #: .\docs\views_data-entry_edit-node.js.html:626
 #: .\repair\js\views\data-entry\edit-node.js:683
 msgid "current sum"
-msgstr ""
+msgstr "la somma corrente"
 
 #: .\docs\views_data-entry_edit-node.js.html:634
 #: .\repair\js\views\data-entry\edit-node.js:690
 msgid "All materials have to be set!"
-msgstr ""
+msgstr "Tutti i materiali devono essere impostati!"
 
 #: .\docs\views_data-entry_edit-node.js.html:638
 msgid "Multiple fractions with the same material are not allowed!"
-msgstr ""
+msgstr "Non sono ammesse frazioni multiple con lo stesso materiale!"
 
 #: .\docs\views_data-entry_materials.js.html:215
 #: .\repair\js\views\data-entry\materials.js:207
 msgid "Add Material"
-msgstr ""
+msgstr "Aggiungi materiale"
 
 #: .\docs\views_data-entry_materials.js.html:244
 #: .\repair\js\views\data-entry\materials.js:248
 msgid "Edit Material"
-msgstr ""
+msgstr "Modifica materiale"
 
 #: .\docs\views_data-entry_materials.js.html:262
 #: .\repair\js\views\data-entry\materials.js:278
@@ -171,39 +168,41 @@ msgid ""
 "Do you really want to delete the selected material and all of its children "
 "from the database?"
 msgstr ""
+"Vuoi davvero eliminare il materiale selezionato e tutti i suoi “figli” dal "
+"database?"
 
 #: .\docs\views_status-quo_flows.js.html:163
 #: .\repair\js\views\common\filter-flows.js:380
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:251
 msgid "All"
-msgstr ""
+msgstr "Tutti"
 
 #: .\docs\views_study-area_charts.js.html:157
 #: .\docs\views_study-area_setup-maps.js.html:272
 #: .\repair\js\views\study-area\charts.js:295
 #: .\repair\js\views\study-area\setup-maps.js:223
 msgid "Add Category"
-msgstr ""
+msgstr "Aggiungi categoria"
 
 #: .\docs\views_study-area_setup-maps.js.html:115
 #: .\repair\js\views\status-quo\objectives.js:106
 msgid "Remove"
-msgstr ""
+msgstr "rimuovi"
 
 #: .\docs\views_study-area_setup-maps.js.html:331
 #: .\repair\js\views\study-area\setup-maps.js:292
 msgid "Do you really want to delete the selected layer?"
-msgstr ""
+msgstr "Vuoi davvero cancella"
 
 #: .\docs\views_study-area_setup-maps.js.html:332
 msgid "Do you really want to delete the selected category?"
-msgstr ""
+msgstr "Vuoi davvero eliminare la categoria selezionata?"
 
 #: .\docs\views_study-area_setup-maps.js.html:394
 #: .\repair\js\views\study-area\charts.js:417
 #: .\repair\js\views\study-area\setup-maps.js:351
 msgid "Edit Name"
-msgstr ""
+msgstr "Modifica nome"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:25
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
@@ -213,43 +212,43 @@ msgstr ""
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:25
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "."
-msgstr ""
+msgstr "."
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "import"
-msgstr ""
+msgstr "importa"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "{}"
-msgstr ""
+msgstr "{}"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid ", "
-msgstr ""
+msgstr " , "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "this"
-msgstr ""
+msgstr "questo"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "super"
-msgstr ""
+msgstr "super"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "null"
-msgstr ""
+msgstr "pari a zero"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid ",\n"
-msgstr ""
+msgstr ",\n"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " = "
-msgstr ""
+msgstr " = "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "\n"
@@ -257,75 +256,75 @@ msgstr ""
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "debugger;"
-msgstr ""
+msgstr "debugger;"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "empty"
-msgstr ""
+msgstr "vuoto"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "any"
-msgstr ""
+msgstr "qualche"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "mixed"
-msgstr ""
+msgstr "misto"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "boolean"
-msgstr ""
+msgstr "bollano"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "interface "
-msgstr ""
+msgstr "interfaccia"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " & "
-msgstr ""
+msgstr " & "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "number"
-msgstr ""
+msgstr "numero"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "string"
-msgstr ""
+msgstr "sequenza"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "typeof "
-msgstr ""
+msgstr "tipo di"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " | "
-msgstr ""
+msgstr " | "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "void"
-msgstr ""
+msgstr "nullo"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "using url"
-msgstr ""
+msgstr "usando l’url"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_receiveInfo"
-msgstr ""
+msgstr "_riceviinfo"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "info"
-msgstr ""
+msgstr "info"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid " enabled transports"
-msgstr ""
+msgstr "trasporti attivati"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "attempt"
-msgstr ""
+msgstr "tentativo"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "waiting for body"
@@ -333,35 +332,35 @@ msgstr ""
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "using timeout"
-msgstr ""
+msgstr "usando il timeout"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "transport url"
-msgstr ""
+msgstr "trasporta l’url"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_transportTimeout"
-msgstr ""
+msgstr "_transportTimeout"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_transportMessage"
-msgstr ""
+msgstr "_transportaMessaggio"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "heartbeat"
-msgstr ""
+msgstr "battito di cuore"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "bad json"
-msgstr ""
+msgstr "bad json"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "message"
-msgstr ""
+msgstr "messaggio"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "empty payload"
-msgstr ""
+msgstr "svuota il carico utile"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_transportClose"
@@ -369,113 +368,113 @@ msgstr ""
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_open"
-msgstr ""
+msgstr "_apri"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "connected"
-msgstr ""
+msgstr "connesso"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_close"
-msgstr ""
+msgstr "_chiudi"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "disconnected"
-msgstr ""
+msgstr "disconnesso"
 
 #: .\repair\apps\admin.py:51
 msgid "The requested admin page is "
-msgstr ""
+msgstr "la pagina di amministrazione richiesta è "
 
 #: .\repair\apps\asmfa\serializers\bulkcreate.py:136
 msgid "Flows from an actor to itself are not allowed."
-msgstr ""
+msgstr "I flussi da un attore verso se stessi non sono permessi"
 
 #: .\repair\apps\asmfa\serializers\bulkcreate.py:263
 msgid "fractions per composition have to sum up to 1.0 with "
-msgstr ""
+msgstr "la frazione per composizione  devono essere pari a 1.0 con"
 
 #: .\repair\apps\asmfa\serializers\keyflows.py:41
 msgid "Select the Casestudies the Keyflow is used in"
-msgstr ""
+msgstr "Seleziona i Casistudio nel quale la parola chiave è utilizzata"
 
 #: .\repair\apps\asmfa\serializers\locations.py:58
 msgid "Actor <{}> already has an administrative location "
-msgstr ""
+msgstr "L’ Attore <{}> ha già una posizione amministrativa"
 
 #: .\repair\apps\asmfa\serializers\nodes.py:66
 msgid "This field is required."
-msgstr ""
+msgstr "Questo campo è richiesto"
 
 #: .\repair\apps\asmfa\serializers\nodes.py:67
 msgid "Invalid Actor ID - Object does not exist."
-msgstr ""
+msgstr "ID attore invalido- L’oggetto non esiste"
 
 #: .\repair\apps\asmfa\serializers\nodes.py:68
 msgid "This field may not be null."
-msgstr ""
+msgstr "Questo  campo può non essere nullo."
 
 #: .\repair\apps\asmfa\serializers\nodes.py:177
 msgid "Enter a valid URL (or leave it blank)."
-msgstr ""
+msgstr "Inserisci un URL valido (o lascialo vuoto)."
 
 #: .\repair\apps\asmfa\views\flowfilter.py:172
 #: .\repair\apps\statusquo\views\indicators.py:425
 msgid "calculation is not done yet"
-msgstr ""
+msgstr "Il calcolo non è ancora fatto"
 
 #: .\repair\apps\asmfa\views\flowfilter.py:175
 #: .\repair\apps\statusquo\views\indicators.py:428
 msgid "calculation is still in process"
-msgstr ""
+msgstr "Il calcolo è ancora in corso"
 
 #: .\repair\apps\asmfa\views\keyflows.py:243
 msgid "This material is a default material "
-msgstr ""
+msgstr "Questo materiale è un materiale default"
 
 #: .\repair\apps\changes\models\solutions.py:20
 msgid "Enter only floats separated by commas."
-msgstr ""
+msgstr "Inserisci solo decimali separati da virgole."
 
 #: .\repair\apps\changes\serializers\strategies.py:105
 msgid "not calculated yet"
-msgstr ""
+msgstr "non ancora calcolati"
 
 #: .\repair\apps\changes\serializers\strategies.py:109
 msgid "calculation started"
-msgstr ""
+msgstr "Il calcolo è iniziato"
 
 #: .\repair\apps\changes\serializers\strategies.py:111
 #: .\repair\apps\changes\serializers\strategies.py:118
 msgid "(server time)"
-msgstr ""
+msgstr "(server time)"
 
 #: .\repair\apps\changes\serializers\strategies.py:112
 msgid "elapsed"
-msgstr ""
+msgstr "trascorso"
 
 #: .\repair\apps\changes\serializers\strategies.py:116
 msgid "calculation finished"
-msgstr ""
+msgstr "calcolo finito"
 
 #: .\repair\apps\changes\views\strategies.py:75
 msgid "The base data is not set up. "
-msgstr ""
+msgstr "I dati base non sono settati"
 
 #: .\repair\apps\login\serializers\bases.py:109
 msgid "User {} has no permission to access casestudy {}"
-msgstr ""
+msgstr "L’utente {} non ha il permesso di accedere al caso studio {}"
 
 #: .\repair\apps\login\serializers\users.py:40
 msgid "Select the Casestudies the user works on"
-msgstr ""
+msgstr "Seleziona i Casi studi sul quale l’utente lavora"
 
 #: .\repair\apps\login\views\users.py:124
 #: .\repair\apps\login\views\users.py:171
 #: .\repair\apps\login\views\users.py:195
 #: .\repair\apps\login\views\users.py:200
 msgid "Unauthorized"
-msgstr ""
+msgstr "Non autorizzato"
 
 #: .\repair\apps\statusquo\views\indicators.py:243
 msgid "SUM aggregation Flow A"
@@ -483,11 +482,11 @@ msgstr ""
 
 #: .\repair\apps\statusquo\views\indicators.py:244
 msgid "Flow A"
-msgstr ""
+msgstr "Flusso A"
 
 #: .\repair\apps\statusquo\views\indicators.py:245
 msgid "t / year"
-msgstr ""
+msgstr "t/anno"
 
 #: .\repair\apps\statusquo\views\indicators.py:261
 msgid "SUM aggregation Flow A / SUM aggregation Flow B"
@@ -495,7 +494,7 @@ msgstr ""
 
 #: .\repair\apps\statusquo\views\indicators.py:262
 msgid "(Flow A / Flow B) * 100"
-msgstr ""
+msgstr "(Flusso A/ Flusso B) * 100"
 
 #: .\repair\apps\statusquo\views\indicators.py:298
 msgid "SUM aggregation Flow A / Inhabitants in Area"
@@ -503,11 +502,11 @@ msgstr ""
 
 #: .\repair\apps\statusquo\views\indicators.py:299
 msgid "Flow A / Inhabitants"
-msgstr ""
+msgstr "Flusso A/ Abitanti"
 
 #: .\repair\apps\statusquo\views\indicators.py:300
 msgid "kg / inhabitant and year"
-msgstr ""
+msgstr "kg/ abitante e anno"
 
 #: .\repair\apps\statusquo\views\indicators.py:341
 msgid "SUM aggregation Flow A / geometrical area in hectar"
@@ -515,79 +514,79 @@ msgstr ""
 
 #: .\repair\apps\statusquo\views\indicators.py:342
 msgid "Flow A / Area (ha)"
-msgstr ""
+msgstr "Flusso A / Area (ettaro)"
 
 #: .\repair\apps\statusquo\views\indicators.py:343
 msgid "t / hectar and year"
-msgstr ""
+msgstr "t/ ettaro e anno"
 
 #: .\repair\apps\studyarea\serializers\areas.py:135
 msgid "you may only pass parent_area_id OR "
-msgstr ""
+msgstr "puoi solo "
 
 #: .\repair\apps\studyarea\serializers\areas.py:148
 msgid "parent_level is required when relating to "
-msgstr ""
+msgstr "parent_level  è richiesto quando relativo a"
 
 #: .\repair\apps\utils\serializers.py:417
 msgid "unsupported filetype"
-msgstr ""
+msgstr "tipo di file non supportato"
 
 #: .\repair\apps\utils\serializers.py:422
 msgid "wrong file-encoding ({} used)"
-msgstr ""
+msgstr "codifica errata del file ({} used)"
 
 #: .\repair\apps\utils\serializers.py:457
 msgid "Index column(s) missing: {}"
-msgstr ""
+msgstr "Colonna/e degli indici mancante/i: {}"
 
 #: .\repair\apps\utils\serializers.py:465
 msgid "Index \"{}\" has to be unique!"
-msgstr ""
+msgstr "L’indice “{}” dev’essere unico!"
 
 #: .\repair\apps\utils\serializers.py:468
 msgid "The combination of indices \"{}\" have to be unique!"
-msgstr ""
+msgstr "La combinazione degli  indici “{}” dev’essere unica!"
 
 #: .\repair\apps\utils\serializers.py:470
 msgid "Duplicates found: {}"
-msgstr ""
+msgstr "Duplicati trovati:{}"
 
 #: .\repair\apps\utils\serializers.py:572
 msgid "invalid geometry"
-msgstr ""
+msgstr "geometria non valida"
 
 #: .\repair\apps\utils\serializers.py:575
 msgid "Invalid geometries"
-msgstr ""
+msgstr "geometrie non valide"
 
 #: .\repair\apps\utils\serializers.py:588
 msgid "Integer expected: number without decimals"
-msgstr ""
+msgstr "Valore Intero atteso: numero senza decimanli"
 
 #: .\repair\apps\utils\serializers.py:592
 msgid "Float expected: number with or without "
-msgstr ""
+msgstr "Valore decimale atteso: numero con o senza"
 
 #: .\repair\apps\utils\serializers.py:597
 msgid "Boolean expected (\"true\" or \"false\")"
-msgstr ""
+msgstr "Booleano attesto (“vero” o “falso”)"
 
 #: .\repair\apps\utils\serializers.py:601
 msgid "Number format errors"
-msgstr ""
+msgstr "Errori del formato numero"
 
 #: .\repair\apps\utils\serializers.py:628
 msgid "Column(s) missing: {}"
-msgstr ""
+msgstr "Colonna/e mancante/i: {}"
 
 #: .\repair\apps\utils\serializers.py:652
 msgid "{c} - related models {m} not found"
-msgstr ""
+msgstr "{c} - modelli correlati {m} non trovati"
 
 #: .\repair\apps\utils\serializers.py:655
 msgid "relation not found"
-msgstr ""
+msgstr "relazione non trovata"
 
 #: .\repair\apps\utils\views.py:303
 msgid "Referencing Object(s)"
@@ -595,90 +594,94 @@ msgstr ""
 
 #: .\repair\js\conclusions.js:63
 msgid "There are no specified users! Please go to setup mode."
-msgstr ""
+msgstr "Non ci sono utenti specificati! Per favore vai  nella modalità setup"
 
 #: .\repair\js\strategy.js:96
 msgid "Calculation started. Please wait till it is finished (check Status)."
 msgstr ""
+"Calcolo avviato. Per favore attendi il suo completamento (check Status)"
 
 #: .\repair\js\strategy.js:140
 msgid "Graph was successfully build."
-msgstr ""
+msgstr "Il grafico è stato costruito con successo."
 
 #: .\repair\js\targets.js:52
 msgid ""
 "Flow targets can't be set for general objectives.<br><br>Please select a "
 "keyflow inside the side-menu."
 msgstr ""
+"Le destinazione del flusso non possono essere settate per obiettivi generali."
+"<br><br>Per favore, selezione una flusso chiave all’interno del menù "
+"laterale."
 
 #: .\repair\js\views\common\baseview.js:278
 msgid "Info"
-msgstr ""
+msgstr "Info"
 
 #: .\repair\js\views\common\baseview.js:300
 msgid "Error <b>"
-msgstr ""
+msgstr "Errore <b>"
 
 #: .\repair\js\views\common\filter-flows.js:392
 #: .\repair\js\views\data-entry\materials.js:77
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:263
 msgid "flows"
-msgstr ""
+msgstr "flussi"
 
 #: .\repair\js\views\common\filter-flows.js:399
 msgid "too many to display"
-msgstr ""
+msgstr "troppi da visualizzare"
 
 #: .\repair\js\views\common\filter-flows.js:485
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:305
 msgid "All materials"
-msgstr ""
+msgstr "Tutti i materiali"
 
 #: .\repair\js\views\common\flowsankey.js:92
 msgid "No flow data found for applied filters."
-msgstr ""
+msgstr "Nessun dato di flusso trovato per i filtri applicati"
 
 #: .\repair\js\views\common\flowsankey.js:174
 #: .\repair\js\views\common\flowsankeymap.js:559
 msgid "Actor"
-msgstr ""
+msgstr "Attore"
 
 #: .\repair\js\views\common\flowsankey.js:210
 msgid "avoidable"
-msgstr ""
+msgstr "evitabile"
 
 #: .\repair\js\views\common\flowsankey.js:222
 #: .\repair\js\views\common\flowsankeymap.js:675
 msgid "Process"
-msgstr ""
+msgstr "Processo"
 
 #: .\repair\js\views\common\flowsankey.js:308
 #: .\repair\js\views\strategy\setup-solution-part.js:107
 #: .\repair\js\views\strategy\setup-solution-part.js:216
 msgid "origin"
-msgstr ""
+msgstr "origine"
 
 #: .\repair\js\views\common\flowsankey.js:308
 msgid "origin_code"
-msgstr ""
+msgstr "codice_origine"
 
 #: .\repair\js\views\common\flowsankey.js:309
 #: .\repair\js\views\strategy\setup-solution-part.js:107
 #: .\repair\js\views\strategy\setup-solution-part.js:216
 msgid "destination"
-msgstr ""
+msgstr "destinazione"
 
 #: .\repair\js\views\common\flowsankey.js:309
 msgid "destination_code"
-msgstr ""
+msgstr "codice_destinazione"
 
 #: .\repair\js\views\common\flowsankey.js:310
 msgid "amount"
-msgstr ""
+msgstr "quantità"
 
 #: .\repair\js\views\common\flowsankey.js:310
 msgid "composition"
-msgstr ""
+msgstr "composizione"
 
 #: .\repair\js\views\common\flowsankey.js:318
 #: .\repair\js\views\common\flowsankeymap.js:727
@@ -687,100 +690,100 @@ msgstr ""
 
 #: .\repair\js\views\common\flowsankeymap.js:131
 msgid "Display materials"
-msgstr ""
+msgstr "Mostra i materiali"
 
 #: .\repair\js\views\common\flowsankeymap.js:132
 msgid "Animate flows"
-msgstr ""
+msgstr "Anima i flussi"
 
 #: .\repair\js\views\common\flowsankeymap.js:133
 msgid "Cluster locations"
-msgstr ""
+msgstr "Localizzazioni del cluster"
 
 #: .\repair\js\views\common\flowsankeymap.js:134
 msgid "Show actors"
-msgstr ""
+msgstr "Mostra gli attori"
 
 #: .\repair\js\views\common\flowsankeymap.js:135
 msgid "Show flows"
-msgstr ""
+msgstr "Mostra i flussi"
 
 #: .\repair\js\views\common\flowsankeymap.js:136
 msgid "Show stocks"
-msgstr ""
+msgstr "Mostra i depositi"
 
 #: .\repair\js\views\common\flowsankeymap.js:522
 msgid "actors"
-msgstr ""
+msgstr "Attori"
 
 #: .\repair\js\views\common\flowsankeymap.js:563
 msgid "Actor referenced by flow, but missing a location:"
-msgstr ""
+msgstr "Attore referenziato dal flusso, ma mancante di  una localizzazione"
 
 #: .\repair\js\views\conclusions\flow-targets.js:112
 msgid "Objectives for key flow <i>"
-msgstr ""
+msgstr "Obiettivi per il flusso chiave <i>"
 
 #: .\repair\js\views\conclusions\flow-targets.js:158
 msgid "Indicators used as target setting in the key flow <i>"
-msgstr ""
+msgstr "Indicatori usati come definizione dello scopo nel flusso chiave <i>"
 
 #: .\repair\js\views\conclusions\manage-notepad.js:145
 #: .\repair\js\views\status-quo\objectives.js:309
 msgid "Edit"
-msgstr ""
+msgstr "Modifica"
 
 #: .\repair\js\views\conclusions\manage-notepad.js:163
 msgid "Do you want to delete the item?"
-msgstr ""
+msgstr "Vuoi eliminare l’oggetto?"
 
 #: .\repair\js\views\conclusions\manage-notepad.js:173
 #: .\repair\js\views\status-quo\objectives.js:339
 #: .\repair\js\views\strategy\setup-solutions-logic.js:295
 msgid "Do you want to delete the selected item?"
-msgstr ""
+msgstr "Vuoi eliminare l’oggetto selezionato?"
 
 #: .\repair\js\views\conclusions\objectives.js:66
 msgid "Objectives for keyflow <i>"
-msgstr ""
+msgstr "Obiettivi per il flusso chiave<i>"
 
 #: .\repair\js\views\conclusions\objectives.js:68
 msgid "General objectives"
-msgstr ""
+msgstr "Obiettivi generali"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:55
 #: .\repair\js\views\data-entry\edit-node.js:825
 #: .\repair\js\views\data-entry\edit-node.js:831
 msgid "Activity Group"
-msgstr ""
+msgstr "Gruppo attività"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:56
 msgid "Activities"
-msgstr ""
+msgstr "Attività"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:57
 msgid "Actors"
-msgstr ""
+msgstr "Attori"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:58
 msgid "Actor Locations"
-msgstr ""
+msgstr "Posizione  degli attori"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:59
 msgid "Materials"
-msgstr ""
+msgstr "Materiali"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:60
 msgid "Products"
-msgstr ""
+msgstr "Prodotti"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:61
 msgid "Wastes"
-msgstr ""
+msgstr "Rifiuti"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:62
 msgid "Actor to Actor Flows"
-msgstr ""
+msgstr "Flussi da attore ad attore"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:63
 msgid "Actor Stocks"
@@ -788,91 +791,92 @@ msgstr ""
 
 #: .\repair\js\views\data-entry\bulk-upload.js:66
 msgid "Area Levels"
-msgstr ""
+msgstr "Livelli di Area"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:67
 msgid "Areas"
-msgstr ""
+msgstr "Aree"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:68
 msgid "Publications"
-msgstr ""
+msgstr "Pubblicazioni "
 
 #: .\repair\js\views\data-entry\bulk-upload.js:106
 msgid "Upload bibtex files"
-msgstr ""
+msgstr "Carica i file bibite"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:108
 msgid "here"
-msgstr ""
+msgstr "qui"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:137
 msgid "Focusarea updated"
-msgstr ""
+msgstr "Focusarea aggiornata"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:141
 msgid "Focusarea update failed"
-msgstr ""
+msgstr "Aggiornamento della Focusarea fallita"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:157
 msgid "Casestudy Region updated"
-msgstr ""
+msgstr "Regione del Caso studio aggiornata"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:161
 msgid "Casestudy Region update failed"
-msgstr ""
+msgstr "Aggiornamento Regione del Caso studio fallito"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:188
 msgid "Do you really want to delete the keyflow and <b>ALL</b> of its data?"
-msgstr ""
+msgstr "Vuoi davvero cancellare il flusso chiave e <b>TUTTI</b> i suoi dati?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:191
 msgid "Are you sure?"
-msgstr ""
+msgstr "Sei sicuro?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:213
 msgid "Removing data"
-msgstr ""
+msgstr "Rimozione dei dati"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:218
 msgid "Nothing to remove"
-msgstr ""
+msgstr "Niente da rimuovere"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:227
 msgid "entries removed"
-msgstr ""
+msgstr "le immissioni hanno rimosso"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:228
 msgid "entries failed to remove"
-msgstr ""
+msgstr "le immissioni non sono riuscite a rimuovere"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:265
 msgid "Successfully deleted"
-msgstr ""
+msgstr "Eliminato con successo"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:293
 msgid "Force CASCADED deletion (delete referencing objects, even if protected)"
 msgstr ""
+"Forza la cancellazione  a cascata (cancella gli obiettivi, anche se protetti)"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:299
 msgid "Do you really want to delete the existing data and the related data?"
-msgstr ""
+msgstr "Vuoi davvero eliminare i dati esistenti e i relativi dati?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:333
 msgid "No file selected to upload!"
-msgstr ""
+msgstr "nessun file selezionato da caricare!"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:348
 msgid "Uploading"
-msgstr ""
+msgstr "caricando"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:356
 msgid "Created models:"
-msgstr ""
+msgstr "modelli creati:"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:361
 msgid "Updated models:"
-msgstr ""
+msgstr "modelli caricati:"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:371
 #: .\repair\js\views\status-quo\setup-flow-assessment.js:198
@@ -881,84 +885,86 @@ msgstr ""
 #: .\repair\js\views\strategy\setup-solutions.js:197
 #: .\repair\js\views\study-area\keyflows.js:116
 msgid "Success"
-msgstr ""
+msgstr "Successo"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:436
 msgid ""
 "Warning: Uploading Area Levels removes all Areas in the casestudy as well. "
 "Do you wish to continue?"
 msgstr ""
+"Avvertenza: il caricamento dei livelli di Area rimuove anche tutte le aree "
+"nel caso studio. Desideri continuare?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:451
 msgid "Response"
-msgstr ""
+msgstr "responso"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:489
 #: .\repair\js\views\data-entry\bulk-upload.js:497
 msgid "count"
-msgstr ""
+msgstr "conta"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:499
 msgid "defaults excluded"
-msgstr ""
+msgstr "impostazioni predefinite escluse"
 
 #: .\repair\js\views\data-entry\edit-node.js:292
 msgid "Lade..."
-msgstr ""
+msgstr "Carica…"
 
 #: .\repair\js\views\data-entry\edit-node.js:414
 msgid "None"
-msgstr ""
+msgstr "Nessuno"
 
 #: .\repair\js\views\data-entry\edit-node.js:604
 msgid "Select a material"
-msgstr ""
+msgstr "Seleziona una materiale"
 
 #: .\repair\js\views\data-entry\edit-node.js:826
 msgid "Nace Code"
-msgstr ""
+msgstr "Codice Nace"
 
 #: .\repair\js\views\data-entry\edit-node.js:830
 msgid "Activity"
-msgstr ""
+msgstr "Attività"
 
 #: .\repair\js\views\data-entry\edit-node.js:832
 msgid "City"
-msgstr ""
+msgstr "Città"
 
 #: .\repair\js\views\data-entry\edit-node.js:833
 msgid "Address"
-msgstr ""
+msgstr "Indirizzo"
 
 #: .\repair\js\views\data-entry\materials.js:83
 msgid "read only"
-msgstr ""
+msgstr "leggi solo"
 
 #: .\repair\js\views\data-entry\materials.js:120
 msgid "Material (directly used in flows / children in flows)"
-msgstr ""
+msgstr "Materiali( direttamente utilizzati nel flusso/ figli nel flusso)"
 
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:271
 msgid "select an activity/group to display specific nodes"
-msgstr ""
+msgstr "seleziona un attività/gruppo per visualizzare nodi specifici"
 
 #: .\repair\js\views\status-quo\objectives.js:88
 msgid "General"
-msgstr ""
+msgstr "Generale"
 
 #: .\repair\js\views\status-quo\objectives.js:159
 #: .\repair\js\views\status-quo\objectives.js:238
 msgid "Challenge"
-msgstr ""
+msgstr "Sfida"
 
 #: .\repair\js\views\status-quo\objectives.js:160
 #: .\repair\js\views\status-quo\objectives.js:284
 msgid "Aim"
-msgstr ""
+msgstr "Scopo"
 
 #: .\repair\js\views\status-quo\objectives.js:245
 msgid "Add Challenge"
-msgstr ""
+msgstr "Aggiungi le sfide"
 
 #: .\repair\js\views\status-quo\objectives.js:253
 #: .\repair\js\views\status-quo\objectives.js:299
@@ -966,11 +972,11 @@ msgstr ""
 #: .\repair\js\views\study-area\stakeholders.js:234
 #: .\repair\js\views\study-area\stakeholders.js:268
 msgid "Description"
-msgstr ""
+msgstr "Descrizione"
 
 #: .\repair\js\views\status-quo\objectives.js:291
 msgid "Add Aim"
-msgstr ""
+msgstr "Aggiungi lo scopo"
 
 #: .\repair\js\views\status-quo\setup-flow-assessment.js:198
 #: .\repair\js\views\status-quo\setup-flows.js:125
@@ -978,79 +984,79 @@ msgstr ""
 #: .\repair\js\views\strategy\setup-solutions.js:197
 #: .\repair\js\views\study-area\keyflows.js:116
 msgid "Upload successful"
-msgstr ""
+msgstr "caricamento riuscito"
 
 #: .\repair\js\views\status-quo\setup-flow-assessment.js:240
 msgid "Do you want to delete the Indicator"
-msgstr ""
+msgstr "Vuoi eliminare l’indicatore"
 
 #: .\repair\js\views\status-quo\setup-flows.js:168
 msgid "Do you want to delete the Filter"
-msgstr ""
+msgstr "Vuoi eliminare il filtro"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:496
 msgid "Case Study <br> Region"
-msgstr ""
+msgstr "Caso studio <br> Regione"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:496
 msgid "Focus <br> Area"
-msgstr ""
+msgstr "Focus <br> Area"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:603
 msgid "Region"
-msgstr ""
+msgstr "Regione"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:661
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:662
 #: .\repair\js\views\targets\flow-targets.js:227
 msgid "Focus Area"
-msgstr ""
+msgstr "Focus Area"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:672
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:673
 #: .\repair\js\views\targets\flow-targets.js:227
 msgid "Casestudy Region"
-msgstr ""
+msgstr "Regione del Caso studio"
 
 #: .\repair\js\views\strategy\setup-solution-part.js:327
 #: .\repair\js\views\strategy\setup-solution-part.js:344
 #: .\repair\js\views\strategy\setup-solution-part.js:382
 #: .\repair\js\views\strategy\setup-solutions-logic.js:218
 msgid "Select"
-msgstr ""
+msgstr "Seleziona"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:181
 msgid "successfully cloned"
-msgstr ""
+msgstr "clonato con successo"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:264
 msgid "clone item"
-msgstr ""
+msgstr "clona l’oggetto "
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:405
 msgid "GeoJSON needs attributes \"type\" and \"coordinates\""
-msgstr ""
+msgstr "GeoJSON  ha bisogno di attributi “tipo” e “coordinate”"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:408
 msgid "type has to be MultiPolygon or Polygon"
-msgstr ""
+msgstr "Il tipo dev’essere MultiPoligono o Poligono"
 
 #: .\repair\js\views\strategy\setup-solutions.js:241
 msgid "Do you want to delete the category?"
-msgstr ""
+msgstr "Vuoi davvero eliminare la categoria?"
 
 #: .\repair\js\views\strategy\setup-solutions.js:327
 msgid "Do you want to delete the selected solution?"
-msgstr ""
+msgstr "Vuoi davvero eliminare la soluzione selezionata?"
 
 #: .\repair\js\views\strategy\strategy.js:248
 msgid "Do you really want to delete your solution?"
-msgstr ""
+msgstr "Vuoi davvero eliminare la tua soluzione?"
 
 #: .\repair\js\views\strategy\strategy.js:640
 #: .\repair\js\views\strategy\strategy.js:646
 msgid "possible implementation area"
-msgstr ""
+msgstr "Area di possibile implementazione"
 
 #: .\repair\js\views\study-area\charts.js:76
 msgid "The charts are not set up."
@@ -1058,123 +1064,127 @@ msgstr ""
 
 #: .\repair\js\views\study-area\charts.js:354
 msgid "Do you really want to delete the selected chart?"
-msgstr ""
+msgstr "Vuoi davvero cancellare il grafico selezionato?"
 
 #: .\repair\js\views\study-area\charts.js:355
 msgid "Do you really want to delete the selected category and all its charts?"
 msgstr ""
+"Vuoi davvero eliminare la categoria selezionata e tutti i suoi grafici?"
 
 #: .\repair\js\views\study-area\keyflows.js:92
 msgid "Upload"
-msgstr ""
+msgstr "Carica"
 
 #: .\repair\js\views\study-area\setup-maps.js:293
 msgid "Do you really want to delete the selected category and all its layers?"
 msgstr ""
+"Vuoi davvero eliminare la categoria selezionata  e tutti i suoi livelli?"
 
 #: .\repair\js\views\study-area\stakeholders.js:87
 msgid "The stakeholders are not set up."
-msgstr ""
+msgstr "Gli stakeholders  non sono dettati"
 
 #: .\repair\js\views\study-area\stakeholders.js:131
 msgid "Stakeholder"
-msgstr ""
+msgstr "Stakeholder"
 
 #: .\repair\js\views\study-area\stakeholders.js:132
 msgid "add stakeholder"
-msgstr ""
+msgstr "Aggiungi lo stakeholder"
 
 #: .\repair\js\views\study-area\stakeholders.js:141
 msgid "Remove category"
-msgstr ""
+msgstr "Rimuovi la categoria"
 
 #: .\repair\js\views\study-area\stakeholders.js:152
 msgid "Edit category"
-msgstr ""
+msgstr "Modifica la categoria"
 
 #: .\repair\js\views\study-area\stakeholders.js:226
 msgid "Add Stakeholder"
-msgstr ""
+msgstr "Aggiungi lo Stakeholder"
 
 #: .\repair\js\views\study-area\stakeholders.js:258
 msgid "Edit Stakeholder"
-msgstr ""
+msgstr "Modifica lo Stakeholder"
 
 #: .\repair\js\views\study-area\stakeholders.js:288
 msgid "Do you want to delete the selected stakeholder?"
-msgstr ""
+msgstr "Vuoi eliminare lo stakeholder selezionato?"
 
 #: .\repair\js\views\study-area\stakeholders.js:304
 msgid "Add Stakeholder Category"
-msgstr ""
+msgstr "Aggiungi la Categoria Stakeholder"
 
 #: .\repair\js\views\study-area\stakeholders.js:311
 msgid "Do you really want to delete the stakeholder category?"
-msgstr ""
+msgstr "Vuoi davvero eliminare la categoria degli stakeholder?"
 
 #: .\repair\js\views\study-area\stakeholders.js:337
 msgid "Edit Category"
-msgstr ""
+msgstr "Modifica categoria"
 
 #: .\repair\js\views\study-area\workshop-maps.js:204
 msgid "The map is not set up."
-msgstr ""
+msgstr "La mappa non è settata"
 
 #: .\repair\js\views\study-area\workshop-maps.js:468
 msgid "legend not found"
-msgstr ""
+msgstr "leggenda non trovata"
 
 #: .\repair\js\views\study-area\workshop-maps.js:508
 msgid "Layer"
-msgstr ""
+msgstr "Livello"
 
 #: .\repair\js\views\targets\flow-targets.js:193
 msgid "Remove target"
-msgstr ""
+msgstr "rimuovi l’obiettivo"
 
 #: .\repair\js\views\targets\flow-targets.js:300
 msgid ""
 "No indicators available for the target definition. Please contact your "
 "workshop leader."
-msgstr ""
+msgstr "Nessun indicatore disponibile per la definizione dello scopo"
 
 #: .\repair\js\views\targets\flow-targets.js:337
 msgid ""
 "Indicator is duplicate in this objective. Please remove or set another "
 "indicator."
 msgstr ""
+"L’indicatore è duplicato in questo obiettivo. Per favore rimuovi o imposta "
+"un altro indicatore."
 
 #: .\repair\js\views\targets\ranking-objectives.js:59
 msgid "Ranking general objectives"
-msgstr ""
+msgstr "Classifica degli obiettivi generali"
 
 #: .\repair\js\views\targets\ranking-objectives.js:61
 msgid "Ranking objectives for the keyflow "
-msgstr ""
+msgstr "Ordinando gli obiettivi per il flusso chiavo"
 
 #: .\repair\settings.py:168
 msgid "English"
-msgstr ""
+msgstr "Inglese"
 
 #: .\repair\settings.py:169
 msgid "German"
-msgstr ""
+msgstr "Tedesco"
 
 #: .\repair\settings.py:170
 msgid "Dutch"
-msgstr ""
+msgstr "Olandese"
 
 #: .\repair\settings.py:171
 msgid "Polish"
-msgstr ""
+msgstr "Polacco"
 
 #: .\repair\settings.py:172
 msgid "Hungarian"
-msgstr ""
+msgstr "Ungherese"
 
 #: .\repair\settings.py:173
 msgid "Italian"
-msgstr ""
+msgstr "Italiano"
 
 #: .\repair\static\bundles\prod\0.js:1
 msgid "brush"
@@ -1190,80 +1200,80 @@ msgstr ""
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:112
 msgid "Mark selected %(verbose_name_plural)s as drafts"
-msgstr ""
+msgstr "Mark selezionato%(verbose_name_plural)s come bozze"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:117
 msgid "Mark selected %(verbose_name_plural)s as submitted"
-msgstr ""
+msgstr "Mark selezionato %(verbose_name_plural)s come presentato"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:122
 msgid "Mark selected %(verbose_name_plural)s as accepted"
-msgstr ""
+msgstr "Mark selezionato%(verbose_name_plural)s come accettato"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:127
 msgid "Mark selected %(verbose_name_plural)s as published"
-msgstr ""
+msgstr "Mark selezionato %(verbose_name_plural)s come pubblicato"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:41
 msgid "January"
-msgstr ""
+msgstr "Gennaio"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:42
 msgid "February"
-msgstr ""
+msgstr "Febbraio"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:43
 msgid "March"
-msgstr ""
+msgstr "Marzo"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:44
 msgid "April"
-msgstr ""
+msgstr "Aprile"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:45
 msgid "May"
-msgstr ""
+msgstr "Maggio"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:46
 msgid "June"
-msgstr ""
+msgstr "Giugno"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:47
 msgid "July"
-msgstr ""
+msgstr "Luglio"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:48
 msgid "August"
-msgstr ""
+msgstr "Agosto"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:49
 msgid "September"
-msgstr ""
+msgstr "Settembre"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:50
 msgid "October"
-msgstr ""
+msgstr "Ottobre"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:51
 msgid "November"
-msgstr ""
+msgstr "Novembre"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:52
 msgid "December"
-msgstr ""
+msgstr "Dicembre"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:68
 msgid "draft"
-msgstr ""
+msgstr "bozza"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:69
 msgid "submitted"
-msgstr ""
+msgstr "presentato"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:70
 msgid "accepted"
-msgstr ""
+msgstr "accettato"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:71
 msgid "published"
-msgstr ""
+msgstr "pubblicato"
