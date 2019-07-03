@@ -1,7 +1,9 @@
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
-from repair.apps.changes.models import SolutionInStrategy
+
+from repair.apps.changes.models import (SolutionInStrategy, 
+                                        ImplementationQuantity)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
@@ -215,6 +217,8 @@ class StrategyGraph(BaseGraph):
         if self.exists:
             self.load()
         else:
+            #TODO T: Change loading base graph to building new graph with AffectedFlows
+            # also add Actors of the SolutionPart.new_target_activity
             base_graph = BaseGraph(self.keyflow)
             if not base_graph.exists:
                 base_graph.build()
@@ -223,37 +227,51 @@ class StrategyGraph(BaseGraph):
             if msg != 'Graph is valid':
                 print(msg)
             
+            # add change attribute, it defaults to 0.0
+            g.ep.change = g.new_edge_property("float")
+            # add newflow attribute, it defaults to False
+            g.ep.newflow = g.new_edge_property("bool")            
             gw = GraphWalker(g)
-    
+            
             # get the solutions in this strategy and order them by priority
             solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy).order_by('priority')
             for solution_in_strategy in solutions_in_strategy:
+                ### Working version
                 # ToDo: SolutionInStrategy geometry for filtering?            
-                self.graph = gw.calculate_solution(solution_in_strategy)
+                #self.graph = gw.calculate_solution(solution_in_strategy)
+                ### Working version
                 
-                #TODO T: filter the FractionFlow (or SolutionParts?) and annotate with:
-                # new_origin
-                # new_target
-                # quantity
-                # from the StrategyFractionFlows 
-                # based on keep_origin True/False Coalesce new_target_activity
                 
-                #solution = solution_in_strategy.solution
+                solution = solution_in_strategy.solution
                 # get the solution parts using the reverse relation
-                #for solution_part in solution.solution_parts.all():
+                for solution_part in solution.solution_parts.all():
                     # get the implementation and its quantity
-                    #quantity = ImplementationQuantity.objects.get(
-                    #    question=solution_part.question,
-                    #    implementation=solution_in_strategy)
+                    quantity = ImplementationQuantity.objects.get(
+                        question=solution_part.question,
+                        implementation=solution_in_strategy)
+                    # get actorflows
+                    actors_origin = Actor.objects.filter(
+                        activity=solution_part.implementation_flow_origin_activity)
+                    actors_destination = Actor.objects.filter(
+                        activity=solution_part.implementation_flow_destination_activity)
+                    actorflows = FractionFlow.objects.filter(
+                        Q(origin__in=actors_origin.values('id')) &
+                        Q(destination__in=actors_destination.values('id')),
+                        material=solution_part.implementation_flow_material)
+
                     # ToDo: SolutionInStrategy geometry for filtering?
-                    #self.graph = gw.calculate_solution(solution_in_strategy, solution_part)
-                    
+                    self.graph = gw.calculate_solution_part(solution_part, actorflows, quantity)
+            
+                # store the changes for this solution into amount
+                self.graph = gw.add_changes_to_amounts()        
+            
+            # save the strategy graph to a file
             self.graph.save(self.filename)
     
-            # ToDo:
+            # clean the old data from the database
             self.clean()
     
-            # ToDo: put modifications and new flows into database
+            # save modifications and new flows into database
             self.translate_to_db()
         return self.graph
 
@@ -272,7 +290,6 @@ class StrategyGraph(BaseGraph):
         # store edges (flows) to database
         for e in self.graph.edges():
             newflow = self.graph.ep.newflow[e]
-            print(newflow)
             amount = self.graph.ep.amount[e]
             if(newflow):
                 origin = Actor.objects.get(self.graph.vp.id[e.source()])
@@ -293,7 +310,7 @@ class StrategyGraph(BaseGraph):
                 # create a strategyfractionflow to store the amount
                 ff = FractionFlow.objects.filter(id=self.graph.ep.id[e])
                 StrategyFractionFlow(fractionflow=ff[0],
-                                     amount=self.graph.ep.change[e],
+                                     amount=self.graph.ep.amount[e],
                                      strategy=self.strategy)
 
     def to_queryset(self):

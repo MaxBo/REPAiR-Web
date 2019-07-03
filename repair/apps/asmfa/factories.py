@@ -90,14 +90,6 @@ class FlowFactory(DjangoModelFactory):
     keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
 
 
-class FractionFlowFactory(DjangoModelFactory):
-    class Meta:
-        model = models.FractionFlow
-    amount = 1
-    keyflow = factory.SubFactory(KeyflowInCasestudyFactory)
-
-
-
 class ProductFactory(DjangoModelFactory):
     class Meta:
         model = models.Product
@@ -224,3 +216,4 @@ class FractionFlowFactory(FlowFactory):
     composition_name = factory.Sequence(lambda n: "Composition #%s" % n)
     nace = '52.Retail'
     amount = 0.0
+    

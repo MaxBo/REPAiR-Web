@@ -11,7 +11,6 @@ from django.db.models import Q
 
 from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
-from repair.apps.changes.models import ImplementationQuantity
 
 
 class NodeVisitor(BFSVisitor):
@@ -104,63 +103,43 @@ class GraphWalker:
         self.graph = gt.Graph(G)
         self.edge_mask = self.graph.new_edge_property("bool")
 
-    def shift_flows(self, solution_object, solution_part, keyflow):
-        """Shift the flows if necessary in each SolutionPart
-
-        # TODO B: this is just a hack hardcoded for the bread to beer case to test
-        if the whole flow computation works. The SolutionPart shouldn't be
-        passed as a parameter but retrieved from the DB, using the solution_object
-        """
-        print(solution_object.name)
-        # solution_parts = SolutionPart.objects.filter(solution=solution_object)
-
-        # TODO B: this should be done for each SolutionPart and then return the
-        # altered graph (only one graph per solution!), but I couldn't get the SolutionParts correctly
+    def shift_flow(self, solution_part, actorflows):
+        """Shift the flows if necessary in a SolutionPart"""
         if solution_part.implements_new_flow:
-            # SolutionPart implementing new flow
             g = copy.deepcopy(self.graph)
-            actors_origin = Actor.objects.filter(
-                activity=solution_part.implementation_flow_origin_activity)
-            actors_destination = Actor.objects.filter(
-                activity=solution_part.implementation_flow_destination_activity)
-            actorflows = FractionFlow.objects.filter(
-                Q(origin__in=actors_origin.values('id')) &
-                Q(destination__in=actors_destination.values('id')),
-                material=solution_part.implementation_flow_material)
-            if solution_part.keep_origin:
-                # keeping origin of flow
-                new_destinations = Actor.objects.filter(
-                    activity=solution_part.new_target_activity)
-                destinations = []
-                for actor in new_destinations:
-                    destinations += util.find_vertex(g, g.vp['id'], actor.id)
-
-                for flow in actorflows:
-                    x = util.find_edge(g, g.ep['id'], flow.id)
-                    if len(x) > 1:
-                        raise ValueError("FractionFlow ID", flow.id, "is not unique")
-                    elif len(x) == 0:
-                        print("Cannot find FractionFlow", flow.id, "in the graph")
-                    else:
-                        edge_del = x[0]
-                        origin = edge_del.source()
-                        amount_flow = g.ep.amount[edge_del]
-                        amount_new = amount_flow / len(destinations)
-                        for dest in destinations:
-                            e = g.add_edge(origin, dest)
-                            g.ep.amount[e] = amount_new
-                            g.ep.material[e] = solution_part.implementation_flow_material
-                        g.remove_edge(edge_del)
-                                # StrategyFractionFlowFactory(strategy=solution_object.strategy,
-                                #                             fractionflow=flow,
-                                #                             amount=amount_new,
-                                #                             origin=,
-                                #                             destination=)
+            # get all target actors, either origin or destination
+            new_targets = Actor.objects.filter(
+                activity=solution_part.new_target_activity)
+            targets = []
+            # get all target vertices
+            for actor in new_targets:
+                targets += util.find_vertex(g, g.vp['id'], actor.id)
+            
+            # change all flows by changing origin/destination and amount
+            for flow in actorflows:
+                edges = util.find_edge(g, g.ep['id'], flow.id)
+                if len(edges) > 1:
+                    raise ValueError("FractionFlow.id ", flow.id, " is not unique")
+                elif len(edges) == 0:
+                    print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                else:
+                    edge_del = edges[0]
+                    amount_flow = g.ep.amount[edge_del]
+                    amount_new = amount_flow / len(targets)
+                    for target in targets:
+                        if(solution_part.keep_origin):
+                            # keeping origin of flow
+                            e = g.add_edge(edge_del.source(), target)
+                        else:
+                            # keeping destination of flow                            
+                            e = g.add_edge(target, edge_del.target())
+                        g.ep.amount[e] = amount_new
+                        g.ep.material[e] = solution_part.implementation_flow_material
+                    g.remove_edge(edge_del)
             return g
-
         else:
             return self.graph
-
+        
     def filter_flows(self, solution_object):
         """Keep only the affected_flows and solution_flows in the graph"""
         if len(solution_object.solution_flows) > 0:
@@ -176,6 +155,86 @@ class GraphWalker:
                 self.edge_mask[e] = True
             else:
                 self.edge_mask[e] = False
+    
+    def calculate_solution_part(self, solution_part, actorflows, quantity):
+        """Calculate the changes on flows for a solution"""
+        g = copy.deepcopy(self.graph)
+        
+        # store the changes for each actor to sum total in the end
+        changes_actors = []
+
+        if solution_part.implements_new_flow:
+            # shift actor flows to new origin or target
+            # get all target actors, either origin or destination
+            new_targets = Actor.objects.filter(
+                activity=solution_part.new_target_activity)
+            targets = []
+            # get all target vertices
+            for actor in new_targets:
+                targets += util.find_vertex(g, g.vp['id'], actor.id)
+
+            if len(targets) == 0:
+                print("Cannot find Actors for the new target activity of the SolutionPart")
+            
+            # Change all flows by changing origin/destination and amount
+            for flow in actorflows:
+                edges = util.find_edge(g, g.ep['id'], flow.id)
+                if len(edges) > 1:
+                    raise ValueError("FractionFlow.id ", flow.id, " is not unique")
+                elif len(edges) == 0:
+                    print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                else:
+                    edge_del = edges[0]
+                    amount_flow = g.ep.amount[edge_del]
+                    amount_new = amount_flow / len(targets)
+                    for target in targets:
+                        if(solution_part.keep_origin):
+                            # keeping origin of flow
+                            e = g.add_edge(edge_del.source(), target)
+                        else:
+                            # keeping destination of flow
+                            e = g.add_edge(target, edge_del.target())
+                        g.ep.amount[e] = amount_new
+                        g.ep.material[e] = solution_part.implementation_flow_material
+                        # set the newflow property; needed for storing the changes to db
+                        g.ep.newflow[e] = True
+                    g.remove_edge(edge_del)
+
+            # this we need because we work with Actors and not Activities, while the user defines the solution
+            # with Activities, thus potentially there many Actor-Actor flows in a single Activity
+            for flow in actorflows:
+                edges = util.find_edge(g, g.ep['id'], flow.id)
+                if len(edges) > 1:
+                    raise ValueError("FractionFlow.id ", flow.id, " is not unique")
+                elif len(edges) == 0:
+                    print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                else:
+                    # calculate the new value
+                    value = (solution_part.a * implementation_quantity.value + solution_part.b)
+                    if solution_part.question.is_absolute:
+                        if g.ep.amount[e] < 0:
+                            raise ValueError("FractionFlow.amount (id %s) is < 0" % g.ep.id[e])
+                        value = value / g.ep.amount[e]
+
+                    changes_actors.append(traverse_graph(g, edge=e,
+                                                         solution=value,
+                                                         amount=g.ep.amount))
+
+        # we compute the solution for each distinct Actor-Actor flow in the implementation flows and
+        # assume that we can just sum the changes of this part to the changes of the previous part
+        for e in g.edges():
+            g.ep.change[e] = g.ep.change[e] + sum(ch[e] for ch in changes_actors)
+        return g
+    
+    def add_changes_to_amounts(self):
+        g = copy.deepcopy(self.graph)
+        
+        # add the change to the amount
+        for e in g.edges():
+            g.ep.amount[e] = g.ep.amount[e] + g.ep.change[e]
+        # remove the change property
+        del g.ep["foo"]
+        return g
     
     def calculate_solution(self, solution_in_strategy):
         """Calculate the changes on flows for a solution"""
@@ -250,6 +309,4 @@ class GraphWalker:
         g.ep.change = changes
         for e in g.edges():
             g.ep.change[e] = sum(part[e] for id,part in changes_solution.items())
-        print(g.ep.id.a)
-        print(g.ep.newflow.a)
-        return g
+        return g    
