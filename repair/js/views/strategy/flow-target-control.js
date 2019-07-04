@@ -177,8 +177,13 @@ var FlowTargetControlView = BaseView.extend(
 
             var targetPerc = targetValue.get('number') * 100;
 
-            if ((targetPerc < 0 && deltaPerc <= targetPerc) || (targetPerc > 0 && deltaPerc >= targetPerc))
+            // right direction but target not reached
+            if ((targetPerc < 0 && deltaPerc < 0) || (targetPerc > 0 && deltaPerc > 0))
                 status = 1;
+
+            // target reached
+            if ((targetPerc == deltaPerc) || (targetPerc < 0 && deltaPerc <= targetPerc) || (targetPerc > 0 && deltaPerc >= targetPerc))
+                status = 2;
 
             row.innerHTML = template({
                 title: title,
@@ -194,14 +199,16 @@ var FlowTargetControlView = BaseView.extend(
             var targetText = _this.format(targetPerc) + '%';
             if (targetPerc > 0) targetText = '+' + targetText;
             var chartData = [
-                { name: gettext('Strategy'), value: deltaPerc, text: deltaText, color: '#4a8ef9'},
+                { name: gettext('Strategy'), value: deltaPerc || 0, text: deltaText, color: '#4a8ef9'},
                 { name: gettext('Target'), value: targetPerc, text: targetText, color: '#cecece'}
             ]
 
             var barChart = new BarChart({
                 el: row.querySelector('div[name="chart"]'),
                 width: 500,
-                height: 200
+                height: 200,
+                min: -100,
+                max: 100
             })
             barChart.draw(chartData);
         }
