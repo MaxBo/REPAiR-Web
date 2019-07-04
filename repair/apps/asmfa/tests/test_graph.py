@@ -15,7 +15,8 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionFactory,
                                            SolutionPartFactory,
                                            ImplementationQuestionFactory,
-                                           ImplementationQuantityFactory
+                                           ImplementationQuantityFactory,
+                                           AffectedFlowFactory
                                         )
 from repair.apps.asmfa.models import FractionFlow
 from repair.apps.studyarea.factories import StakeholderFactory
@@ -121,18 +122,26 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         # new origin with new actor
         origin_activity = ActivityFactory(name='origin_activity')
         origin_actor = ActorFactory(id=self.actor_originid,
+                                    name='origin_actor',
                                     activity=origin_activity)
 
         # old target with actor
-        old_target_activity = ActivityFactory(name='old_target_activity')
+        old_destination_activity = ActivityFactory(name='old_destination_activity_activity')
         old_destination_actor = ActorFactory(id=self.actor_old_targetid,
-                                             activity=old_target_activity)
+                                             name='old_destination_actor',
+                                             activity=old_destination_activity)
         
         # new target with new actor
-        new_target_activity = ActivityFactory(name='target_activity')
+        new_destination_activity = ActivityFactory(name='target_activity')
         new_destination_actor = ActorFactory(id=self.actor_new_targetid,
-                                             activity=new_target_activity)
+                                             name='new_destination_actor',
+                                             activity=new_destination_activity)
         
+        # actor 11
+        actor11 = ActorFactory(id=11, name='Actor11', activity=origin_activity)
+        # actor 12
+        actor12 = ActorFactory(id=12, name='Actor12', activity=new_destination_activity)
+                
         # new material
         wool = MaterialFactory(name=self.materialname, 
                                keyflow=self.kic)
@@ -140,7 +149,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         part_new_flow = SolutionPartFactory(
             solution=self.solution1,
             implementation_flow_origin_activity=origin_activity,
-            implementation_flow_destination_activity=old_target_activity,
+            implementation_flow_destination_activity=old_destination_activity,
             implementation_flow_material=wool,
             #implementation_flow_process=,
             question=question1,
@@ -148,7 +157,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             b=1.0,
             implements_new_flow=True,
             keep_origin=True,
-            new_target_activity=new_target_activity,
+            new_target_activity=new_destination_activity,
             map_request="pick an actor"
         )
         
@@ -160,6 +169,14 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
                                 strategy=self.strategy,
                                 keyflow=self.kic
                                 )
+        # create fraction flow 2
+        new_flow2 = FractionFlowFactory(origin=actor11, 
+                                destination=actor12,
+                                material=wool,
+                                amount=11,
+                                strategy=self.strategy,
+                                keyflow=self.kic
+                                )        
         
         implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
                                        (56.0, 0.0), (0.0, 0.0)))        
@@ -169,6 +186,12 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         answer = ImplementationQuantityFactory(question=question1,
                                         implementation=solution_in_strategy1,
                                         value=1.0)
+        
+        # create AffectedFlow
+        affected = AffectedFlowFactory(solution_part=part_new_flow,
+                                       origin_activity=origin_activity,
+                                       destination_activity=new_destination_activity,
+                                       material=wool)
         
         #self.solution2 = SolutionFactory(name='Solution 2')
         #solution_in_strategy2 = SolutionInStrategyFactory(

@@ -93,3 +93,11 @@ class ImplementationQuantityFactory(DjangoModelFactory):
         model = models.ImplementationQuantity
     implementation = factory.SubFactory(SolutionInStrategyFactory)
     question = factory.SubFactory(ImplementationQuestionFactory)
+    
+class AffectedFlowFactory(DjangoModelFactory):
+    class Meta:
+        model = models.AffectedFlow
+    solution_part = factory.SubFactory(SolutionPartFactory)
+    origin_activity = factory.SubFactory(ActivityFactory)
+    destination_activity = factory.SubFactory(ActivityFactory)
+    material = factory.SubFactory(MaterialFactory)
