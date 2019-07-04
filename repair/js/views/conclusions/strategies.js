@@ -44,11 +44,18 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 apiTag: 'stakeholderCategories',
                 apiIds: [this.caseStudy.id]
             });
+            this.activities = new GDSECollection([], {
+                apiTag: 'activities',
+                apiIds: [this.caseStudy.id, this.keyflowId],
+                comparator: 'name'
+            });
+
             promises = [];
 
             promises.push(this.stakeholderCategories.fetch({ error: this.onError }));
             promises.push(this.solutions.fetch({ error: this.onError }));
             promises.push(this.stakeholderCategories.fetch({ error: this.onError }))
+            promises.push(this.activities.fetch({ error: this.onError }))
             this.implementations = {};
             this.strategies.forEach(function(strategy){
                 var implementations = new GDSECollection([], {
@@ -121,6 +128,8 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             this.renderQuestions();
             // step 5
             this.setupStrategiesMap();
+            // step 6
+            this.renderAffectedGroups();
             // step 7
             this.stakeholderCategories.forEach(function(category){
                 _this.renderStakeholders(category);
@@ -131,8 +140,13 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             var colorRange = chroma.scale(['red', 'yellow', 'blue', 'violet']),
                 colorDomain = colorRange.domain([0, this.users.size()]),
                 _this = this;
+            // color for user on map
             this.userColors = {};
+            // count per stakeholder and user
             this.stakeholderCount = {};
+            // list of users per activity
+            this.directlyAffected = {};
+            // quantity values per user and question
             this.quantities = {};
             var i = 0;
             this.users.forEach(function(user){
@@ -161,10 +175,12 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 var strategy = strategies[0],
                     implementations = _this.implementations[strategy.id];
 
+                // information related to implementations by users (aka solution in strategy)
                 implementations.forEach(function(implementation){
                     var solution = _this.solutions.get(implementation.get('solution'));
                     // workaround for incorrect implementations in backend
                     if (!solution) return;
+                    // count stakeholders assigned by users
                     implementation.get('participants').forEach(function(stakeholderId){
                         if (!_this.stakeholderCount[stakeholderId])
                             _this.stakeholderCount[stakeholderId] = {};
@@ -176,11 +192,19 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                         _this.stakeholderCount[stakeholderId][user.id]['count'] += 1;
                         _this.stakeholderCount[stakeholderId][user.id]['solutions'].push('<li>' + solution.get('name') + '</li>');
                     })
+                    // memorize quantity inputs by users
                     implementation.get('quantities').forEach(function(quantity){
                         if (!_this.quantities[user.id]) _this.quantities[user.id] = {};
                         if (!_this.quantities[user.id][quantity.question])
                             _this.quantities[user.id][quantity.question] = [];
                         _this.quantities[user.id][quantity.question].push(quantity.value);
+                    });
+                    // memorize activities directly affected by user strategies
+                    solution.get('affected_activities').forEach(function(activityId){
+                        var users = _this.directlyAffected[activityId];
+                        if (!users)
+                            users = _this.directlyAffected[activityId] = new Set();
+                        users.add(user.id);
                     })
                 })
             })
@@ -199,6 +223,13 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 };
                 this.maxStakeholderCount = Math.max(this.maxStakeholderCount, total);
             }
+            // sum up directly affected per activity
+            for (var activityId in _this.directlyAffected) {
+                var count = _this.directlyAffected[activityId].size,
+                    activity = _this.activities.get(activityId);
+                activity.set('directlyAffectedCount', count);
+            }
+            console.log(_this.directlyAffected)
         },
 
         setupStrategiesMap: function(){
@@ -323,6 +354,51 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                             cell.appendChild(panelItem);
                         })
                     });
+                });
+            })
+        },
+
+        // Step 6
+        renderAffectedGroups: function(){
+            var _this = this,
+                table = this.el.querySelector('#directly-affected-table'),
+                header = table.createTHead().insertRow(0),
+                fTh = document.createElement('th');
+            fTh.innerHTML = gettext('Activities directly affected by user strategies in key flow <i>' + this.keyflowName + '</i>');
+            header.appendChild(fTh);
+            var userColumns = [];
+            this.users.forEach(function(user){
+                userColumns.push(user.id);
+                var name = user.get('alias') || user.get('name'),
+                    th = document.createElement('th');
+                th.innerHTML = name;
+                header.appendChild(th.cloneNode(true));
+            })
+
+            this.activities.comparatorAttr = 'directlyAffectedCount';
+            this.activities.sort();
+
+            this.activities.forEach(function(activity){
+                var row = table.insertRow(-1),
+                    text = activity.get('name'),
+                    count = activity.get('directlyAffectedCount');
+                console.log(activity)
+                if (!count) return;
+                var panelItem = _this.panelItem(text, { overlayText: count + 'x' });
+                panelItem.style.maxWidth = '600px';
+                row.insertCell(0).appendChild(panelItem);
+                var users = _this.directlyAffected[activity.id];
+                _this.users.forEach(function(user){
+                    var cell = row.insertCell(-1);
+                    if (!users.has(user.id)) return;
+                    var panelItem = _this.panelItem('',
+                        { popoverText: '<b>' + (user.get('alias') || user.get('name')) + '</b><br>' + gettext('strategy affects') + '<br><i>' + activity.get('name') + '</i>' }
+                    );
+                    panelItem.style.backgroundImage = 'none';
+                    panelItem.style.width = '50px';
+                    cell.appendChild(panelItem);
+                    panelItem.style.backgroundColor = 'rgb(77, 115, 38)';
+                    cell.appendChild(panelItem);
                 });
             })
         },

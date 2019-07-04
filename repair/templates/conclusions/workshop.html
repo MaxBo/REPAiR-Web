@@ -223,7 +223,13 @@
       </div>
     </div>
     <div class="tab-pane fade in bordered" id="step6tab">
-      <h3> ToDo </h3>
+      <h3> {% trans "Which actor groups are touched by the selected solutions? Which most often?" %} </h3>
+      <div style="overflow: auto">
+        <table id="directly-affected-table" class="table"></table>
+      </div>
+      <div style="overflow: auto">
+        <table id="indirectly-affected-table" class="table"></table>
+      </div>
     </div>
     <div class="tab-pane fade in bordered" id="step7tab">
       <h3> {% trans "Which stakeholders were chosen for implementing solutions?" %} </h3>
