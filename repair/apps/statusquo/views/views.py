@@ -8,7 +8,7 @@ import numpy as np
 
 from repair.apps.asmfa.models import KeyflowInCasestudy
 from repair.apps.statusquo.models import IndicatorType
-from repair.apps.statusquo import views as status_quo_views
+from repair.apps.statusquo.views import computation
 
 
 class IndicatorTemplate():
@@ -26,7 +26,7 @@ class StatusQuoView(LoginRequiredMixin, ModeView):
 
         indicators = []
         for ind in IndicatorType:
-            ind_class = getattr(status_quo_views, ind.name)
+            ind_class = getattr(computation, ind.name)
             indtmpl = IndicatorTemplate(
                 ind.name, ind_class.description, ind_class.name,
                 ind_class.default_unit)

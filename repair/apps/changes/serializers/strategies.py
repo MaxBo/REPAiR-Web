@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.db.utils import OperationalError
 
 from repair.apps.asmfa.graphs.graph import StrategyGraph
+from repair.apps.asmfa.models import FractionFlow, StrategyFractionFlow
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
                                         ImplementationQuantity,
@@ -87,12 +88,13 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
     user = IDRelatedField(read_only=True)
     status_text = serializers.SerializerMethodField()
     solutions = serializers.SerializerMethodField()
+    affected_activities = serializers.SerializerMethodField()
 
     class Meta:
         model = Strategy
         fields = ('url', 'id', 'name', 'user',
                   'coordinating_stakeholder', 'solutions',
-                  'status', 'status_text')
+                  'status', 'status_text', 'affected_activities')
 
         extra_kwargs = {'status': {'read_only': True}}
 
@@ -145,6 +147,22 @@ class StrategySerializer(CreateWithUserInCasestudyMixin,
             setattr(instance, attr, value)
         instance.save()
         return instance
+
+    def get_affected_activities(self, obj):
+        new_flows = FractionFlow.objects.filter(strategy=obj, amount__gt=0)
+        modified = StrategyFractionFlow.objects.filter(strategy=obj)
+        modified_flows = FractionFlow.objects.filter(
+            id__in=modified.values_list('fractionflow__id'))
+        activities = list(new_flows.values_list(
+            'origin__activity__id',
+            'destination__activity__id',
+        ))
+        activities += list(modified_flows.values_list(
+            'origin__activity__id',
+            'destination__activity__id',
+        ))
+        activities = set([i for s in activities for i in s])
+        return activities
 
 
 class StrategyField(InCasestudyField):

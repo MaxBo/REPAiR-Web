@@ -29,6 +29,10 @@ class KeyflowInCasestudy(GDSEModel):
                                 related_name='products')
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     note = models.TextField(default='', blank=True)
+    sustainability_statusquo = models.FileField(
+        upload_to='sustainability', blank=True, null=True)
+    sustainability_conclusions = models.FileField(
+        upload_to='sustainability', blank=True, null=True)
 
     def __str__(self):
         return 'KeyflowInCasestudy {pk}: {k} in {c}'.format(

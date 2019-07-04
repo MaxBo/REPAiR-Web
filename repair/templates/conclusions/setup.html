@@ -5,54 +5,95 @@
 {% block title %}{% trans "REPAiR | Recommendations" %}{% endblock %}
 
 {% block sidebar %}
-
   <script>
     document.getElementById("conclusions-link").classList.add('active');
   </script>
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#users" data-toggle="pill">{% trans "Users" %} <span class="sub-icon fas fa-users"></span></a></li>
     <li><a href="#notepad" data-toggle="pill">{% trans "Notepad" %} <span class="sub-icon far fa-comments"></span></a></li>
+    <li><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
   </ul>
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
-<div class="tab-content">
-  <div class="col-md-6">
+{% if not conclusions_permitted %}
+  <h3>{% trans "You do not have the permission to view the conclusions." %}</h3>
+  {% render_bundle 'Base' %}
+{% else %}
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
+  <div class="tab-content">
     <div class="tab-pane fade in active" id="users">
-      <h3> {% trans "Define which users (small groups) should be included into the evaluation of the conclusions." %} </h3>
-      <table id="user-table" class="entry-table table">
-        <tr>
-          <th>{% trans "User in case study" %}</th>
-          <th>{% trans "Alias in evaluation" %}</th>
-          <th>{% trans "is part of evaluation" %}</th>
-        </tr>
-      </table>
+      <div class="col-md-6">
+        <h3> {% trans "Define which users (small groups) should be included into the evaluation of the conclusions." %} </h3>
+        <table id="user-table" class="entry-table table">
+          <tr>
+            <th>{% trans "User in case study" %}</th>
+            <th>{% trans "Alias in evaluation" %}</th>
+            <th>{% trans "is part of evaluation" %}</th>
+          </tr>
+        </table>
+      </div>
     </div>
     <div class="tab-pane fade in" id="notepad">
-      <div class="row">
-        <h3> {% trans "Organizing Consensus Levels" %} </h3> ({% trans 'e.g. "common ground", "to be discussed", "disagreement"' %})
-        <div id='consenus-levels' class="col-md-12 bordered">
-          <div class='item-panel'>
+      <div class="col-md-6">
+        <div class="row">
+          <h3> {% trans "Organizing Consensus Levels" %} </h3> ({% trans 'e.g. "common ground", "to be discussed", "disagreement"' %})
+          <div id='consenus-levels' class="col-md-12 bordered">
+            <div class='item-panel'>
+            </div>
+            <button class="add btn btn-primary square" data-type="consensus" title="{% trans "add consensus level" %}">
+              <span class="glyphicon glyphicon-plus"></span> {% trans "Consensus Level" %}
+            </button>
           </div>
-          <button class="add btn btn-primary square" data-type="consensus" title="{% trans "add consensus level" %}">
-            <span class="glyphicon glyphicon-plus"></span> {% trans "Consensus Level" %}
-          </button>
+        </div>
+        <div class="row">
+          <h3> {% trans "Organizing Sections" %} </h3> ({% trans 'e.g. "legal framework", "waste management", "general aspects"' %})
+          <div id='sections' class="col-md-12 bordered">
+            <div class='item-panel'>
+            </div>
+            <button class="add btn btn-primary square" data-type="sections" title="{% trans "add section" %}">
+              <span class="glyphicon glyphicon-plus"></span> {% trans "Section" %}
+            </button>
+          </div>
         </div>
       </div>
-      <div class="row">
-        <h3> {% trans "Organizing Sections" %} </h3> ({% trans 'e.g. "legal framework", "waste management", "general aspects"' %})
-        <div id='sections' class="col-md-12 bordered">
-          <div class='item-panel'>
-          </div>
-          <button class="add btn btn-primary square" data-type="sections" title="{% trans "add section" %}">
-            <span class="glyphicon glyphicon-plus"></span> {% trans "Section" %}
-          </button>
-        </div>
+    </div>
+    <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
+      <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
+        <option disabled selected> {% trans "Select" %} </option>
+        {% for keyflow in keyflows %}
+          <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+        {% endfor %}
+      </select>
+      <div id="sustainability-content">
       </div>
     </div>
   </div>
-</div>
-{% render_bundle 'Recommendations' %}
+  {% render_bundle 'Recommendations' %}
+{% endif %}
+
+<script type="text/template" id="sustainability-template">
+  <h4> {% trans "PDF Report" %} </h4>
+  <div class="row">
+    <input type="file" id="sustainability-file-input" accept=".pdf" style="float: left; margin-right: 10px;">
+    <button class="btn btn-danger upload" id="upload-sustainability-file" title="Upload PDF file">
+      Upload
+      <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+    </button>
+  </div>
+  <div class="bordered sunken" id="canvas-wrapper" style='background-color: white; text-align: center; display: none; overflow: auto;'>
+    <div class="row">
+      <div style="float: left;">
+        <h4 id="page-status" style="float: left; margin: 5px 10px 0px 0px;"></h4>
+        <button class="btn btn-primary square" id="prev">{% trans "Previous" %}</button>
+        <button class="btn btn-primary square" id="next">{% trans "Next" %}</button>
+      </div>
+      <div style="float: right;">
+        <button class="fullscreen-toggle fas fa-expand btn btn-primary"></button>
+      </div>
+    </div>
+    <canvas></canvas>
+  </div>
+</script>
 {% endblock %}
 

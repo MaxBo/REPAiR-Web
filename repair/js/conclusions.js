@@ -1,10 +1,12 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets', 'views/conclusions/strategies',
-         'collections/gdsecollection', 'app-config', 'utils/utils',
+         'views/conclusions/modified-flows', 'views/conclusions/sustainability',
+         'models/indicator', 'collections/gdsecollection', 'app-config', 'utils/utils',
          'underscore', 'html2canvas', 'viewerjs', 'base', 'viewerjs/dist/viewer.css'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
-             EvalFlowTargetsView, EvalStrategiesView, GDSECollection, appConfig,
+             EvalFlowTargetsView, EvalStrategiesView, EvalModifiedFlowsView,
+             SustainabilityView, Indicator, GDSECollection, appConfig,
              utils, _, html2canvas, Viewer) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
@@ -13,8 +15,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      * @module Conclusions
      */
 
-    var objectivesView, flowTargetsView, aims, users, objectives, strategiesView,
-        consensusLevels, sections, modal;
+    var consensusLevels, sections, modal, objectivesView, flowTargetsView,
+        strategiesView, modifiedFlowsView, sustainabilityView, keyflowSelect;
 
 
     html2image = function(container, onSuccess){
@@ -55,9 +57,24 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             consensusLevels: consensusLevels,
             sections: sections
         })
+        var sustainabilityView,
+            el = document.getElementById('sustainability-content');
+        keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+        keyflowSelect.disabled = false;
+        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+        keyflowSelect.addEventListener('change', function(){
+            if (sustainabilityView) sustainabilityView.close();
+            sustainabilityView = new SustainabilityView({
+                caseStudy: caseStudy,
+                el: el,
+                template: 'sustainability-template',
+                keyflowId: keyflowSelect.value
+            })
+        })
     };
 
-    renderWorkshop = function(caseStudy, keyflowId, keyflowName, participants){
+    renderWorkshop = function(caseStudy, keyflowId, keyflowName, objectives,
+                              participants, indicators, strategies, aims){
         if (participants.size() === 0){
             var warning = document.createElement('h3');
             warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
@@ -84,15 +101,37 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             keyflowName: keyflowName,
             users: participants,
             aims: aims,
-            objectives: objectives
+            objectives: objectives,
+            indicators: indicators
         })
         if (strategiesView) strategiesView.close();
         strategiesView = new EvalStrategiesView({
             caseStudy: caseStudy,
             keyflowId: keyflowId,
+            keyflowName: keyflowName,
             el: document.getElementById('strategies'),
             template: 'strategies-template',
-            users: participants
+            users: participants,
+            strategies: strategies
+        })
+        if (modifiedFlowsView) modifiedFlowsView.close();
+        modifiedFlowsView = new EvalModifiedFlowsView({
+            caseStudy: caseStudy,
+            keyflowId: keyflowId,
+            el: document.getElementById('modified-flows'),
+            template: 'modified-flows-template',
+            users: participants,
+            keyflowName: keyflowName,
+            indicators: indicators,
+            strategies: strategies,
+            objectives: objectives
+        })
+        if (sustainabilityView) sustainabilityView.close();
+        sustainabilityView = new SustainabilityView({
+            caseStudy: caseStudy,
+            el: document.getElementById('sustainability'),
+            template: 'sustainability-template',
+            keyflowId: keyflowId
         })
 
         document.getElementById('add-conclusion').addEventListener('click', addConclusion);
@@ -106,48 +145,84 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         }
 
         // the workshop view does have one
-        var keyflowSelect = document.getElementById('keyflow-select'),
-            session = appConfig.session;
+        keyflowSelect = document.getElementById('keyflow-select');
+        var session = appConfig.session;
         document.getElementById('keyflow-warning').style.display = 'block';
-        keyflowSelect.disabled = false;
 
         function renderKeyflow(keyflowId, keyflowName){
+            keyflowSelect.disabled = true;
             document.getElementById('keyflow-warning').style.display = 'none';
             var loader = new utils.Loader(document.getElementById('content'),
                                          { disable: true });
             loader.activate();
-            aims = new GDSECollection([], {
+            var aims = new GDSECollection([], {
                 apiTag: 'aims',
                 apiIds: [caseStudy.id]
             });
-            users = new GDSECollection([], {
+            var users = new GDSECollection([], {
                 apiTag: 'usersInCasestudy',
                 apiIds: [caseStudy.id]
             });
-            objectives = new GDSECollection([], {
-                apiTag: 'userObjectives',
-                apiIds: [caseStudy.id]
+            var indicators = new GDSECollection([], {
+                apiTag: 'flowIndicators',
+                apiIds: [caseStudy.id, keyflowId],
+                comparator: 'name',
+                model: Indicator
             });
             var promises = [];
             promises.push(aims.fetch({
                 data: { keyflow: keyflowId },
                 error: alert
             }));
-            promises.push(objectives.fetch({
-                data: { keyflow: keyflowId, all: true },
-                error: alert
-            }));
-
-            //function alert_res(res){
-                //if res.
-            //}
-
             promises.push(users.fetch());
+            promises.push(indicators.fetch());
 
             Promise.all(promises).then(function(){
                 loader.deactivate();
+                indicators.sort();
                 var participants = users.filterBy({'gets_evaluated' : true});
-                renderWorkshop(caseStudy, keyflowId, keyflowName, participants);
+                var strategies = new GDSECollection([], {
+                    apiTag: 'strategies',
+                    apiIds: [caseStudy.id, keyflowId]
+                });
+                var objectives = new GDSECollection([], {
+                    apiTag: 'userObjectives',
+                    apiIds: [caseStudy.id],
+                    comparator: 'name'
+                });
+                var promises = [];
+                promises.push(strategies.fetch({
+                    data: { 'user__in': participants.pluck('id').join(',') },
+                    error: alert
+                }));
+                // here we need profile resp. user id (same ids)
+                // shitty naming, there is a chain of 3 different 'user' models
+                promises.push(objectives.fetch({
+                    data: { keyflow: keyflowId, 'user__in': participants.pluck('user').join(',') },
+                    error: alert
+                }));
+                Promise.all(promises).then(function(){
+                    var promises = [];
+                    objectives.sort();
+                    objectives.forEach(function(objective){
+                        var targetsInObj = new GDSECollection([], {
+                                apiTag: 'flowTargets',
+                                apiIds: [caseStudy.id, objective.id]
+                            }),
+                            aimId = objective.get('aim');
+                        promises.push(targetsInObj.fetch({
+                            success: function(){
+                                objective.targets = targetsInObj;
+                            },
+                            error: alert
+                        }));
+                    });
+                    Promise.all(promises).then(function(){
+                        renderWorkshop(caseStudy, keyflowId, keyflowName, objectives,
+                                       participants, indicators, strategies, aims);
+                        keyflowSelect.disabled = false;
+                    });
+                })
             })//.catch(function(res){
                 //if (res.responseText)
                     //alert(res.responseText);

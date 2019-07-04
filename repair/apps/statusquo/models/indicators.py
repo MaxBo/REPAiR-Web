@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import validate_comma_separated_integer_list
 from enum import Enum
 from enumfields import EnumIntegerField
+import importlib
 
 from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models import Material, KeyflowInCasestudy
@@ -94,3 +95,8 @@ class FlowIndicator(GDSEModel):
     spatial_reference = EnumIntegerField(
         enum=SpatialType, default=SpatialType.REGION)
     included = models.BooleanField(default=True)
+
+    def get_type(self):
+        module = importlib.import_module(
+            'repair.apps.statusquo.views.computation')
+        return getattr(module, self.indicator_type.name)
