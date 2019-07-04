@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--locales', dest='locales',
                         nargs='*', default=default_lang)
     manage_py = os.path.join(os.path.dirname(__file__), 'manage.py')
-    args = ['manage.py', 'makemessages', '-l']
+    args = ['manage.py', 'makemessages', '-d', 'djangojs', '-e', 'html,js,py','-l']
 
     options = parser.parse_args()
     for locale in options.locales:
