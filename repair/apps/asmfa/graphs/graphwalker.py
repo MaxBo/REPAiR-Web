@@ -99,8 +99,8 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
 
 
 class GraphWalker:
-    def __init__(self, G):
-        self.graph = gt.Graph(G)
+    def __init__(self, g):
+        self.graph = gt.Graph(g)
         self.edge_mask = self.graph.new_edge_property("bool")
 
     def shift_flow(self, solution_part, actorflows):
@@ -164,43 +164,6 @@ class GraphWalker:
         changes_actors = []
 
         if solution_part.implements_new_flow:
-            ## shift actor flows to new origin or target
-            ## get all target actors, either origin or destination
-            #new_targets = Actor.objects.filter(
-                #activity=solution_part.new_target_activity)
-            #targets = []
-            ## get all target vertices
-            #for actor in new_targets:
-                #targets += util.find_vertex(g, g.vp['id'], actor.id)
-
-            #if len(targets) == 0:
-                #print("Cannot find Actors for the new target activity of the SolutionPart")
-            
-            ## Change all flows by changing origin/destination and amount
-            #for flow in actorflows:
-                #edges = util.find_edge(g, g.ep['id'], flow.id)
-                #if len(edges) > 1:
-                    #raise ValueError("FractionFlow.id ", flow.id, " is not unique")
-                #elif len(edges) == 0:
-                    #print("Cannot find FractionFlow.id ", flow.id, " in the graph")
-                #else:
-                    #edge_del = edges[0]
-                    #amount_flow = g.ep.amount[edge_del]
-                    #amount_new = amount_flow / len(targets)
-                    #for target in targets:
-                        #if(solution_part.keep_origin):
-                            ## keeping origin of flow
-                            #e = g.add_edge(edge_del.source(), target)
-                        #else:
-                            ## keeping destination of flow
-                            #e = g.add_edge(target, edge_del.target())
-                        #g.ep.amount[e] = amount_new
-                        #g.ep.material[e] = solution_part.implementation_flow_material
-                        ## set the newflow property; needed for storing the changes to db
-                        #g.ep.newflow[e] = True
-                        #g.ep.include[e] = True
-                    #g.remove_edge(edge_del)
-
             # this we need because we work with Actors and not Activities, while the user defines the solution
             # with Activities, thus potentially there many Actor-Actor flows in a single Activity
             for flow in actorflows:

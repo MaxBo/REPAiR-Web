@@ -92,7 +92,7 @@ class BaseGraph:
         # Add the flows to the graph
         # need a persistent edge id, because graph-tool can reindex the edges
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
-        self.graph.edge_properties['amount'] = self.graph.new_edge_property("int")
+        self.graph.edge_properties['amount'] = self.graph.new_edge_property("float")
         self.graph.edge_properties['material'] = self.graph.new_edge_property("string")
 
         for i in range(len(flows)):
@@ -230,11 +230,15 @@ class StrategyGraph(BaseGraph):
         count = len(new_actors)
         targets = []
         for actor in new_actors:
-            #TODO: check if vertext exists
-            v = g.add_vertex()
-            g.vp.id[v] = actor.id
-            g.vp.bvdid[v] = actor.BvDid
-            g.vp.name[v] = actor.name
+            vertices = util.find_vertex(g, g.vp['id'], actor.id)
+            # check if vertex exists, else create new
+            if(len(vertices) > 0):
+                v = vertices[0]
+            else:
+                v = g.add_vertex()
+                g.vp.id[v] = actor.id
+                g.vp.bvdid[v] = actor.BvDid
+                g.vp.name[v] = actor.name
             targets.append({"actor": actor, "vertex": v})
             
         # add edges related to the new ImplementationFlow
@@ -250,53 +254,50 @@ class StrategyGraph(BaseGraph):
             else:
                 edge_del = edges[0]
                 for target in targets:
-                    correct_target = False
                     # make the new edge and FractionFlow
-                    if solution_part.keep_origin:
-                        # check if the origin of the flow is equal to origin of graph edge 
-                        if flow.origin.id == edge_del.source():
-                            # keep origin of flow
-                            origin = flow.origin
-                            destination = target["actor"]
-                            e = g.add_edge(edge_del.source(), target["vertex"])
-                            correct_target = True
+                    if solution_part.keep_origin: 
+                        # keep origin of flow
+                        origin = flow.origin
+                        destination = target["actor"]
+                        e = g.add_edge(edge_del.source(), target["vertex"])
                     else:
-                        if flow.destination.id == edge_del.target():
-                            # keep destination of flow
-                            origin = target["actor"]
-                            destination = flow.destination
-                            e = g.add_edge(target["vertex"], edge_del.target())
-                            correct_target = True
+                        # keep destination of flow
+                        origin = target["actor"]
+                        destination = flow.destination
+                        e = g.add_edge(target["vertex"], edge_del.target())
                     
-                    if correct_target:
-                        # create a new fractionflow for the implementation flow
-                        ff = FractionFlow(origin=origin,
-                                            destination=destination,
-                                            flow = flow.flow,
-                                            stock = flow.stock,
-                                            material = flow.material,
-                                            to_stock = flow.to_stock,
-                                            amount = amount,
-                                            publication = flow.publication,
-                                            avoidable = flow.avoidable,
-                                            hazardous = flow.hazardous,
-                                            nace = flow.nace,
-                                            composition_name = flow.composition_name,
-                                            strategy = flow.strategy,
-                                            keyflow = flow.keyflow,
-                                            description = flow.description,
-                                            year = flow.year,
-                                            waste = flow.waste,
-                                            process = flow.process
-                                            )
-                        ff.save()
-                        
-                        
-                        g.ep.amount[e] = amount
-                        g.ep.material[e] = flow.material
-                        # set the newflow property; needed for storing the changes to db
-                        g.ep.newflow[e] = True
+                    # create a new fractionflow for the implementation flow
+                    ff = FractionFlow(origin=origin,
+                                        destination=destination,
+                                        flow = flow.flow,
+                                        stock = flow.stock,
+                                        material = flow.material,
+                                        to_stock = flow.to_stock,
+                                        amount = amount,
+                                        publication = flow.publication,
+                                        avoidable = flow.avoidable,
+                                        hazardous = flow.hazardous,
+                                        nace = flow.nace,
+                                        composition_name = flow.composition_name,
+                                        strategy = flow.strategy,
+                                        keyflow = flow.keyflow,
+                                        description = flow.description,
+                                        year = flow.year,
+                                        waste = flow.waste,
+                                        process = flow.process
+                                        )
+                    ff.save()
+                    
+                    g.ep.id[e] = ff.id
+                    g.ep.amount[e] = amount
+                    g.ep.material[e] = flow.material
+                # remove the edge from the graph
                 g.remove_edge(edge_del)
+                # set the StrategyFractionFlow.amount to 0
+                sff = StrategyFractionFlow.objects.update_or_create(fractionflow=flow,
+                                                              strategy=flow.strategy,
+                                                              material=flow.material,
+                                                              defaults={"amount" : 0})
 
     def build(self):
         if self.exists:
@@ -313,11 +314,8 @@ class StrategyGraph(BaseGraph):
             
             # add change attribute, it defaults to 0.0
             g.ep.change = g.new_edge_property("float")
-            # add newflow attribute, it defaults to False
-            g.ep.newflow = g.new_edge_property("bool")
             # add include attribute, it defaults to False
             g.ep.include = g.new_edge_property("bool")
-            gw = GraphWalker(g)
             
             # get the solutions in this strategy and order them by priority
             solutions_in_strategy = SolutionInStrategy.objects.filter(strategy=self.strategy).order_by('priority')
@@ -358,17 +356,9 @@ class StrategyGraph(BaseGraph):
                     quantity = ImplementationQuantity.objects.get(
                         question=solution_part.question,
                         implementation=solution_in_strategy)
-                    ## get actorflows
-                    #actors_origin = Actor.objects.filter(
-                        #activity=solution_part.implementation_flow_origin_activity)
-                    #actors_destination = Actor.objects.filter(
-                        #activity=solution_part.implementation_flow_destination_activity)
-                    #actorflows = FractionFlow.objects.filter(
-                        #Q(origin__in=actors_origin.values('id')) &
-                        #Q(destination__in=actors_destination.values('id')),
-                        #material=solution_part.implementation_flow_material)
 
                     # ToDo: SolutionInStrategy geometry for filtering?
+                    gw = GraphWalker(g)
                     self.graph = gw.calculate_solution_part(solution_part, affectedfractionflows, quantity)
             
                 # store the changes for this solution into amount
@@ -389,7 +379,7 @@ class StrategyGraph(BaseGraph):
             ff = FractionFlow.objects.get(id=self.graph.ep.id[e])
             if ff.amount != amount_new:
                 # update or create a strategyfractionflow to store the amount
-                StrategyFractionFlow.objects.update_or_create(fractionflow=ff,
+                sff = StrategyFractionFlow.objects.update_or_create(fractionflow=ff,
                                                               strategy=self.strategy,
                                                               material=ff.material,
                                                               defaults={"amount" : amount_new})

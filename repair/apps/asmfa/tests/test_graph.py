@@ -18,7 +18,7 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            ImplementationQuantityFactory,
                                            AffectedFlowFactory
                                         )
-from repair.apps.asmfa.models import FractionFlow
+from repair.apps.asmfa.models import FractionFlow, StrategyFractionFlow
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
@@ -138,7 +138,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
                                              activity=new_destination_activity)
         
         # actor 11
-        actor11 = ActorFactory(id=11, name='Actor11', activity=origin_activity)
+        actor11 = ActorFactory(id=11, name='Actor11', activity=old_destination_activity)
         # actor 12
         actor12 = ActorFactory(id=12, name='Actor12', activity=new_destination_activity)
                 
@@ -165,7 +165,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow = FractionFlowFactory(origin=origin_actor, 
                                 destination=old_destination_actor,
                                 material=wool,
-                                amount=1,
+                                amount=1000,
                                 strategy=self.strategy,
                                 keyflow=self.kic
                                 )
@@ -173,7 +173,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow2 = FractionFlowFactory(origin=actor11, 
                                 destination=actor12,
                                 material=wool,
-                                amount=11,
+                                amount=11000,
                                 strategy=self.strategy,
                                 keyflow=self.kic
                                 )        
@@ -206,18 +206,45 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         
         self.graph.build()
         
+        assert len(FractionFlow.objects.all()) == 4        
+
         flows = FractionFlow.objects.filter(origin_id=self.actor_originid,
                                             destination_id=self.actor_new_targetid).annotate(
-            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))
+            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))    
+
         assert len(flows) == 1
         ff = flows[0]
         assert ff.material.name == self.materialname
         assert ff.destination.id == self.actor_new_targetid
-        print("amount")
-        print(ff.amount)
-        print("actual_amount")
-        print(ff.actual_amount)
-        assert ff.actual_amount == 2.0
-        
+        assert ff.actual_amount == 500 #flow is split to new destination thus devided by 2
+                
+        # there is 1 strategyflows that sets the amount to 0 for the implementation_flow
+        # no other strategyflows because we didnt include the flows in AffectedFlows
+        assert len(StrategyFractionFlow.objects.all()) == 1
+        strategyflows = StrategyFractionFlow.objects.filter(fractionflow__id=1,
+                                                            material__name=self.materialname)
+        assert len(strategyflows) == 1
+        assert strategyflows[0].amount == 0.0
+
         # test again but now with loading the stored graph
         self.graph.build()
+        
+        assert len(FractionFlow.objects.all()) == 4        
+
+        flows = FractionFlow.objects.filter(origin_id=self.actor_originid,
+                                            destination_id=self.actor_new_targetid).annotate(
+            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))    
+
+        assert len(flows) == 1
+        ff = flows[0]
+        assert ff.material.name == self.materialname
+        assert ff.destination.id == self.actor_new_targetid
+        assert ff.actual_amount == 500 #flow is split to new destination thus devided by 2
+                
+        # there is 1 strategyflows that sets the amount to 0 for the implementation_flow
+        # no other strategyflows because we didnt include the flows in AffectedFlows
+        assert len(StrategyFractionFlow.objects.all()) == 1
+        strategyflows = StrategyFractionFlow.objects.filter(fractionflow__id=1,
+                                                            material__name=self.materialname)
+        assert len(strategyflows) == 1
+        assert strategyflows[0].amount == 0.0
