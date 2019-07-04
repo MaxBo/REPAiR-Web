@@ -16,7 +16,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      */
 
     var consensusLevels, sections, modal, objectivesView, flowTargetsView,
-        strategiesView, modifiedFlowsView, sustainabilityView;
+        strategiesView, modifiedFlowsView, sustainabilityView, keyflowSelect;
 
 
     html2image = function(container, onSuccess){
@@ -58,8 +58,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             sections: sections
         })
         var sustainabilityView,
-            el = document.getElementById('sustainability-content'),
-            keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+            el = document.getElementById('sustainability-content');
+        keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
         keyflowSelect.disabled = false;
         keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
         keyflowSelect.addEventListener('change', function(){
@@ -145,12 +145,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         }
 
         // the workshop view does have one
-        var keyflowSelect = document.getElementById('keyflow-select'),
-            session = appConfig.session;
+        keyflowSelect = document.getElementById('keyflow-select');
+        var session = appConfig.session;
         document.getElementById('keyflow-warning').style.display = 'block';
-        keyflowSelect.disabled = false;
 
         function renderKeyflow(keyflowId, keyflowName){
+            keyflowSelect.disabled = true;
             document.getElementById('keyflow-warning').style.display = 'none';
             var loader = new utils.Loader(document.getElementById('content'),
                                          { disable: true });
@@ -220,6 +220,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                     Promise.all(promises).then(function(){
                         renderWorkshop(caseStudy, keyflowId, keyflowName, objectives,
                                        participants, indicators, strategies, aims);
+                        keyflowSelect.disabled = false;
                     });
                 })
             })//.catch(function(res){

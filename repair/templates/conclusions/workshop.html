@@ -224,6 +224,13 @@
     </div>
     <div class="tab-pane fade in bordered" id="step6tab">
       <h3> {% trans "Which actor groups are touched by the selected solutions? Which most often?" %} </h3>
+      <div class="row">
+        <h4 style="margin-right: 10px; float: left;">Level </h4>
+        <select class="form-control" name="level-select" style="width: 200px; float: left;">
+          <option selected value="activity">Activity</option>
+          <option value="activitygroup">Activity Group</option>
+        </select>
+      </div>
       <div style="overflow: auto">
         <table id="directly-affected-table" class="table"></table>
       </div>

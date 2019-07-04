@@ -49,6 +49,11 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 apiIds: [this.caseStudy.id, this.keyflowId],
                 comparator: 'name'
             });
+            this.activityGroups = new GDSECollection([], {
+                apiTag: 'activitygroups',
+                apiIds: [this.caseStudy.id, this.keyflowId],
+                comparator: 'name'
+            });
 
             promises = [];
 
@@ -56,6 +61,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             promises.push(this.solutions.fetch({ error: this.onError }));
             promises.push(this.stakeholderCategories.fetch({ error: this.onError }))
             promises.push(this.activities.fetch({ error: this.onError }))
+            promises.push(this.activityGroups.fetch({ error: this.onError }))
             this.implementations = {};
             this.strategies.forEach(function(strategy){
                 var implementations = new GDSECollection([], {
@@ -110,6 +116,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
         },
 
         events: {
+            'change select[name="level-select"]': 'renderAffectedGroups',
             'change select[name="solutions"]': 'drawImplementations'
         },
 
@@ -145,8 +152,11 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             // count per stakeholder and user
             this.stakeholderCount = {};
             // set of users per activity
-            this.directlyAffected = {};
-            this.indirectlyAffected = {};
+            this.directlyAffectedActivities = {};
+            this.indirectlyAffectedActivities = {};
+            // set of users per activity group
+            this.directlyAffectedGroups = {};
+            this.indirectlyAffectedGroups = {};
 
             // quantity values per user and question
             this.quantities = {};
@@ -203,17 +213,29 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                     });
                     // memorize activities directly affected by user strategies
                     solution.get('affected_activities').forEach(function(activityId){
-                        var users = _this.directlyAffected[activityId];
+                        var users = _this.directlyAffectedActivities[activityId];
                         if (!users)
-                            users = _this.directlyAffected[activityId] = new Set();
+                            users = _this.directlyAffectedActivities[activityId] = new Set();
+                        users.add(user.id);
+                        var activity = _this.activities.get(activityId),
+                            groupId = activity.get('activitygroup');
+                        users = _this.directlyAffectedGroups[groupId];
+                        if (!users)
+                            users = _this.directlyAffectedGroups[groupId] = new Set();
                         users.add(user.id);
                     })
                 })
                 // memorize activities indirectly affected by user strategies
                 strategy.get('affected_activities').forEach(function(activityId){
-                    var users = _this.indirectlyAffected[activityId];
+                    var users = _this.indirectlyAffectedActivities[activityId];
                     if (!users)
-                        users = _this.indirectlyAffected[activityId] = new Set();
+                        users = _this.indirectlyAffectedActivities[activityId] = new Set();
+                    users.add(user.id);
+                    var activity = _this.activities.get(activityId),
+                        groupId = activity.get('activitygroup');
+                    users = _this.indirectlyAffectedGroups[groupId];
+                    if (!users)
+                        users = _this.indirectlyAffectedGroups[groupId] = new Set();
                     users.add(user.id);
                 })
             })
@@ -233,16 +255,28 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 this.maxStakeholderCount = Math.max(this.maxStakeholderCount, total);
             }
             // sum up directly affected activities
-            for (var activityId in _this.directlyAffected) {
-                var count = _this.directlyAffected[activityId].size,
+            for (var activityId in _this.directlyAffectedActivities) {
+                var count = _this.directlyAffectedActivities[activityId].size,
                     activity = _this.activities.get(activityId);
                 activity.set('directlyAffectedCount', count);
             }
             // sum up indirectly affected activities
-            for (var activityId in _this.indirectlyAffected) {
-                var count = _this.indirectlyAffected[activityId].size,
+            for (var activityId in _this.indirectlyAffectedActivities) {
+                var count = _this.indirectlyAffectedActivities[activityId].size,
                     activity = _this.activities.get(activityId);
                 activity.set('indirectlyAffectedCount', count);
+            }
+            // sum up directly affected groups
+            for (var groupId in _this.directlyAffectedGroups) {
+                var count = _this.directlyAffectedGroups[groupId].size,
+                    group = _this.activityGroups.get(groupId);
+                group.set('directlyAffectedCount', count);
+            }
+            // sum up indirectly affected groups
+            for (var groupId in _this.indirectlyAffectedGroups) {
+                var count = _this.indirectlyAffectedGroups[groupId].size,
+                    group = _this.activityGroups.get(groupId);
+                group.set('indirectlyAffectedCount', count);
             }
         },
 
@@ -376,13 +410,19 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
         renderAffectedGroups: function(){
             var _this = this,
                 directTable = this.el.querySelector('#directly-affected-table'),
-                indirectTable = this.el.querySelector('#indirectly-affected-table'),
-                directHeader = directTable.createTHead().insertRow(0),
+                indirectTable = this.el.querySelector('#indirectly-affected-table');
+            // clear tables
+            while(directTable.hasChildNodes()) { directTable.removeChild(directTable.firstChild); }
+            while(indirectTable.hasChildNodes()) { indirectTable.removeChild(indirectTable.firstChild); }
+
+            var directHeader = directTable.createTHead().insertRow(0),
                 indirectHeader = indirectTable.createTHead().insertRow(0),
                 fTh = document.createElement('th'),
-                ifTh = document.createElement('th');
-            fTh.innerHTML = gettext('Activities directly affected by user strategies in key flow <i>' + this.keyflowName + '</i>');
-            ifTh.innerHTML = gettext('Activities indirectly affected by user strategies in key flow <i>' + this.keyflowName + '</i>');
+                ifTh = document.createElement('th'),
+                levelSelect = this.el.querySelector('select[name="level-select"]'),
+                gName = (levelSelect.value == 'activity') ? 'Activities' : 'Activity groups';
+            fTh.innerHTML = gName + ' ' + gettext('directly affected by user strategies <br> in key flow <i>' + this.keyflowName + '</i>');
+            ifTh.innerHTML = gName + ' ' + gettext('indirectly affected by user strategies <br> in key flow <i>' + this.keyflowName + '</i>');
             directHeader.appendChild(fTh);
             indirectHeader.appendChild(ifTh);
             var userColumns = [];
@@ -396,41 +436,59 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             })
             var glyphicon = '<span class="glyphicon glyphicon-ok"></span>';
 
-            function addActivityRow(table, activity, userSet, totalCount){
+            function addRow(table, node, userSet, totalCount){
                 var row = table.insertRow(-1),
-                    text = activity.get('name');
+                    text = node.get('name');
                 var panelItem = _this.panelItem(text, { overlayText: totalCount + 'x' });
-                panelItem.style.maxWidth = '600px';
+                panelItem.style.width = '500px';
                 row.insertCell(0).appendChild(panelItem);
                 _this.users.forEach(function(user){
                     var cell = row.insertCell(-1);
                     if (!userSet.has(user.id)) return;
                     var panelItem = _this.panelItem(glyphicon,
-                        { popoverText: '<b>' + (user.get('alias') || user.get('name')) + '</b><br>' + gettext('strategy affects') + '<br><i>' + activity.get('name') + '</i>' }
+                        { popoverText: '<b>' + (user.get('alias') || user.get('name')) + '</b><br>' + gettext('strategy affects') + '<br><i>' + node.get('name') + '</i>' }
                     );
                     panelItem.style.backgroundImage = 'none';
                     panelItem.style.width = '50px';
                     cell.appendChild(panelItem);
-                    //panelItem.style.backgroundColor = 'rgb(77, 115, 38)';
                     cell.appendChild(panelItem);
                 });
             }
 
-            this.activities.comparatorAttr = 'directlyAffectedCount';
-            this.activities.sort();
-            this.activities.forEach(function(activity){
-                var count = activity.get('directlyAffectedCount');
-                if (!count) return;
-                addActivityRow(directTable, activity, _this.directlyAffected[activity.id], count)
-            })
+            if (levelSelect.value == 'activity'){
+                this.activities.comparatorAttr = 'directlyAffectedCount';
+                this.activities.sort();
+                this.activities.forEach(function(activity){
+                    var count = activity.get('directlyAffectedCount');
+                    if (!count) return;
+                    addRow(directTable, activity, _this.directlyAffectedActivities[activity.id], count)
+                })
 
-            this.activities.comparatorAttr = 'indirectlyAffectedCount';
-            this.activities.sort();
-            this.activities.forEach(function(activity){
-                var count = activity.get('indirectlyAffectedCount');
-                if (!count) return;
-                addActivityRow(indirectTable, activity, _this.indirectlyAffected[activity.id], count)
-            })
+                this.activities.comparatorAttr = 'indirectlyAffectedCount';
+                this.activities.sort();
+                this.activities.forEach(function(activity){
+                    var count = activity.get('indirectlyAffectedCount');
+                    if (!count) return;
+                    addRow(indirectTable, activity, _this.indirectlyAffectedActivities[activity.id], count)
+                })
+            }
+            else {
+                this.activityGroups.comparatorAttr = 'directlyAffectedCount';
+                this.activityGroups.sort();
+                this.activityGroups.forEach(function(group){
+                    var count = group.get('directlyAffectedCount');
+                    if (!count) return;
+                    addRow(directTable, group, _this.directlyAffectedGroups[group.id], count)
+                })
+
+                this.activityGroups.comparatorAttr = 'indirectlyAffectedCount';
+                this.activityGroups.sort();
+                this.activityGroups.forEach(function(group){
+                    var count = group.get('indirectlyAffectedCount');
+                    if (!count) return;
+                    addRow(indirectTable, group, _this.indirectlyAffectedGroups[group.id], count)
+                })
+            }
         },
 
         // render Step 7
