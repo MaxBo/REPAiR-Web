@@ -3,274 +3,275 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-10-15 14:24+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2019-06-17 18:18+0200\n"
+"Language: it\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2.3\n"
 
 #: .\repair\apps\statusquo\views.py:20 .\repair\apps\studyarea\views.py:28
 msgid "Plotly graph"
-msgstr ""
+msgstr "grafico Plotly"
 
 #: .\repair\apps\studyarea\views.py:40
 msgid "Plotly Histogram"
-msgstr ""
+msgstr "Istogramma Plotly"
 
 #: .\repair\settings.py:165
 msgid "English"
-msgstr ""
+msgstr "Inglese"
 
 #: .\repair\settings.py:166
 msgid "German"
-msgstr ""
+msgstr "Tedesco"
 
 #: .\repair\templates\admin\activity-groups-edit.html:6
 msgid "Edit Activity Group"
-msgstr ""
+msgstr "Modifica gruppo attività"
 
 #: .\repair\templates\admin\activity-groups-edit.html:53
 msgid "Save & Exit"
-msgstr ""
+msgstr "Salva e Esci"
 
 #: .\repair\templates\admin\index.html:18
 #: .\repair\templates\changes\casestudy.html:9
 msgid "Case Study"
-msgstr ""
+msgstr "Caso studio"
 
 #: .\repair\templates\admin\index.html:27
 msgid "Flow"
-msgstr ""
+msgstr "Flusso"
 
 #: .\repair\templates\admin\index.html:36
 msgid "Data Entered by"
-msgstr ""
+msgstr "Dati inseriti da"
 
 #: .\repair\templates\admin\index.html:65
 msgid "Enter Data"
-msgstr ""
+msgstr "Inserisci dati"
 
 #: .\repair\templates\admin\index.html:70
 msgid "View Data"
-msgstr ""
+msgstr "Visualizza dati"
 
 #: .\repair\templates\admin\index.html:77
 msgid "Balance & Verify Data"
-msgstr ""
+msgstr "Balance & Verify Data"
 
 #: .\repair\templates\admin\index.html:84
 msgid "Balance Data"
-msgstr ""
+msgstr "Balance  Data"
 
 #: .\repair\templates\admin\index.html:89
 msgid "Verify Data"
-msgstr ""
+msgstr "Verifica i dati"
 
 #: .\repair\templates\admin\index.html:94
 msgid "Please choose the level for which you wish to enter data"
-msgstr ""
+msgstr "Per favore inserisci il livello per il quale desideri inserire dati"
 
 #: .\repair\templates\base.html:35
 msgid "Study Area"
-msgstr ""
+msgstr "Area di studio"
 
 #: .\repair\templates\base.html:36
 msgid "Status Quo"
-msgstr ""
+msgstr "Stato di fatto"
 
 #: .\repair\templates\base.html:37
 msgid "Changes"
-msgstr ""
+msgstr "Cambiamenti"
 
 #: .\repair\templates\base.html:38
 msgid "Impacts"
-msgstr ""
+msgstr "Impatti"
 
 #: .\repair\templates\base.html:39
 msgid "Decisions"
-msgstr ""
+msgstr "Decisioni"
 
 #: .\repair\templates\base.html:40
 msgid "Admin Area"
-msgstr ""
+msgstr "Area di amministrazione"
 
 #: .\repair\templates\changes\casestudy.html:11
 msgid "Users in Casestudy:"
-msgstr ""
+msgstr "Utenti nel caso studio"
 
 #: .\repair\templates\changes\casestudy.html:21
 msgid "Catalogue of Solutions"
-msgstr ""
+msgstr "Catalogo delle soluzioni"
 
 #: .\repair\templates\changes\implementation.html:8
 msgid "Implementation"
-msgstr ""
+msgstr "Implementazione"
 
 #: .\repair\templates\changes\implementation.html:8
 msgid "coordinated by"
-msgstr ""
+msgstr "coordinato da"
 
 #: .\repair\templates\changes\implementation.html:9
 #: .\repair\templates\changes\solution.html:9
 msgid "Created by"
-msgstr ""
+msgstr "Creato da"
 
 #: .\repair\templates\changes\implementation.html:12
 msgid "consists of the following solutions"
-msgstr ""
+msgstr "consiste nelle seguenti soluzioni"
 
 #: .\repair\templates\changes\implementation.html:19
 msgid "No solutions in"
-msgstr ""
+msgstr "Nessuna soluzione"
 
 #: .\repair\templates\changes\implementation.html:23
 msgid "Implementation is part of the following strategies:"
-msgstr ""
+msgstr "L’implementazione è parte delle seguenti strategie"
 
 #: .\repair\templates\changes\implementation.html:32
 msgid "Implementation needs the following stakeholders"
-msgstr ""
+msgstr "L’implementazione necessita dei seguenti stakeholders"
 
 #: .\repair\templates\changes\index.html:10
 msgid "Solutions"
-msgstr ""
+msgstr "Soluzioni"
 
 #: .\repair\templates\changes\index.html:11
 msgid "Implementations"
-msgstr ""
+msgstr "Implementazioni"
 
 #: .\repair\templates\changes\index.html:12
 msgid "Strategies"
-msgstr ""
+msgstr "Strategie"
 
 #: .\repair\templates\changes\index.html:24
 msgid "Users"
-msgstr ""
+msgstr "Utenti"
 
 #: .\repair\templates\changes\index.html:35
 msgid "Casestudies"
-msgstr ""
+msgstr "Casi studio"
 
 #: .\repair\templates\changes\index.html:42
 msgid "No casestudies are available."
-msgstr ""
+msgstr "Nessuno caso studio è disponibile"
 
 #: .\repair\templates\changes\solution.html:8
 msgid "Solution"
-msgstr ""
+msgstr "Soluzione"
 
 #: .\repair\templates\changes\solution.html:9
 msgid "User"
-msgstr ""
+msgstr "Utente"
 
 #: .\repair\templates\changes\solution.html:10
 msgid "Description"
-msgstr ""
+msgstr "Descrizione"
 
 #: .\repair\templates\changes\solution.html:11
 msgid "One unit equals"
-msgstr ""
+msgstr "Un’unità equivale "
 
 #: .\repair\templates\changes\solution.html:14
 msgid "The solution has the following ratios per unit defined"
-msgstr ""
+msgstr "La soluzione ha il seguente rapporto per unità definito"
 
 #: .\repair\templates\changes\solution.html:24
 msgid ""
 "An Implementations has to define the following quantities for this solution"
 msgstr ""
+"Un’ implementazione deve definire le seguenti quantità per questa soluzione"
 
 #: .\repair\templates\changes\solution.html:33
 msgid "Solution is part of the following implementations"
-msgstr ""
+msgstr "La soluzione è parte delle seguenti implementazioni"
 
 #: .\repair\templates\changes\user.html:10
 msgid "In CaseStudies:"
-msgstr ""
+msgstr "Nei casi studio"
 
 #: .\repair\templates\changes\user.html:17
 msgid "No Casestudy assigned to."
-msgstr ""
+msgstr "Nessun casostudio assegnato"
 
 #: .\repair\templates\changes\user_in_casestudy.html:10
 msgid "Solutions created:"
-msgstr ""
+msgstr "Soluzioni create:"
 
 #: .\repair\templates\changes\user_in_casestudy.html:17
 msgid "No solutions defined by."
-msgstr ""
+msgstr "Nessuna soluzione definita:"
 
 #: .\repair\templates\changes\user_in_casestudy.html:21
 msgid "Implementations created:"
-msgstr ""
+msgstr "Implementazioni create:"
 
 #: .\repair\templates\changes\user_in_casestudy.html:28
 msgid "No implementations defined by."
-msgstr ""
+msgstr "Nessuna implementazione definita: "
 
 #: .\repair\templates\changes\user_in_casestudy.html:32
 msgid "In other CaseStudies:"
-msgstr ""
+msgstr "In altri casistudio:"
 
 #: .\repair\templates\changes\user_in_casestudy.html:39
 msgid "No other Casestudy assigned to"
-msgstr ""
+msgstr "Nessun altro caso studio assegnato"
 
 #: .\repair\templates\decisions\index.html:10
 #: .\repair\templates\impacts\index.html:10
 #: .\repair\templates\statusquo\index.html:10
 msgid "Flows"
-msgstr ""
+msgstr "Flussi"
 
 #: .\repair\templates\impacts\index.html:11
 #: .\repair\templates\statusquo\index.html:11
 msgid "Evaluation"
-msgstr ""
+msgstr "Valutazioni"
 
 #: .\repair\templates\statusquo\evaluation.html:7
 msgid "<b>All indicators</b>"
-msgstr ""
+msgstr "<b>Tutti gli indicatori</b>"
 
 #: .\repair\templates\statusquo\evaluation.html:11
 msgid "By endpoint"
-msgstr ""
+msgstr "vicino al punto finale"
 
 #: .\repair\templates\statusquo\evaluation.html:14
 msgid "By midpoint"
-msgstr ""
+msgstr "vicino al punto centrale"
 
 #: .\repair\templates\statusquo\evaluation.html:26
 msgid "<b>Selected indicator</b>"
-msgstr ""
+msgstr "<b>Indicatore selezionato</b>"
 
 #: .\repair\templates\statusquo\flows.html:7
 msgid "Focus Area Only"
-msgstr ""
+msgstr "Solo la Focus Area"
 
 #: .\repair\templates\statusquo\flows.html:12
 msgid "Organic waste (from households only)"
-msgstr ""
+msgstr "Rifiuti organici (solo domestico)"
 
 #: .\repair\templates\statusquo\flows.html:18
 msgid "Material and waste flows <br> by <b>space</b>"
-msgstr ""
+msgstr "flussi di materiali e rifiuti<br> per <b>spazio</b>"
 
 #: .\repair\templates\statusquo\flows.html:24
 msgid "Material and waste flows <br> by <b>activity</b>"
-msgstr ""
+msgstr "flussi di materiali e rifiuti<br> per <b>attività</b>"
 
 #: .\repair\templates\studyarea\basedata.html:7
 msgid "Text"
-msgstr ""
+msgstr "Testo"
 
 #: .\repair\templates\studyarea\basedata.html:8
 msgid ""
@@ -283,31 +284,39 @@ msgid ""
 "diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet "
 "clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
 msgstr ""
+"Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy "
+"eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam "
+"voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet "
+"clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit "
+"amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam "
+"nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed "
+"diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet "
+"clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet."
 
 #: .\repair\templates\studyarea\basedata.html:22
 msgid "Map with Sankey"
-msgstr ""
+msgstr "Mappa con Sankey"
 
 #: .\repair\templates\studyarea\basedata.html:24
 msgid "Interaction Test"
-msgstr ""
+msgstr "Test d’interazione"
 
 #: .\repair\templates\studyarea\index.html:10
 msgid "Base data"
-msgstr ""
+msgstr "dati base"
 
 #: .\repair\templates\studyarea\index.html:11
 msgid "Stakeholders"
-msgstr ""
+msgstr "Stakeholders"
 
 #: .\repair\templates\studyarea\stakeholders.html:7
 msgid "Government"
-msgstr ""
+msgstr "Governo"
 
 #: .\repair\templates\studyarea\stakeholders.html:17
 msgid "Waste Companies"
-msgstr ""
+msgstr "Aziende del rifiuto"
 
 #: .\repair\templates\studyarea\stakeholders.html:26
 msgid "NGOs"
-msgstr ""
+msgstr "ONG"

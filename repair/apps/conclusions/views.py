@@ -18,6 +18,10 @@ class ConclusionsIndexView(ModeView):
 
     def render_setup(self, request):
         context = self.get_context_data()
+        casestudy = request.session.get('casestudy')
+        keyflows = KeyflowInCasestudy.objects.filter(casestudy=casestudy)
+        context = self.get_context_data()
+        context['keyflows'] = keyflows
         return render(request, 'conclusions/setup.html', context)
 
     def render_workshop(self, request):

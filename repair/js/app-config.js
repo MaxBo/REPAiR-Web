@@ -50,7 +50,6 @@ function (Session) {
         solutionCategories:     '/api/casestudies/{0}/keyflows/{1}/solutioncategories/',
         strategies:             '/api/casestudies/{0}/keyflows/{1}/strategies/',
         solutionsInStrategy:    '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/solutions/',
-        quantitiesInImplementedSolution: '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/solutions/{3}/quantities',
         layerCategories:        '/api/casestudies/{0}/layercategories',
         layers:                 '/api/casestudies/{0}/layercategories/{1}/layers',
         keyflowsInCaseStudy:    '/api/casestudies/{0}/keyflows',
