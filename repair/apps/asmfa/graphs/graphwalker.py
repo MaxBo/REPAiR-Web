@@ -89,6 +89,7 @@ class NodeVisitor(BFSVisitor):
         changes = {}
         if u.in_degree() > 0:
             all_in = list(u.in_edges())
+            # ToDo: np e.g. g.get_out_edges(node, eprops=[g.ep.amount])
             for i, e in enumerate(all_in):
                 if not self.visited[e]:
                     e_src = e.source()
@@ -120,6 +121,9 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     ----------
     g : the graph to explore
     edge : the starting edge, normally this is the *solution edge*
+    solution : relative change of implementation flow
+               (factor to multiply amount with)
+    amount : PropertyMap
     upstream : The direction of traversal. When upstream is True, the graph
                is explored upstream first, otherwise downstream first.
 
@@ -169,14 +173,18 @@ class GraphWalker:
 
         # store the changes for each actor to sum total in the end
         changes_actors = []
-
-        for edge in implementation_edges:
+        import time
+        for i, edge in enumerate(implementation_edges):
+            start = time.time()
             value = formula.calculate(g.ep.amount[edge])
             if formula.is_absolute:
+                # ToDo: distribute total change in relation to previous total
                 value /= len(implementation_edges)
             changes_actors.append(traverse_graph(g, edge=edge,
                                                  solution=value,
                                                  amount=g.ep.amount))
+            end = time.time()
+            print(f'edge {i} - {end-start}s')
 
         # we compute the solution for each distinct Actor-Actor flow in the
         # implementation flows and assume that we can just sum the changes

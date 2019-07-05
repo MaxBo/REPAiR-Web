@@ -330,8 +330,7 @@ class StrategyGraph(BaseGraph):
         # get FractionFlows related to AffectedFlow
         affected_flows = FractionFlow.objects.none()
         for af in affectedflows:
-            materials = descend_materials(
-                            [af.material])
+            materials = descend_materials([af.material])
             affected_flows = \
                 affected_flows | FractionFlow.objects.filter(
                     origin__activity=af.origin_activity,
@@ -369,23 +368,22 @@ class StrategyGraph(BaseGraph):
             if len(e) > 0:
                 edges.append(e[0])
             else:
-                # shouldn't happen, if graph is up to date
+                # shouldn't happen if graph is up to date
                 print('Warning: graph is missing flows')
         return edges
 
     def _build_formula(self, solution_part, implementation):
         question = solution_part.question
-        is_absolute = question.is_absolute if question \
-            else solution_part.is_absolute
+        is_absolute = solution_part.is_absolute
         a = solution_part.a
         b = solution_part.b
         q = 0
 
         if question:
-            # get the implementation and its quantity
             quantity = ImplementationQuantity.objects.get(
                 question=solution_part.question,
                 implementation=implementation)
+            # question overrides is_absolute of part
             is_absolute = question.is_absolute
             q = quantity.value
 
@@ -401,8 +399,8 @@ class StrategyGraph(BaseGraph):
         g = base_graph.load()
         gw = GraphWalker(g)
 
+        # remove previous calc. from database
         self.clean()
-        #self.mock_changes()
 
         # add change attribute, it defaults to 0.0
         g.ep.change = g.new_edge_property("float")
