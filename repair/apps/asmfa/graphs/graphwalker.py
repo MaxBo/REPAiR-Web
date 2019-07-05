@@ -13,6 +13,56 @@ from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
 
 
+class Formula:
+    def __init__(self, a=1, b=0, q=0, is_absolute=False):
+        '''
+        linear change calculation
+
+        absolute change:
+        v’ = v + delta
+        delta = a * q + b
+
+        relative change:
+        v’ = v * factor
+        factor = a * q + b
+
+        Parameters
+        ----------
+        a: float, optional
+           by default 1
+        q: float, optional
+           quantity (user input), by default 0
+        b: float, optional
+           by default 0
+        is_absolute: bool, optional
+           absolute change, by default False
+        '''
+        self.a = a
+        self.b = b
+        self.q = q
+        self.is_absolute = is_absolute
+
+    def calculate(self, v):
+        '''
+        Parameters
+        ----------
+        v: float,
+           value to apply formula to
+
+        Returns
+        -------
+        v': float
+            calculated value
+        '''
+        if self.is_absolute:
+            delta = self.a * self.q + self.b
+            v_ = v + delta
+        else:
+            factor = self.a * self.q + self.b
+            v_ = v * factor
+        return v_
+
+
 class NodeVisitor(BFSVisitor):
 
     def __init__(self, name, solution, amount, visited, change):
@@ -113,97 +163,20 @@ class GraphWalker:
         self.graph = gt.Graph(g)
         self.edge_mask = self.graph.new_edge_property("bool")
 
-    def shift_flow(self, solution_part, actorflows):
-        """Shift the flows if necessary in a SolutionPart"""
-        if solution_part.implements_new_flow:
-            g = copy.deepcopy(self.graph)
-            # get all target actors, either origin or destination
-            new_targets = Actor.objects.filter(
-                activity=solution_part.new_target_activity)
-            targets = []
-            # get all target vertices
-            for actor in new_targets:
-                targets += util.find_vertex(g, g.vp['id'], actor.id)
-
-            # change all flows by changing origin/destination and amount
-            for flow in actorflows:
-                edges = util.find_edge(g, g.ep['id'], flow.id)
-                if len(edges) > 1:
-                    raise ValueError("FractionFlow.id ", flow.id,
-                                     " is not unique")
-                elif len(edges) == 0:
-                    print("Cannot find FractionFlow.id ", flow.id,
-                          " in the graph")
-                else:
-                    edge_del = edges[0]
-                    amount_flow = g.ep.amount[edge_del]
-                    amount_new = amount_flow / len(targets)
-                    for target in targets:
-                        if(solution_part.keep_origin):
-                            # keeping origin of flow
-                            e = g.add_edge(edge_del.source(), target)
-                        else:
-                            # keeping destination of flow
-                            e = g.add_edge(target, edge_del.target())
-                        g.ep.amount[e] = amount_new
-                        g.ep.material[e] = \
-                            solution_part.implementation_flow_material
-                    g.remove_edge(edge_del)
-            return g
-        else:
-            return self.graph
-
-    def filter_flows(self, solution_object):
-        """Keep only the affected_flows and solution_flows in the graph"""
-        if len(solution_object.solution_flows) > 0:
-            assert (isinstance(solution_object.solution_flows[0], tuple),
-            "Flow must be a tuple of (edge id, material id)")
-        elif len(solution_object.affected_flows) > 0:
-            assert (isinstance(solution_object.affected_flows[0], tuple),
-            "Flow must be a tuple of (edge id, material id)")
-        selected_flows = (solution_object.affected_flows +
-                          solution_object.solution_flows)
-        for e in self.graph.edges():
-            eid = self.graph.ep.id[e]
-            mat = self.graph.ep.material[e]
-            key = (eid, mat)
-            if key in selected_flows:
-                self.edge_mask[e] = True
-            else:
-                self.edge_mask[e] = False
-
-    def calculate_solution_part(self, solution_part, actorflows, quantity):
+    def calculate(self, implementation_edges, formula: Formula):
         """Calculate the changes on flows for a solution"""
         g = copy.deepcopy(self.graph)
 
         # store the changes for each actor to sum total in the end
         changes_actors = []
 
-        if solution_part.implements_new_flow:
-            # this we need because we work with Actors and not Activities,
-            # while the user defines the solution with Activities,
-            # thus potentially there many Actor-Actor flows in a single Activity
-            for flow in actorflows:
-                edges = util.find_edge(g, g.ep['id'], flow.id)
-                if len(edges) > 1:
-                    raise ValueError("FractionFlow.id ", flow.id,
-                                     " is not unique")
-                elif len(edges) == 0:
-                    print("Cannot find FractionFlow.id ", flow.id,
-                          " in the graph")
-                else:
-                    e = edges[0]
-                    # calculate the new value
-                    value = (solution_part.a * quantity.value + solution_part.b)
-                    if solution_part.question.is_absolute:
-                        if g.ep.amount[e] < 0:
-                            raise ValueError("FractionFlow.amount "
-                                             "(id %s) is < 0" % g.ep.id[e])
-                        value = value / g.ep.amount[e]
-
-                    changes_actors.append(traverse_graph(g, edge=e,
-                                                         solution=value,
-                                                         amount=g.ep.amount))
+        for edge in implementation_edges:
+            value = formula.calculate(g.ep.amount[edge])
+            if formula.is_absolute:
+                value /= len(implementation_edges)
+            changes_actors.append(traverse_graph(g, edge=edge,
+                                                 solution=value,
+                                                 amount=g.ep.amount))
 
         # we compute the solution for each distinct Actor-Actor flow in the
         # implementation flows and assume that we can just sum the changes
