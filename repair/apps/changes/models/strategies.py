@@ -89,9 +89,9 @@ def trigger_implementationquantity_sii(sender, instance,
             if is_created:
                 new.save()
 
-    signals.post_save.connect(
-        trigger_implementationquantity_sii,
-        sender=SolutionInStrategy,
-        weak=False,
-        dispatch_uid='models.trigger_implementationquantity_sii')
+signals.post_save.connect(
+    trigger_implementationquantity_sii,
+    sender=SolutionInStrategy,
+    weak=False,
+    dispatch_uid='models.trigger_implementationquantity_sii')
 
