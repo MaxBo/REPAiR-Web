@@ -26,15 +26,16 @@ import time
 
 
 class BaseGraph:
-    def __init__(self, keyflow):
+    def __init__(self, keyflow, tag=''):
         self.keyflow = keyflow
+        self.tag = tag
         self.graph = None
 
     @property
     def path(self):
         path = settings.GRAPH_ROOT
         cspath = os.path.join(
-            path, "casestudy-{}".format(self.keyflow.casestudy.id))
+            path, f"{self.tag}casestudy-{self.keyflow.casestudy.id}")
         if not os.path.exists(cspath):
             os.makedirs(cspath)
         return cspath
@@ -62,6 +63,11 @@ class BaseGraph:
     def save(self, graph=None):
         graph = graph or self.graph
         self.graph.save(self.filename)
+
+    def remove(self):
+        self.graph = None
+        if os.path.exists(self.filename):
+            os.remove(self.filename)
 
     def build(self):
         actorflows = FractionFlow.objects.filter(
@@ -98,9 +104,9 @@ class BaseGraph:
         self.graph.edge_properties["id"] = self.graph.new_edge_property("int")
         self.graph.edge_properties['amount'] = \
             self.graph.new_edge_property("float")
-        self.graph.edge_properties['material_id'] = \
+        self.graph.edge_properties['material'] = \
             self.graph.new_edge_property("int")
-        self.graph.edge_properties['process_id'] = \
+        self.graph.edge_properties['process'] = \
             self.graph.new_edge_property("int")
 
         for i in range(len(flows)):
@@ -116,8 +122,8 @@ class BaseGraph:
                 e = self.graph.add_edge(
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[e] = flow.id
-                self.graph.ep.material_id[e] = flow.material_id
-                self.graph.ep.process_id[e] = \
+                self.graph.ep.material[e] = flow.material_id
+                self.graph.ep.process[e] = \
                     flow.process_id if flow.process_id is not None else - 1
                 self.graph.ep.amount[e] = flow.amount
 
@@ -169,14 +175,15 @@ class BaseGraph:
 
 
 class StrategyGraph(BaseGraph):
-    def __init__(self, strategy):
+    def __init__(self, strategy, tag=''):
         self.keyflow = strategy.keyflow
         self.strategy = strategy
+        self.tag = tag
         self.graph = None
 
     @property
     def filename(self):
-        fn = "keyflow-{}-s{}.gt".format(self.keyflow.id, self.strategy.id)
+        fn = f"{self.tag}keyflow-{self.keyflow.id}-s{self.strategy.id}.gt"
         return os.path.join(self.path, fn)
 
     @property
@@ -236,6 +243,7 @@ class StrategyGraph(BaseGraph):
                origin__in=actors_origin.values('id'),
                destination__in=actors_destination.values('id'),
                material=solution_part.implementation_flow_material)
+        # ToDo:
         else:
             pass
 
@@ -297,7 +305,7 @@ class StrategyGraph(BaseGraph):
                                       hazardous = flow.hazardous,
                                       nace = flow.nace,
                                       composition_name = flow.composition_name,
-                                      strategy = flow.strategy,
+                                      strategy = self.strategy,
                                       keyflow = flow.keyflow,
                                       description = flow.description,
                                       year = flow.year,
@@ -308,13 +316,15 @@ class StrategyGraph(BaseGraph):
 
                     g.ep.id[e] = ff.id
                     g.ep.amount[e] = amount
-                    g.ep.material[e] = flow.material
+                    g.ep.material[e] = flow.material.id
+                    g.ep.process[e] = \
+                        flow.process.id if flow.process is not None else - 1
                 # remove the edge from the graph
                 g.remove_edge(edge_del)
                 # set the StrategyFractionFlow.amount to 0
                 sff = StrategyFractionFlow.objects.update_or_create(
                     fractionflow=flow,
-                    strategy=flow.strategy,
+                    strategy=self.strategy,
                     material=flow.material,
                     defaults={"amount" : 0})
 
@@ -367,7 +377,7 @@ class StrategyGraph(BaseGraph):
 
     def build(self):
 
-        base_graph = BaseGraph(self.keyflow)
+        base_graph = BaseGraph(self.keyflow, tag=self.tag)
         if not base_graph.exists:
             raise FileNotFoundError
         g = base_graph.load()

@@ -156,11 +156,11 @@ class GraphWalker:
     def filter_flows(self, solution_object):
         """Keep only the affected_flows and solution_flows in the graph"""
         if len(solution_object.solution_flows) > 0:
-            assert isinstance(solution_object.solution_flows[0], tuple),
-            "Flow must be a tuple of (edge id, material id)"
+            assert (isinstance(solution_object.solution_flows[0], tuple),
+            "Flow must be a tuple of (edge id, material id)")
         elif len(solution_object.affected_flows) > 0:
-            assert isinstance(solution_object.affected_flows[0], tuple),
-            "Flow must be a tuple of (edge id, material id)"
+            assert (isinstance(solution_object.affected_flows[0], tuple),
+            "Flow must be a tuple of (edge id, material id)")
         selected_flows = (solution_object.affected_flows +
                           solution_object.solution_flows)
         for e in self.graph.edges():
