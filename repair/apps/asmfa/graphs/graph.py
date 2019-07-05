@@ -1,10 +1,10 @@
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
-
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow)
+from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
@@ -239,10 +239,12 @@ class StrategyGraph(BaseGraph):
                 activity=solution_part.implementation_flow_origin_activity)
             actors_destination = Actor.objects.filter(
                 activity=solution_part.implementation_flow_destination_activity)
+            materials = descend_materials(
+                [solution_part.implementation_flow_material])
             actorflows = FractionFlow.objects.filter(
                origin__in=actors_origin.values('id'),
                destination__in=actors_destination.values('id'),
-               material=solution_part.implementation_flow_material)
+               material__in=materials)
         # ToDo:
         else:
             pass
@@ -394,7 +396,7 @@ class StrategyGraph(BaseGraph):
         # get the solutions in this strategy and order them by priority
         solutions_in_strategy = SolutionInStrategy.objects.filter(
             strategy=self.strategy).order_by('priority')
-        for solution_in_strategy in solutions_in_strategy:
+        for solution_in_strategy in solutions_in_strategy.order_by('priority'):
             solution = solution_in_strategy.solution
             parts = solution.solution_parts.all()
             # get the solution parts using the reverse relation
@@ -414,23 +416,35 @@ class StrategyGraph(BaseGraph):
                     actors_destination = Actor.objects.filter(
                         activity=af.destination_activity)
 
+                    materials = descend_materials(
+                        [solution_part.implementation_flow_material])
                     affectedfractionflows = \
                         affectedfractionflows | FractionFlow.objects.filter(
                             origin__in=actors_origin.values('id'),
                             destination__in=actors_destination.values('id'),
-                            material=solution_part.implementation_flow_material)
+                            material__in=materials)
 
                 # ToDo: filter instead of iterating?
                 start = time.time()
-                for e in g.edges():
-                    source = g.vp.id[e.source()]
-                    target = g.vp.id[e.target()]
-                    ff = affectedfractionflows.filter(origin_id=source,
-                                              destination_id=target)
-                    if(ff.count() > 0):
-                        g.ep.include[e] = True
+
+                # exclude all
+                g.ep.include.a[:] = False
+                # include affected edges
+                for flow in affectedfractionflows:
+                    edges = util.find_edge(g, g.ep['id'], flow.id)
+                    if len(edges) > 0:
+                        g.ep.include[edges[0]] = True
                     else:
-                        g.ep.include[e] = False
+                        print('Warning: base graph is missing affected flows')
+                #for e in g.edges():
+                    #source = g.vp.id[e.source()]
+                    #target = g.vp.id[e.target()]
+                    #ff = affectedfractionflows.filter(origin_id=source,
+                                              #destination_id=target)
+                    #if(ff.count() > 0):
+                        #g.ep.include[e] = True
+                    #else:
+                        #g.ep.include[e] = False
                 end = time.time()
                 print(end-start)
                 # get the implementation and its quantity
