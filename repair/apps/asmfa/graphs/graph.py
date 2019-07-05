@@ -279,7 +279,6 @@ class StrategyGraph(BaseGraph):
             elif len(edges) == 0:
                 print("Cannot find FractionFlow.id ", flow.id, " in the graph")
             else:
-                edge_del = edges[0]
                 for target in targets:
                     # make the new edge and FractionFlow
                     if solution_part.keep_origin:
@@ -293,42 +292,21 @@ class StrategyGraph(BaseGraph):
                         destination = flow.destination
                         e = g.add_edge(target["vertex"], edge_del.target())
 
-                    # ToDo: actually don't do this, only after all calculations
                     # create a new fractionflow for the implementation flow
-                    ff = FractionFlow(origin=origin,
-                                      destination=destination,
-                                      flow = flow.flow,
-                                      stock = flow.stock,
-                                      material = flow.material,
-                                      to_stock = flow.to_stock,
-                                      amount = amount,
-                                      publication = flow.publication,
-                                      avoidable = flow.avoidable,
-                                      hazardous = flow.hazardous,
-                                      nace = flow.nace,
-                                      composition_name = flow.composition_name,
-                                      strategy = self.strategy,
-                                      keyflow = flow.keyflow,
-                                      description = flow.description,
-                                      year = flow.year,
-                                      waste = flow.waste,
-                                      process = flow.process
-                                      )
-                    ff.save()
+                    # setting id to None creates new one when saving
+                    # while keeping attributes
+                    flow.id = None
+                    flow.amount = amount
+                    flow.origin = origin
+                    flow.destination = destination
+                    flow.strategy = self.strategy
+                    flow.save()
 
-                    g.ep.id[e] = ff.id
+                    g.ep.id[e] = flow.id
                     g.ep.amount[e] = amount
                     g.ep.material[e] = flow.material.id
                     g.ep.process[e] = \
                         flow.process.id if flow.process is not None else - 1
-                # remove the edge from the graph
-                g.remove_edge(edge_del)
-                # set the StrategyFractionFlow.amount to 0
-                sff = StrategyFractionFlow.objects.update_or_create(
-                    fractionflow=flow,
-                    strategy=self.strategy,
-                    material=flow.material,
-                    defaults={"amount" : 0})
 
     def mock_changes(self):
         '''make some random changes for testing'''
@@ -435,6 +413,7 @@ class StrategyGraph(BaseGraph):
                     if len(edges) > 0:
                         g.ep.include[edges[0]] = True
                     else:
+                        # shouldn't happen, if graph is up to date
                         print('Warning: base graph is missing affected flows')
                 #for e in g.edges():
                     #source = g.vp.id[e.source()]
@@ -474,13 +453,18 @@ class StrategyGraph(BaseGraph):
             # get the related FractionFlow
             ff = FractionFlow.objects.get(id=self.graph.ep.id[e])
             if ff.amount != amount_new:
-                # update or create a strategyfractionflow to store the amount
-                sff = StrategyFractionFlow.objects.update_or_create(
-                    fractionflow=ff,
-                    strategy=self.strategy,
-                    material=ff.material,
-                    defaults={"amount" : amount_new}
-                )
+                # new flow
+                if ff.strategy is not None:
+                    ff.amount = amount_new
+                    ff.save()
+                else:
+                    # update or create a strategyfractionflow to store the amount
+                    sff = StrategyFractionFlow.objects.update_or_create(
+                        fractionflow=ff,
+                        strategy=self.strategy,
+                        material=ff.material,
+                        defaults={"amount" : amount_new}
+                    )
             else:
                 # delete strategyfractionflow if amount is same as fractionflow
                 StrategyFractionFlow.objects.filter(
