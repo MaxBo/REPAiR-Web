@@ -241,7 +241,7 @@ var BaseView = Backbone.View.extend(
         itemContent.innerHTML = template({ name: text });
         panelItem.appendChild(itemContent);
 
-        if (overlayText){
+        if (overlayText != null){
             var overlay = panelItem.querySelector('.overlay');
             overlay.style.display = 'inline-block';
             overlay.innerHTML = overlayText;
@@ -252,7 +252,7 @@ var BaseView = Backbone.View.extend(
             panelItem.querySelector('label').style.maxWidth = 'calc(100% - 50px)';
         }
 
-        if (popoverText){
+        if (popoverText != null){
             $(panelItem).popover({
                 trigger: "hover",
                 container: 'body',

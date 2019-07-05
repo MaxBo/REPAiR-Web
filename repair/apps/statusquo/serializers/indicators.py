@@ -1,10 +1,11 @@
 from rest_framework import serializers
+
+from repair.apps.utils.serializers import EnumField
 from repair.apps.statusquo.models import (FlowIndicator, IndicatorFlow,
                                           KeyflowInCasestudy,
                                           IndicatorType, SpatialChoice,
                                           FlowType, NodeLevel, SpatialType,
                                           TriState)
-from repair.apps.utils.serializers import EnumField
 
 
 class IndicatorFlowSerializer(serializers.ModelSerializer):
@@ -39,6 +40,7 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
     }
     indicator_type = EnumField(enum=IndicatorType, required=False)
     spatial_reference = EnumField(enum=SpatialType, required=False)
+    is_absolute = serializers.SerializerMethodField()
 
     class Meta:
         model = FlowIndicator
@@ -47,11 +49,16 @@ class FlowIndicatorSerializer(serializers.ModelSerializer):
                   'unit',
                   'description',
                   'indicator_type',
+                  'is_absolute',
                   'flow_a',
                   'flow_b',
                   'spatial_reference',
                   'included')
         extra_kwargs = {'included': {'required': False}}
+
+    def get_is_absolute(self, obj):
+        indicator_type = obj.get_type()
+        return indicator_type.is_absolute
 
     def create(self, validated_data):
         flow_a = validated_data.pop('flow_a', None)

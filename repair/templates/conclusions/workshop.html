@@ -28,56 +28,58 @@
 {% endblock %}
 
 {% block content %}
+{% if not conclusions_permitted %}
+  <h3>{% trans "You do not have the permission to view the conclusions." %}</h3>
+  {% render_bundle 'Base' %}
+{% else %}
 
-<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
-<div class="tab-content" style="padding-right: 50px"><!--col-md-10-->
-  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
-  <div class="tab-pane fade in active" id="objectives" data-step="Objectives">
-  </div>
-  <div class="tab-pane fade" id="flow-targets" data-step="Flow Targets">
-    <h2> ToDo </h2>
-  </div>
-  <div class="tab-pane fade" id="strategies" data-step="Strategies">
-  </div>
-  <div class="tab-pane fade" id="modified-flows" data-step="Modified Flows">
-    <h2> ToDo </h2>
-  </div>
-  <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
-    <h2> ToDo </h2>
-  </div>
-  <div class="tab-pane fade" id="conclusions">
-    <h2> ToDo </h2>
-  </div>
-</div>
-<div id='comment-section'> <!--class="col-md-2"-->
-    <div class="row">
-      <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
-        <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
-      </button>
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
+  <div class="tab-content" style="padding-right: 50px"><!--col-md-10-->
+    <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+    <div class="tab-pane fade in active" id="objectives" data-step="Objectives">
     </div>
-    <div class="row">
-      <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
-        <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
-      </button>
+    <div class="tab-pane fade" id="flow-targets" data-step="Flow Targets">
     </div>
-</div>
-<div id="conclusion-modal" class="modal fade" role="dialog">
-<div id="manage-conclusions-modal"></div>
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content col-md-12">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">{% trans "Manage Conclusions" %} &nbsp; </h4>
+    <div class="tab-pane fade" id="strategies" data-step="Strategies">
+    </div>
+    <div class="tab-pane fade" id="modified-flows" data-step="Modified Flows">
+    </div>
+    <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
+    </div>
+    <div class="tab-pane fade" id="conclusions">
+      <h2> ToDo </h2>
+    </div>
+  </div>
+  <div id='comment-section'> <!--class="col-md-2"-->
+      <div class="row">
+        <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
+          <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
+        </button>
       </div>
-      <div class="modal-body">
+      <div class="row">
+        <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
+          <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
+        </button>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
-        <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+  </div>
+  <div id="conclusion-modal" class="modal fade" role="dialog">
+  <div id="manage-conclusions-modal"></div>
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content col-md-12">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{% trans "Manage Conclusions" %} &nbsp; </h4>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+          <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
+{% endif %}
 
 {% render_bundle 'Recommendations' %}
 
@@ -152,8 +154,8 @@
     <div class="tab-pane fade in active bordered" id="step2tab">
       <h3> {% trans "Which flow indicators were used for target settings on which objectives?" %} </h3>
       <div style="overflow: auto">
-        <table id="indicator-table" class="table"></table>
-        </div>
+        <table name="indicator-table" class="table"></table>
+      </div>
     </div>
     <div class="tab-pane fade in bordered" id="step3tab">
       <h3> {% trans "Which target values were set?" %} </h3>
@@ -187,16 +189,19 @@
 <script type="text/template" id="strategies-template">
 <div class="col-md-12">
   <ul class="nav nav-tabs">
-    <li><a data-toggle="tab" href="#step4tab">{% trans "Step" %} 4</a></li>
-    <li class="active"><a data-toggle="tab" href="#step5tab">{% trans "Step" %} 5</a></li>
+    <li class="active"><a data-toggle="tab" href="#step4tab">{% trans "Step" %} 4</a></li>
+    <li><a data-toggle="tab" href="#step5tab">{% trans "Step" %} 5</a></li>
     <li><a data-toggle="tab" href="#step6tab">{% trans "Step" %} 6</a></li>
     <li><a data-toggle="tab" href="#step7tab">{% trans "Step" %} 7</a></li>
   </ul>
   <div class="tab-content">
-    <div class="tab-pane fade in bordered" id="step4tab">
-      <h3> ToDo </h3>
+    <div class="tab-pane fade in active bordered" id="step4tab">
+      <h3> {% trans "Which solutions were selected for the strategies? How where the questions answered?" %} </h3>
+      <div style="overflow: auto">
+        <table id="solution-question-table" class="table"></table>
+      </div>
     </div>
-    <div class="tab-pane fade in active bordered" id="step5tab">
+    <div class="tab-pane fade in bordered" id="step5tab">
       <div class="row">
         <div class="col-md-8">
           <h3> {% trans "Where were the solutions applied?" %} </h3>
@@ -218,13 +223,68 @@
       </div>
     </div>
     <div class="tab-pane fade in bordered" id="step6tab">
-      <h3> ToDo </h3>
+      <h3> {% trans "Which actor groups are touched by the selected solutions? Which most often?" %} </h3>
+      <div class="row">
+        <h4 style="margin-right: 10px; float: left;">Level </h4>
+        <select class="form-control" name="level-select" style="width: 200px; float: left;">
+          <option selected value="activity">Activity</option>
+          <option value="activitygroup">Activity Group</option>
+        </select>
+      </div>
+      <div style="overflow: auto">
+        <table id="directly-affected-table" class="table"></table>
+      </div>
+      <div style="overflow: auto">
+        <table id="indirectly-affected-table" class="table"></table>
+      </div>
     </div>
     <div class="tab-pane fade in bordered" id="step7tab">
-      <h3> ToDo </h3>
+      <h3> {% trans "Which stakeholders were chosen for implementing solutions?" %} </h3>
+      <div style="overflow: auto">
+        <table id="stakeholder-table" class="table"></table>
+      </div>
     </div>
   </div>
 </div>
+</script>
+
+<script type="text/template" id="modified-flows-template">
+<div class="col-md-12">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#step8tab">{% trans "Step" %} 8</a></li>
+    <li><a data-toggle="tab" href="#step9tab">{% trans "Step" %} 9</a></li>
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane fade in active bordered" id="step8tab">
+      <h3> {% trans "How much do the strategies modify the flows?" %} </h3>
+      <div style="overflow: auto">
+        <table name="indicator-table" class="table"></table>
+      </div>
+    </div>
+    <div class="tab-pane fade in bordered" id="step9tab">
+      <h3> {% trans "Which strategy is able to meet which own target?" %} </h3>
+      <div style="overflow: auto">
+        <table name="comparison-table" class="table"></table>
+      </div>
+    </div>
+  </div>
+</div>
+</script>
+
+<script type="text/template" id="sustainability-template">
+  <div class="bordered sunken" id="canvas-wrapper" style='background-color: white; text-align: center; display: none; overflow: auto;'>
+    <div class="row">
+      <div style="float: left;">
+        <h4 id="page-status" style="float: left; margin: 5px 10px 0px 0px;"></h4>
+        <button class="btn btn-primary square" id="prev">{% trans "Previous" %}</button>
+        <button class="btn btn-primary square" id="next">{% trans "Next" %}</button>
+      </div>
+      <div style="float: right;">
+        <button class="fullscreen-toggle fas fa-expand btn btn-primary"></button>
+      </div>
+    </div>
+    <canvas></canvas>
+  </div>
 </script>
 
 {% endblock %}
