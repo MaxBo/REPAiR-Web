@@ -7,7 +7,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.gis.geos import GEOSGeometry
 from django.db.models.functions import Coalesce
 
-from repair.apps.asmfa.views import descend_materials
+from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import Actor, FractionFlow, AdministrativeLocation
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 
