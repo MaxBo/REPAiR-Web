@@ -384,7 +384,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                     list(grouped.aggregate(Sum('strategy_amount')).values())[0]
                 annotation['strategy_amount'] = F('strategy_amount')
                 # F('amount') takes Sum annotation instead of real field
-                annotation['delta'] = (F('strategy_amount') - F('statusquo_amount'))
+                annotation['delta'] = (F('strategy_amount') -
+                                       F('statusquo_amount'))
             grouped_mats = \
                 list(grouped.values('material').annotate(**annotation))
             # aggregate materials according to mapping aggregation_map

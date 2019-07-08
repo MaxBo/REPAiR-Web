@@ -469,7 +469,8 @@ var StrategyView = BaseView.extend(
     * render the map with the drawn polygons into the solution item
     */
     renderSolutionPreviewMap: function(solutionImpl, item){
-        var divid = 'solutionImpl' + solutionImpl.id;
+        var divid = 'solutionImpl' + solutionImpl.id,
+            _this = this;
         var mapDiv = item.querySelector('.olmap');
         mapDiv.id = divid;
         mapDiv.innerHTML = '';

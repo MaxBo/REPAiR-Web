@@ -3,7 +3,7 @@ from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       StrategyFractionFlow)
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
-                                        AffectedFlow)
+                                        AffectedFlow, ActorInSolutionPart)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker, Formula
@@ -232,83 +232,68 @@ class StrategyGraph(BaseGraph):
             flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
             flow.save()
 
-    def create_new_flows(self, solution_part, g):
-        # shift actor flows to new origin or target and create new FractionFlow
-        # get actorflows that belong to the implementation flow
-        if not solution_part.references_part:
-            actors_origin = Actor.objects.filter(
-                activity=solution_part.implementation_flow_origin_activity)
-            actors_destination = Actor.objects.filter(
-                activity=solution_part.implementation_flow_destination_activity)
-            materials = descend_materials(
-                [solution_part.implementation_flow_material])
-            actorflows = FractionFlow.objects.filter(
-               origin__in=actors_origin.values('id'),
-               destination__in=actors_destination.values('id'),
-               material__in=materials)
-        # ToDo:
+    def create_new_flows(self, implementation_flows, target_actor,
+                         graph, keep_origin=True):
+        '''
+        creates new flows based on given implementation flows and redirects them
+        to target actor (either origin or destinations are changing)
+        implementation_flows stay untouched
+        graph is updated in place
+        Warning: side effects on implementation_flows
+        '''
+        new_flows = []
+
+        target_vertex = util.find_vertex(graph, graph.vp['id'], target_actor.id)
+        if(len(target_vertex) > 0):
+            target_vertex = target_vertex[0]
         else:
-            pass
+            target_vertex = graph.add_vertex()
+            graph.vp.id[target_vertex] = target_actor.id
+            graph.vp.bvdid[target_vertex] = target_actor.BvDid
+            graph.vp.name[target_vertex] = target_actor.name
 
-        # add Actors related to SolutionPart.new_target_activity
-        new_actors = Actor.objects.filter(
-            activity=solution_part.new_target_activity)
-        count = len(new_actors)
-        targets = []
-        for actor in new_actors:
-            vertices = util.find_vertex(g, g.vp['id'], actor.id)
-            # check if vertex exists, else create new
-            if(len(vertices) > 0):
-                v = vertices[0]
-            else:
-                v = g.add_vertex()
-                g.vp.id[v] = actor.id
-                g.vp.bvdid[v] = actor.BvDid
-                g.vp.name[v] = actor.name
-            targets.append({"actor": actor, "vertex": v})
+        # create new flows and add corresponding edges
+        for flow in implementation_flows:
+            # ToDo: new flows keep the amount, they are reduced in the
+            # calculation ??? how does this affect the other flows?
+            # absolute change?
+            amount = flow.amount
 
-        # add edges related to the new ImplementationFlow
-        # this is skipped when the new_target_activity related flows
-        # are already in the graph
-        for flow in actorflows:
-            amount = flow.amount / count
             # Change flow in the graph
-            edges = util.find_edge(g, g.ep['id'], flow.id)
+            edges = util.find_edge(graph, graph.ep['id'], flow.id)
             if len(edges) > 1:
                 raise ValueError("FractionFlow.id ", flow.id,
                                  " is not unique in the graph")
             elif len(edges) == 0:
                 print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                continue
+            edge = edges[0]
+            if keep_origin:
+                new_edge = graph.add_edge(edge.source(), target_vertex)
             else:
-                edge = edges[0]
-                for target in targets:
-                    # make the new edge and FractionFlow
-                    if solution_part.keep_origin:
-                        # keep origin of flow
-                        origin = flow.origin
-                        destination = target["actor"]
-                        e = g.add_edge(edge.source(), target["vertex"])
-                    else:
-                        # keep destination of flow
-                        origin = target["actor"]
-                        destination = flow.destination
-                        e = g.add_edge(target["vertex"], edge.target())
+                new_edge = graph.add_edge(target_vertex, edge.target())
 
-                    # create a new fractionflow for the implementation flow
-                    # setting id to None creates new one when saving
-                    # while keeping attributes
-                    flow.id = None
-                    flow.amount = amount
-                    flow.origin = origin
-                    flow.destination = destination
-                    flow.strategy = self.strategy
-                    flow.save()
+            # create a new fractionflow for the implementation flow
+            # setting id to None creates new one when saving
+            # while keeping attributes
+            flow.id = None
+            flow.amount = amount
+            if keep_origin:
+                flow.destination = target_actor
+            else:
+                flow.origin = target_actor
+            # strategy marks flow as new flow
+            flow.strategy = self.strategy
+            flow.save()
+            new_flows.append(flow)
 
-                    g.ep.id[e] = flow.id
-                    g.ep.amount[e] = amount
-                    g.ep.material[e] = flow.material.id
-                    g.ep.process[e] = \
-                        flow.process.id if flow.process is not None else - 1
+            graph.ep.id[new_edge] = flow.id
+            graph.ep.amount[new_edge] = amount
+            graph.ep.material[new_edge] = flow.material.id
+            graph.ep.process[new_edge] = \
+                flow.process.id if flow.process is not None else - 1
+
+        return new_flows
 
     def clean(self):
         '''
@@ -361,15 +346,15 @@ class StrategyGraph(BaseGraph):
             destinations = Actor.objects.filter(
                 activity=solution_part.implementation_flow_destination_activity)
             spatial_choice = solution_part.implementation_flow_spatial_application
-            if spatial_choice in [SpatialChoice.BOTH, SpatialChoice.ORIGIN]:
-                origins = origins.filter(
-                    administrative_location__geom__intersects=
-                    implementation_area)
-            if spatial_choice in [SpatialChoice.BOTH,
-                                  SpatialChoice.DESTINATION]:
-                destinations = destinations.filter(
-                    administrative_location__geom__intersects=
-                    implementation_area)
+            # iterate collection
+            for geom in implementation_area:
+                if spatial_choice in [SpatialChoice.BOTH, SpatialChoice.ORIGIN]:
+                    origins = origins.filter(
+                        administrative_location__geom__intersects=geom)
+                if spatial_choice in [SpatialChoice.BOTH,
+                                      SpatialChoice.DESTINATION]:
+                    destinations = destinations.filter(
+                        administrative_location__geom__intersects=geom)
             implementation_flows = FractionFlow.objects.filter(
                 origin__in=origins,
                 destination__in=destinations,
@@ -378,20 +363,22 @@ class StrategyGraph(BaseGraph):
 
         return implementation_flows, affected_flows
 
-    def _include(self, graph, flows):
+    def _include(self, graph, flows, do_include=True):
         '''
         include flows in graph, excludes all others
+        set do_include=False to exclude
         graph is changed in place
         '''
         start = time.time()
-        # exclude all
-        graph.ep.include.a[:] = False
         # include affected edges
         edges = self._get_edges(graph, flows)
         for edge in edges:
-            graph.ep.include[edge] = True
+            graph.ep.include[edge] = do_include
         end = time.time()
-        print(end-start)
+
+    def _reset_include(self, graph, do_include=True):
+        # exclude all
+        graph.ep.include.a[:] = do_include
 
     def _get_edges(self, graph, flows):
         edges = []
@@ -447,22 +434,39 @@ class StrategyGraph(BaseGraph):
             parts = solution.solution_parts.all()
             # get the solution parts using the reverse relation
             for solution_part in parts.order_by('priority'):
-                if solution_part.implements_new_flow:
-                    self.create_new_flows(solution_part, g)
                 implementation_flows, affected_flows = \
                     self._get_flows(solution_part, solution_in_strategy)
+                if solution_part.implements_new_flow:
+                    target_activity = solution_part.new_target_activity
+                    keep_origin = solution_part.keep_origin
+                    picked = ActorInSolutionPart.objects.filter(
+                        solutionpart=solution_part,
+                        implementation=solution_in_strategy)
+                    # no calculation possible with no actor picked by user
+                    if len(picked) == 0:
+                        continue
+                    target_actor = picked[0].actor
+                    # the new flows will be the ones affected by
+                    # calculation first
+                    implementation_flows = self.create_new_flows(
+                        implementation_flows, target_actor,
+                        g, keep_origin=keep_origin)
                 formula = self._build_formula(
                     solution_part, solution_in_strategy)
 
-                self._include(g, implementation_flows | affected_flows)
+                # exclude all edges
+                self._reset_include(g, do_include=False)
+                # include affected flows
+                self._include(g, affected_flows)
+
                 impl_edges = self._get_edges(g, implementation_flows)
 
                 # ToDo: SolutionInStrategy geometry for filtering?
                 gw = GraphWalker(g)
                 self.graph = gw.calculate(impl_edges, formula)
 
-            # store the changes for this solution into amount
-            self.graph = gw.add_changes_to_amounts()
+                # store the changes for this solution into amount
+                self.graph = gw.add_changes_to_amounts()
 
         # save the strategy graph to a file
         self.graph.save(self.filename)
@@ -472,6 +476,7 @@ class StrategyGraph(BaseGraph):
         return self.graph
 
     def translate_to_db(self):
+        # ToDo: filter for changes
         # store edges (flows) to database
         for e in self.graph.edges():
             amount_new = self.graph.ep.amount[e]

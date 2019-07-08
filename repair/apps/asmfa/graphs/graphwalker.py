@@ -8,6 +8,7 @@ except ModuleNotFoundError:
 import copy
 import numpy as np
 from django.db.models import Q
+import time
 
 from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
@@ -54,13 +55,31 @@ class Formula:
         v': float
             calculated value
         '''
+        return self.calculate_factor(v) * v
+
+    def calculate_factor(self, v=None):
+        '''
+        Parameters
+        ----------
+        v: float, optional
+           needed for calculation of a
+
+        Returns
+        -------
+        factor: float
+            calculated factor
+        '''
         if self.is_absolute:
+            if v is None:
+                raise ValueError('Value needed for calculation of a factor for '
+                                 'absolute changes')
             delta = self.a * self.q + self.b
             v_ = v + delta
+            factor = v_ / v
         else:
             factor = self.a * self.q + self.b
-            v_ = v * factor
-        return v_
+        return factor
+
 
 
 class NodeVisitor(BFSVisitor):
@@ -173,18 +192,36 @@ class GraphWalker:
 
         # store the changes for each actor to sum total in the end
         changes_actors = []
-        import time
+        if formula.is_absolute:
+            total = sum(g.ep.amount[edge] for edge in implementation_edges)
+            total_change = formula.calculate(total)
+            #factor = formula.calculate_factor(total)
+        else:
+            factor = formula.calculate_factor()
+
         for i, edge in enumerate(implementation_edges):
+
+            g.ep.include[edge] = False
             start = time.time()
-            value = formula.calculate(g.ep.amount[edge])
+            amount = g.ep.amount[edge]
             if formula.is_absolute:
-                # ToDo: distribute total change in relation to previous total
-                value /= len(implementation_edges)
-            changes_actors.append(traverse_graph(g, edge=edge,
-                                                 solution=value,
-                                                 amount=g.ep.amount))
+                # distribute total change to changes on edges
+                # depending on share of total
+                solution_factor = total_change * amount / total
+            else:
+                solution_factor = factor
+            changes = traverse_graph(g, edge=edge,
+                                     solution=solution_factor,
+                                     amount=g.ep.amount)
+            changes_actors.append(changes)
+            self.graph.ep.include[edge] = True
             end = time.time()
             print(f'edge {i} - {end-start}s')
+
+            #if (i > 10):
+                #break
+
+        # ToDo: optimize performance of summing changes (get rid of loops)
 
         # we compute the solution for each distinct Actor-Actor flow in the
         # implementation flows and assume that we can just sum the changes
