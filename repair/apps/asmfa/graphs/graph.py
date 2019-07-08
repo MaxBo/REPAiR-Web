@@ -425,6 +425,7 @@ class StrategyGraph(BaseGraph):
         g.ep.change = g.new_edge_property("float")
         # add include attribute, it defaults to False
         g.ep.include = g.new_edge_property("bool")
+        g.ep.changed = g.new_edge_property("bool")
 
         # get the solutions in this strategy and order them by priority
         solutions_in_strategy = SolutionInStrategy.objects.filter(
@@ -478,30 +479,26 @@ class StrategyGraph(BaseGraph):
     def translate_to_db(self):
         # ToDo: filter for changes
         # store edges (flows) to database
-        for e in self.graph.edges():
-            amount_new = self.graph.ep.amount[e]
+        strat_flows = []
+        changed_edges = util.find_edge(
+            self.graph, self.graph.ep['changed'], True)
+        for edge in changed_edges:
+            new_amount = self.graph.ep.amount[edge]
             # get the related FractionFlow
-            ff = FractionFlow.objects.get(id=self.graph.ep.id[e])
-            if ff.amount != amount_new:
-                # new flow
-                if ff.strategy is not None:
-                    ff.amount = amount_new
-                    ff.save()
-                else:
-                    # update or create a strategyfractionflow to store the amount
-                    sff = StrategyFractionFlow.objects.get(
-                        fractionflow=ff,
-                        strategy=self.strategy,
-                        material=ff.material,
-                        defaults={"amount" : amount_new}
-                    )
+            ff = FractionFlow.objects.get(id=self.graph.ep.id[edge])
+            # new flow is marked with strategy relation
+            # (no seperate strategy fraction flow needed)
+            if ff.strategy is not None:
+                ff.amount = new_amount
+                ff.save()
+            # changed flow gets a related strategy fraction flow holding changes
             else:
-                # delete strategyfractionflow if amount is same as fractionflow
-                StrategyFractionFlow.objects.filter(
-                    fractionflow=ff,
-                    strategy=self.strategy,
-                    material=ff.material
-                    ).delete()
+                strat_flow = StrategyFractionFlow(
+                    strategy=self.strategy, amount=new_amount,
+                    fractionflow=flow)
+                strat_flows.append(strat_flow)
+
+        StrategyFractionFlow.objects.bulk_create(strat_flows)
 
     def to_queryset(self):
         if not self.graph:

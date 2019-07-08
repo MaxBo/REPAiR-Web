@@ -236,7 +236,10 @@ class GraphWalker:
 
         # add the change to the amount
         for e in g.edges():
-            g.ep.amount[e] = g.ep.amount[e] + g.ep.change[e]
+            amount = g.ep.amount[e]
+            new_amount = amount + g.ep.change[e]
+            if (new_amount != amount):
+                g.ep.changed[e] = True
         # remove the change property
         del g.ep["change"]
         return g
