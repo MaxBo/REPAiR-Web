@@ -189,57 +189,46 @@ class GraphWalker:
     def calculate(self, implementation_edges, formula: Formula):
         """Calculate the changes on flows for a solution"""
         g = copy.deepcopy(self.graph)
+        g.ep.change.a[:] = 0
 
         # store the changes for each actor to sum total in the end
         changes_actors = []
         if formula.is_absolute:
             total = sum(g.ep.amount[edge] for edge in implementation_edges)
-            total_change = formula.calculate(total)
+            new_total = formula.calculate(total)
             #factor = formula.calculate_factor(total)
         else:
             factor = formula.calculate_factor()
 
         for i, edge in enumerate(implementation_edges):
 
-            g.ep.include[edge] = False
+            g.ep.include[edge] = True
             start = time.time()
             amount = g.ep.amount[edge]
             if formula.is_absolute:
                 # distribute total change to changes on edges
                 # depending on share of total
-                solution_factor = total_change * amount / total
+                solution_factor = new_total * amount / total
             else:
                 solution_factor = factor
             changes = traverse_graph(g, edge=edge,
                                      solution=solution_factor,
                                      amount=g.ep.amount)
             changes_actors.append(changes)
-            self.graph.ep.include[edge] = True
+            self.graph.ep.include[edge] = False
             end = time.time()
             print(f'edge {i} - {end-start}s')
 
-            #if (i > 10):
-                #break
-
-        # ToDo: optimize performance of summing changes (get rid of loops)
+            if (i > 50):
+                break
 
         # we compute the solution for each distinct Actor-Actor flow in the
         # implementation flows and assume that we can just sum the changes
         # of this part to the changes of the previous part
         for e in g.edges():
-            g.ep.change[e] = g.ep.change[e] + sum(ch[e] for
-                                                  ch in changes_actors)
-        return g
-
-    def add_changes_to_amounts(self):
-        g = copy.deepcopy(self.graph)
-
-        # add the change to the amount
-        for e in g.edges():
-            amount = g.ep.amount[e]
-            new_amount = amount + g.ep.change[e]
-            if (new_amount != amount):
+            # ToDo: optimize performance of summing changes (get rid of loops)
+            delta = sum(ch[e] for ch in changes_actors)
+            g.ep.amount[e] += delta
+            if (delta != 0):
                 g.ep.changed[e] = True
-        # remove the change property
-        del g.ep["change"]
         return g

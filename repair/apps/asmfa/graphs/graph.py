@@ -14,7 +14,7 @@ try:
     import cairo
 except ModuleNotFoundError:
     pass
-from django.db.models import Q
+from django.db.models import Q, Sum
 import numpy as np
 import datetime
 from io import StringIO
@@ -233,7 +233,7 @@ class StrategyGraph(BaseGraph):
             flow.save()
 
     def create_new_flows(self, implementation_flows, target_actor,
-                         graph, keep_origin=True):
+                         graph, formula, material=None, keep_origin=True):
         '''
         creates new flows based on given implementation flows and redirects them
         to target actor (either origin or destinations are changing)
@@ -252,12 +252,26 @@ class StrategyGraph(BaseGraph):
             graph.vp.bvdid[target_vertex] = target_actor.BvDid
             graph.vp.name[target_vertex] = target_actor.name
 
+        if formula.is_absolute:
+            total = implementation_flows.aggregate(total=Sum('amount'))['total']
+            new_total = formula.calculate(total)
+
         # create new flows and add corresponding edges
         for flow in implementation_flows:
             # ToDo: new flows keep the amount, they are reduced in the
             # calculation ??? how does this affect the other flows?
             # absolute change?
-            amount = flow.amount
+            # flow.save()
+
+            # equally distribute amounts
+            amount = formula.calculate(flow.amount) / len(implementation_flows)
+
+            if formula.is_absolute:
+                # distribute total change to changes on edges
+                # depending on share of total
+                solution_factor = new_total * amount / total
+            else:
+                amount = formula.calculate(flow.amount)
 
             # Change flow in the graph
             edges = util.find_edge(graph, graph.ep['id'], flow.id)
@@ -289,11 +303,15 @@ class StrategyGraph(BaseGraph):
 
             graph.ep.id[new_edge] = flow.id
             graph.ep.amount[new_edge] = amount
+            # ToDo: swap material
             graph.ep.material[new_edge] = flow.material.id
             graph.ep.process[new_edge] = \
                 flow.process.id if flow.process is not None else - 1
 
-        return new_flows
+        # return new_flows
+
+        # return empty list for now
+        return []
 
     def clean(self):
         '''
@@ -435,8 +453,12 @@ class StrategyGraph(BaseGraph):
             parts = solution.solution_parts.all()
             # get the solution parts using the reverse relation
             for solution_part in parts.order_by('priority'):
+                formula = self._build_formula(
+                    solution_part, solution_in_strategy)
+
                 implementation_flows, affected_flows = \
                     self._get_flows(solution_part, solution_in_strategy)
+
                 if solution_part.implements_new_flow:
                     target_activity = solution_part.new_target_activity
                     keep_origin = solution_part.keep_origin
@@ -451,24 +473,22 @@ class StrategyGraph(BaseGraph):
                     # calculation first
                     implementation_flows = self.create_new_flows(
                         implementation_flows, target_actor,
-                        g, keep_origin=keep_origin)
-                formula = self._build_formula(
-                    solution_part, solution_in_strategy)
+                        g, formula, keep_origin=keep_origin)
 
                 # exclude all edges
                 self._reset_include(g, do_include=False)
                 # include affected flows
                 self._include(g, affected_flows)
+                # exclude implementation flows (ToDo: side effects?)
+                self._include(g, implementation_flows, do_include=False)
 
                 impl_edges = self._get_edges(g, implementation_flows)
 
                 # ToDo: SolutionInStrategy geometry for filtering?
                 gw = GraphWalker(g)
-                self.graph = gw.calculate(impl_edges, formula)
+                g = gw.calculate(impl_edges, formula)
 
-                # store the changes for this solution into amount
-                self.graph = gw.add_changes_to_amounts()
-
+        self.graph = g
         # save the strategy graph to a file
         self.graph.save(self.filename)
 
@@ -485,17 +505,19 @@ class StrategyGraph(BaseGraph):
         for edge in changed_edges:
             new_amount = self.graph.ep.amount[edge]
             # get the related FractionFlow
-            ff = FractionFlow.objects.get(id=self.graph.ep.id[edge])
+            flow = FractionFlow.objects.get(id=self.graph.ep.id[edge])
             # new flow is marked with strategy relation
             # (no seperate strategy fraction flow needed)
-            if ff.strategy is not None:
-                ff.amount = new_amount
-                ff.save()
+            if flow.strategy is not None:
+                flow.amount = new_amount
+                flow.save()
             # changed flow gets a related strategy fraction flow holding changes
             else:
+                # ToDo: get material from graph
                 strat_flow = StrategyFractionFlow(
                     strategy=self.strategy, amount=new_amount,
-                    fractionflow=flow)
+                    fractionflow=flow,
+                    material_id=flow.material)
                 strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
