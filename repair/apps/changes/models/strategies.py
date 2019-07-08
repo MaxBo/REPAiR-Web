@@ -42,7 +42,8 @@ class SolutionInStrategy(GDSEModel):
                                  related_name='solutioninstrategy')
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
-    geom = models.GeometryCollectionField(verbose_name='geom', null=True)
+    geom = models.GeometryCollectionField(verbose_name='geom', srid=4326,
+                                          null=True)
 
     # order of calculation, lowest first
     priority = models.IntegerField(default=0)

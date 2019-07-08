@@ -348,7 +348,7 @@ var StrategyView = BaseView.extend(
             if (features.length > 0){
                 var geometries = [];
                 features.forEach(function(feature) {
-                    var geom = feature.getGeometry();
+                    var geom = feature.getGeometry().transform(_this.editorMap.mapProjection, _this.projection);
                     geometries.push(geom);
                 });
                 var geoCollection = new ol.geom.GeometryCollection(geometries),
@@ -356,6 +356,8 @@ var StrategyView = BaseView.extend(
                     geoJSONText = geoJSON.writeGeometry(geoCollection);
                 solutionImpl.set('geom', geoJSONText);
             }
+            else
+                solutionImpl.set('geom', null);
 
             var quantityInputs = _this.solutionModal.querySelectorAll('input[name="quantity"]'),
                 quantities = [];
@@ -482,7 +484,7 @@ var StrategyView = BaseView.extend(
             previewMap.addLayer('geometry');
             geom.geometries.forEach(function(g){
                 previewMap.addGeometry(g.coordinates, {
-                    projection: 'EPSG:3857', layername: 'geometry',
+                    projection: _this.projection, layername: 'geometry',
                     type: g.type
                 });
             })
@@ -580,7 +582,7 @@ var StrategyView = BaseView.extend(
         if (geom){
             geom.geometries.forEach(function(g){
                 _this.editorMap.addGeometry(g.coordinates, {
-                    projection: 'EPSG:3857', layername: 'drawing',
+                    projection: _this.projection, layername: 'drawing',
                     type: g.type
                 });
             })

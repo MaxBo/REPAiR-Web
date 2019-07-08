@@ -4,6 +4,7 @@ from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow)
+from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker, Formula
 try:
@@ -319,7 +320,7 @@ class StrategyGraph(BaseGraph):
         modified = StrategyFractionFlow.objects.filter(strategy=self.strategy)
         modified.delete()
 
-    def _get_flows(self, solution_part):
+    def _get_flows(self, solution_part, implementation):
         '''
         filters flows by definitions in solution part
         return tuple (implementation flows, affected flows)
@@ -327,6 +328,12 @@ class StrategyGraph(BaseGraph):
         # set the AffectedFlow include property to true
         affectedflows = AffectedFlow.objects.filter(
                         solution_part=solution_part)
+        solution = solution_part.solution
+        # if no area is drawn by user take possible area
+        implementation_area = (
+            implementation.geom or
+            solution.possible_implementation_area
+        )
         # get FractionFlows related to AffectedFlow
         affected_flows = FractionFlow.objects.none()
         for af in affectedflows:
@@ -338,12 +345,37 @@ class StrategyGraph(BaseGraph):
                     material__in=materials)
         impl_materials = descend_materials(
             [solution_part.implementation_flow_material])
-        implementation_flows = FractionFlow.objects.filter(
-            origin__activity=solution_part.implementation_flow_origin_activity,
-            destination__activity=
-            solution_part.implementation_flow_destination_activity,
-            material__in=impl_materials
-        )
+        # there might be no implementation area defined for the solution
+        if not implementation_area:
+            # implementation flows
+            implementation_flows = FractionFlow.objects.filter(
+                origin__activity=
+                solution_part.implementation_flow_origin_activity,
+                destination__activity=
+                solution_part.implementation_flow_destination_activity,
+                material__in=impl_materials
+            )
+        else:
+            origins = Actor.objects.filter(
+                activity=solution_part.implementation_flow_origin_activity)
+            destinations = Actor.objects.filter(
+                activity=solution_part.implementation_flow_destination_activity)
+            spatial_choice = solution_part.implementation_flow_spatial_application
+            if spatial_choice in [SpatialChoice.BOTH, SpatialChoice.ORIGIN]:
+                origins = origins.filter(
+                    administrative_location__geom__intersects=
+                    implementation_area)
+            if spatial_choice in [SpatialChoice.BOTH,
+                                  SpatialChoice.DESTINATION]:
+                destinations = destinations.filter(
+                    administrative_location__geom__intersects=
+                    implementation_area)
+            implementation_flows = FractionFlow.objects.filter(
+                origin__in=origins,
+                destination__in=destinations,
+                material__in=impl_materials
+            )
+
         return implementation_flows, affected_flows
 
     def _include(self, graph, flows):
@@ -417,9 +449,8 @@ class StrategyGraph(BaseGraph):
             for solution_part in parts.order_by('priority'):
                 if solution_part.implements_new_flow:
                     self.create_new_flows(solution_part, g)
-
                 implementation_flows, affected_flows = \
-                    self._get_flows(solution_part)
+                    self._get_flows(solution_part, solution_in_strategy)
                 formula = self._build_formula(
                     solution_part, solution_in_strategy)
 
