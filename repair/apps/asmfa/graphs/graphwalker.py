@@ -219,8 +219,8 @@ class GraphWalker:
             end = time.time()
             print(f'edge {i} - {end-start}s')
 
-            if (i > 50):
-                break
+            #if (i > 50):
+                #break
 
         # we compute the solution for each distinct Actor-Actor flow in the
         # implementation flows and assume that we can just sum the changes

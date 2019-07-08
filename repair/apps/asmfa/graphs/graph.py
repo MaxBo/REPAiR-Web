@@ -517,20 +517,7 @@ class StrategyGraph(BaseGraph):
                 strat_flow = StrategyFractionFlow(
                     strategy=self.strategy, amount=new_amount,
                     fractionflow=flow,
-                    material_id=flow.material)
+                    material_id=flow.material.id)
                 strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
-
-    def to_queryset(self):
-        if not self.graph:
-            self.load()
-
-        for e in self.graph.edges():
-            flow = {}
-            flow['id'] = self.graph.ep.id[e]
-            flow['source'] = self.graph.vp.id[e.source()]
-            flow['target'] = self.graph.vp.id[e.target()]
-            flow['material'] = self.graph.ep.material[e]
-            flow['amount'] = self.graph.ep.amount[e]
-            flows.append(flow)
