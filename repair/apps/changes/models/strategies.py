@@ -42,7 +42,8 @@ class SolutionInStrategy(GDSEModel):
                                  related_name='solutioninstrategy')
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
-    geom = models.GeometryCollectionField(verbose_name='geom', null=True)
+    geom = models.GeometryCollectionField(verbose_name='geom', srid=4326,
+                                          null=True)
 
     # order of calculation, lowest first
     priority = models.IntegerField(default=0)
@@ -85,7 +86,7 @@ def trigger_implementationquantity_sii(sender, instance,
         for question in solution.question.all():
             new, is_created = ImplementationQuantity.objects.\
                 get_or_create(implementation=sii, question=question,
-                              value=question.min_value)
+                              value=9958.0)
             if is_created:
                 new.save()
 
