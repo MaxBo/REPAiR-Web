@@ -14,74 +14,6 @@ from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
 
 
-class Formula:
-    def __init__(self, a=1, b=0, q=0, is_absolute=False):
-        '''
-        linear change calculation
-
-        absolute change:
-        v’ = v + delta
-        delta = a * q + b
-
-        relative change:
-        v’ = v * factor
-        factor = a * q + b
-
-        Parameters
-        ----------
-        a: float, optional
-           by default 1
-        q: float, optional
-           quantity (user input), by default 0
-        b: float, optional
-           by default 0
-        is_absolute: bool, optional
-           absolute change, by default False
-        '''
-        self.a = a
-        self.b = b
-        self.q = q
-        self.is_absolute = is_absolute
-
-    def calculate(self, v):
-        '''
-        Parameters
-        ----------
-        v: float,
-           value to apply formula to
-
-        Returns
-        -------
-        v': float
-            calculated value
-        '''
-        return self.calculate_factor(v) * v
-
-    def calculate_factor(self, v=None):
-        '''
-        Parameters
-        ----------
-        v: float, optional
-           needed for calculation of a
-
-        Returns
-        -------
-        factor: float
-            calculated factor
-        '''
-        if self.is_absolute:
-            if v is None:
-                raise ValueError('Value needed for calculation of a factor for '
-                                 'absolute changes')
-            delta = self.a * self.q + self.b
-            v_ = v + delta
-            factor = v_ / v
-        else:
-            factor = self.a * self.q + self.b
-        return factor
-
-
-
 class NodeVisitor(BFSVisitor):
 
     def __init__(self, name, solution, amount, visited, change):
@@ -184,33 +116,20 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
 class GraphWalker:
     def __init__(self, g):
         self.graph = gt.Graph(g)
-        self.edge_mask = self.graph.new_edge_property("bool")
 
-    def calculate(self, implementation_edges, formula: Formula):
+    def calculate(self, implementation_edges, factors):
         """Calculate the changes on flows for a solution"""
+        # ToDo: deepcopy might be expensive. Why do we clone here?
         g = copy.deepcopy(self.graph)
         g.ep.change.a[:] = 0
-
-        # store the changes for each actor to sum total in the end
-        changes_actors = []
-        if formula.is_absolute:
-            total = sum(g.ep.amount[edge] for edge in implementation_edges)
-            new_total = formula.calculate(total)
-            #factor = formula.calculate_factor(total)
-        else:
-            factor = formula.calculate_factor()
 
         for i, edge in enumerate(implementation_edges):
 
             g.ep.include[edge] = True
             start = time.time()
-            amount = g.ep.amount[edge]
-            if formula.is_absolute:
-                # distribute total change to changes on edges
-                # depending on share of total
-                solution_factor = new_total * amount / total
-            else:
-                solution_factor = factor
+            solution_factor = factors[i]
+            # ToDo: why do we pass the property dict for amounts?
+            #      the graph is already passed linking to this dict
             changes = traverse_graph(g, edge=edge,
                                      solution=solution_factor,
                                      amount=g.ep.amount)
@@ -219,8 +138,8 @@ class GraphWalker:
             end = time.time()
             print(f'edge {i} - {end-start}s')
 
-            if (i > 50):
-                break
+            #if (i > 50):
+                #break
 
         # we compute the solution for each distinct Actor-Actor flow in the
         # implementation flows and assume that we can just sum the changes
