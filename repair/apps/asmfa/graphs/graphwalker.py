@@ -121,6 +121,11 @@ class GraphWalker:
         """Calculate the changes on flows for a solution"""
         # ToDo: deepcopy might be expensive. Why do we clone here?
         g = copy.deepcopy(self.graph)
+
+        # store the changes for each actor to sum total in the end
+        overall_changes = None
+
+        # set all changes to zero
         g.ep.change.a[:] = 0
 
         for i, edge in enumerate(implementation_edges):
@@ -133,21 +138,18 @@ class GraphWalker:
             changes = traverse_graph(g, edge=edge,
                                      solution=solution_factor,
                                      amount=g.ep.amount)
-            changes_actors.append(changes)
-            self.graph.ep.include[edge] = False
             end = time.time()
-            print(f'edge {i} - {end-start}s')
+            print(i, end-start)
+            if overall_changes is None:
+                overall_changes = changes.a
+            else:
+                overall_changes += changes.a
+            self.graph.ep.include[edge] = False
 
-            #if (i > 50):
-                #break
+        if overall_changes is not None:
+            g.ep.amount.a += overall_changes
 
-        # we compute the solution for each distinct Actor-Actor flow in the
-        # implementation flows and assume that we can just sum the changes
-        # of this part to the changes of the previous part
-        for e in g.edges():
-            # ToDo: optimize performance of summing changes (get rid of loops)
-            delta = sum(ch[e] for ch in changes_actors)
-            g.ep.amount[e] += delta
-            if (delta != 0):
-                g.ep.changed[e] = True
+        has_changed = overall_changes != 0
+        g.ep.changed.a[has_changed] = True
+
         return g

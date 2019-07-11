@@ -5,7 +5,7 @@ from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow, ActorInSolutionPart)
 from repair.apps.statusquo.models import SpatialChoice
-from repair.apps.utils.utils import descend_materials
+from repair.apps.utils.utils import descend_materials, copy_django_model
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
@@ -14,6 +14,8 @@ try:
     import cairo
 except ModuleNotFoundError:
     pass
+
+from django.db import transaction
 from django.db.models import Q, Sum
 import numpy as np
 import datetime
@@ -25,6 +27,12 @@ from itertools import chain
 
 import time
 
+
+def manual_transaction():
+    for record in Record.objects.all():
+        record.name = "String without number"
+        record.save()
+    transaction.commit()
 
 class Formula:
     def __init__(self, a=1, b=0, q=0, is_absolute=False):
@@ -320,8 +328,8 @@ class StrategyGraph(BaseGraph):
             flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
             flow.save()
 
-    def shift_flows(self, referenced_flows, target_actor,
-                    graph, formula, material=None, keep_origin=True,
+    def shift_flows(self, referenced_flows, target_actor, formula,
+                    material=None, keep_origin=True,
                     reduce_reference=True):
         '''
         creates new flows based on given implementation flows and redirects them
@@ -355,9 +363,9 @@ class StrategyGraph(BaseGraph):
 
         if formula.is_absolute:
             total = referenced_flows.aggregate(total=Sum('amount'))['total']
-            factor = formula.calculate_factor(total)
+            global_factor = formula.calculate_factor(total)
         else:
-            factor = formula.calculate_factor()
+            global_factor = formula.calculate_factor()
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
@@ -375,7 +383,7 @@ class StrategyGraph(BaseGraph):
             #else:
                 #amount = formula.calculate(flow.amount)
 
-            amount = solution_factor * flow.amount
+            amount = global_factor * flow.amount
 
             # Change flow in the graph
             edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
@@ -394,24 +402,30 @@ class StrategyGraph(BaseGraph):
             # create a new fractionflow for the implementation flow in the db,
             # setting id to None creates new one when saving
             # while keeping attributes
-            flow.id = None
-            flow.amount = amount
+            new_flow = copy_django_model(flow)
+            new_flow.id = None
+            new_flow.amount = amount
             if keep_origin:
-                flow.destination = target_actor
+                new_flow.destination = target_actor
             else:
-                flow.origin = target_actor
+                new_flow.origin = target_actor
             # strategy marks flow as new flow
-            flow.strategy = self.strategy
-            flow.save()
+            new_flow.strategy = self.strategy
+            new_flow.save()
 
             # create the edge in the graph
-            self.graph.ep.id[new_edge] = flow.id
+            self.graph.ep.id[new_edge] = new_flow.id
             self.graph.ep.amount[new_edge] = amount
             # ToDo: swap material
-            self.graph.ep.material[new_edge] = flow.material.id
+            self.graph.ep.material[new_edge] = new_flow.material.id
             self.graph.ep.process[new_edge] = \
-                flow.process.id if flow.process is not None else - 1
+                new_flow.process.id if new_flow.process is not None else - 1
 
+            # reduce the referenced flow by the same amount, will be reduced
+            # by walker
+            if reduce_reference:
+                changed_ref_flows.append(flow)
+                solution_factors.append(1-global_factor)
 
             new_flows.append(flow)
             # the new flow already has the amount he is supposed to have after
@@ -420,13 +434,6 @@ class StrategyGraph(BaseGraph):
             # the flow itself)
             solution_factors.append(1)
 
-
-            # reduce the referenced flow by the same amount, will be reduced
-            # by walker
-            if reduce_reference:
-                changed_ref_flows.append()
-                solution_factors.append(factor)
-
         return changed_ref_flows + new_flows, solution_factors
 
     def clean_db(self):
@@ -434,8 +441,8 @@ class StrategyGraph(BaseGraph):
         wipe all related StrategyFractionFlows
         and related new FractionFlows from database
         '''
-        flows = FractionFlow.objects.filter(strategy=self.strategy)
-        flows.delete()
+        new_flows = FractionFlow.objects.filter(strategy=self.strategy)
+        new_flows.delete()
         modified = StrategyFractionFlow.objects.filter(strategy=self.strategy)
         modified.delete()
 
@@ -456,32 +463,29 @@ class StrategyGraph(BaseGraph):
         # get FractionFlows related to AffectedFlow
         affected_flows = FractionFlow.objects.none()
         for af in affectedflows:
-            # ToDo: only descend materials if requested
-            materials = descend_materials([af.material])
+            # ToDo: descend materials if requested
+            #materials = descend_materials([af.material])
+            material = af.material
             affected_flows = \
                 affected_flows | FractionFlow.objects.filter(
                     origin__activity=af.origin_activity,
                     destination__activity=af.destination_activity,
-                    material__in=materials)
-        # ToDo: only descend materials if requested
-        impl_materials = descend_materials(
-            [solution_part.implementation_flow_material])
+                    material=material
+                    #material__in=materials
+                )
+        # ToDo: descend materials if requested
+        #impl_materials = descend_materials(
+            #[solution_part.implementation_flow_material])
+        impl_material = solution_part.implementation_flow_material
         # there might be no implementation area defined for the solution
-        if not implementation_area:
-            # implementation flows
-            implementation_flows = FractionFlow.objects.filter(
-                origin__activity=
-                solution_part.implementation_flow_origin_activity,
-                destination__activity=
-                solution_part.implementation_flow_destination_activity,
-                material__in=impl_materials
-            )
-        else:
-            origins = Actor.objects.filter(
-                activity=solution_part.implementation_flow_origin_activity)
-            destinations = Actor.objects.filter(
-                activity=solution_part.implementation_flow_destination_activity)
-            spatial_choice = solution_part.implementation_flow_spatial_application
+        origins = Actor.objects.filter(
+            activity=solution_part.implementation_flow_origin_activity)
+        destinations = Actor.objects.filter(
+            activity=solution_part.implementation_flow_destination_activity)
+        # filter actors by implementation geometry
+        if implementation_area:
+            spatial_choice = \
+                solution_part.implementation_flow_spatial_application
             # iterate collection
             for geom in implementation_area:
                 if spatial_choice in [SpatialChoice.BOTH, SpatialChoice.ORIGIN]:
@@ -491,11 +495,12 @@ class StrategyGraph(BaseGraph):
                                       SpatialChoice.DESTINATION]:
                     destinations = destinations.filter(
                         administrative_location__geom__intersects=geom)
-            implementation_flows = FractionFlow.objects.filter(
-                origin__in=origins,
-                destination__in=destinations,
-                material__in=impl_materials
-            )
+        implementation_flows = FractionFlow.objects.filter(
+            origin__in=origins,
+            destination__in=destinations,
+            material=impl_material
+            #material__in=impl_materials
+        )
 
         return implementation_flows, affected_flows
 
@@ -507,7 +512,7 @@ class StrategyGraph(BaseGraph):
         '''
         start = time.time()
         # include affected edges
-        edges = self._get_edges(self.graph, flows)
+        edges = self._get_edges(flows)
         for edge in edges:
             self.graph.ep.include[edge] = do_include
         end = time.time()
@@ -579,13 +584,19 @@ class StrategyGraph(BaseGraph):
                     target_actor = picked[0].actor
                     # the new flows will be the ones affected by
                     # calculation first
-                    new_flows = self.shift_flows(
+                    implementation_flows, factors = self.shift_flows(
                         implementation_flows, target_actor,
                         formula, keep_origin=keep_origin,
-                        reduce_reference=True, factors=factors)
-                    # merge new flows with implementation_flows
-                    implementation_flows += new_flows
-                    #implementation_flows |= implementation_flows | new_flows
+                        reduce_reference=True)
+
+                else:
+                    if formula.is_absolute:
+                        total = implementation_flows.aggregate(
+                            total=Sum('amount'))['total']
+                        global_factor = formula.calculate_factor(total)
+                    else:
+                        global_factor = formula.calculate_factor()
+                    factors = [global_factor] * len(implementation_flows)
 
                 # exclude all edges
                 self._reset_include(do_include=False)
@@ -594,8 +605,9 @@ class StrategyGraph(BaseGraph):
                 # exclude implementation flows (ToDo: side effects?)
                 self._include(implementation_flows, do_include=False)
 
-                # ToDo: include previous chained flows??? might not be selected
-                # as affected in frontend because they don't exist in status quo
+                # ToDo: how to include previous chained flows??? might not be
+                # selected as affected in frontend because they don't exist in
+                # status quo
 
                 impl_edges = self._get_edges(implementation_flows)
 
@@ -612,25 +624,40 @@ class StrategyGraph(BaseGraph):
     def translate_to_db(self):
         # ToDo: filter for changes
         # store edges (flows) to database
+        changed = self.graph.ep['changed'].a == True
+        ids = self.graph.ep['id'].a[changed]
+        amounts = self.graph.ep['amount'].a[changed]
+        flows = FractionFlow.objects.filter(id__in=ids)
+        #changed_flows = flows.filter(strategy__isnull=False)
+        #new_flows = flows.filter(strategy__isnull=True)
+        flows_list = list(flows)
+        ids_flows = np.array(flows.values_list('id', flat=True))
+        idx_flows = ids_flows.searchsorted(ids).tolist()
+
+        start = time.time()
+
         strat_flows = []
-        changed_edges = util.find_edge(
-            self.graph, self.graph.ep['changed'], True)
-        for edge in changed_edges:
-            new_amount = self.graph.ep.amount[edge]
-            # get the related FractionFlow
-            flow = FractionFlow.objects.get(id=self.graph.ep.id[edge])
-            # new flow is marked with strategy relation
-            # (no seperate strategy fraction flow needed)
-            if flow.strategy is not None:
+        mod_flows = []
+        for i, idx_flow in enumerate(idx_flows):
+            if not i % 10:
+                print(i, time.time() - start)
+                start = time.time()
+            flow = flows_list[idx_flow]
+            new_amount = amounts[i]
+            if flow.strategy is None:
                 flow.amount = new_amount
-                flow.save()
-            # changed flow gets a related strategy fraction flow holding changes
+                mod_flows.append(flow)
             else:
-                # ToDo: get material from graph
                 strat_flow = StrategyFractionFlow(
                     strategy=self.strategy, amount=new_amount,
                     fractionflow=flow,
                     material_id=flow.material.id)
                 strat_flows.append(strat_flow)
 
+        print('#'*20)
+        start = time.time()
         StrategyFractionFlow.objects.bulk_create(strat_flows)
+        print(f'bulk create - {time.time() - start}s')
+        start = time.time()
+        FractionFlow.objects.bulk_update(mod_flows, ['amount'])
+        print(f'bulk update - {time.time() - start}s')
