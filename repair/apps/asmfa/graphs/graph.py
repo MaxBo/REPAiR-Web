@@ -6,7 +6,7 @@ from repair.apps.changes.models import (SolutionInStrategy,
                                         AffectedFlow, ActorInSolutionPart)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials
-from repair.apps.asmfa.graphs.graphwalker import GraphWalker, Formula
+from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
     from graph_tool import stats as gt_stats
@@ -24,6 +24,94 @@ from datetime import datetime
 from itertools import chain
 
 import time
+
+
+class Formula:
+    def __init__(self, a=1, b=0, q=0, is_absolute=False):
+        '''
+        linear change calculation
+
+        absolute change:
+        v’ = v + delta
+        delta = a * q + b
+
+        relative change:
+        v’ = v * factor
+        factor = a * q + b
+
+        Parameters
+        ----------
+        a: float, optional
+           by default 1
+        q: float, optional
+           quantity (user input), by default 0
+        b: float, optional
+           by default 0
+        is_absolute: bool, optional
+           absolute change, by default False
+        '''
+        self.a = a
+        self.b = b
+        self.q = q
+        self.is_absolute = is_absolute
+
+    @classmethod
+    def from_implementation(self, solution_part, implementation):
+        question = solution_part.question
+        is_absolute = solution_part.is_absolute
+        a = solution_part.a
+        b = solution_part.b
+        q = 0
+
+        if question:
+            quantity = ImplementationQuantity.objects.get(
+                question=solution_part.question,
+                implementation=implementation)
+            # question overrides is_absolute of part
+            is_absolute = question.is_absolute
+            q = quantity.value
+
+        formula = Formula(a=a, b=b, q=q, is_absolute=is_absolute)
+
+        return formula
+
+
+    def calculate(self, v):
+        '''
+        Parameters
+        ----------
+        v: float,
+           value to apply formula to
+
+        Returns
+        -------
+        v': float
+            calculated value
+        '''
+        return self.calculate_factor(v) * v
+
+    def calculate_factor(self, v=None):
+        '''
+        Parameters
+        ----------
+        v: float, optional
+           needed for calculation of a
+
+        Returns
+        -------
+        factor: float
+            calculated factor
+        '''
+        if self.is_absolute:
+            if v is None:
+                raise ValueError('Value needed for calculation of a factor for '
+                                 'absolute changes')
+            delta = self.a * self.q + self.b
+            v_ = v + delta
+            factor = v_ / v
+        else:
+            factor = self.a * self.q + self.b
+        return factor
 
 
 class BaseGraph:
@@ -232,49 +320,65 @@ class StrategyGraph(BaseGraph):
             flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
             flow.save()
 
-    def create_new_flows(self, implementation_flows, target_actor,
-                         graph, formula, material=None, keep_origin=True):
+    def shift_flows(self, referenced_flows, target_actor,
+                    graph, formula, material=None, keep_origin=True,
+                    reduce_reference=True):
         '''
         creates new flows based on given implementation flows and redirects them
         to target actor (either origin or destinations are changing)
         implementation_flows stay untouched
         graph is updated in place
         Warning: side effects on implementation_flows
-        '''
-        new_flows = []
+        factors in place
 
-        target_vertex = util.find_vertex(graph, graph.vp['id'], target_actor.id)
+        returns flows to be changed in order of change
+        '''
+        changed_ref_flows = []
+        new_flows = []
+        solution_factors = []
+
+        target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
+                                         target_actor.id)
         if(len(target_vertex) > 0):
             target_vertex = target_vertex[0]
         else:
-            target_vertex = graph.add_vertex()
-            graph.vp.id[target_vertex] = target_actor.id
-            graph.vp.bvdid[target_vertex] = target_actor.BvDid
-            graph.vp.name[target_vertex] = target_actor.name
+            target_vertex = self.graph.add_vertex()
+            self.graph.vp.id[target_vertex] = target_actor.id
+            self.graph.vp.bvdid[target_vertex] = target_actor.BvDid
+            self.graph.vp.name[target_vertex] = target_actor.name
+
+        # ToDo: for each actor pick a closest new one
+        #     don't distribute amounts equally!
+        #     (calc. amount based on the shifted flow for relative or distribute
+        #      absolute total based on total amounts going into the shifted
+        #      actor before?)
 
         if formula.is_absolute:
-            total = implementation_flows.aggregate(total=Sum('amount'))['total']
-            new_total = formula.calculate(total)
+            total = referenced_flows.aggregate(total=Sum('amount'))['total']
+            factor = formula.calculate_factor(total)
+        else:
+            factor = formula.calculate_factor()
 
         # create new flows and add corresponding edges
-        for flow in implementation_flows:
+        for flow in referenced_flows:
             # ToDo: new flows keep the amount, they are reduced in the
             # calculation ??? how does this affect the other flows?
             # absolute change?
             # flow.save()
+            #
 
-            # equally distribute amounts
-            amount = formula.calculate(flow.amount) / len(implementation_flows)
+            # ToDo: distribute total change to changes on edges
+            # depending on share of total ?
+            #if formula.is_absolute:
+                #amount = formula.calculate(flow.amount) / len(referenced_flows)
+                #solution_factor = new_total * amount / total
+            #else:
+                #amount = formula.calculate(flow.amount)
 
-            if formula.is_absolute:
-                # distribute total change to changes on edges
-                # depending on share of total
-                solution_factor = new_total * amount / total
-            else:
-                amount = formula.calculate(flow.amount)
+            amount = solution_factor * flow.amount
 
             # Change flow in the graph
-            edges = util.find_edge(graph, graph.ep['id'], flow.id)
+            edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
             if len(edges) > 1:
                 raise ValueError("FractionFlow.id ", flow.id,
                                  " is not unique in the graph")
@@ -283,11 +387,11 @@ class StrategyGraph(BaseGraph):
                 continue
             edge = edges[0]
             if keep_origin:
-                new_edge = graph.add_edge(edge.source(), target_vertex)
+                new_edge = self.graph.add_edge(edge.source(), target_vertex)
             else:
-                new_edge = graph.add_edge(target_vertex, edge.target())
+                new_edge = self.graph.add_edge(target_vertex, edge.target())
 
-            # create a new fractionflow for the implementation flow
+            # create a new fractionflow for the implementation flow in the db,
             # setting id to None creates new one when saving
             # while keeping attributes
             flow.id = None
@@ -299,24 +403,36 @@ class StrategyGraph(BaseGraph):
             # strategy marks flow as new flow
             flow.strategy = self.strategy
             flow.save()
-            new_flows.append(flow)
 
-            graph.ep.id[new_edge] = flow.id
-            graph.ep.amount[new_edge] = amount
+            # create the edge in the graph
+            self.graph.ep.id[new_edge] = flow.id
+            self.graph.ep.amount[new_edge] = amount
             # ToDo: swap material
-            graph.ep.material[new_edge] = flow.material.id
-            graph.ep.process[new_edge] = \
+            self.graph.ep.material[new_edge] = flow.material.id
+            self.graph.ep.process[new_edge] = \
                 flow.process.id if flow.process is not None else - 1
 
-        # return new_flows
 
-        # return empty list for now
-        return []
+            new_flows.append(flow)
+            # the new flow already has the amount he is supposed to have after
+            # the calculation, but to trigger the propagation of the change
+            # the walker algorithm needs a factor (1 meaning no change of
+            # the flow itself)
+            solution_factors.append(1)
 
-    def clean(self):
+
+            # reduce the referenced flow by the same amount, will be reduced
+            # by walker
+            if reduce_reference:
+                changed_ref_flows.append()
+                solution_factors.append(factor)
+
+        return changed_ref_flows + new_flows, solution_factors
+
+    def clean_db(self):
         '''
         wipe all related StrategyFractionFlows
-        and related new FractionFlows
+        and related new FractionFlows from database
         '''
         flows = FractionFlow.objects.filter(strategy=self.strategy)
         flows.delete()
@@ -340,12 +456,14 @@ class StrategyGraph(BaseGraph):
         # get FractionFlows related to AffectedFlow
         affected_flows = FractionFlow.objects.none()
         for af in affectedflows:
+            # ToDo: only descend materials if requested
             materials = descend_materials([af.material])
             affected_flows = \
                 affected_flows | FractionFlow.objects.filter(
                     origin__activity=af.origin_activity,
                     destination__activity=af.destination_activity,
                     material__in=materials)
+        # ToDo: only descend materials if requested
         impl_materials = descend_materials(
             [solution_part.implementation_flow_material])
         # there might be no implementation area defined for the solution
@@ -381,7 +499,7 @@ class StrategyGraph(BaseGraph):
 
         return implementation_flows, affected_flows
 
-    def _include(self, graph, flows, do_include=True):
+    def _include(self, flows, do_include=True):
         '''
         include flows in graph, excludes all others
         set do_include=False to exclude
@@ -389,106 +507,101 @@ class StrategyGraph(BaseGraph):
         '''
         start = time.time()
         # include affected edges
-        edges = self._get_edges(graph, flows)
+        edges = self._get_edges(self.graph, flows)
         for edge in edges:
-            graph.ep.include[edge] = do_include
+            self.graph.ep.include[edge] = do_include
         end = time.time()
 
-    def _reset_include(self, graph, do_include=True):
+    def _reset_include(self, do_include=True):
         # exclude all
-        graph.ep.include.a[:] = do_include
+        self.graph.ep.include.a[:] = do_include
 
-    def _get_edges(self, graph, flows):
+    def _get_edges(self, flows):
         edges = []
         for flow in flows:
-            e = util.find_edge(graph, graph.ep['id'], flow.id)
+            e = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
             if len(e) > 0:
                 edges.append(e[0])
             else:
                 # shouldn't happen if graph is up to date
-                print('Warning: graph is missing flows')
+                raise Exception(f'graph is missing flow {flow.name}')
         return edges
-
-    def _build_formula(self, solution_part, implementation):
-        question = solution_part.question
-        is_absolute = solution_part.is_absolute
-        a = solution_part.a
-        b = solution_part.b
-        q = 0
-
-        if question:
-            quantity = ImplementationQuantity.objects.get(
-                question=solution_part.question,
-                implementation=implementation)
-            # question overrides is_absolute of part
-            is_absolute = question.is_absolute
-            q = quantity.value
-
-        formula = Formula(a=a, b=b, q=q, is_absolute=is_absolute)
-
-        return formula
 
     def build(self):
 
         base_graph = BaseGraph(self.keyflow, tag=self.tag)
         if not base_graph.exists:
             raise FileNotFoundError
-        g = base_graph.load()
-        gw = GraphWalker(g)
 
-        # remove previous calc. from database
-        self.clean()
+        # reset to base graph and remove previous calc. from database
+        self.graph = base_graph.load()
+        self.clean_db()
 
         # add change attribute, it defaults to 0.0
-        g.ep.change = g.new_edge_property("float")
-        # add include attribute, it defaults to False
-        g.ep.include = g.new_edge_property("bool")
-        g.ep.changed = g.new_edge_property("bool")
+        self.graph.ep.change = self.graph.new_edge_property("float")
+        # attribute marks edges to be ignored or not (defaults to False)
+        self.graph.ep.include = self.graph.new_edge_property("bool")
+        # attribute marks changed edges (defaults to False)
+        self.graph.ep.changed = self.graph.new_edge_property("bool")
 
-        # get the solutions in this strategy and order them by priority
-        solutions_in_strategy = SolutionInStrategy.objects.filter(
+        # get the implementations of the solution in this strategy
+        # and order them by priority
+        # wording might confuse (implementation instead of solution in strategy)
+        # but we shifted to using the term "implementation" in most parts
+        implementations = SolutionInStrategy.objects.filter(
             strategy=self.strategy).order_by('priority')
-        for solution_in_strategy in solutions_in_strategy.order_by('priority'):
-            solution = solution_in_strategy.solution
+        for implementation in implementations.order_by('priority'):
+            solution = implementation.solution
             parts = solution.solution_parts.all()
             # get the solution parts using the reverse relation
             for solution_part in parts.order_by('priority'):
-                formula = self._build_formula(
-                    solution_part, solution_in_strategy)
+                formula = Formula.from_implementation(
+                    solution_part, implementation)
 
                 implementation_flows, affected_flows = \
-                    self._get_flows(solution_part, solution_in_strategy)
+                    self._get_flows(solution_part, implementation)
 
+                # shift flows
                 if solution_part.implements_new_flow:
                     target_activity = solution_part.new_target_activity
                     keep_origin = solution_part.keep_origin
+
+                    # ToDo: no picking anymore but implementation areas
+                    # to filter possible new actors which are
+                    # assigned by closest (euclidean?) distance
+
                     picked = ActorInSolutionPart.objects.filter(
                         solutionpart=solution_part,
-                        implementation=solution_in_strategy)
+                        implementation=implementation)
                     # no calculation possible with no actor picked by user
                     if len(picked) == 0:
                         continue
                     target_actor = picked[0].actor
                     # the new flows will be the ones affected by
                     # calculation first
-                    implementation_flows = self.create_new_flows(
+                    new_flows = self.shift_flows(
                         implementation_flows, target_actor,
-                        g, formula, keep_origin=keep_origin)
+                        formula, keep_origin=keep_origin,
+                        reduce_reference=True, factors=factors)
+                    # merge new flows with implementation_flows
+                    implementation_flows += new_flows
+                    #implementation_flows |= implementation_flows | new_flows
 
                 # exclude all edges
-                self._reset_include(g, do_include=False)
+                self._reset_include(do_include=False)
                 # include affected flows
-                self._include(g, affected_flows)
+                self._include(affected_flows)
                 # exclude implementation flows (ToDo: side effects?)
-                self._include(g, implementation_flows, do_include=False)
+                self._include(implementation_flows, do_include=False)
 
-                impl_edges = self._get_edges(g, implementation_flows)
+                # ToDo: include previous chained flows??? might not be selected
+                # as affected in frontend because they don't exist in status quo
 
-                # ToDo: SolutionInStrategy geometry for filtering?
-                gw = GraphWalker(g)
-                g = gw.calculate(impl_edges, formula)
+                impl_edges = self._get_edges(implementation_flows)
 
-        self.graph = g
+                gw = GraphWalker(self.graph)
+                self.graph = gw.calculate(impl_edges, factors)
+
         # save the strategy graph to a file
         self.graph.save(self.filename)
 
