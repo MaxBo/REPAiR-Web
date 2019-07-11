@@ -343,7 +343,8 @@ class StrategyGraph(BaseGraph):
         '''
         changed_ref_flows = []
         new_flows = []
-        solution_factors = []
+        solution_factors_ref = []
+        solution_factors_new = []
 
         target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
                                          target_actor.id)
@@ -425,16 +426,16 @@ class StrategyGraph(BaseGraph):
             # by walker
             if reduce_reference:
                 changed_ref_flows.append(flow)
-                solution_factors.append(1-global_factor)
+                solution_factors_ref.append(1 - global_factor)
 
             new_flows.append(flow)
             # the new flow already has the amount he is supposed to have after
             # the calculation, but to trigger the propagation of the change
             # the walker algorithm needs a factor (1 meaning no change of
             # the flow itself)
-            solution_factors.append(1)
+            solution_factors_new.append(1)
 
-        return changed_ref_flows + new_flows, solution_factors
+        return new_flows + changed_ref_flows, solution_factors_new + solution_factors_ref
 
     def clean_db(self):
         '''
