@@ -28,12 +28,6 @@ from itertools import chain
 import time
 
 
-def manual_transaction():
-    for record in Record.objects.all():
-        record.name = "String without number"
-        record.save()
-    transaction.commit()
-
 class Formula:
     def __init__(self, a=1, b=0, q=0, is_absolute=False):
         '''
@@ -589,7 +583,6 @@ class StrategyGraph(BaseGraph):
                         implementation_flows, target_actor,
                         formula, keep_origin=keep_origin,
                         reduce_reference=True)
-
                 else:
                     if formula.is_absolute:
                         total = implementation_flows.aggregate(
@@ -623,14 +616,10 @@ class StrategyGraph(BaseGraph):
         return self.graph
 
     def translate_to_db(self):
-        # ToDo: filter for changes
-        # store edges (flows) to database
         changed = self.graph.ep['changed'].a == True
         ids = self.graph.ep['id'].a[changed]
         amounts = self.graph.ep['amount'].a[changed]
         flows = FractionFlow.objects.filter(id__in=ids)
-        #changed_flows = flows.filter(strategy__isnull=False)
-        #new_flows = flows.filter(strategy__isnull=True)
         flows_list = list(flows)
         ids_flows = np.array(flows.values_list('id', flat=True))
         idx_flows = ids_flows.searchsorted(ids).tolist()
@@ -640,9 +629,6 @@ class StrategyGraph(BaseGraph):
         strat_flows = []
         mod_flows = []
         for i, idx_flow in enumerate(idx_flows):
-            if not i % 10:
-                print(i, time.time() - start)
-                start = time.time()
             flow = flows_list[idx_flow]
             new_amount = amounts[i]
             if flow.strategy is None:
@@ -655,10 +641,5 @@ class StrategyGraph(BaseGraph):
                     material_id=flow.material.id)
                 strat_flows.append(strat_flow)
 
-        print('#'*20)
-        start = time.time()
         StrategyFractionFlow.objects.bulk_create(strat_flows)
-        print(f'bulk create - {time.time() - start}s')
-        start = time.time()
         FractionFlow.objects.bulk_update(mod_flows, ['amount'])
-        print(f'bulk update - {time.time() - start}s')

@@ -7,7 +7,8 @@ from repair.apps.asmfa.factories import (ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
                                          MaterialFactory,
-                                         FractionFlowFactory
+                                         FractionFlowFactory,
+                                         AdministrativeLocationFactory
                                         )
 from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionInStrategyFactory,
@@ -16,7 +17,8 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionPartFactory,
                                            ImplementationQuestionFactory,
                                            ImplementationQuantityFactory,
-                                           AffectedFlowFactory
+                                           AffectedFlowFactory,
+                                           ActorInSolutionPartFactory
                                         )
 from repair.apps.changes.models import ImplementationQuantity
 from repair.apps.asmfa.models import FractionFlow, StrategyFractionFlow
@@ -53,9 +55,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     stakeholdercategoryid = 48
     stakeholderid = 21
     strategyid = 1
-    actor_originid = 1
-    actor_old_targetid = 2
-    actor_new_targetid = 3
     materialname = 'wool insulation'
 
     @classmethod
@@ -95,11 +94,9 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         self.solution1 = SolutionFactory(name='Solution 1')
 
         question1 = ImplementationQuestionFactory(
-            question="What is the answer to life, the universe and everything?",
-            min_value=0.0,
-            max_value=10000.0,
-            step=0.01,
-            select_values='0.0,3.14,42,1234.43',
+            question="Which percentage should be shifted to new flow?",
+            is_absolute=False,
+            #select_values='0.0,3.14,42,1234.43',
             solution=self.solution1
         )
         question2 = ImplementationQuestionFactory(
@@ -123,29 +120,48 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         # new origin with new actor
         origin_activity = ActivityFactory(name='origin_activity')
-        origin_actor = ActorFactory(id=self.actor_originid,
-                                    name='origin_actor',
-                                    activity=origin_activity)
+        self.origin_actor = ActorFactory(name='origin_actor',
+                                         activity=origin_activity)
+        AdministrativeLocationFactory(
+            actor=self.origin_actor,
+            geom=Point(x=10, y=10, srid=4326)
+        )
 
         # old target with actor
         old_destination_activity = ActivityFactory(
             name='old_destination_activity_activity')
-        old_destination_actor = ActorFactory(id=self.actor_old_targetid,
-                                             name='old_destination_actor',
+        old_destination_actor = ActorFactory(name='old_destination_actor',
                                              activity=old_destination_activity)
+        AdministrativeLocationFactory(
+            actor=old_destination_actor,
+            geom=Point(x=10.1, y=10.1, srid=4326)
+        )
 
         # new target with new actor
         new_destination_activity = ActivityFactory(name='target_activity')
-        new_destination_actor = ActorFactory(id=self.actor_new_targetid,
-                                             name='new_destination_actor',
-                                             activity=new_destination_activity)
+        self.new_destination_actor = ActorFactory(
+            name='new_destination_actor',
+            activity=new_destination_activity
+        )
+        AdministrativeLocationFactory(
+            actor=self.new_destination_actor,
+            geom=Point(x=12, y=12, srid=4326)
+        )
 
         # actor 11
-        actor11 = ActorFactory(id=11, name='Actor11',
-                               activity=old_destination_activity)
+        actor11 = ActorFactory(name='Actor11',
+                               activity=origin_activity)
+        AdministrativeLocationFactory(
+            actor=actor11,
+            geom=Point(x=10.5, y=10, srid=4326)
+        )
         # actor 12
-        actor12 = ActorFactory(id=12, name='Actor12',
+        actor12 = ActorFactory(name='Actor12',
                                activity=new_destination_activity)
+        AdministrativeLocationFactory(
+            actor=actor12,
+            geom=Point(x=11, y=10, srid=4326)
+        )
 
         # new material
         wool = MaterialFactory(name=self.materialname,
@@ -159,7 +175,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             #implementation_flow_process=,
             question=question1,
             a=1.0,
-            b=1.0,
+            b=0,
             implements_new_flow=True,
             keep_origin=True,
             new_target_activity=new_destination_activity,
@@ -167,17 +183,17 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         )
 
         # create fraction flow
-        new_flow = FractionFlowFactory(
-            origin=origin_actor,
+        statusquo_flow1 = FractionFlowFactory(
+            origin=self.origin_actor,
             destination=old_destination_actor,
             material=wool,
             amount=1000,
             keyflow=self.kic
         )
         # create fraction flow 2
-        new_flow2 = FractionFlowFactory(
+        statusquo_flow2 = FractionFlowFactory(
             origin=actor11,
-            destination=actor12,
+            destination=old_destination_actor,
             material=wool,
             amount=11000,
             keyflow=self.kic
@@ -194,19 +210,25 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             question=question1,
             implementation=solution_in_strategy1
         )
-        answer.value = 1
+        answer.value = 0.2
         answer.save()
         #answer = ImplementationQuantityFactory(
             #question=question1,
             #implementation=solution_in_strategy1,
             #value=1.0)
 
+        picked_destination = ActorInSolutionPartFactory(
+            implementation=solution_in_strategy1,
+            actor=self.new_destination_actor,
+            solutionpart=part_new_flow
+        )
         # create AffectedFlow
         affected = AffectedFlowFactory(
             solution_part=part_new_flow,
             origin_activity=origin_activity,
             destination_activity=new_destination_activity,
-            material=wool)
+            material=wool
+        )
 
         #self.solution2 = SolutionFactory(name='Solution 2')
         #solution_in_strategy2 = SolutionInStrategyFactory(
@@ -220,23 +242,31 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
 
     def test_graph(self):
-        return
         self.graph = StrategyGraph(self.strategy, tag='test')
         # delete stored graph file to test creation of data
         self.graph.remove()
         self.graph.build()
 
+        # two existing flows and two new flows shifted from them
         assert len(FractionFlow.objects.all()) == 4
 
         flows = FractionFlow.objects.filter(
-            origin_id=self.actor_originid,
-            destination_id=self.actor_new_targetid).annotate(
+            origin=self.origin_actor).annotate(
             actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))
 
-        assert len(flows) == 1
-        ff = flows[0]
+        # original one and shifted one
+        assert len(flows) == 2
+        # new flow
+        ff = flows.get(strategy=self.strategy)
         assert ff.material.name == self.materialname
-        assert ff.destination.id == self.actor_new_targetid
+        assert ff.destination == self.new_destination_actor
+
+        # ToDo: rewrite tests, just halfing every shifted flow is not what is
+        #  supposed to happen but having new flows whose amounts are factor
+        # * original amount and a reduction of 1 - factor at the original flows
+
+        return
+
         #flow is split to new destination thus devided by 2
         assert ff.actual_amount == 500
 

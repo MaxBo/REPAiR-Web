@@ -88,12 +88,14 @@ class SolutionInStrategyFactory(DjangoModelFactory):
             for participant in extracted:
                 self.participants.add(participant)
 
+
 class ImplementationQuantityFactory(DjangoModelFactory):
     class Meta:
         model = models.ImplementationQuantity
     implementation = factory.SubFactory(SolutionInStrategyFactory)
     question = factory.SubFactory(ImplementationQuestionFactory)
-    
+
+
 class AffectedFlowFactory(DjangoModelFactory):
     class Meta:
         model = models.AffectedFlow
@@ -101,3 +103,11 @@ class AffectedFlowFactory(DjangoModelFactory):
     origin_activity = factory.SubFactory(ActivityFactory)
     destination_activity = factory.SubFactory(ActivityFactory)
     material = factory.SubFactory(MaterialFactory)
+
+
+class ActorInSolutionPartFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ActorInSolutionPart
+    solutionpart = factory.SubFactory(SolutionPartFactory)
+    actor = factory.SubFactory(ActorFactory)
+    implementation = factory.SubFactory(SolutionInStrategyFactory)
