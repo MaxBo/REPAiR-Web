@@ -77,7 +77,6 @@ class Formula:
 
         return formula
 
-
     def calculate(self, v):
         '''
         Parameters
@@ -91,6 +90,20 @@ class Formula:
             calculated value
         '''
         return self.calculate_factor(v) * v
+
+    def calculate_delta(self, v):
+        '''
+        Parameters
+        ----------
+        v: float,
+           value to apply formula to
+
+        Returns
+        -------
+        delta: float
+           signed delta
+        '''
+        return self.calculate(v) - v
 
     def calculate_factor(self, v=None):
         '''
@@ -333,12 +346,13 @@ class StrategyGraph(BaseGraph):
         Warning: side effects on implementation_flows
         factors in place
 
-        returns flows to be changed in order of change
+        returns flows to be changed in order of change and the deltas added to
+        be to each flow in walker algorithm in same order as flows
         '''
         changed_ref_flows = []
         new_flows = []
-        solution_factors_ref = []
-        solution_factors_new = []
+        changed_ref_deltas = []
+        new_deltas = []
 
         target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
                                          target_actor.id)
@@ -356,29 +370,26 @@ class StrategyGraph(BaseGraph):
         #      absolute total based on total amounts going into the shifted
         #      actor before?)
 
-        if formula.is_absolute:
-            total = referenced_flows.aggregate(total=Sum('amount'))['total']
-            global_factor = formula.calculate_factor(total)
-        else:
-            global_factor = formula.calculate_factor()
-
+        #possible_targets = Actor.objects.filter(
+            #activity=target_acitivity)
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            # ToDo: new flows keep the amount, they are reduced in the
-            # calculation ??? how does this affect the other flows?
-            # absolute change?
-            # flow.save()
-            #
-
-            # ToDo: distribute total change to changes on edges
-            # depending on share of total ?
-            #if formula.is_absolute:
-                #amount = formula.calculate(flow.amount) / len(referenced_flows)
-                #solution_factor = new_total * amount / total
+            # Pseudocode for auto picking actor by distance
+            #if keep_origin:
+                #swapped = flow.destination
+                #staying = flow.origin
             #else:
-                #amount = formula.calculate(flow.amount)
+                #swapped = flow.origin
+                #staying = flow.destination
+            #possible_targets = possible_targets.annotate(distance='something with spatial stuff')
+            #new_target = possible.targets.orderby('distance')[0]
 
-            amount = global_factor * flow.amount
+            delta = formula.calculate_delta(flow.amount)
+            # ToDo: distribute total change to changes on edges
+            # depending on share of total or distribute equally?
+            if formula.is_absolute:
+                # equally
+                delta /= len(referenced_flows)
 
             # Change flow in the graph
             edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
@@ -396,10 +407,12 @@ class StrategyGraph(BaseGraph):
 
             # create a new fractionflow for the implementation flow in the db,
             # setting id to None creates new one when saving
-            # while keeping attributes
+            # while keeping attributes of original model;
+            # the new flow is added with zero amount and to be changed
+            # by calculated delta
             new_flow = copy_django_model(flow)
             new_flow.id = None
-            new_flow.amount = amount
+            new_flow.amount = 0
             if keep_origin:
                 new_flow.destination = target_actor
             else:
@@ -410,26 +423,22 @@ class StrategyGraph(BaseGraph):
 
             # create the edge in the graph
             self.graph.ep.id[new_edge] = new_flow.id
-            self.graph.ep.amount[new_edge] = amount
+            self.graph.ep.amount[new_edge] = 0
+
             # ToDo: swap material
             self.graph.ep.material[new_edge] = new_flow.material.id
             self.graph.ep.process[new_edge] = \
                 new_flow.process.id if new_flow.process is not None else - 1
 
-            # reduce the referenced flow by the same amount, will be reduced
-            # by walker
+            new_flows.append(flow)
+            new_deltas.append(delta)
+
+            # reduce (resp. increase) the referenced flow by the same amount
             if reduce_reference:
                 changed_ref_flows.append(flow)
-                solution_factors_ref.append(1 - global_factor)
+                changed_ref_deltas.append(-delta)
 
-            new_flows.append(flow)
-            # the new flow already has the amount he is supposed to have after
-            # the calculation, but to trigger the propagation of the change
-            # the walker algorithm needs a factor (1 meaning no change of
-            # the flow itself)
-            solution_factors_new.append(1)
-
-        return new_flows + changed_ref_flows, solution_factors_new + solution_factors_ref
+        return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
 
     def clean_db(self):
         '''
@@ -577,20 +586,22 @@ class StrategyGraph(BaseGraph):
                     if len(picked) == 0:
                         continue
                     target_actor = picked[0].actor
-                    # the new flows will be the ones affected by
-                    # calculation first
-                    implementation_flows, factors = self.shift_flows(
+                    implementation_flows, deltas = self.shift_flows(
                         implementation_flows, target_actor,
                         formula, keep_origin=keep_origin,
                         reduce_reference=True)
                 else:
-                    if formula.is_absolute:
-                        total = implementation_flows.aggregate(
-                            total=Sum('amount'))['total']
-                        global_factor = formula.calculate_factor(total)
-                    else:
-                        global_factor = formula.calculate_factor()
-                    factors = [global_factor] * len(implementation_flows)
+                    #total = implementation_flows.aggregate(
+                        #total=Sum('amount'))['total']
+                    for flow in implementation_flows:
+                        delta = formula.calculate_delta(flow.amount)
+                        if formula.is_absolute:
+                            # equal distribution or distribution depending on
+                            # previous share on total amount?
+                            delta /= len(implementation_flows)
+                            # alternatively sth like that
+                            # delta *= flow.amount / total
+                        deltas.append(delta)
 
                 # exclude all edges
                 self._reset_include(do_include=False)
@@ -606,7 +617,7 @@ class StrategyGraph(BaseGraph):
                 impl_edges = self._get_edges(implementation_flows)
 
                 gw = GraphWalker(self.graph)
-                self.graph = gw.calculate(impl_edges, factors)
+                self.graph = gw.calculate(impl_edges, deltas)
 
         # save the strategy graph to a file
         self.graph.save(self.filename)
@@ -616,7 +627,7 @@ class StrategyGraph(BaseGraph):
         return self.graph
 
     def translate_to_db(self):
-        changed = self.graph.ep['changed'].a == True
+        changed = self.graph.ep['changed'].a
         ids = self.graph.ep['id'].a[changed]
         amounts = self.graph.ep['amount'].a[changed]
         flows = FractionFlow.objects.filter(id__in=ids)

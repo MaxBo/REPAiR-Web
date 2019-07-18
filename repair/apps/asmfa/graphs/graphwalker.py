@@ -72,8 +72,7 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     ----------
     g : the graph to explore
     edge : the starting edge, normally this is the *solution edge*
-    solution : relative change of implementation flow
-               (factor to multiply amount with)
+    solution : absolute change of implementation flow (delta)
     amount : PropertyMap
     upstream : The direction of traversal. When upstream is True, the graph
                is explored upstream first, otherwise downstream first.
@@ -134,7 +133,7 @@ class GraphWalker:
             start = time.time()
             solution_factor = factors[i]
             # ToDo: why do we pass the property dict for amounts?
-            #      the graph is already passed linking to this dict
+            #       the graph is already passed linking to this dict
             changes = traverse_graph(g, edge=edge,
                                      solution=solution_factor,
                                      amount=g.ep.amount)
