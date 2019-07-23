@@ -335,7 +335,32 @@ class StrategyGraph(BaseGraph):
             flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
             flow.save()
 
-    def shift_flows(self, referenced_flows, target_actor, formula,
+    def find_closest_actor(actors_in_solution):
+        # ToDo: for each actor pick a closest new one
+        #     don't distribute amounts equally!
+        #     (calc. amount based on the shifted flow for relative or distribute
+        #      absolute total based on total amounts going into the shifted
+        #      actor before?)
+        
+        # code for auto picking actor by distance
+        
+        # no calculation possible with no actor in selected area
+        if len(actors_in_solution) == 0:
+            return None
+        # start with maximum distance of 500
+        MAX_DISTANCE = 500
+        distance_actors = []
+        target_actor = None
+        while target_actor == None and len(distance_actors) != len(actors_in_solution):
+            distance_actors = actors_in_solution.filter(geom__dwithin(facility__geom, D(m=MAX_DISTANCE)))\
+                  .annotate(distance=Distance(geom, facilitiy.geom))\
+                  .annotate(facility_id=facility__id)\
+                  .annotate(rn=Window(expression=Rank(), partition_by=F("id"), order_by=F("distance")))
+            target_actor = distance_actors.filter(rn=1).first()
+            MAX_DISTANCE *= 2
+        return target_actor
+
+    def shift_flows(self, referenced_flows, actors_in_solution, formula,
                     material=None, keep_origin=True,
                     reduce_reference=True):
         '''
@@ -354,35 +379,23 @@ class StrategyGraph(BaseGraph):
         changed_ref_deltas = []
         new_deltas = []
 
-        target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
-                                         target_actor.id)
-        if(len(target_vertex) > 0):
-            target_vertex = target_vertex[0]
-        else:
-            target_vertex = self.graph.add_vertex()
-            self.graph.vp.id[target_vertex] = target_actor.id
-            self.graph.vp.bvdid[target_vertex] = target_actor.BvDid
-            self.graph.vp.name[target_vertex] = target_actor.name
-
-        # ToDo: for each actor pick a closest new one
-        #     don't distribute amounts equally!
-        #     (calc. amount based on the shifted flow for relative or distribute
-        #      absolute total based on total amounts going into the shifted
-        #      actor before?)
-
-        #possible_targets = Actor.objects.filter(
-            #activity=target_acitivity)
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            # Pseudocode for auto picking actor by distance
-            #if keep_origin:
-                #swapped = flow.destination
-                #staying = flow.origin
-            #else:
-                #swapped = flow.origin
-                #staying = flow.destination
-            #possible_targets = possible_targets.annotate(distance='something with spatial stuff')
-            #new_target = possible.targets.orderby('distance')[0]
+            target_actor = self.find_closest_actor(actors_in_solution)
+            # no target actor found within range
+            if target_actor == None:
+                continue               
+            
+            # check if target is already in the graph, if not create it
+            target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
+                                             target_actor.id)
+            if(len(target_vertex) > 0):
+                target_vertex = target_vertex[0]
+            else:
+                target_vertex = self.graph.add_vertex()
+                self.graph.vp.id[target_vertex] = target_actor.id
+                self.graph.vp.bvdid[target_vertex] = target_actor.BvDid
+                self.graph.vp.name[target_vertex] = target_actor.name            
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges
@@ -401,42 +414,57 @@ class StrategyGraph(BaseGraph):
                 continue
             edge = edges[0]
             if keep_origin:
-                new_edge = self.graph.add_edge(edge.source(), target_vertex)
+                # find existing edge, else create new
+                new_edge = self.graph.edge(edge.source(), target_vertex)
+                existing_edge = True
+                if new_edge == None:
+                    existing_edge = False
+                    new_edge = self.graph.add_edge(edge.source(), target_vertex)
             else:
-                new_edge = self.graph.add_edge(target_vertex, edge.target())
+                # find existing edge, else create new
+                new_edge = self.graph.edge(target_vertex, edge.target())
+                existing_edge = True
+                if new_edge == None:
+                    existing_edge = False
+                    new_edge = self.graph.add_edge(target_vertex, edge.target())
 
-            # create a new fractionflow for the implementation flow in the db,
-            # setting id to None creates new one when saving
-            # while keeping attributes of original model;
-            # the new flow is added with zero amount and to be changed
-            # by calculated delta
-            new_flow = copy_django_model(flow)
-            new_flow.id = None
-            new_flow.amount = 0
-            if keep_origin:
-                new_flow.destination = target_actor
+            if existing_edge:
+                # update delta only?
+                # if existing in DB use ref_flow_delta?
+                # what if existing in new_flows? Is it already in the DB then?
             else:
-                new_flow.origin = target_actor
-            # strategy marks flow as new flow
-            new_flow.strategy = self.strategy
-            new_flow.save()
-
-            # create the edge in the graph
-            self.graph.ep.id[new_edge] = new_flow.id
-            self.graph.ep.amount[new_edge] = 0
-
-            # ToDo: swap material
-            self.graph.ep.material[new_edge] = new_flow.material.id
-            self.graph.ep.process[new_edge] = \
-                new_flow.process.id if new_flow.process is not None else - 1
-
-            new_flows.append(flow)
-            new_deltas.append(delta)
-
-            # reduce (resp. increase) the referenced flow by the same amount
-            if reduce_reference:
-                changed_ref_flows.append(flow)
-                changed_ref_deltas.append(-delta)
+                # create a new fractionflow for the implementation flow in the db,
+                # setting id to None creates new one when saving
+                # while keeping attributes of original model;
+                # the new flow is added with zero amount and to be changed
+                # by calculated delta
+                new_flow = copy_django_model(flow)
+                new_flow.id = None
+                new_flow.amount = 0
+                if keep_origin:
+                    new_flow.destination = target_actor
+                else:
+                    new_flow.origin = target_actor
+                # strategy marks flow as new flow
+                new_flow.strategy = self.strategy
+                new_flow.save()
+    
+                # create the edge in the graph
+                self.graph.ep.id[new_edge] = new_flow.id
+                self.graph.ep.amount[new_edge] = 0
+    
+                # ToDo: swap material
+                self.graph.ep.material[new_edge] = new_flow.material.id
+                self.graph.ep.process[new_edge] = \
+                    new_flow.process.id if new_flow.process is not None else - 1
+    
+                new_flows.append(flow)
+                new_deltas.append(delta)
+    
+                # reduce (resp. increase) the referenced flow by the same amount
+                if reduce_reference:
+                    changed_ref_flows.append(flow)
+                    changed_ref_deltas.append(-delta)
 
         return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
 
@@ -577,17 +605,16 @@ class StrategyGraph(BaseGraph):
 
                     # ToDo: no picking anymore but implementation areas
                     # to filter possible new actors which are
-                    # assigned by closest (euclidean?) distance
+                    # assigned by closest euclidean distance
 
-                    picked = ActorInSolutionPart.objects.filter(
+                    actors_in_solution = ActorInSolutionPart.objects.filter(
                         solutionpart=solution_part,
                         implementation=implementation)
                     # no calculation possible with no actor picked by user
-                    if len(picked) == 0:
+                    if len(actors_in_solution) == 0:
                         continue
-                    target_actor = picked[0].actor
                     implementation_flows, deltas = self.shift_flows(
-                        implementation_flows, target_actor,
+                        implementation_flows, actors_in_solution,
                         formula, keep_origin=keep_origin,
                         reduce_reference=True)
                 else:
