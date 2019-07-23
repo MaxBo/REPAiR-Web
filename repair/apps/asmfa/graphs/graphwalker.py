@@ -48,15 +48,17 @@ class NodeVisitor(BFSVisitor):
                     if len(e_src_out) > 1:
                         # For the case when an inflow edge shares the
                         # source vertex
-                        self.change[e] = (
-                            self.amount[e] / sum(
-                                [self.amount[out_f] for out_f in e_src_out])
-                            ) * self.solution
+                        sum_out_f = sum(self.amount[out_f] for out_f in e_src_out)
+                        if sum_out_f and self.amount[e]:
+                            self.change[e] = (self.amount[e] / sum_out_f) * self.solution
+                        else:
+                            # If there are neighbour edges sharing the same source, but their sum is 0, then
+                            # revert to compute the ratio from all inflows. However this case might mean that
+                            # we are trying to compute something where we don't have enough information yet. Because
+                            # the edges exist, but their amount is 0.
+                            self.change[e] = (self.amount[e] / sum(self.amount[in_f] for in_f in all_in)) * self.solution
                     else:
-                        self.change[e] = (
-                            self.amount[e] / sum(
-                                [self.amount[in_f] for in_f in all_in])
-                            ) * self.solution
+                        self.change[e] = (self.amount[e] / sum(self.amount[in_f] for in_f in all_in)) * self.solution
                     # print(self.id[e.source()], '-->',
                     # self.id[e.target()], self.change[e])
                     self.visited[e] = True
