@@ -352,8 +352,8 @@ class StrategyGraph(BaseGraph):
         distance_actors = []
         target_actor = None
         while target_actor == None and len(distance_actors) != len(actors_in_solution):
-            distance_actors = actors_in_solution.filter(geom__dwithin(facility__geom, D(m=MAX_DISTANCE)))\
-                  .annotate(distance=Distance(geom, facilitiy.geom))\
+            distance_actors = actors_in_solution.filter(administrative_location__geom__dwithin(facility__geom, D(m=MAX_DISTANCE)))\
+                  .annotate(distance=Distance(administrative_location__geom, facility__geom))\
                   .annotate(facility_id=facility__id)\
                   .annotate(rn=Window(expression=Rank(), partition_by=F("id"), order_by=F("distance")))
             target_actor = distance_actors.filter(rn=1).first()
@@ -381,7 +381,7 @@ class StrategyGraph(BaseGraph):
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            target_actor = self.find_closest_actor(actors_in_solution)
+            target_actor = find_closest_actor(actors_in_solution)
             # no target actor found within range
             if target_actor == None:
                 continue               
