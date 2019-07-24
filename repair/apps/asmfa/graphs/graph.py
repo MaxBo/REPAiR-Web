@@ -347,7 +347,7 @@ class StrategyGraph(BaseGraph):
         # no calculation possible with no actor in selected area
         if len(actors_in_solution) == 0:
             return None
-        # start with maximum distance of 500
+        # start with maximum distance of 500m
         MAX_DISTANCE = 500
         distance_actors = []
         target_actor = None
@@ -413,25 +413,31 @@ class StrategyGraph(BaseGraph):
                 print("Cannot find FractionFlow.id ", flow.id, " in the graph")
                 continue
             edge = edges[0]
+            
+            existing_edge = True
             if keep_origin:
                 # find existing edge, else create new
                 new_edge = self.graph.edge(edge.source(), target_vertex)
-                existing_edge = True
                 if new_edge == None:
                     existing_edge = False
                     new_edge = self.graph.add_edge(edge.source(), target_vertex)
             else:
                 # find existing edge, else create new
                 new_edge = self.graph.edge(target_vertex, edge.target())
-                existing_edge = True
                 if new_edge == None:
                     existing_edge = False
                     new_edge = self.graph.add_edge(target_vertex, edge.target())
 
             if existing_edge:
-                # update delta only?
-                # if existing in DB use ref_flow_delta?
-                # what if existing in new_flows? Is it already in the DB then?
+                # get flow from database and add to new_flows
+                new_flow = Flows.get(id=new_edge.id)
+                
+                # get existing edge from graph and set amount += delta
+                self.graph.ep.amount[new_edge] = self.graph.ep.amount[new_edge] + delta
+                
+                # add flow and delta
+                new_flows.append(new_flow)
+                new_deltas.append(delta)
             else:
                 # create a new fractionflow for the implementation flow in the db,
                 # setting id to None creates new one when saving
@@ -458,13 +464,13 @@ class StrategyGraph(BaseGraph):
                 self.graph.ep.process[new_edge] = \
                     new_flow.process.id if new_flow.process is not None else - 1
     
-                new_flows.append(flow)
+                new_flows.append(new_flow)
                 new_deltas.append(delta)
     
-                # reduce (resp. increase) the referenced flow by the same amount
-                if reduce_reference:
-                    changed_ref_flows.append(flow)
-                    changed_ref_deltas.append(-delta)
+            # reduce (resp. increase) the referenced flow by the same amount
+            if reduce_reference:
+                changed_ref_flows.append(flow)
+                changed_ref_deltas.append(-delta)
 
         return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
 
