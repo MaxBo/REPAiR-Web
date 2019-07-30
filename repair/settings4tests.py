@@ -51,3 +51,5 @@ WEBPACK_LOADER = {
         'STATS_FILE': os.path.join(PROJECT_DIR, 'webpack-stats-dev.json'),
     }
 }
+
+FIXTURE_DIRS.append(os.path.join(PROJECT_DIR, "graph_fixtures"),)
