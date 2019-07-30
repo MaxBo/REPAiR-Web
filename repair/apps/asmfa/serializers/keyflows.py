@@ -156,7 +156,9 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actors',
                   'administrative_locations',
                   'operational_locations',
-                  'graph_date'
+                  'graph_date',
+                  'sustainability_statusquo',
+                  'sustainability_conclusions'
                   )
 
     def get_graph_date(self, obj):
@@ -174,7 +176,15 @@ class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
         model = KeyflowInCasestudy
         fields = ('keyflow',
                   'note',
+                  'sustainability_statusquo',
+                  'sustainability_conclusions'
                   )
+        extra_kwargs = {
+            'sustainability_statusquo': {'required': False, 'allow_null': True},
+            'sustainability_conclusions': {
+                'required': False, 'allow_null': True
+            },
+        }
 
 
 class KeyflowInCasestudyDetailCreateMixin:

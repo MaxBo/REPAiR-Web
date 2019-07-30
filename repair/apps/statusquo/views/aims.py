@@ -1,9 +1,9 @@
 from django.http import HttpResponse
 from django.template import loader
 from django.views.generic import TemplateView
-from plotly.offline import plot
-from plotly.graph_objs import (Bar, Marker, Histogram2dContour, Contours,
-                               Layout, Figure, Data)
+#from plotly.offline import plot
+#from plotly.graph_objs import (Bar, Marker, Histogram2dContour, Contours,
+                               #Layout, Figure, Data)
 from rest_framework import viewsets
 from repair.views import ModeView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -63,11 +63,11 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
                 aims = aims.filter(keyflow__id=keyflow)
                 objectives = objectives.filter(aim__keyflow__id=keyflow)
 
-
         # by default query objectives of current user and create them, if they
-        #  don't exist yet
-        # can be overriden with query-param all=true
-        if not all_users:
+        # don't exist yet, can be overriden with query-param all=true or by
+        # querying specific users
+        if (not all_users and not self.request.query_params.get('user__in')
+            and not self.request.query_params.get('user')):
             objectives = objectives.filter(
                 aim__casestudy__id=casestudy_pk,
                 user=user

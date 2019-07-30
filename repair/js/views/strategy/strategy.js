@@ -308,7 +308,7 @@ var StrategyView = BaseView.extend(
             editorLi = this.solutionModal.querySelector('a[href="#strategy-area-tab"]');
         // update map after switching to tab to fit width and height of wrapping div
         $(editorLi).on('shown.bs.tab', function () {
-            _this.editorMap.map.updateSize();
+            if (_this.editorMap) _this.editorMap.map.updateSize();
         });
         if (hasActorsToPick){
             this.pickedActors = {};
@@ -348,7 +348,7 @@ var StrategyView = BaseView.extend(
             if (features.length > 0){
                 var geometries = [];
                 features.forEach(function(feature) {
-                    var geom = feature.getGeometry();
+                    var geom = feature.getGeometry().transform(_this.editorMap.mapProjection, _this.projection);
                     geometries.push(geom);
                 });
                 var geoCollection = new ol.geom.GeometryCollection(geometries),
@@ -356,6 +356,8 @@ var StrategyView = BaseView.extend(
                     geoJSONText = geoJSON.writeGeometry(geoCollection);
                 solutionImpl.set('geom', geoJSONText);
             }
+            else
+                solutionImpl.set('geom', null);
 
             var quantityInputs = _this.solutionModal.querySelectorAll('input[name="quantity"]'),
                 quantities = [];
@@ -467,7 +469,8 @@ var StrategyView = BaseView.extend(
     * render the map with the drawn polygons into the solution item
     */
     renderSolutionPreviewMap: function(solutionImpl, item){
-        var divid = 'solutionImpl' + solutionImpl.id;
+        var divid = 'solutionImpl' + solutionImpl.id,
+            _this = this;
         var mapDiv = item.querySelector('.olmap');
         mapDiv.id = divid;
         mapDiv.innerHTML = '';
@@ -482,7 +485,7 @@ var StrategyView = BaseView.extend(
             previewMap.addLayer('geometry');
             geom.geometries.forEach(function(g){
                 previewMap.addGeometry(g.coordinates, {
-                    projection: 'EPSG:3857', layername: 'geometry',
+                    projection: _this.projection, layername: 'geometry',
                     type: g.type
                 });
             })
@@ -580,7 +583,7 @@ var StrategyView = BaseView.extend(
         if (geom){
             geom.geometries.forEach(function(g){
                 _this.editorMap.addGeometry(g.coordinates, {
-                    projection: 'EPSG:3857', layername: 'drawing',
+                    projection: _this.projection, layername: 'drawing',
                     type: g.type
                 });
             })
@@ -590,45 +593,6 @@ var StrategyView = BaseView.extend(
             removeBtn = drawingTools.querySelector('.remove'),
             tools = drawingTools.querySelectorAll('.tool'),
             togglePossibleArea = this.el.querySelector('input[name="show-possible-area"]');
-
-        function toolChanged(){
-            var checkedTool = drawingTools.querySelector('.active').querySelector('input'),
-                type = checkedTool.dataset.tool,
-                selectable = false,
-                useDragBox = false,
-                removeActive = false,
-                freehand = checkedTool.dataset.freehand === 'true';
-            if (type === 'Move'){
-                _this.editorMap.toggleDrawing('drawing');
-            }
-            else if (type === 'Select'){ // || type === 'DragBox'){
-                _this.editorMap.toggleDrawing('drawing');
-                selectable = true;
-                useDragBox = true;
-                removeActive = true;
-            }
-            else {
-                _this.editorMap.toggleDrawing('drawing', {
-                    type: type,
-                    freehand: freehand
-                });
-                _this.editorMap.enableDragBox('drawing');
-            }
-            // seperate dragbox tool disabled, doesn't work with touch
-            //if (type === 'DragBox') useDragBox = true;
-            _this.editorMap.enableSelect('drawing', selectable);
-            _this.editorMap.enableDragBox('drawing', useDragBox);
-            removeBtn.style.display = (removeActive) ? 'block' : 'none';
-        }
-        // "Move" tool is selected initially, deactivate selection
-        _this.editorMap.enableSelect('drawing', false);
-
-        for (var i = 0; i < tools.length; i++){
-            var tool = tools[i];
-            // pure js doesn't work unfortunately
-            //tool.addEventListener('change', toolChanged);
-            $(tool).on('change', toolChanged)
-        }
 
         var implArea = solution.get('possible_implementation_area') || '';
         if(implArea) {
@@ -658,6 +622,46 @@ var StrategyView = BaseView.extend(
         removeBtn.addEventListener('click', function(){
             _this.editorMap.removeSelectedFeatures('drawing');
         })
+
+        function toolChanged(){
+            var checkedTool = drawingTools.querySelector('.active').querySelector('input'),
+                type = checkedTool.dataset.tool,
+                selectable = false,
+                useDragBox = false,
+                removeActive = false,
+                freehand = checkedTool.dataset.freehand === 'true';
+            if (type === 'Move'){
+                _this.editorMap.toggleDrawing('drawing');
+            }
+            else if (type === 'Select'){ // || type === 'DragBox'){
+                _this.editorMap.toggleDrawing('drawing');
+                selectable = true;
+                useDragBox = true;
+                removeActive = true;
+            }
+            else {
+                _this.editorMap.toggleDrawing('drawing', {
+                    type: type,
+                    freehand: freehand,
+                    intersectionLayer: (implArea) ? 'implementation-area': null
+                });
+                _this.editorMap.enableDragBox('drawing');
+            }
+            // seperate dragbox tool disabled, doesn't work with touch
+            //if (type === 'DragBox') useDragBox = true;
+            _this.editorMap.enableSelect('drawing', selectable);
+            _this.editorMap.enableDragBox('drawing', useDragBox);
+            removeBtn.style.display = (removeActive) ? 'block' : 'none';
+        }
+        // "Move" tool is selected initially, deactivate selection
+        _this.editorMap.enableSelect('drawing', false);
+
+        for (var i = 0; i < tools.length; i++){
+            var tool = tools[i];
+            // pure js doesn't work unfortunately
+            //tool.addEventListener('change', toolChanged);
+            $(tool).on('change', toolChanged)
+        }
     },
 
     saveOrder: function(){

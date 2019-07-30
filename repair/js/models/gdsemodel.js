@@ -53,14 +53,14 @@ function(Backbone, utils, config) {
 
         /**
         * overrides save function of Backbone models.
-        * enables possibility to upload the model as a form instead of JSON, 
+        * enables possibility to upload the model as a form instead of JSON,
         * if attributes in data object are instances of File the model is automatically uploaded as a form (django needs it that way)
         *
         * WARNING: the changed attributes of model are ignored when uploading as form, only passed data will be put into form
         *
         * @param {Object} data       same as in Backbone.Model.save, values of file attributes have to be instances of File (the JS one)
         * @param {Object} options    same as in Backbone.Model.save
-        * @param {Boolean} [options.uploadAsForm=false]  force uploading as form 
+        * @param {Boolean} [options.uploadAsForm=false]  force uploading as form
         *
         * @constructs
         * @see http://backbonejs.org/#Model
@@ -87,7 +87,7 @@ function(Backbone, utils, config) {
                 if (this.id != null) url += '/' + this.id;
                 url += '/';
                 utils.uploadForm(data, url, {
-                    method: (this.id != null) ? 'PUT': 'POST',
+                    method: (options.patch) ? 'PATCH' : (this.id != null) ? 'PUT': 'POST',
                     success: function(resData, textStatus, jqXHR){
                         // set attributes corresponding to response
                         for(key in resData){
