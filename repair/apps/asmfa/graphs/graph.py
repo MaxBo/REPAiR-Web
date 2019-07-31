@@ -16,7 +16,10 @@ except ModuleNotFoundError:
     pass
 
 from django.db import transaction
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, OuterRef, Subquery, Window
+from django.contrib.gis.measure import D
+from django.db.models.functions import Rank
+from django.contrib.gis.db.models.functions import Distance
 import numpy as np
 import datetime
 from io import StringIO
@@ -335,33 +338,100 @@ class StrategyGraph(BaseGraph):
             flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
             flow.save()
 
-    def find_closest_actor(actors_in_solution):
+    def find_closest_actor(self,
+                           actors_in_solution,
+                           possible_target_actors):
         # ToDo: for each actor pick a closest new one
         #     don't distribute amounts equally!
         #     (calc. amount based on the shifted flow for relative or distribute
         #      absolute total based on total amounts going into the shifted
         #      actor before?)
-        
+        from django.db.models import F
+
+        from django.db import connection
+        backend = connection.vendor
+        st_dwithin = {'sqlite': 'PtDistWithin',
+                      'postgres': 'st_dwithin',}
+
+        #  in postgres, we could use ST_Distance_Sphere
+        st_distance = {'sqlite': 'st_distance',
+                       'postgres': 'ST_Distance_Sphere',}
+
+        st_distance_parameter = {'sqlite': ', use_ellipsoid=False',
+                                 'postgres': '',}
+
+        compiler = actors_in_solution.query.get_compiler(
+            using=actors_in_solution.db)
+
         # code for auto picking actor by distance
-        
         # no calculation possible with no actor in selected area
         if len(actors_in_solution) == 0:
             return None
         # start with maximum distance of 500m
-        MAX_DISTANCE = 500
+        max_distance = 500
+        ABSOLUTE_MAX_DISTANCE = 100000
+        target_actors = []
         distance_actors = []
         target_actor = None
-        while target_actor == None and len(distance_actors) != len(actors_in_solution):
-            distance_actors = actors_in_solution.filter(administrative_location__geom__dwithin(facility__geom, D(m=MAX_DISTANCE)))\
-                  .annotate(distance=Distance(administrative_location__geom, facility__geom))\
-                  .annotate(facility_id=facility__id)\
-                  .annotate(rn=Window(expression=Rank(), partition_by=F("id"), order_by=F("distance")))
-            target_actor = distance_actors.filter(rn=1).first()
-            MAX_DISTANCE *= 2
-        return target_actor
+        while (not target_actors
+               and len(distance_actors) != len(actors_in_solution)
+               and max_distance <= ABSOLUTE_MAX_DISTANCE):
 
-    def shift_flows(self, referenced_flows, actors_in_solution, formula,
-                    material=None, keep_origin=True,
+            query_actors_in_solution = str(actors_in_solution
+                .annotate(pnt=F('administrative_location__geom'))
+                .values('id', 'pnt')
+                .query)\
+                .replace(
+                    'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
+                    '"asmfa_administrativelocation"."geom"')
+
+            query_target_actors = str(
+                possible_target_actors
+                .annotate(pnt=F('administrative_location__geom'))
+                .values('id', 'pnt')
+                .query)\
+                .replace(
+                    'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
+                    '"asmfa_administrativelocation"."geom"')
+
+            query = f'''
+            WITH
+              ais AS ({query_actors_in_solution}),
+              pta AS ({query_target_actors})
+            SELECT
+              a.actor_id,
+              a.target_actor_id
+            FROM
+              (SELECT
+                ais.id AS actor_id,
+                pta.id AS target_actor_id,
+                row_number() OVER(
+                  PARTITION BY ais.id
+                  ORDER BY {st_distance[backend]}(
+                    ais.pnt, pta.pnt{st_distance_parameter[backend]})
+                    ) AS rn
+              FROM ais, pta
+              WHERE {st_dwithin[backend]}(ais.pnt, pta.pnt, {max_distance})
+              AND ais.id <> pta.id
+              ) a
+            WHERE a.rn = 1
+            '''
+
+            with connection.cursor() as cursor:
+                cursor.execute(query)
+                rows = cursor.fetchall()
+
+            max_distance *= 2
+
+        return target_actors
+
+    def shift_flows(self,
+                    referenced_flows,
+                    actors_in_solution,
+                    formula,
+                    target_activity,
+                    material=None,
+                    keep_origin=True,
                     reduce_reference=True):
         '''
         creates new flows based on given implementation flows and redirects them
@@ -378,14 +448,16 @@ class StrategyGraph(BaseGraph):
         new_flows = []
         changed_ref_deltas = []
         new_deltas = []
+        possible_target_actors = Actor.objects.filter(activity=target_activity)
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            target_actor = find_closest_actor(actors_in_solution)
+            target_actor = self.find_closest_actor(actors_in_solution,
+                                                   possible_target_actors)
             # no target actor found within range
             if target_actor == None:
-                continue               
-            
+                continue
+
             # check if target is already in the graph, if not create it
             target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
                                              target_actor.id)
@@ -395,7 +467,7 @@ class StrategyGraph(BaseGraph):
                 target_vertex = self.graph.add_vertex()
                 self.graph.vp.id[target_vertex] = target_actor.id
                 self.graph.vp.bvdid[target_vertex] = target_actor.BvDid
-                self.graph.vp.name[target_vertex] = target_actor.name            
+                self.graph.vp.name[target_vertex] = target_actor.name
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges
@@ -413,7 +485,7 @@ class StrategyGraph(BaseGraph):
                 print("Cannot find FractionFlow.id ", flow.id, " in the graph")
                 continue
             edge = edges[0]
-            
+
             existing_edge = True
             if keep_origin:
                 # find existing edge, else create new
@@ -451,19 +523,19 @@ class StrategyGraph(BaseGraph):
                 # strategy marks flow as new flow
                 new_flow.strategy = self.strategy
                 new_flow.save()
-    
+
                 # create the edge in the graph
                 self.graph.ep.id[new_edge] = new_flow.id
                 self.graph.ep.amount[new_edge] = 0
-    
+
                 # ToDo: swap material
                 self.graph.ep.material[new_edge] = new_flow.material.id
                 self.graph.ep.process[new_edge] = \
                     new_flow.process.id if new_flow.process is not None else - 1
-    
+
                 new_flows.append(new_flow)
                 new_deltas.append(delta)
-    
+
             # reduce (resp. increase) the referenced flow by the same amount
             if reduce_reference:
                 changed_ref_flows.append(flow)
@@ -617,8 +689,11 @@ class StrategyGraph(BaseGraph):
                     if len(actors_in_solution) == 0:
                         continue
                     implementation_flows, deltas = self.shift_flows(
-                        implementation_flows, actors_in_solution,
-                        formula, keep_origin=keep_origin,
+                        implementation_flows,
+                        actors_in_solution,
+                        formula,
+                        target_activity,
+                        keep_origin=keep_origin,
                         reduce_reference=True)
                 else:
                     #total = implementation_flows.aggregate(
