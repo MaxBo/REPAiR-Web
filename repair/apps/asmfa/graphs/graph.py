@@ -430,14 +430,11 @@ class StrategyGraph(BaseGraph):
 
             if existing_edge:
                 # get flow from database and add to new_flows
-                new_flow = Flows.get(id=new_edge.id)
-                
-                # get existing edge from graph and set amount += delta
-                self.graph.ep.amount[new_edge] = self.graph.ep.amount[new_edge] + delta
-                
-                # add flow and delta
-                new_flows.append(new_flow)
-                new_deltas.append(delta)
+                changed_ref_flow = Flows.get(id=new_edge.id)
+
+                # add flow and delta to changed_ref arrays
+                changed_ref_flows.append(changed_ref_flow)
+                changed_ref_deltas.append(delta)
             else:
                 # create a new fractionflow for the implementation flow in the db,
                 # setting id to None creates new one when saving
