@@ -5,6 +5,7 @@ GOTO MERGE
 
 python manage.py dump_object -k changes.solutioninstrategy --query "{\"solution__id\": 89}"  > repair\graph_fixtures\graph_solutioninstrategy.json
 python manage.py dump_object -k asmfa.fractionflow --query "{\"keyflow__id\": 32}"  > repair\graph_fixtures\graph_fractionflow.json
+python manage.py dump_object -k asmfa.actor --query "{\"activity__activitygroup__keyflow__id\": 32}"  > repair\graph_fixtures\graph_actors.json
 python manage.py dump_object -k changes.solution --query "{\"id\": 89}"  > repair\graph_fixtures\graph_solutions.json
 python manage.py dump_object -k changes.solutioninstrategy --query "{\"solution__id\": 89}"  > repair\graph_fixtures\graph_solutioninstrategy.json
 python manage.py dump_object -k changes.actorinsolutionpart --query "{\"solutionpart__solution__id\": 89}"  > repair\graph_fixtures\graph_actorinsolutionpart.json
@@ -14,6 +15,7 @@ python manage.py dump_object -k changes.affectedflow --query "{\"solution_part__
 python manage.py merge_fixtures^
  repair\graph_fixtures\graph_solutions.json^
  repair\graph_fixtures\graph_solutioninstrategy.json^
+ repair\graph_fixtures\graph_actors.json^
  repair\graph_fixtures\graph_actorinsolutionpart.json^
  repair\graph_fixtures\graph_affectedflow.json^
  repair\graph_fixtures\graph_fractionflow.json^

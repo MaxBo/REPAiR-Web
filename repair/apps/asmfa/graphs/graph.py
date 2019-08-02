@@ -338,8 +338,8 @@ class StrategyGraph(BaseGraph):
             flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
             flow.save()
 
-    def find_closest_actor(self,
-                           actors_in_solution,
+    @staticmethod
+    def find_closest_actor(actors_in_solution,
                            possible_target_actors):
         # ToDo: for each actor pick a closest new one
         #     don't distribute amounts equally!
@@ -357,7 +357,7 @@ class StrategyGraph(BaseGraph):
         st_distance = {'sqlite': 'st_distance',
                        'postgres': 'ST_Distance_Sphere',}
 
-        st_distance_parameter = {'sqlite': ', use_ellipsoid=False',
+        st_distance_parameter = {'sqlite': '',
                                  'postgres': '',}
 
         compiler = actors_in_solution.query.get_compiler(
@@ -414,7 +414,7 @@ class StrategyGraph(BaseGraph):
               WHERE {st_dwithin[backend]}(ais.pnt, pta.pnt, {max_distance})
               AND ais.id <> pta.id
               ) a
-            WHERE a.rn = 1
+            WHERE a.rn = 2
             '''
 
             with connection.cursor() as cursor:
