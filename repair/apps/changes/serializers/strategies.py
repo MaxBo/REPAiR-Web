@@ -9,7 +9,7 @@ from repair.apps.asmfa.models import FractionFlow, StrategyFractionFlow
 from repair.apps.changes.models import (Strategy,
                                         SolutionInStrategy,
                                         ImplementationQuantity,
-                                        ActorInSolutionPart,
+                                        ImplementationArea
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -178,10 +178,10 @@ class ImplementationQuantitySerializer(serializers.ModelSerializer):
         fields = ('question', 'value')
 
 
-class ActorInSolutionPartSerializer(serializers.ModelSerializer):
+class ImplementationAreaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ActorInSolutionPart
-        fields = ('solutionpart', 'actor')
+        model = ImplementationArea
+        fields = ('possible_implementation_area', 'geom')
 
 
 class SolutionInStrategySerializer(serializers.ModelSerializer):
@@ -193,16 +193,17 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
     participants = IDRelatedField(many=True, required=False)
     quantities = ImplementationQuantitySerializer(
         many=True, source='implementation_quantity', required=False)
-    picked_actors = ActorInSolutionPartSerializer(many=True, required=False)
+    areas = ImplementationAreaSerializer(
+        many=True, source='implementation_area', required=False)
 
     class Meta:
         model = SolutionInStrategy
-        fields = ('id', 'solution', 'note', 'geom',
-                  'participants', 'priority', 'quantities', 'picked_actors')
+        fields = ('id', 'solution', 'note',
+                  'participants', 'priority', 'quantities', 'areas')
 
     def update(self, instance, validated_data):
         quantities = validated_data.pop('implementation_quantity', [])
-        picked_actors = validated_data.pop('picked_actors', None)
+        areas = validated_data.pop('implementation_area', [])
         instance = super().update(instance, validated_data)
         for q in quantities:
             # quantities are created automatically, no need to delete them
@@ -210,10 +211,12 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
                 question=q['question'], implementation=instance)
             quantity.value = q['value'];
             quantity.save()
-        if picked_actors:
-            ActorInSolutionPart.objects.filter(implementation=instance).delete()
-            for a in picked_actors:
-                ais = ActorInSolutionPart(implementation=instance, **a)
-                ais.save()
+        for a in areas:
+            # quantities are created automatically, no need to delete them
+            area = ImplementationArea.objects.get(
+                possible_implementation_area=a['possible_implementation_area'],
+                implementation=instance)
+            area.geom = q['geom'];
+            area.save()
         return instance
 

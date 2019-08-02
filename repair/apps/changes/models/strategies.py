@@ -6,9 +6,8 @@ from repair.apps.login.models import (GDSEModel,
 from repair.apps.asmfa.models import KeyflowInCasestudy, Actor
 
 from repair.apps.studyarea.models import Stakeholder
-from repair.apps.changes.models.solutions import (Solution,
-                                                  SolutionPart,
-                                                  ImplementationQuestion)
+from repair.apps.changes.models.solutions import (
+    Solution, SolutionPart, ImplementationQuestion, PossibleImplementationArea)
 from repair.apps.utils.protect_cascade import PROTECT_CASCADE
 
 
@@ -42,8 +41,6 @@ class SolutionInStrategy(GDSEModel):
                                  related_name='solutioninstrategy')
     participants = models.ManyToManyField(Stakeholder)
     note = models.TextField(blank=True, null=True)
-    geom = models.GeometryCollectionField(verbose_name='geom', srid=4326,
-                                          null=True)
 
     # order of calculation, lowest first
     priority = models.IntegerField(default=0)
@@ -51,15 +48,6 @@ class SolutionInStrategy(GDSEModel):
     def __str__(self):
         text = '{s} in {i}'
         return text.format(s=self.solution, i=self.strategy,)
-
-
-class ActorInSolutionPart(GDSEModel):
-    solutionpart = models.ForeignKey(SolutionPart, on_delete=PROTECT_CASCADE,
-                                     related_name='targetactor')
-    actor = models.ForeignKey(Actor, on_delete=PROTECT_CASCADE)
-    implementation = models.ForeignKey(SolutionInStrategy,
-                                       on_delete=models.CASCADE,
-                                       related_name='picked_actors')
 
 
 class ImplementationQuantity(GDSEModel):
@@ -72,6 +60,19 @@ class ImplementationQuantity(GDSEModel):
     question = models.ForeignKey(ImplementationQuestion,
                                  on_delete=models.CASCADE)
     value = models.FloatField()
+
+
+class ImplementationArea(GDSEModel):
+    '''
+    answer by user to a implementation question
+    '''
+    implementation = models.ForeignKey(SolutionInStrategy,
+                                       on_delete=models.CASCADE,
+                                       related_name='implementation_area')
+    possible_implementation_area = models.ForeignKey(
+        PossibleImplementationArea, on_delete=models.CASCADE)
+    geom = models.MultiPolygonField(null=True, srid=4326, blank=True)
+
 
 
 def trigger_implementationquantity_sii(sender, instance,

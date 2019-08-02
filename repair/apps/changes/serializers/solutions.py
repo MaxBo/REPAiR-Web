@@ -6,7 +6,8 @@ from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
                                         ImplementationQuestion,
                                         SolutionPart,
-                                        AffectedFlow
+                                        AffectedFlow,
+                                        PossibleImplementationArea
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -62,6 +63,21 @@ class ImplementationQuestionSerializer(SolutionDetailCreateMixin,
                         'select_values': {'required': False}}
 
 
+class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
+                                           NestedHyperlinkedModelSerializer):
+    solution = IDRelatedField(read_only=True)
+    edit_mask = serializers.ReadOnlyField()
+    parent_lookup_kwargs = {
+        'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
+        'keyflow_pk': 'solution__solution_category__keyflow__id',
+        'solution_pk': 'solution__id'
+    }
+
+    class Meta:
+        model = ImplementationQuestion
+        fields = ('url', 'id', 'solution', 'name', 'geom', 'edit_mask')
+
+
 class SolutionSerializer(CreateWithUserInCasestudyMixin,
                          NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {
@@ -73,7 +89,6 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     currentstate_image = serializers.ImageField(required=False, allow_null=True)
     activities_image = serializers.ImageField(required=False, allow_null=True)
     effect_image = serializers.ImageField(required=False, allow_null=True)
-    edit_mask = serializers.ReadOnlyField()
     implementation_count = serializers.SerializerMethodField()
     affected_activities = serializers.SerializerMethodField()
 
@@ -84,7 +99,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'activities_image',
                   'currentstate_image', 'effect_image',
                   'possible_implementation_area',
-                  'edit_mask', 'implementation_count',
+                  'implementation_count',
                   'affected_activities'
                   )
         read_only_fields = ('url', 'id', )
@@ -115,6 +130,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         except:
             pass
         return activities
+
 
 
 class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,

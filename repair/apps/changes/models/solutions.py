@@ -42,17 +42,6 @@ class Solution(GDSEModel):
                                      blank=True)
     activities_image = models.ImageField(upload_to='charts', null=True,
                                          blank=True)
-    possible_implementation_area = models.MultiPolygonField(
-        null=True, srid=4326, blank=True)
-
-    @property
-    def edit_mask(self):
-        if not self.possible_implementation_area:
-            return
-        bbox = Polygon([[-180, 90], [180, 90],
-                        [180, -90], [-180, -90], [-180, 90]])
-        mask = bbox.difference(self.possible_implementation_area)
-        return json.loads(mask.geojson)
 
 
 class ImplementationQuestion(GDSEModel):
@@ -72,6 +61,25 @@ class ImplementationQuestion(GDSEModel):
     is_absolute = models.BooleanField(default=False)
 
 
+class PossibleImplementationArea(GDSEModel):
+    '''
+    question asked to user to determine value for calc. solution-part formula
+    '''
+    geom = models.MultiPolygonField(null=True, srid=4326, blank=True)
+    name = models.TextField(default='')
+    solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
+                                 related_name='possible_implementation_area')
+
+    @property
+    def edit_mask(self):
+        if not self.geom:
+            return
+        bbox = Polygon([[-180, 90], [180, 90],
+                        [180, -90], [-180, -90], [-180, 90]])
+        mask = bbox.difference(self.geom)
+        return json.loads(mask.geojson)
+
+
 class SolutionPart(GDSEModel):
     '''
     part of the solution definition, change a single implementation flow (or
@@ -82,7 +90,8 @@ class SolutionPart(GDSEModel):
     name = models.TextField()
     documentation = models.TextField(default='')
     implements_new_flow = models.BooleanField(default=False)
-    references_part = models.BooleanField(default=False)
+    possible_implementation_area = models.ForeignKey(
+        PossibleImplementationArea, on_delete=PROTECT_CASCADE, null=True)
 
     # starting point of calculation (possible new flow is derived from it)
     # on activity level (only when references_part == False)

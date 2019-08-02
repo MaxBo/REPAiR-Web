@@ -23,6 +23,7 @@ from repair.apps.changes.views import (
     StrategyViewSet,
     SolutionInStrategyViewSet,
     ImplementationQuestionViewSet,
+    PossibleImplementationAreaViewSet,
     SolutionPartViewSet
 )
 
@@ -171,6 +172,7 @@ kf_router.register(r'conclusions', ConclusionViewSet)
 sol_router = NestedSimpleRouter(kf_router, r'solutions',
                                  lookup='solution')
 sol_router.register(r'questions', ImplementationQuestionViewSet)
+sol_router.register(r'areas', PossibleImplementationAreaViewSet)
 sol_router.register(r'parts', SolutionPartViewSet)
 
 # /casestudies/*/keyflows/*/strategies/...

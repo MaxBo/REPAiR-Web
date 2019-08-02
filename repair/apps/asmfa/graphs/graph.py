@@ -3,7 +3,7 @@ from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       StrategyFractionFlow)
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
-                                        AffectedFlow, ActorInSolutionPart)
+                                        AffectedFlow)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker, Formula
@@ -462,13 +462,8 @@ class StrategyGraph(BaseGraph):
                 if solution_part.implements_new_flow:
                     target_activity = solution_part.new_target_activity
                     keep_origin = solution_part.keep_origin
-                    picked = ActorInSolutionPart.objects.filter(
-                        solutionpart=solution_part,
-                        implementation=solution_in_strategy)
-                    # no calculation possible with no actor picked by user
-                    if len(picked) == 0:
-                        continue
-                    target_actor = picked[0].actor
+                    # ToDo: remove picking, ActorInSolutionPart already removed
+                    target_actor = Actor.objects.first()
                     # the new flows will be the ones affected by
                     # calculation first
                     implementation_flows = self.create_new_flows(
