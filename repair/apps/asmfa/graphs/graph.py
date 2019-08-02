@@ -387,6 +387,40 @@ class StrategyGraph(BaseGraph):
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                     '"asmfa_administrativelocation"."geom"')
 
+                query = f'''
+                WITH
+                  ais AS ({query_actors_in_solution}),
+                  pta AS ({query_target_actors})
+                SELECT
+                  a.actor_id,
+                  a.target_actor_id
+                FROM
+                  (SELECT
+                    ais.id AS actor_id,
+                    pta.id AS target_actor_id,
+                    st_distance(
+                        ST_Transform(ais.pnt, 3035),
+                        ST_Transform(pta.pnt, 3035)) AS meter
+                  FROM ais, pta
+                  WHERE PtDistWithin(ais.pnt,
+                                   pta.pnt,
+                                   {max_distance})
+                  ) a,
+                  (SELECT
+                    ais.id AS actor_id,
+                    min(st_distance(
+                        ST_Transform(ais.pnt, 3035),
+                        ST_Transform(pta.pnt, 3035))) AS min_meter
+                  FROM ais, pta
+                  WHERE PtDistWithin(ais.pnt,
+                                   pta.pnt,
+                                   {max_distance})
+                  GROUP BY ais.id
+                  ) b
+                WHERE a.actor_id = b.actor_id
+                ADN a.meter = b.min_meter
+                '''
+
             elif backend == 'postgresql':
                 query_actors_in_solution = query_actors_in_solution.replace(
                     '"asmfa_administrativelocation"."geom"::bytea',
@@ -396,30 +430,33 @@ class StrategyGraph(BaseGraph):
                     '"asmfa_administrativelocation"."geom"::bytea',
                     '"asmfa_administrativelocation"."geom"')
 
-            query = f'''
-            WITH
-              ais AS ({query_actors_in_solution}),
-              pta AS ({query_target_actors})
-            SELECT
-              a.actor_id,
-              a.target_actor_id
-              --, rn, meter
-            FROM
-              (SELECT
-                ais.id AS actor_id,
-                pta.id AS target_actor_id,
-                row_number() OVER(
-                  PARTITION BY ais.id
-                  ORDER BY st_distance(
-                    ST_Transform(ais.pnt, 3035), ST_Transform(pta.pnt, 3035))
-                    ) AS rn
-              FROM ais, pta
-              WHERE {st_dwithin[backend]}(ais.pnt{cast_to_geography[backend]},
-                                          pta.pnt{cast_to_geography[backend]},
-                                          {max_distance})
-              ) a
-            WHERE a.rn = 1
-            '''
+                query = f'''
+                WITH
+                  ais AS ({query_actors_in_solution}),
+                  pta AS ({query_target_actors})
+                SELECT
+                  a.actor_id,
+                  a.target_actor_id
+                FROM
+                  (SELECT
+                    ais.id AS actor_id,
+                    pta.id AS target_actor_id,
+                    row_number() OVER(
+                      PARTITION BY ais.id
+                      ORDER BY st_distance(
+                        ST_Transform(ais.pnt, 3035), ST_Transform(pta.pnt, 3035))
+                        ) AS rn
+                  FROM ais, pta
+                  WHERE st_dwithin(ais.pnt::geography,
+                                   pta.pnt::geography,
+                                   {max_distance})
+                  ) a
+                WHERE a.rn = 1
+                '''
+
+            else:
+                raise ConnectionError(f'unknown backend: {backend}')
+
 
             with connection.cursor() as cursor:
                 cursor.execute(query)
