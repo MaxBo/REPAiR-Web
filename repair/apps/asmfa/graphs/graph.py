@@ -418,7 +418,7 @@ class StrategyGraph(BaseGraph):
                   GROUP BY ais.id
                   ) b
                 WHERE a.actor_id = b.actor_id
-                ADN a.meter = b.min_meter
+                AND a.meter = b.min_meter
                 '''
 
             elif backend == 'postgresql':
