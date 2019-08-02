@@ -159,24 +159,12 @@
       </div>
       <div class="tab-pane fade in" id="area-tab">
         <div class="row">
-          <div class="col-md-6">
-            <h4>{% trans "Map View" %}</h4>
-            <div name="area-map" style="min-height: 450px;"></div>
+          <div class="row">
+            <div id="questions-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
           </div>
-          <div class="col-md-6">
-            <h4>{% trans "Possible Implementation Area as GeoJSON" %}</h4>
-            <div class="row">
-              <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
-            </div>
-            <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
-              Show
-              <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
-            </button>
-            <button style="float: right;" class="btn btn-primary upload" name="implementation-area" title="Upload GeoJSON">
-              Upload
-              <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
-            </button>
-          </div>
+          <button id="add-area" class="btn btn-primary add square" title="add area">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add Area" %}
+          </button>
         </div>
       </div>
     </div>
@@ -444,6 +432,30 @@
 <div class="row">
   {% trans "with step size" %}
   <input name="step-size" min="0" type="number" style="display: inline-block; width: 150px; text-align: right;">
+</script>
+
+<!-- implementation areas -->
+<script type="text/template" id="question-template">
+<div class="row">
+  <div class="col-md-6">
+    <h4>{% trans "Map View" %}</h4>
+    <div name="area-map" style="min-height: 450px;"></div>
+  </div>
+  <div class="col-md-6">
+    <h4>{% trans "Possible Implementation Area as GeoJSON" %}</h4>
+    <div class="row">
+      <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
+    </div>
+    <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
+      Show
+      <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
+    </button>
+    <button style="float: right;" class="btn btn-primary upload" name="implementation-area" title="Upload GeoJSON">
+      Upload
+      <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+    </button>
+  </div>
+</div>
 </script>
 
 <script type="text/template" id="solutions-workshop-template">

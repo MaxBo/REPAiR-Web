@@ -79,7 +79,7 @@ var SolutionsLogicView = BaseView.extend(
         'click #reload-solution-list': 'populateSolutions',
         'click #add-solution-part': 'addSolutionPart',
         'click #add-question': 'addQuestion',
-        'click button[name="implementation-area"]': 'uploadArea',
+        'click #add-area': 'addArea',
         'click button[name="show-area"]': 'showArea'
     },
 
@@ -196,7 +196,6 @@ var SolutionsLogicView = BaseView.extend(
         function onConfirm(question){
             question.save(null, {
                 success: function(){
-                    console.log(question)
                     _this.questions.add(question);
                     $(_this.questionModal).modal('hide');
                     _this.renderItem(question);

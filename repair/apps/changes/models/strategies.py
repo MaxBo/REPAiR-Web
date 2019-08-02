@@ -74,7 +74,6 @@ class ImplementationArea(GDSEModel):
     geom = models.MultiPolygonField(null=True, srid=4326, blank=True)
 
 
-
 def trigger_implementationquantity_sii(sender, instance,
                                        created, **kwargs):
     """
