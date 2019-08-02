@@ -1,6 +1,14 @@
 [
     {
         "fields": {
+            "name": "Supergroup",
+            "permissions": []
+        },
+        "model": "auth.group",
+        "pk": 1
+    },
+    {
+        "fields": {
             "date_joined": "2017-11-01T18:11:08Z",
             "email": "testuser@ggr-planung.de",
             "first_name": "Tester",

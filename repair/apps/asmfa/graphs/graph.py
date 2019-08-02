@@ -351,47 +351,49 @@ class StrategyGraph(BaseGraph):
         from django.db import connection
         backend = connection.vendor
         st_dwithin = {'sqlite': 'PtDistWithin',
-                      'postgres': 'st_dwithin',}
+                      'postgresql': 'st_dwithin',}
 
-        #  in postgres, we could use ST_Distance_Sphere
-        st_distance = {'sqlite': 'st_distance',
-                       'postgres': 'ST_Distance_Sphere',}
-
-        st_distance_parameter = {'sqlite': '',
-                                 'postgres': '',}
-
-        compiler = actors_in_solution.query.get_compiler(
-            using=actors_in_solution.db)
+        cast_to_geography = {'sqlite': '',
+                             'postgresql': '::geography',}
 
         # code for auto picking actor by distance
-        # no calculation possible with no actor in selected area
-        if len(actors_in_solution) == 0:
-            return None
         # start with maximum distance of 500m
         max_distance = 500
         ABSOLUTE_MAX_DISTANCE = 100000
-        target_actors = []
-        distance_actors = []
-        target_actor = None
-        while (not target_actors
-               and len(distance_actors) != len(actors_in_solution)
+        target_actors = dict()
+
+        actors_not_found_yet = actors_in_solution
+
+        while (actors_not_found_yet
                and max_distance <= ABSOLUTE_MAX_DISTANCE):
 
-            query_actors_in_solution = str(actors_in_solution
+            query_actors_in_solution = str(actors_not_found_yet
                 .annotate(pnt=F('administrative_location__geom'))
                 .values('id', 'pnt')
-                .query)\
-                .replace(
-                    'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
-                    '"asmfa_administrativelocation"."geom"')
+                .query)
 
             query_target_actors = str(
                 possible_target_actors
                 .annotate(pnt=F('administrative_location__geom'))
                 .values('id', 'pnt')
-                .query)\
-                .replace(
+                .query)
+
+            if backend == 'sqlite':
+                query_actors_in_solution = query_actors_in_solution.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
+                    '"asmfa_administrativelocation"."geom"')
+
+                query_target_actors = query_target_actors.replace(
+                    'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
+                    '"asmfa_administrativelocation"."geom"')
+
+            elif backend == 'postgresql':
+                query_actors_in_solution = query_actors_in_solution.replace(
+                    '"asmfa_administrativelocation"."geom"::bytea',
+                    '"asmfa_administrativelocation"."geom"')
+
+                query_target_actors = query_target_actors.replace(
+                    '"asmfa_administrativelocation"."geom"::bytea',
                     '"asmfa_administrativelocation"."geom"')
 
             query = f'''
@@ -401,25 +403,31 @@ class StrategyGraph(BaseGraph):
             SELECT
               a.actor_id,
               a.target_actor_id
+              --, rn, meter
             FROM
               (SELECT
                 ais.id AS actor_id,
                 pta.id AS target_actor_id,
                 row_number() OVER(
                   PARTITION BY ais.id
-                  ORDER BY {st_distance[backend]}(
-                    ais.pnt, pta.pnt{st_distance_parameter[backend]})
+                  ORDER BY st_distance(
+                    ST_Transform(ais.pnt, 3035), ST_Transform(pta.pnt, 3035))
                     ) AS rn
               FROM ais, pta
-              WHERE {st_dwithin[backend]}(ais.pnt, pta.pnt, {max_distance})
-              AND ais.id <> pta.id
+              WHERE {st_dwithin[backend]}(ais.pnt{cast_to_geography[backend]},
+                                          pta.pnt{cast_to_geography[backend]},
+                                          {max_distance})
               ) a
-            WHERE a.rn = 2
+            WHERE a.rn = 1
             '''
 
             with connection.cursor() as cursor:
                 cursor.execute(query)
                 rows = cursor.fetchall()
+            target_actors.update(dict(rows))
+
+            actors_not_found_yet = actors_in_solution.exclude(
+                id__in=target_actors.keys())
 
             max_distance *= 2
 
@@ -450,10 +458,14 @@ class StrategyGraph(BaseGraph):
         new_deltas = []
         possible_target_actors = Actor.objects.filter(activity=target_activity)
 
+        target_actors = self.find_closest_actor(actors_in_solution,
+                                               possible_target_actors)
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            target_actor = self.find_closest_actor(actors_in_solution,
-                                                   possible_target_actors)
+            # ToDo: get new target out of dictionary, key is either origin id
+            #  or dest id, depending which one to keep (keep_origin)
+            # skip if no new target found? (then dict doesn't have key)
+
             # no target actor found within range
             if target_actor == None:
                 continue
@@ -461,13 +473,6 @@ class StrategyGraph(BaseGraph):
             # check if target is already in the graph, if not create it
             target_vertex = util.find_vertex(self.graph, self.graph.vp['id'],
                                              target_actor.id)
-            if(len(target_vertex) > 0):
-                target_vertex = target_vertex[0]
-            else:
-                target_vertex = self.graph.add_vertex()
-                self.graph.vp.id[target_vertex] = target_actor.id
-                self.graph.vp.bvdid[target_vertex] = target_actor.BvDid
-                self.graph.vp.name[target_vertex] = target_actor.name
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges

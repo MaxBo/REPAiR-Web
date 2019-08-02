@@ -298,17 +298,3 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         )
         assert len(strategyflows) == 1
         assert strategyflows[0].amount == 0.0
-
-    def test_select_closest_actor(self):
-        #actors_in_solution = ActorInSolutionPart.objects.filter(
-            #solutionpart=solution_part,
-            #implementation=implementation)
-
-        #assert len(actors_in_solution) > 0
-
-        actors_in_solution = Actor.objects.all()
-        possible_target_actors = Actor.objects.all()
-        target_actor = StrategyGraph.find_closest_actor(
-            actors_in_solution,
-            possible_target_actors)
-        assert target_actor.name == 'old_destination_actor'
