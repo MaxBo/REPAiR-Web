@@ -225,6 +225,58 @@
     },
     {
         "fields": {
+            "casestudy": 7,
+            "name": "Waste companies"
+        },
+        "model": "studyarea.stakeholdercategory",
+        "pk": 2
+    },
+    {
+        "fields": {
+            "casestudy": 7,
+            "name": "Goverment"
+        },
+        "model": "studyarea.stakeholdercategory",
+        "pk": 3
+    },
+    {
+        "fields": {
+            "description": null,
+            "name": "Altona",
+            "stakeholder_category": 3
+        },
+        "model": "studyarea.stakeholder",
+        "pk": 5
+    },
+    {
+        "fields": {
+            "description": null,
+            "name": "Stadtreinigung Hamburg",
+            "stakeholder_category": 2
+        },
+        "model": "studyarea.stakeholder",
+        "pk": 4
+    },
+    {
+        "fields": {
+            "description": null,
+            "name": "BUND",
+            "stakeholder_category": 3
+        },
+        "model": "studyarea.stakeholder",
+        "pk": 18
+    },
+    {
+        "fields": {
+            "description": null,
+            "name": "NABU",
+            "stakeholder_category": 3
+        },
+        "model": "studyarea.stakeholder",
+        "pk": 6
+    },
+    {
+        "fields": {
             "code": "I",
             "done": false,
             "keyflow": 32,
