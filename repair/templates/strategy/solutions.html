@@ -160,7 +160,7 @@
       </div>
       <div class="tab-pane fade in" id="area-tab">
         <div class="row">
-          <h4 style="margin-bottom: 20px">{% trans "Areas" %}</h4>
+          <h4 style="margin-bottom: 20px">{% trans "Areas (questions)" %}</h4>
           <div class="row">
             <div id="areas-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
           </div>
@@ -461,8 +461,8 @@
 
 <!-- possible implementation area -->
 <script type="text/template" id="area-template">
-<label>{% trans "Name" %} </label>
-<input class="form-control" name="name">
+<label>{% trans "Question (as asked when drawing implementation area in workshop mode)" %} </label>
+<input class="form-control" name="question">
 <div class="row">
   <div class="col-md-6">
     <h4>{% trans "Map View" %}</h4>

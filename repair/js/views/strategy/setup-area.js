@@ -52,7 +52,7 @@ var PossibleImplementationAreaView = BaseView.extend(
         this.el.innerHTML = template({});
 
         this.implAreaText = this.el.querySelector('textarea[name="implementation-area"]');
-        this.nameInput = this.el.querySelector('input[name="name"]');
+        this.questionInput = this.el.querySelector('input[name="question"]');
         var mapDiv = this.el.querySelector('div[name="area-map"]');
         this.areaMap = new Map({
             el: mapDiv
@@ -70,14 +70,14 @@ var PossibleImplementationAreaView = BaseView.extend(
         var implArea = this.model.get('geom') || '';
         if(implArea) implArea = JSON.stringify(implArea);
         this.implAreaText.value = implArea;
-        this.nameInput.value = this.model.get('name') || '';
+        this.questionInput.value = this.model.get('question') || '';
         this.showArea();
     },
 
     applyInputs: function(){
         var geoJSON = this.checkGeoJSON(this.implAreaText.value);
         this.model.set('geom', geoJSON);
-        this.model.set('name', this.nameInput.value);
+        this.model.set('question', this.questionInput.value);
     },
 
     showArea: function(){

@@ -75,7 +75,7 @@ class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
 
     class Meta:
         model = PossibleImplementationArea
-        fields = ('url', 'id', 'solution', 'name', 'geom', 'edit_mask')
+        fields = ('url', 'id', 'solution', 'question', 'geom', 'edit_mask')
 
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,

@@ -258,7 +258,7 @@ var SolutionsLogicView = BaseView.extend(
         panelItem.style.position = 'absolute';
         panelItem.dataset.id = model.id;
         itemContent.classList.add('noselect', 'item-content');
-        var name = (type === 'questions') ? model.get('question') : model.get('name');
+        var name = (type === 'solutionparts') ? model.get('name') : model.get('question');
         itemContent.innerHTML = template({ name: name });
 
         var grid = (type === 'solutionparts') ? this.solutionPartsGrid:
@@ -271,23 +271,23 @@ var SolutionsLogicView = BaseView.extend(
         var buttonGroup = itemContent.querySelector(".button-box"),
             editBtn = buttonGroup.querySelector("button.edit"),
             removeBtn = buttonGroup.querySelector("button.remove");
-
-        var cloneBtn = document.createElement('button'),
-            iconSpan = document.createElement('span');
-        cloneBtn.classList.add('square','inverted', 'btn','btn-secondary');
-        cloneBtn.title = gettext('clone item');
-        iconSpan.classList.add('glyphicon', 'glyphicon-duplicate');
-        cloneBtn.appendChild(iconSpan);
-        buttonGroup.appendChild(cloneBtn);
-        cloneBtn.addEventListener('click', function(){
-            _this.clonePart(model);
-        })
-
+        if (type === 'solutionparts'){
+            var cloneBtn = document.createElement('button'),
+                iconSpan = document.createElement('span');
+            cloneBtn.classList.add('square','inverted', 'btn','btn-secondary');
+            cloneBtn.title = gettext('clone item');
+            iconSpan.classList.add('glyphicon', 'glyphicon-duplicate');
+            cloneBtn.appendChild(iconSpan);
+            buttonGroup.appendChild(cloneBtn);
+            cloneBtn.addEventListener('click', function(){
+                _this.clonePart(model);
+            })
+        }
         editBtn.addEventListener('click', function(){
             function onConfirm(model){
                 model.save(null, {
                     success: function(){
-                        var name = (type === 'questions') ? model.get('question') : model.get('name');
+                        var name = (type === 'solutionparts') ? model.get('name') : model.get('question');
                         itemContent.querySelector('label[name="name"]').innerHTML = name;
                         $(modal).modal('hide');
                     },

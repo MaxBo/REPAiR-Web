@@ -63,10 +63,10 @@ class ImplementationQuestion(GDSEModel):
 
 class PossibleImplementationArea(GDSEModel):
     '''
-    question asked to user to determine value for calc. solution-part formula
+    possible implementation with question asked to user
     '''
     geom = models.MultiPolygonField(srid=4326)
-    name = models.TextField(default='')
+    question = models.TextField(default='')
     solution = models.ForeignKey(Solution, on_delete=models.CASCADE,
                                  related_name='possible_implementation_area')
 
