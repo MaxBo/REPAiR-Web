@@ -110,7 +110,7 @@ var SolutionPartView = BaseView.extend(
         this.isAbsoluteSelect.addEventListener('change', this.toggleAbsolute);
         this.questionSelect.addEventListener('change', this.toggleAbsolute);
 
-        this.setInputs(this.model);
+        this.setInputs();
 
         // at least one checkbox has to be checked
         this.spatialOriginCheck.addEventListener('change', function(){
@@ -200,7 +200,6 @@ var SolutionPartView = BaseView.extend(
         var _this = this;
         this.nameInput.value = this.model.get('name') || '';
         this.implNewFlowSelect.value = this.model.get('implements_new_flow') || false;
-        this.referencesPartSelect.value = this.model.get('references_part') || false;
         this.solutionPartSelect.value = this.model.get('implementation_flow_solution_part') || null;
         this.originSelect.value = this.model.get('implementation_flow_origin_activity') || null;
         this.destinationSelect.value = this.model.get('implementation_flow_destination_activity') || null;
@@ -262,7 +261,6 @@ var SolutionPartView = BaseView.extend(
         var _this = this;
         this.model.set('name', this.nameInput.value);
         this.model.set('implements_new_flow', this.implNewFlowSelect.value);
-        this.model.set('references_part', this.referencesPartSelect.value);
         this.model.set('implementation_flow_solution_part', (this.solutionPartSelect.value != "-1") ? this.solutionPartSelect.value: null);
         this.model.set('implementation_flow_origin_activity', (this.originSelect.value != "-1") ? this.originSelect.value: null);
         this.model.set('implementation_flow_destination_activity', (this.destinationSelect.value != "-1") ? this.destinationSelect.value: null);

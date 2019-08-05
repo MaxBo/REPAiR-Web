@@ -74,7 +74,7 @@ class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
     }
 
     class Meta:
-        model = ImplementationQuestion
+        model = PossibleImplementationArea
         fields = ('url', 'id', 'solution', 'name', 'geom', 'edit_mask')
 
 
@@ -98,16 +98,11 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
                   'documentation', 'solution_category',
                   'activities_image',
                   'currentstate_image', 'effect_image',
-                  'possible_implementation_area',
                   'implementation_count',
                   'affected_activities'
                   )
         read_only_fields = ('url', 'id', )
         extra_kwargs = {
-            'possible_implementation_area': {
-                'allow_null': True,
-                'required': False,
-            },
             'description': {'required': False},
             'documentation': {'required': False},
         }
@@ -172,7 +167,7 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     class Meta:
         model = SolutionPart
         fields = ('url', 'id', 'name', 'solution', 'documentation',
-                  'implements_new_flow', 'references_part',
+                  'implements_new_flow',
                   'implementation_flow_origin_activity',
                   'implementation_flow_destination_activity',
                   'implementation_flow_material',
@@ -204,11 +199,6 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             for f in new_flows:
                 flow = AffectedFlow(solution_part=instance, **f)
                 flow.save()
-        if instance.references_part:
-            instance.implementation_flow_origin_activity = None
-            instance.implementation_flow_destination_activity = None
-            instance.implementation_flow_material = None
-            instance.implementation_flow_process = None
         else:
             instance.implementation_flow_solution_part = None
         instance.save()
