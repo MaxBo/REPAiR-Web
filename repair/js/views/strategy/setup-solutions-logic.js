@@ -77,7 +77,8 @@ var SolutionsLogicView = BaseView.extend(
     */
     events: {
         'click #reload-solution-list': 'populateSolutions',
-        'click #add-solution-part': 'addSolutionPart',
+        'click #add-solution-part': 'showSchemes',
+        'click #schemes-modal btn.confirm': 'addSolutionPart',
         'click #add-question': 'addQuestion',
         'click #add-area': 'addArea'
     },
@@ -105,6 +106,8 @@ var SolutionsLogicView = BaseView.extend(
         $(this.areaModal).on('hide.bs.modal', function(){
             _this.editView.close();
         })
+
+        this.schemeSelectModal = this.el.querySelector('#schemes-modal');
 
         this.notesArea = this.el.querySelector('textarea[name="notes"]');
         this.notesArea.addEventListener('change', function(){
@@ -144,9 +147,21 @@ var SolutionsLogicView = BaseView.extend(
         this.solutionPartsPanel = this.el.querySelector('#solution-parts-panel');
         this.questionsPanel = this.el.querySelector('#questions-panel');
         this.areasPanel = this.el.querySelector('#areas-panel');
+
+        var schemeDivs = this.schemeSelectModal.querySelectorAll('.scheme-preview');
+        schemeDivs.forEach(function(div){
+            div.addEventListener('click', function(){
+                schemeDivs.forEach(function(other){
+                    other.classList.remove('selected');
+                })
+                div.classList.add('selected');
+                _this.selectScheme(div);
+            })
+        })
+        this.selectScheme(schemeDivs[0]);
     },
 
-    addSolutionPart: function(){
+    showSchemes: function(){
         var _this = this,
             part = new GDSEModel({}, {
                 apiTag: 'solutionparts',
@@ -163,6 +178,21 @@ var SolutionsLogicView = BaseView.extend(
             });
         }
         this.editItem(part, onConfirm);
+    },
+
+    showSchemes: function(){
+        var modal = this.schemeSelectModal;
+        $(modal).modal('show');
+    },
+
+    selectScheme: function(schemeDiv){
+        var title = schemeDiv.querySelector('label').innerHTML,
+            desc = schemeDiv.dataset.text,
+            src = schemeDiv.querySelector('img').src;
+        this.schemeSelectModal.querySelector('#selected-scheme-image').src = src;
+        this.schemeSelectModal.querySelector('#selected-scheme-description').innerHTML = desc;
+        this.schemeSelectModal.querySelector('#selected-scheme-title').innerHTML = title;
+        this.selectedScheme = schemeDiv.dataset.scheme;
     },
 
     clonePart: function(model){
