@@ -2226,6 +2226,15 @@
     },
     {
         "fields": {
+            "implementation": 160,
+            "question": 22,
+            "value": 9958.0
+        },
+        "model": "changes.implementationquantity",
+        "pk": 36
+    },
+    {
+        "fields": {
             "is_absolute": true,
             "max_value": 1000000000000.0,
             "min_value": 1.0,
@@ -2264,15 +2273,6 @@
         },
         "model": "changes.solutioninstrategy",
         "pk": 160
-    },
-    {
-        "fields": {
-            "implementation": 160,
-            "question": 22,
-            "value": 9958.0
-        },
-        "model": "changes.implementationquantity",
-        "pk": 36
     },
     {
         "fields": {
