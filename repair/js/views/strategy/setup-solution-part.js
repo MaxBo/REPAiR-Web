@@ -60,12 +60,18 @@ var SolutionPartView = BaseView.extend(
         var _this = this,
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
+        var schemepreview = (this.scheme == 'new') ? 'schemes/new.png' : 'schemes/modification.png',
+            schemeexample = (this.scheme == 'new') ? 'schemes/new-example.png' : 'schemes/modification-example.png',
+            title = (this.scheme == 'new') ? gettext('New Flow') : gettext('Modify Flow');
         this.el.innerHTML = template({
-            schemepreview: 'schemes/modification.png',
-            schemeexample: 'schemes/modification-example.png'
+            schemepreview: schemepreview,
+            schemeexample: schemeexample,
+            title: title
         });
 
-        html = document.getElementById('modify-flow-template').innerHTML;
+        template = (this.scheme == 'new') ? 'new-flow-template': 'modify-flow-template'
+
+        html = document.getElementById(template).innerHTML;
         template = _.template(html);
         this.el.querySelector('#definition-content').innerHTML = template({});
 
