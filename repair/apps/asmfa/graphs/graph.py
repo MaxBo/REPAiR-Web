@@ -496,10 +496,7 @@ class StrategyGraph(BaseGraph):
         
         actors_stay_same = []
         # collect all actors that do not change to find the new targets for
-        for flow in implementation_flows:
-            # get new target out of dictionary, key is either origin id
-            # or dest id, depending on keep_origin
-            # skip if no new target found
+        for flow in referenced_flows:
             if keep_origin:
                 actors_stay_same.append(flow.origin.id)
             else:
@@ -520,10 +517,10 @@ class StrategyGraph(BaseGraph):
             # or dest id, depending on keep_origin
             # skip if no new target found
             if keep_origin:
-                # find target_actors by origin
+                # find target_actor by origin
                 target_id = target_actors[flow.origin.id]
             else:
-                # find target_actors by destination
+                # find target_actor by destination
                 target_id = target_actors[flow.destination.id]
             target_actor = Actor.get(id=target_id)
             # no target actor found within range
@@ -740,9 +737,8 @@ class StrategyGraph(BaseGraph):
                 if solution_part.implements_new_flow:
                     target_activity = solution_part.new_target_activity
                     keep_origin = solution_part.keep_origin
+                    implementation_area = implementation.geom
                     
-                    
-
                     implementation_flows, deltas = self.shift_flows(
                         implementation_flows,
                         implementation_area,
