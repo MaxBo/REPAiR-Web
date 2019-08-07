@@ -7,6 +7,9 @@ import json
 from enumfields import EnumIntegerField
 from django.contrib.gis.geos import Polygon
 
+from enumfields import EnumIntegerField
+from enum import Enum
+
 from repair.apps.login.models import (GDSEUniqueNameModel,
                                       GDSEModel)
 from repair.apps.asmfa.models import (Activity, KeyflowInCasestudy,
@@ -18,6 +21,15 @@ comma_separated_float_list_re = re.compile('^([-+]?\d*\.?\d+[,\s]*)+$')
 double_list_validator = RegexValidator(
     comma_separated_float_list_re,
     _(u'Enter only floats separated by commas.'), 'invalid')
+
+
+class Scheme(Enum):
+    MODIFICATION = 0
+    NEW = 1
+    SHIFTORIGIN = 2
+    SHIFTDESTINATION = 3
+    PREPEND = 4
+    APPEND = 5
 
 
 class SolutionCategory(GDSEModel):
@@ -80,6 +92,25 @@ class PossibleImplementationArea(GDSEModel):
         return json.loads(mask.geojson)
 
 
+class FlowReference(GDSEModel):
+    origin_activity = models.ForeignKey(
+        Activity, on_delete=PROTECT_CASCADE,
+        related_name='reference_origin', null=True)
+    destination_activity = models.ForeignKey(
+        Activity, on_delete=PROTECT_CASCADE,
+        related_name='reference_destination', null=True)
+    material = models.ForeignKey(
+        Material, on_delete=PROTECT_CASCADE, null=True)
+    process = models.ForeignKey(
+        Process, on_delete=PROTECT_CASCADE, null=True)
+    origin_area = models.ForeignKey(
+        PossibleImplementationArea, on_delete=PROTECT_CASCADE,
+        related_name='possible_origin_area', null=True)
+    destination_area = models.ForeignKey(
+        PossibleImplementationArea, on_delete=PROTECT_CASCADE,
+        related_name='possible_destination_area', null=True)
+
+
 class SolutionPart(GDSEModel):
     '''
     part of the solution definition, change a single implementation flow (or
@@ -89,39 +120,31 @@ class SolutionPart(GDSEModel):
                                  related_name='solution_parts')
     name = models.TextField()
     documentation = models.TextField(default='')
-    implements_new_flow = models.BooleanField(default=False)
-    possible_implementation_area = models.ForeignKey(
-        PossibleImplementationArea, on_delete=PROTECT_CASCADE, null=True)
 
-    # starting point of calculation (possible new flow is derived from it)
-    # on activity level (only when references_part == False)
-    implementation_flow_origin_activity = models.ForeignKey(
-        Activity, on_delete=PROTECT_CASCADE,
-        related_name='implementation_origin', null=True)
-    implementation_flow_destination_activity = models.ForeignKey(
-        Activity, on_delete=PROTECT_CASCADE,
-        related_name='implementation_destination', null=True)
-    implementation_flow_material = models.ForeignKey(
-        Material, on_delete=PROTECT_CASCADE,
-        related_name='implementation_material', null=True)
-    implementation_flow_process = models.ForeignKey(
-        Process, on_delete=PROTECT_CASCADE,
-        related_name='implementation_process', null=True)
+    # scheme determines how to interpret the following attributes and how
+    # to apply values to graph/existing flows
+    scheme = EnumIntegerField(enum=Scheme, default=Scheme.MODIFICATION)
 
-    # alternative: derive from another solution part that implements a new flow
-    # (references_part == True)
-    implementation_flow_solution_part = models.ForeignKey(
-        "SolutionPart", on_delete=PROTECT_CASCADE,
-        related_name='implementation_part', null=True)
+    # implementation flows a.k.a. reference flows
+    # starting point of calculation, flow changes are referenced to the flows
+    # filtered by these attributes
+    flow_reference = models.ForeignKey(
+        FlowReference, on_delete=PROTECT_CASCADE, null=True,
+        related_name='reference_solution_part')
+    # changes made to reference flows
+    flow_changes = models.ForeignKey(
+        FlowReference, on_delete=PROTECT_CASCADE, null=True,
+        related_name='reference_flow_change')
 
-    # where is solution part applied (origin, destination or both)
-    implementation_flow_spatial_application = EnumIntegerField(
-        enum=SpatialChoice, default=SpatialChoice.BOTH)
+    # order of calculation, lowest first
+    priority = models.IntegerField(default=0)
+    ### attributes that determine the new value of the flow ###
 
     # question for user inputs for the formula changing the implementation flow
     # (null when no question is asked)
     question = models.ForeignKey(ImplementationQuestion, null=True,
                                  on_delete=PROTECT_CASCADE)
+
 
     # only of interest if there is no question (question is null)
     # is overriden by question.is_absolute
@@ -131,25 +154,12 @@ class SolutionPart(GDSEModel):
     a = models.FloatField()
     b = models.FloatField()
 
-    # material changes (null if stays same)
-    new_material = models.ForeignKey(Material, null=True,
-                                     on_delete=PROTECT_CASCADE)
-
-    # order of calculation, lowest first
-    priority = models.IntegerField(default=0)
-
-    ### fields only of interest for new flow (implements_new_flow == True) ###
-
-    # origin is kept the same (True) -> new destination
-    # destination is kept the same (False) -> new origin
-    keep_origin = models.BooleanField(default=True)
-    # new origin resp. destination (depending on keep_origin)
-    # should not be null when implementing new flow
-    new_target_activity = models.ForeignKey(
-        Activity, on_delete=PROTECT_CASCADE,
-        related_name='new_target', null=True)
-    # text telling user what to pick on map (actor from new_target_activity)
-    map_request = models.TextField(default='')
+    def delete(self):
+        if self.flow_reference:
+            self.flow_reference.delete()
+        if self.flow_changes:
+            self.flow_reference.delete()
+        super().delete()
 
 
 class AffectedFlow(GDSEModel):
@@ -157,16 +167,16 @@ class AffectedFlow(GDSEModel):
     flow affected by solution-part on activity level
     '''
     solution_part = models.ForeignKey(
-        SolutionPart, related_name='affected_flow', on_delete=models.CASCADE)
+        SolutionPart, related_name='affected_flows', on_delete=models.CASCADE)
 
     origin_activity = models.ForeignKey(
-        Activity, on_delete=PROTECT_CASCADE, related_name='affected_origin')
+        Activity, on_delete=PROTECT_CASCADE, related_name='affected_origins')
     destination_activity = models.ForeignKey(
         Activity, on_delete=PROTECT_CASCADE,
-        related_name='affected_destination')
+        related_name='affected_destinations')
     material = models.ForeignKey(
-        Material, on_delete=PROTECT_CASCADE, related_name='affected_material')
+        Material, on_delete=PROTECT_CASCADE, related_name='affected_materials')
     process = models.ForeignKey(
-        Process, on_delete=PROTECT_CASCADE, related_name='affected_process',
+        Process, on_delete=PROTECT_CASCADE, related_name='affected_processes',
         null=True)
 

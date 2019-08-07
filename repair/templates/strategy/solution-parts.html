@@ -1,0 +1,432 @@
+{% load i18n %}
+{% block content %}
+
+<!-- solution part -->
+<script type="text/template" id="solution-part-template">
+<div class="row">
+  <label>{% trans "Name" %} </label>
+  <input class="form-control" name="part-name">
+</div>
+<ul class="nav nav-tabs" style="margin-top: 20px;">
+  <li class="active"><a data-toggle="tab" href="#definition-tab">{% trans "Modification" %}</a></li>
+  <li><a data-toggle="tab" href="#affected-flows-tab">{% trans "Possibly Affected Flows" %}</a></li>
+</ul>
+<div class="tab-content bordered">
+  <div class="tab-pane fade in active" id="definition-tab">
+    <div class="row">
+      <div class="col-md-10" id="definition-content">
+      </div>
+      <div class="col-md-2" id="scheme-preview" style="border: 1px solid lightgrey; padding-bottom: 20px;">
+        <div class="row">
+          <h3>{% trans "Modification" %}</h3>
+          <br>
+          <img src="{{STATIC_URL}}img/<%= schemepreview %>">
+          <br>
+          <label>{% trans "Scheme" %} </label>
+        </div>
+        <div class="row">
+          <img src="{{STATIC_URL}}img/<%= schemeexample %>">
+          <br>
+          <label>{% trans "Example" %} </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade in" id="affected-flows-tab">
+    <p style="max-width: 800px;">
+      {% blocktrans %}
+      Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
+      Please include flows "downstream" as much as "upstream".
+      {% endblocktrans %}
+    </p>
+    <p style="max-width: 800px;">
+      {% blocktrans %}
+      Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and
+      therefore not change their volume. All flow definitions in this list have to be on activity level.
+      {% endblocktrans %}
+    </p>
+    <div id="affected-flows"></div>
+    <button class="btn btn-primary add square">
+      <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
+    </button>
+  </div>
+</div>
+</script>
+
+<!-- modify flow -->
+<script type="text/template" id="modify-flow-template">
+<div class="col-md-10">
+  <h4> {% trans "Filter flows to be modified" %} </h4>
+  <table class='part-table'>
+    <tr>
+      <th>
+        <label> {% trans "Origin" %} </label>
+      </th>
+      <th>
+        <select name="reference-origin"></select>
+      </th>
+      <th>
+        <label> {% trans "Possible Impl. Area" %} </label>
+        <select name="reference-origin-area"></select>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label> {% trans "Destination" %} </label>
+      </th>
+      <th>
+        <select name="reference-destination"></select>
+      </th>
+      <th>
+        <label> {% trans "Possible Impl. Area" %} </label>
+        <select name="reference-destination-area"></select>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label style="float: left"> {% trans "Material" %} </label>
+      </th>
+      <th>
+        <div name="reference-material"></div>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label> {% trans "Process" %} </label>
+      </th>
+      <th>
+        <select class="form-control" name="reference-process"></select>
+      </th>
+    </tr>
+  </table>
+  <br>
+  <h4> {% trans "Modification of flows" %} </h4>
+  <table class='part-table'>
+    <tr>
+      <th>
+        <label style="float: left"> {% trans "Material" %} </label>
+      </th>
+      <th>
+        <div name="new-material"></div>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label> {% trans "Process" %} </label>
+      </th>
+      <th>
+        <select class="form-control" name="new-process"></select>
+      </th>
+    </tr>
+  </table>
+  <br>
+  <h4> {% trans "Change of mass" %} </h4>
+  <div class="row">
+    <input type="radio" name="is-absolute" value="true" checked> {% trans "absolute change" %} <br>
+    <input type="radio" name="is-absolute" value="false"> {% trans "relative change" %} <br>
+    <br>
+    {% trans "Do you want to refer to a user question for calculating the change of the mass?" %} <br>
+    <input type="radio" name="has-question" value="true" checked> {% trans "yes" %}
+    <select class="row with-question" name='question' style="margin-left: 20px; min-width: 200px;"></select>
+    <br>
+    <input type="radio" name="has-question" value="false"> {% trans "no" %} <br>
+    <br>
+    <div class="row" style="margin-top: 15px; font-size: 1.2em;">
+      {% trans "Flow amount in solution = Flow amount in status quo" %}
+      <div class="is-absolute"> &nbsp;+&nbsp;{% trans "Delta" %}</div>
+      <div class="is-relative"> &nbsp;*&nbsp;{% trans "Factor" %}</div>
+    </div>
+    <div class="row" style="font-size: 1.2em;">
+      <div class="is-absolute"> {% trans "Delta" %} </div>
+      <div class="is-relative"> {% trans "Factor" %} </div>
+      &nbsp;=&nbsp;
+      <div class='with-question'>
+        <input name='a' type="number" step="0.0001" style="display: inline-block; width: 150px;">
+        &nbsp;*&nbsp;{% trans "answer to selected question" %}&nbsp;+&nbsp;
+      </div>
+      <input name='b' type="number" step="0.0001" style="display: inline-block; width: 150px;">
+    </div>
+  </div>
+</div>
+</script>
+
+<!-- new flow -->
+<script type="text/template" id="modify-flow-template">
+<div class="col-md-10">
+  <h4> {% trans "New" %} </h4>
+  <table class='part-table'>
+    <tr>
+      <th>
+        <label> {% trans "Origin" %} </label>
+      </th>
+      <th>
+        <select name="new-origin"></select>
+      </th>
+      <th>
+        <label> {% trans "Possible Impl. Area" %} </label>
+        <select name="new-origin-area"></select>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label> {% trans "Destination" %} </label>
+      </th>
+      <th>
+        <select name="reference-destination"></select>
+      </th>
+      <th>
+        <label> {% trans "Possible Impl. Area" %} </label>
+        <select name="new-destination-area"></select>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label style="float: left"> {% trans "Material" %} </label>
+      </th>
+      <th>
+        <div name="new-material"></div>
+      </th>
+    </tr>
+    <tr>
+      <th>
+        <label> {% trans "Process" %} </label>
+      </th>
+      <th>
+        <select class="form-control" name="new-process"></select>
+      </th>
+    </tr>
+  </table>
+  <br>
+  <h4> {% trans "Mass" %} </h4>
+  <div class="row">
+    <input type="radio" name="is_absolute" value="true" checked> {% trans "absolute change" %} <br>
+    <input type="radio" name="is_absolute" value="false"> {% trans "relative change" %} <br>
+    <br>
+    {% trans "Do you want to refer to a user question for calculating the change of the mass?" %} <br>
+    <input type="radio" name="is_absolute" value="true" checked> {% trans "absolute change" %} {% trans "Delta" %}: <input name='a' type="number" step="0.0001" <br>
+    <input type="radio" name="is_absolute" value="false"> {% trans "relative change" %} <br>
+    <select name='has-question' class="form-control" style="width: 100px; display: inline-block;">
+      <option value="true"> {% trans "yes" %} </option>
+      <option value="false"> {% trans "no" %} </option>
+    </select>
+    <br>
+    <div class="row with-question">
+      <label>{% trans "Question" %}</label>
+      <select name='question'></select>
+    </div>
+    <div class="no-question">
+      {% trans "Do you want to define the flow modification as an absolute or relative change?" %}
+      <select name="is-absolute" class="form-control" style="width: 100px; display: inline-block;">
+        <option value="true"> {% trans "absolute" %} </option>
+        <option value="false"> {% trans "relative" %} </option>
+      </select>
+    </div>
+    <div class="row" style="margin-top: 15px; font-size: 1.2em;">
+      {% trans "Flow amount with solution impact = Flow amount in status quo" %}
+      <div class="is-absolute"> &nbsp;+&nbsp;{% trans "Delta" %}</div>
+      <div class="is-relative"> &nbsp;*&nbsp;{% trans "Factor" %}</div>
+    </div>
+    <div class="row" style="font-size: 1.2em;">
+      <div class="is-absolute"> {% trans "Delta" %} </div>
+      <div class="is-relative"> {% trans "Factor" %} </div>
+      &nbsp;=&nbsp;
+      <div class='with-question'>
+        <input name='a' type="number" step="0.0001" style="display: inline-block; width: 150px;">
+        &nbsp;*&nbsp;{% trans "answer to selected question" %}&nbsp;+&nbsp;
+      </div>
+      <input name='b' type="number" step="0.0001" style="display: inline-block; width: 150px;">
+    </div>
+  </div>
+</div>
+</script>
+
+<!--
+<script type="text/template" id="solution-part-template">
+<div class="row">
+  <label>{% trans "Name" %} </label>
+  <input class="form-control" name="name">
+</div>
+<div class="row">
+  <select name="impl-new-flow" class="form-control">
+    <option value="false" selected> {% trans "This solution part modifies an existing flow." %}</option>
+    <option value="true"> {% trans "This solution part creates a new flow (based on an existing flow)." %}</option>
+  </select>
+</div>
+<ul class="nav nav-tabs" style="margin-top: 20px;">
+  <li class="active"><a data-toggle="tab" href="#flow-tab">
+    <div class="new-flow">{% trans "New Flow" %}</div>
+    <div class="modified-flow">{% trans "Initial Impact Flow" %}</div>
+  </a></li>
+  <li><a data-toggle="tab" href="#formula-tab">{% trans "New Amount" %}</a></li>
+  <li><a data-toggle="tab" href="#affected-flows-tab">{% trans "Possibly Affected Flows" %}</a></li>
+</ul>
+<div class="tab-content bordered">
+  <div class="tab-pane fade in active" id="flow-tab">
+    <div class="row modified-flow">
+      <p style="max-width: 800px;">
+        {% blocktrans %}
+        The initial impact flow is the flow which the solution part modifies directly.
+        As the solution definition does not include the implementation area and affected actors,
+        the initial impact flow has to be defined on activity level.
+        {% endblocktrans %}
+      </p>
+    </div>
+    <div class="row new-flow">
+      <h4> {% trans "Reference flow" %} </h4>
+      <p style="max-width: 800px;">
+        {% blocktrans %}
+        The reference flow is the flow which the solution part uses as reference for defining the new flow.
+        {% endblocktrans %}
+      </p>
+      <select name="references-part" class="form-control">
+        <option value="false" selected> {% trans "Reference an existing Status Quo flow." %}</option>
+        <option value="true"> {% trans "Reference a solution part that is implementing a new flow." %}</option>
+      </select>
+      <div class="row reference-part">
+        {% trans "Referenced part" %}
+        <select name="referenced-part" class="form-control" style='display: inline-block;'>
+          <option value="-1" disabled> {% trans "Select a solution part that is defining a new flow" %}</option>
+        </select>
+      </div>
+    </div>
+    <div class="reference-flow">
+      <div class="row">
+        {% trans "Material" %}
+        <div name="material" style="display: inline-block;"></div>
+      </div>
+      <div class="row">
+        {% trans "going from activity" %}
+        <select name="origin"></select>
+        <input name="origin-in-area" type="checkbox">
+        &nbsp;{% trans "activity has to be in the implementation area *)" %}
+      </div>
+      <div class="row">
+        {% trans "to activity" %}
+        <select name="destination"></select>
+        <input name="destination-in-area" type="checkbox">
+        &nbsp;{% trans "activity has to be in the implementation area *)" %}
+      </div>
+      <p style="font-size: 0.8em;">{% trans "*) defined by the users in the workshop mode when implementing the solution" %}</p>
+      <br>
+    </div>
+    <div class="row modified-flow">
+      <p style="max-width: 800px;">
+        {% blocktrans %}
+        The change of the amount of the initial impact flow is defined on the next tab (“New amount”).
+        For enabling the GDSE to model indirect changes of other flows derived from the amount changes of
+        the initial impact flow, a list of all possibly affected flows (upstream and downstream) has to be
+        defined in the tab “Possibly affected flows”.
+        {% endblocktrans %}
+      </p>
+    </div>
+    <div class="row">
+      <h4>{% trans "Material" %}</h4>
+      <select name="material-changes" class="form-control" style="max-width: 150px; display: inline-block;">
+        <option value="false">{% trans "no change" %}</option>
+        <option value="true">{% trans "changes to" %}</option>
+      </select>
+      <div name="new-material" style="display: inline-block;"></div>
+    </div>
+    <div class="row new-flow">
+      <h4> {% trans "New flow" %} </h4>
+      <div style="max-width: 800px;">
+        {% trans "The new flow keeps the" %}
+        <select name="keep-origin" class="form-control" style="display: inline-block; width: 150px;">
+          <option value="true"> {% trans "Origin" %} </option>
+          <option value="false"> {% trans "Destination" %} </option>
+        </select>
+        {% trans "of the reference flow defined above." %} <br>
+        {% trans "The" %}
+        <div name="origdestlabel" style="display: inline;"></div>
+        {% trans "activity of the reference flow is replaced with the activity" %}
+        <select name="new-target" style="width: 100px;"></select>
+        <br>
+        <br>
+        {% blocktrans %}
+        When this solution is implemented by a user in the workshop mode, a specific actor with target activity above
+        has to be selected on the map. Please phrase the request the user should read above the respective map
+        (e.g. “Please select the recycling facility the collected material goes to.”)
+        {% endblocktrans %}
+        <textarea name="map-request" rows="2" style="width: 100%; resize: vertical;"></textarea>
+      </div>
+      <br>
+      <p style="max-width: 800px;">
+        {% blocktrans %}
+        The volume of the new flow is defined on the next tab (“New amount”).
+        For enabling the GDSE to model indirect changes of other flows derived from the new flow,
+        a list of all possibly affected flows (upstream and downstream) has to be defined in the
+        tab “Possibly affected flows”.
+        {% endblocktrans %}
+      </p>
+    </div>
+  </div>
+  <div class="tab-pane fade in" id="affected-flows-tab">
+    <p style="max-width: 800px;">
+      {% blocktrans %}
+      Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
+      Please include flows "downstream" as much as "upstream".
+      {% endblocktrans %}
+    </p>
+    <p style="max-width: 800px;">
+      {% blocktrans %}
+      Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and
+      therefore not change their volume. All flow definitions in this list have to be on activity level.
+      {% endblocktrans %}
+    </p>
+    <div id="affected-flows"></div>
+    <button class="btn btn-primary add square">
+      <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
+    </button>
+  </div>
+  <div class="tab-pane fade in" id="formula-tab">
+    <div class="modified-flow">
+     {% trans "Do you want to refer to a user question for calculating the flow modification?" %}
+    </div>
+    <div class="new-flow">
+     {% trans "Do you want to refer to a user question for calculating the amount of the new flow?" %}
+    </div>
+    <select name='has-question' class="form-control" style="width: 100px; display: inline-block;">
+        <option value="true"> {% trans "yes" %} </option>
+        <option value="false"> {% trans "no" %} </option>
+    </select>
+    <br>
+    <div class="row with-question">
+      <label>{% trans "Question" %}</label>
+      <select name='question' class="form-control"></select>
+    </div>
+    <div class="no-question">
+      <div class="modified-flow">
+        {% trans "Do you want to define the flow modification as an absolute or relative change?" %}
+      </div>
+      <div class="new-flow">
+        {% trans "Do you want to define the amount of the new flow as an absolute or as a relative change of the amount of the reference flow?" %}
+      </div>
+      <select name="is-absolute" class="form-control" style="width: 100px; display: inline-block;">
+        <option value="true"> {% trans "absolute" %} </option>
+        <option value="false"> {% trans "relative" %} </option>
+      </select>
+    </div>
+    <div class="row" style="margin-top: 15px; font-size: 1.2em;">
+      <div class="modified-flow"> {% trans "Flow amount with solution impact = Flow amount in status quo" %} </div>
+      <div class="new-flow"> {% trans "Amount of new flow = Amount of reference flow" %} </div>
+      <div class="is-absolute"> &nbsp;+&nbsp;{% trans "Delta" %}</div>
+      <div class="is-relative"> &nbsp;*&nbsp;{% trans "Factor" %}</div>
+    </div>
+    <div class="row" style="font-size: 1.2em;">
+      <div class="is-absolute"> {% trans "Delta" %} </div>
+      <div class="is-relative"> {% trans "Factor" %} </div>
+      &nbsp;=&nbsp;
+      <div class='with-question'>
+        <input name='a' type="number" step="0.0001" style="display: inline-block; width: 150px;">
+        &nbsp;*&nbsp;{% trans "answer to selected question" %}&nbsp;+&nbsp;
+      </div>
+      <input name='b' type="number" step="0.0001" style="display: inline-block; width: 150px;">
+    </div>
+    <div class="row">
+    </div>
+  </div>
+</div>
+</script>
+-->
+
+{% endblock %}

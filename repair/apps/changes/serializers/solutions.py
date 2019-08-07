@@ -7,7 +7,9 @@ from repair.apps.changes.models import (SolutionCategory,
                                         ImplementationQuestion,
                                         SolutionPart,
                                         AffectedFlow,
-                                        PossibleImplementationArea
+                                        PossibleImplementationArea,
+                                        Scheme,
+                                        FlowReference
                                         )
 
 from repair.apps.login.serializers import (InCasestudyField,
@@ -113,11 +115,12 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
     def get_affected_activities(self, obj):
         parts = SolutionPart.objects.filter(solution=obj)
         activities = parts.values_list(
-            'implementation_flow_origin_activity__id',
-            'implementation_flow_destination_activity__id',
-            'new_target_activity__id',
-            'affected_flow__destination_activity__id',
-            'affected_flow__origin_activity__id'
+            'flow_reference__origin_activity__id',
+            'flow_reference__destination_activity__id',
+            'flow_changes__origin_activity__id',
+            'flow_changes__destination_activity__id',
+            'affected_flows__destination_activity__id',
+            'affected_flows__origin_activity__id'
         )
         activities = set([i for s in activities for i in s])
         try:
@@ -125,7 +128,6 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         except:
             pass
         return activities
-
 
 
 class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,
@@ -140,6 +142,23 @@ class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,
         }
 
 
+class FlowReferenceSerializer(CreateWithUserInCasestudyMixin,
+                             NestedHyperlinkedModelSerializer):
+
+    origin_activity = IDRelatedField(
+        required=False, allow_null=True)
+    destination_activity = IDRelatedField(
+        required=False, allow_null=True)
+    material = IDRelatedField(
+        required=False, allow_null=True)
+    process = IDRelatedField(
+        required=False, allow_null=True)
+    origin_area = IDRelatedField(
+        required=False, allow_null=True)
+    destination_area = IDRelatedField(
+        required=False, allow_null=True)
+
+
 class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
                              NestedHyperlinkedModelSerializer):
     solution = IDRelatedField(read_only=True)
@@ -148,59 +167,40 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
         'keyflow_pk': 'solution__solution_category__keyflow__id',
         'solution_pk': 'solution__id'
     }
-    implementation_flow_origin_activity = IDRelatedField(
-        required=False, allow_null=True)
-    implementation_flow_destination_activity = IDRelatedField(
-        required=False, allow_null=True)
-    implementation_flow_material = IDRelatedField(
-        required=False, allow_null=True)
-    implementation_flow_solution_part = IDRelatedField(
-        required=False, allow_null=True)
-    new_material = IDRelatedField(required=False, allow_null=True)
-    new_target_activity = IDRelatedField(required=False, allow_null=True)
-    implementation_flow_spatial_application = EnumField(enum=SpatialChoice)
-    affected_flows = AffectedFlowSerializer(source='affected_flow', many=True)
+    scheme = EnumField(enum=Scheme)
+    flow_reference = FlowReferenceSerializer(allow_null=True)
+    flow_changes = FlowReferenceSerializer(allow_null=True, required=False)
+
+    affected_flows = AffectedFlowSerializer(source='affected_flows', many=True)
     question = IDRelatedField(allow_null=True)
 
     # ToDo: serialize affected flows as part of this serializer
 
     class Meta:
         model = SolutionPart
-        fields = ('url', 'id', 'name', 'solution', 'documentation',
-                  'implements_new_flow',
-                  'implementation_flow_origin_activity',
-                  'implementation_flow_destination_activity',
-                  'implementation_flow_material',
-                  'implementation_flow_process',
-                  'implementation_flow_spatial_application',
-                  'implementation_flow_solution_part',
-                  'new_material',
+        fields = ('url', 'id', 'name', 'solution',
+                  'scheme', 'documentation',
+                  'flow_references',
+                  'flow_changes',
                   'question', 'a', 'b',
-                  'keep_origin', 'new_target_activity',
-                  'map_request', 'priority',
+                  'priority',
                   'affected_flows',
                   'is_absolute',
                   )
         read_only_fields = ('url', 'id', 'solution')
         extra_kwargs = {
-            'implementation_question': {'null': True, 'required': False},
-            'keep_origin': {'required': False},
-            'map_request': {'required': False},
             'documentation': {'required': False, 'allow_blank': True},
-            'map_request': {'required': False, 'allow_blank': True},
             'is_absolute': {'required': False}
         }
 
     def update(self, instance, validated_data):
-        new_flows = validated_data.pop('affected_flow', None)
+        affected_flows = validated_data.pop('affected_flows', None)
         instance = super().update(instance, validated_data)
-        if new_flows:
+        if affected_flows:
             AffectedFlow.objects.filter(solution_part=instance).delete()
-            for f in new_flows:
+            for f in affected_flows:
                 flow = AffectedFlow(solution_part=instance, **f)
                 flow.save()
-        else:
-            instance.implementation_flow_solution_part = None
         instance.save()
         return instance
 

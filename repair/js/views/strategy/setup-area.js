@@ -29,7 +29,7 @@ var PossibleImplementationAreaView = BaseView.extend(
         PossibleImplementationAreaView.__super__.initialize.apply(this, [options]);
         var _this = this;
 
-        this.template = options.template;
+        this.template = 'area-template';
         this.solutions = options.solutions;
 
         this.render();

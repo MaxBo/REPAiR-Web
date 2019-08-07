@@ -56,11 +56,15 @@ var SolutionsLogicView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId],
             comparator: 'name'
         });
+        this.processes = new GDSECollection([], {
+            apiTag: 'processes'
+        });
 
         var promises = [];
         promises.push(this.activities.fetch());
         promises.push(this.activityGroups.fetch());
         promises.push(this.materials.fetch());
+        promises.push(this.processes.fetch());
 
         this.loader.activate();
         Promise.all(promises).then(function(){
@@ -78,7 +82,7 @@ var SolutionsLogicView = BaseView.extend(
     events: {
         'click #reload-solution-list': 'populateSolutions',
         'click #add-solution-part': 'showSchemes',
-        'click #schemes-modal btn.confirm': 'addSolutionPart',
+        //'click #schemes-modal button.confirm': 'addSolutionPart',
         'click #add-question': 'addQuestion',
         'click #add-area': 'addArea'
     },
@@ -108,6 +112,10 @@ var SolutionsLogicView = BaseView.extend(
         })
 
         this.schemeSelectModal = this.el.querySelector('#schemes-modal');
+        // workaround to avoid putting next modal on top (not scrollable then)
+        $(this.schemeSelectModal).on('hidden.bs.modal', function(){
+            _this.addSolutionPart()
+        })
 
         this.notesArea = this.el.querySelector('textarea[name="notes"]');
         this.notesArea.addEventListener('change', function(){
@@ -161,12 +169,13 @@ var SolutionsLogicView = BaseView.extend(
         this.selectScheme(schemeDivs[0]);
     },
 
-    showSchemes: function(){
+    addSolutionPart: function(){
         var _this = this,
             part = new GDSEModel({}, {
                 apiTag: 'solutionparts',
                 apiIds: [_this.caseStudy.id, _this.keyflowId, _this.activeSolution.id]
             });
+        part.set('scheme', this.selectedScheme)
         function onConfirm(part){
             part.save(null, {
                 success: function(){
@@ -289,6 +298,10 @@ var SolutionsLogicView = BaseView.extend(
         panelItem.dataset.id = model.id;
         itemContent.classList.add('noselect', 'item-content');
         var name = (type === 'solutionparts') ? model.get('name') : model.get('question');
+        if (type === 'questions'){
+            var supp = model.get('is_absolute') ? gettext('absolute change') : gettext('relative change');
+            name += ' (' + supp + ')';
+        }
         itemContent.innerHTML = template({ name: name });
 
         var grid = (type === 'solutionparts') ? this.solutionPartsGrid:
@@ -369,9 +382,6 @@ var SolutionsLogicView = BaseView.extend(
             modal = (type === 'solutionparts') ? this.solutionPartModal:
                     (type === 'possibleImplementationAreas') ? this.areaModal:
                     this.questionModal;
-            template = (type === 'solutionparts') ? 'solution-part-template':
-                       (type === 'possibleImplementationAreas') ? 'area-template':
-                       'question-template';
             View = (type === 'solutionparts') ? SolutionPartView:
                    (type === 'possibleImplementationAreas') ? AreaView:
                    QuestionView;
@@ -380,13 +390,15 @@ var SolutionsLogicView = BaseView.extend(
         $(modal).modal('show');
         this.editView = new View({
             model: model,
-            template: template,
             el: el,
             materials: this.materials,
             activityGroups: this.activityGroups,
             activities: this.activities,
             questions: this.questions,
-            solutionParts: this.solutionParts
+            solutionParts: this.solutionParts,
+            scheme: this.selectedScheme,
+            areas: this.areas,
+            processes: this.processes
         })
         if (type === 'possibleImplementationAreas')
            $(modal).on('shown.bs.modal', function (e) {

@@ -28,5 +28,31 @@
 }
 
 #selected-scheme-image {
-    width: 100%;
+    max-width: 100%;
+    max-height: 500px;
+}
+
+.part-table{
+    table-layout: fixed;
+    max-width: 100%;
+}
+
+.part-table th{
+    padding: 5px;
+    font-weight: normal;
+}
+
+.part-table tr{
+    border-bottom: 1px solid lightgrey;
+}
+
+.part-table tr:last-child{
+   border-bottom: none;
+}
+
+#scheme-preview img{
+    max-width: 100%;
+    max-height: 100px;
+    cursor: pointer;
+    border: 1px solid darkgrey;
 }
