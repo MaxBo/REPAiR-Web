@@ -472,7 +472,7 @@ class StrategyGraph(BaseGraph):
 
     def shift_flows(self,
                     referenced_flows,
-                    actors_in_solution,
+                    implementation_area,
                     formula,
                     target_activity,
                     material=None,
@@ -493,16 +493,39 @@ class StrategyGraph(BaseGraph):
         new_flows = []
         changed_ref_deltas = []
         new_deltas = []
+        
+        actors_stay_same = []
+        # collect all actors that do not change to find the new targets for
+        for flow in implementation_flows:
+            # get new target out of dictionary, key is either origin id
+            # or dest id, depending on keep_origin
+            # skip if no new target found
+            if keep_origin:
+                actors_stay_same.append(flow.origin.id)
+            else:
+                actors_stay_same.append(flow.destination.id)       
+        actors_in_solution = Actor.objects.filter(id__in=actors_stay_same)                                 
+        
         possible_target_actors = Actor.objects.filter(activity=target_activity)
-
+        # filter possible_target_actors by implementation_area
+        for geom in implementation_area:
+            possible_target_actors = possible_target_actors.filter(
+                administrative_location__geom__intersects=geom)
+        
         target_actors = self.find_closest_actor(actors_in_solution,
                                                possible_target_actors)
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            # ToDo: get new target out of dictionary, key is either origin id
-            #  or dest id, depending which one to keep (keep_origin)
-            # skip if no new target found? (then dict doesn't have key)
-
+            # get new target out of dictionary, key is either origin id
+            # or dest id, depending on keep_origin
+            # skip if no new target found
+            if keep_origin:
+                # find target_actors by origin
+                target_id = target_actors[flow.origin.id]
+            else:
+                # find target_actors by destination
+                target_id = target_actors[flow.destination.id]
+            target_actor = Actor.get(id=target_id)
             # no target actor found within range
             if target_actor == None:
                 continue
@@ -648,7 +671,6 @@ class StrategyGraph(BaseGraph):
             origin__in=origins,
             destination__in=destinations,
             material=impl_material
-            #material__in=impl_materials
         )
 
         return implementation_flows, affected_flows
@@ -682,10 +704,9 @@ class StrategyGraph(BaseGraph):
         return edges
 
     def build(self):
-
         base_graph = BaseGraph(self.keyflow, tag=self.tag)
         if not base_graph.exists:
-            raise FileNotFoundError
+            base_graph.build()
 
         # reset to base graph and remove previous calc. from database
         self.graph = base_graph.load()
@@ -719,20 +740,12 @@ class StrategyGraph(BaseGraph):
                 if solution_part.implements_new_flow:
                     target_activity = solution_part.new_target_activity
                     keep_origin = solution_part.keep_origin
+                    
+                    
 
-                    # ToDo: no picking anymore but implementation areas
-                    # to filter possible new actors which are
-                    # assigned by closest euclidean distance
-
-                    actors_in_solution = ActorInSolutionPart.objects.filter(
-                        solutionpart=solution_part,
-                        implementation=implementation)
-                    # no calculation possible with no actor picked by user
-                    if len(actors_in_solution) == 0:
-                        continue
                     implementation_flows, deltas = self.shift_flows(
                         implementation_flows,
-                        actors_in_solution,
+                        implementation_area,
                         formula,
                         target_activity,
                         keep_origin=keep_origin,
