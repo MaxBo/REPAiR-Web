@@ -56,3 +56,8 @@
     cursor: pointer;
     border: 1px solid darkgrey;
 }
+
+/*white background in fullscreen*/
+.viewer-backdrop img {
+    background-color: white;
+}

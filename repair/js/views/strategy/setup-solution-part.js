@@ -57,6 +57,7 @@ var SolutionPartView = BaseView.extend(
     * render the view
     */
     render: function(){
+        console.log('render')
         var _this = this,
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
@@ -156,7 +157,6 @@ var SolutionPartView = BaseView.extend(
     },
 
     toggleHasQuestion: function(){
-        console.log('quest ' + this.hasQuestion)
         var questElements = this.el.querySelectorAll('.with-question'),
             noQuestElements = this.el.querySelectorAll('.no-question'),
             _this = this;
@@ -173,7 +173,6 @@ var SolutionPartView = BaseView.extend(
     },
 
     toggleAbsolute: function(){
-        console.log('abs ' + this.isAbsolute)
         var absElements = this.el.querySelectorAll('.is-absolute'),
             relElements = this.el.querySelectorAll('.is-relative'),
             _this = this;

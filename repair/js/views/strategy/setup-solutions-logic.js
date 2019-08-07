@@ -97,9 +97,9 @@ var SolutionsLogicView = BaseView.extend(
         this.el.innerHTML = template({});
 
         this.solutionPartModal = this.el.querySelector('#solution-part-modal');
-        $(this.solutionPartModal).on('hide.bs.modal', function(){
-            _this.editView.close();
-        })
+        //$(this.solutionPartModal).on('hide.bs.modal', function(){
+            //_this.editView.close();
+        //})
 
         this.questionModal = this.el.querySelector('#question-modal');
         $(this.questionModal).on('hide.bs.modal', function(){
