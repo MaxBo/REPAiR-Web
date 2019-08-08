@@ -44,8 +44,7 @@ class IDRelatedField(serializers.PrimaryKeyRelatedField):
     and return all data from this model as a queryset
     """
     def get_queryset(self):
-        view = self.root.context.get('view')
-        Model = view.queryset.model
+        Model = self.parent.Meta.model
         # look up self.parent in the values of the dictionary self.root.fields
         # and return the key as the field_name
         field_name = self.source or self.get_field_name()
