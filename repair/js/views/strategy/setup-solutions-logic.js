@@ -82,7 +82,7 @@ var SolutionsLogicView = BaseView.extend(
     events: {
         'click #reload-solution-list': 'populateSolutions',
         'click #add-solution-part': 'showSchemes',
-        //'click #schemes-modal button.confirm': 'addSolutionPart',
+        'click #schemes-modal button.confirm': 'addSolutionPart',
         'click #add-question': 'addQuestion',
         'click #add-area': 'addArea'
     },
@@ -112,10 +112,6 @@ var SolutionsLogicView = BaseView.extend(
         })
 
         this.schemeSelectModal = this.el.querySelector('#schemes-modal');
-        // workaround to avoid putting next modal on top (not scrollable then)
-        $(this.schemeSelectModal).on('hidden.bs.modal', function(){
-            _this.addSolutionPart()
-        })
 
         this.notesArea = this.el.querySelector('textarea[name="notes"]');
         this.notesArea.addEventListener('change', function(){

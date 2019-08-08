@@ -59,10 +59,10 @@ var SolutionPartView = BaseView.extend(
     schemes: {
         'modification': [gettext('Modify Flow'), 'modify-flow-template', 'schemes/modification.png', 'schemes/modification-example.png'],
         'new': [gettext('New Flow'), 'new-flow-template', 'schemes/new.png', 'schemes/new-example.png'],
-        'shiftorigin': [gettext('Modify Flow'), 'modify-flow-template', 'schemes/modification.png', 'schemes/modification-example.png'],
-        'shiftdestination': [gettext('Modify Flow'), 'modify-flow-template', 'schemes/modification.png', 'schemes/modification-example.png'],
-        'prepend': [gettext('Modify Flow'), 'modify-flow-template', 'schemes/modification.png', 'schemes/modification-example.png'],
-        'append': [gettext('Modify Flow'), 'modify-flow-template', 'schemes/modification.png', 'schemes/modification-example.png']
+        'shiftorigin': [gettext('Shift Origin'), 'shift-origin-template', 'schemes/shift-origin.png', 'schemes/shift-origin-example.png'],
+        'shiftdestination': [gettext('Shift Destination'), 'shift-destination-template', 'schemes/shift-destination.png', 'schemes/shift-destination-example.png'],
+        'prepend': [gettext('Prepend Flow'), 'prepend-flow-template', 'schemes/prepend.png', 'schemes/prepend-example.png'],
+        'append': [gettext('Append Flow'), 'append-flow-template', 'schemes/append.png', 'schemes/append-example.png']
     },
 
     /*
@@ -116,13 +116,13 @@ var SolutionPartView = BaseView.extend(
 
         $(this.referenceOriginSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
         $(this.referenceDestinationSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
-        $(this.newOriginSelect).selectpicker({size: 8, liveSearch: true});
-        $(this.newDestinationSelect).selectpicker({size: 8, liveSearch: true});
+        $(this.newOriginSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
+        $(this.newDestinationSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
 
         this.populateActivitySelect(this.referenceOriginSelect);
         this.populateActivitySelect(this.referenceDestinationSelect);
         this.populateActivitySelect(this.newOriginSelect);
-        this.populateActivitySelect(this.newOriginSelect);
+        this.populateActivitySelect(this.newDestinationSelect);
 
         this.populateAreaSelect(this.referenceOriginAreaSelect);
         this.populateAreaSelect(this.referenceDestinationAreaSelect);
@@ -217,7 +217,6 @@ var SolutionPartView = BaseView.extend(
 
         var refFlow = this.model.get('flow_reference'),
             changeFlow = this.model.get('flow_changes');
-        console.log(refFlow)
 
         if (refFlow){
             if (this.referenceOriginSelect) this.referenceOriginSelect.value = refFlow.origin_activity;
