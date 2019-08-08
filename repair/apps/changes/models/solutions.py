@@ -154,12 +154,12 @@ class SolutionPart(GDSEModel):
     a = models.FloatField()
     b = models.FloatField()
 
-    def delete(self):
+    def delete(self, **kwargs):
         if self.flow_reference:
             self.flow_reference.delete()
         if self.flow_changes:
-            self.flow_reference.delete()
-        super().delete()
+            self.flow_changes.delete()
+        super().delete(**kwargs)
 
 
 class AffectedFlow(GDSEModel):

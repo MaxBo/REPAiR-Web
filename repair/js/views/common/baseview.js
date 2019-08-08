@@ -163,6 +163,13 @@ var BaseView = Backbone.View.extend(
                 if (options.onSelect) options.onSelect(model);
             })
         }
+        select.select = function(id){
+            var li = select.querySelector('li[data-value="' + id + '"]');
+            if(li){
+                var item = li.querySelector('a');
+                item.click();
+            }
+        }
         return select;
     },
 

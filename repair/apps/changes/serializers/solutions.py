@@ -142,8 +142,7 @@ class AffectedFlowSerializer(CreateWithUserInCasestudyMixin,
         }
 
 
-class FlowReferenceSerializer(CreateWithUserInCasestudyMixin,
-                             NestedHyperlinkedModelSerializer):
+class FlowReferenceSerializer(serializers.ModelSerializer):
 
     origin_activity = IDRelatedField(
         required=False, allow_null=True)
@@ -158,9 +157,14 @@ class FlowReferenceSerializer(CreateWithUserInCasestudyMixin,
     destination_area = IDRelatedField(
         required=False, allow_null=True)
 
+    class Meta:
+        model = FlowReference
+        fields = ('origin_activity', 'destination_activity',
+                  'material', 'process', 'origin_area',
+                  'destination_area')
 
-class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
-                             NestedHyperlinkedModelSerializer):
+
+class SolutionPartSerializer(serializers.ModelSerializer):
     solution = IDRelatedField(read_only=True)
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
@@ -171,16 +175,16 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
     flow_reference = FlowReferenceSerializer(allow_null=True)
     flow_changes = FlowReferenceSerializer(allow_null=True, required=False)
 
-    affected_flows = AffectedFlowSerializer(source='affected_flows', many=True)
+    affected_flows = AffectedFlowSerializer(many=True)
     question = IDRelatedField(allow_null=True)
 
     # ToDo: serialize affected flows as part of this serializer
 
     class Meta:
         model = SolutionPart
-        fields = ('url', 'id', 'name', 'solution',
+        fields = ('id', 'name', 'solution',
                   'scheme', 'documentation',
-                  'flow_references',
+                  'flow_reference',
                   'flow_changes',
                   'question', 'a', 'b',
                   'priority',
@@ -193,14 +197,36 @@ class SolutionPartSerializer(CreateWithUserInCasestudyMixin,
             'is_absolute': {'required': False}
         }
 
+    def create(self, validated_data):
+        v = validated_data.copy()
+        v.pop('affected_flows', None)
+        v.pop('flow_reference', None)
+        v.pop('flow_changes', None)
+        instance = super().create(v)
+        return self.update(instance, validated_data)
+
     def update(self, instance, validated_data):
         affected_flows = validated_data.pop('affected_flows', None)
+        flow_reference = validated_data.pop('flow_reference', None)
+        flow_changes = validated_data.pop('flow_changes', None)
         instance = super().update(instance, validated_data)
         if affected_flows:
             AffectedFlow.objects.filter(solution_part=instance).delete()
             for f in affected_flows:
                 flow = AffectedFlow(solution_part=instance, **f)
                 flow.save()
+        if flow_reference:
+            if instance.flow_reference:
+                instance.flow_reference.delete()
+            ref_model = FlowReference(**flow_reference)
+            ref_model.save()
+            instance.flow_reference = ref_model
+        if flow_changes:
+            if instance.flow_changes:
+                instance.flow_changes.delete()
+            ref_model = FlowReference(**flow_changes)
+            ref_model.save()
+            instance.flow_changes = ref_model
         instance.save()
         return instance
 

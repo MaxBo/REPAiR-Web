@@ -331,6 +331,10 @@ var SolutionsLogicView = BaseView.extend(
                 model.save(null, {
                     success: function(){
                         var name = (type === 'solutionparts') ? model.get('name') : model.get('question');
+                        if (type === 'questions'){
+                            var supp = model.get('is_absolute') ? gettext('absolute change') : gettext('relative change');
+                            name += ' (' + supp + ')';
+                        }
                         itemContent.querySelector('label[name="name"]').innerHTML = name;
                         $(modal).modal('hide');
                     },
@@ -396,7 +400,6 @@ var SolutionsLogicView = BaseView.extend(
             activities: this.activities,
             questions: this.questions,
             solutionParts: this.solutionParts,
-            scheme: this.selectedScheme,
             areas: this.areas,
             processes: this.processes
         })
