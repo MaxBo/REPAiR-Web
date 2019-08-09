@@ -86,7 +86,24 @@ def trigger_implementationquantity_sii(sender, instance,
         for question in solution.question.all():
             new, is_created = ImplementationQuantity.objects.\
                 get_or_create(implementation=sii, question=question,
-                              value=9958.0)
+                              value=0)
+            if is_created:
+                new.save()
+
+def trigger_implementationarea_sii(sender, instance,
+                                   created, **kwargs):
+    """
+    Create ImplementationArea for each PossibleImplementationArea
+    each time a SolutionInStrategy is created.
+    """
+    if created:
+        sii = instance
+        solution = Solution.objects.get(pk=sii.solution.id)
+        for area in solution.possible_implementation_area.all():
+            new, is_created = ImplementationArea.objects.\
+                get_or_create(implementation=sii,
+                              possible_implementation_area=area,
+                              geom=None)
             if is_created:
                 new.save()
 
@@ -95,4 +112,10 @@ signals.post_save.connect(
     sender=SolutionInStrategy,
     weak=False,
     dispatch_uid='models.trigger_implementationquantity_sii')
+
+signals.post_save.connect(
+    trigger_implementationarea_sii,
+    sender=SolutionInStrategy,
+    weak=False,
+    dispatch_uid='models.trigger_implementationarea_sii')
 

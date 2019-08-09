@@ -216,7 +216,7 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
             area = ImplementationArea.objects.get(
                 possible_implementation_area=a['possible_implementation_area'],
                 implementation=instance)
-            area.geom = q['geom'];
+            area.geom = a['geom'];
             area.save()
         return instance
 
