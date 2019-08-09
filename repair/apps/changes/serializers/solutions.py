@@ -21,6 +21,12 @@ from repair.apps.login.serializers import (InCasestudyField,
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.serializers import EnumField
 
+from django.contrib.gis.db.models.functions import MakeValid, GeoFunc
+
+
+class CollectionExtract(GeoFunc):
+    function='ST_CollectionExtract'
+
 
 class SolutionCategorySerializer(CreateWithUserInCasestudyMixin,
                                  NestedHyperlinkedModelSerializer):
@@ -78,6 +84,21 @@ class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
     class Meta:
         model = PossibleImplementationArea
         fields = ('url', 'id', 'solution', 'question', 'geom', 'edit_mask')
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        return self.makevalid(instance)
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        return self.makevalid(instance)
+
+    def makevalid(self, instance):
+        if not instance.geom.valid:
+            qs = PossibleImplementationArea.objects.filter(id=instance.id)
+            qs.update(geom=CollectionExtract(MakeValid('geom'), 3))
+            instance = qs[0]
+        return instance
 
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,
