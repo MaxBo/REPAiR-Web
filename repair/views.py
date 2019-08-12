@@ -11,6 +11,10 @@ class BaseView(TemplateView):
     def get(self, request, *args, **kwargs):
         if 'casestudy' not in request.session:
             request.session['casestudy'] = None
+        if 'mode' in request.GET:
+            mode = request.GET.get('mode')
+            mode = 1 if mode == 'setup' else 0
+            request.session['mode'] = mode
         if 'mode' not in request.session:
             request.session['mode'] = 0
 
@@ -23,6 +27,10 @@ class BaseView(TemplateView):
         except ObjectDoesNotExist:
             casestudy = None
 
+        if 'mode' in self.request.GET:
+            mode = self.request.GET.get('mode')
+            mode = 1 if mode == 'setup' else 0
+            self.request.session['mode'] = mode
         mode = self.request.session.get('mode', 0)
 
         kwargs['mode'] = self.modes[mode]
@@ -57,6 +65,11 @@ class BaseView(TemplateView):
 class ModeView(BaseView):
 
     def get(self, request, *args, **kwargs):
+        if 'mode' in request.GET:
+            mode = request.GET.get('mode')
+            mode = 1 if mode == 'setup' else 0
+            request.session['mode'] = mode
+
         mode = request.session.get('mode', 0)
 
         # all pages with modes require a casestudy to be selected
