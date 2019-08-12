@@ -29,7 +29,7 @@ var QuestionView = BaseView.extend(
         QuestionView.__super__.initialize.apply(this, [options]);
         var _this = this;
 
-        this.template = options.template;
+        this.template = 'question-template';
         this.solutions = options.solutions;
 
         this.render();

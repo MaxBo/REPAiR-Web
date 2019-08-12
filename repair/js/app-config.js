@@ -47,6 +47,7 @@ function (Session) {
         solutions:              '/api/casestudies/{0}/keyflows/{1}/solutions/',
         solutionparts:          '/api/casestudies/{0}/keyflows/{1}/solutions/{2}/parts',
         questions:              '/api/casestudies/{0}/keyflows/{1}/solutions/{2}/questions',
+        possibleImplementationAreas: '/api/casestudies/{0}/keyflows/{1}/solutions/{2}/areas',
         solutionCategories:     '/api/casestudies/{0}/keyflows/{1}/solutioncategories/',
         strategies:             '/api/casestudies/{0}/keyflows/{1}/strategies/',
         solutionsInStrategy:    '/api/casestudies/{0}/keyflows/{1}/strategies/{2}/solutions/',

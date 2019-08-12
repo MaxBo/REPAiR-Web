@@ -1,4 +1,4 @@
-from django.contrib.gis.geos.point import Point
+from django.contrib.gis.geos import Polygon, MultiPolygon
 
 import factory
 from factory.django import DjangoModelFactory
@@ -8,6 +8,7 @@ from repair.apps.asmfa.factories import (KeyflowInCasestudyFactory, ActorFactory
                                          ActivityFactory, MaterialFactory,
                                          ProcessFactory, FractionFlowFactory)
 from repair.apps.asmfa.models import StrategyFractionFlow
+from repair.apps.changes.models import Scheme
 from . import models
 
 
@@ -36,17 +37,36 @@ class ImplementationQuestionFactory(DjangoModelFactory):
     is_absolute = False
 
 
+class PossibleImplementationAreaFactory(DjangoModelFactory):
+    class Meta:
+        model = models.PossibleImplementationArea
+    geom = MultiPolygon(
+        Polygon(((11, 11), (11, 12), (12, 12), (11, 11))),
+        Polygon(((12, 12), (12, 13), (13, 13), (12, 12)))
+    )
+    question = 'Where are the actors located?'
+    solution = factory.SubFactory(SolutionFactory)
+
+
+class FlowReferenceFactory(DjangoModelFactory):
+    class Meta:
+        model = models.FlowReference
+    origin_activity = None
+    destination_activity = None
+    material = None
+    process = None
+    origin_area = None
+    destination_area = None
+
+
 class SolutionPartFactory(DjangoModelFactory):
     class Meta:
         model = models.SolutionPart
     solution = factory.SubFactory(SolutionFactory)
-    implements_new_flow = False
-    implementation_flow_origin_activity = factory.SubFactory(ActivityFactory)
-    implementation_flow_destination_activity = \
-        factory.SubFactory(ActivityFactory)
-    implementation_flow_material = factory.SubFactory(MaterialFactory)
-    implementation_flow_process = factory.SubFactory(ProcessFactory)
-    implementation_flow_spatial_application = 1
+    scheme = Scheme.MODIFICATION
+    flow_reference = factory.SubFactory(FlowReferenceFactory)
+    flow_changes = None
+    priority = 0
 
     question = factory.SubFactory(ImplementationQuestionFactory)
     a = 0
@@ -96,6 +116,18 @@ class ImplementationQuantityFactory(DjangoModelFactory):
     question = factory.SubFactory(ImplementationQuestionFactory)
 
 
+class ImplementationAreaFactory(DjangoModelFactory):
+    class Meta:
+        model = models.ImplementationArea
+    implementation = factory.SubFactory(SolutionInStrategyFactory)
+    possible_implementation_area = factory.SubFactory(
+        PossibleImplementationAreaFactory)
+    geom = MultiPolygon(
+        Polygon(((11, 11), (11, 12), (12, 12), (11, 11))),
+        Polygon(((12, 12), (12, 13), (13, 13), (12, 12)))
+    )
+
+
 class AffectedFlowFactory(DjangoModelFactory):
     class Meta:
         model = models.AffectedFlow
@@ -103,11 +135,3 @@ class AffectedFlowFactory(DjangoModelFactory):
     origin_activity = factory.SubFactory(ActivityFactory)
     destination_activity = factory.SubFactory(ActivityFactory)
     material = factory.SubFactory(MaterialFactory)
-
-
-class ActorInSolutionPartFactory(DjangoModelFactory):
-    class Meta:
-        model = models.ActorInSolutionPart
-    solutionpart = factory.SubFactory(SolutionPartFactory)
-    actor = factory.SubFactory(ActorFactory)
-    implementation = factory.SubFactory(SolutionInStrategyFactory)

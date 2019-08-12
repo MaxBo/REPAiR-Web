@@ -6,13 +6,16 @@ from django.contrib.gis.geos import Point, MultiPoint, LineString
 from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 
 from repair.apps.changes.models import (ImplementationQuantity, SolutionPart,
-                                        ActorInSolutionPart, AffectedFlow)
+                                        AffectedFlow, Scheme,
+                                        ImplementationArea)
 from repair.apps.asmfa.models import Actor, Activity, Material
-from django.contrib.gis.geos import Polygon, Point, GeometryCollection
+from django.contrib.gis.geos import Polygon, Point, MultiPolygon
 
 from repair.apps.changes.factories import (
     SolutionFactory, StrategyFactory, ImplementationQuestionFactory,
-    SolutionPartFactory, SolutionInStrategyFactory
+    SolutionPartFactory, SolutionInStrategyFactory,
+    FlowReferenceFactory, PossibleImplementationAreaFactory,
+    ImplementationAreaFactory
 )
 from repair.apps.asmfa.factories import (
     ActivityFactory, ActivityGroupFactory, ActorFactory, MaterialFactory,
@@ -47,6 +50,20 @@ class ModelSolutionInStrategy(TestCase):
             solution=cls.solution
         )
 
+        possible_implementation_area_1 = PossibleImplementationAreaFactory(
+            solution=cls.solution,
+            geom=MultiPolygon(Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))),
+            question=("")
+        )
+
+        possible_implementation_area_2 = PossibleImplementationAreaFactory(
+            solution=cls.solution,
+            geom=MultiPolygon(Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))),
+            question=("")
+        )
+
         part_1 = SolutionPartFactory(
             solution=cls.solution,
             question=question_1,
@@ -63,13 +80,15 @@ class ModelSolutionInStrategy(TestCase):
         for i in range(3):
             ActorFactory(activity=target_activity)
 
+        new_target = FlowReferenceFactory(
+            destination_activity=target_activity,
+            destination_area=possible_implementation_area_1
+        )
+
         part_new_flow = SolutionPartFactory(
             solution=cls.solution,
             question=question_1,
-            implements_new_flow=True,
-            keep_origin=True,
-            new_target_activity=target_activity,
-            map_request="pick an actor"
+            flow_changes=new_target
         )
 
     def test01_quantities(self):
@@ -85,25 +104,9 @@ class ModelSolutionInStrategy(TestCase):
         quantities = ImplementationQuantity.objects.all()
         assert quantities.count() == 2
 
-    def test02_target_actor(self):
-        """Test the new solution strategy"""
+        impl_areas = ImplementationArea.objects.all()
+        assert impl_areas.count() == 2
 
-        strategy = StrategyFactory()
-        solution_in_strategy = SolutionInStrategyFactory(
-            solution=self.solution,
-            strategy=strategy)
-
-        new_flow_parts = SolutionPart.objects.filter(
-            solution=self.solution, implements_new_flow=True)
-
-        for part in new_flow_parts:
-            target = part.new_target_activity
-            actors = Actor.objects.filter(activity=target)
-            target_actor = ActorInSolutionPart(
-                solutionpart=part, actor=actors.first(),
-                implementation=solution_in_strategy
-            )
-            # ToDo: test sth meaningful here?
 
 class BreadToBeerSolution(GenerateBreadToBeerData):
     """Define the Solution for the Bread to Beer case"""
@@ -130,22 +133,26 @@ class BreadToBeerSolution(GenerateBreadToBeerData):
         bread = Material.objects.filter(name='bread', keyflow=cls.keyflow)
         barley = Material.objects.filter(name='barley', keyflow=cls.keyflow)
 
+        implementation = FlowReferenceFactory(
+            origin_activity=household_activity[0],
+            destination_activity=incinerator_activity[0],
+            material=bread[0]
+        )
+
+        shift = FlowReferenceFactory(
+            destination_activity=brewing_activity[0]
+        )
+
         cls.bread_to_brewery = SolutionPartFactory(
             solution=cls.solution,
             documentation='Bread goes to Brewery instead of Incineration',
             question=cls.beer_question,
-            implements_new_flow=True,
-            implementation_flow_origin_activity = household_activity[0],
-            implementation_flow_destination_activity = incinerator_activity[0],
-            implementation_flow_material = bread[0],
+            flow_reference=implementation,
+            flow_changes=shift,
+            scheme=Scheme.SHIFTDESTINATION,
 
             a = 1,
             b = 0,
-
-            keep_origin = True,
-            new_target_activity = brewing_activity[0],
-
-            map_request = 'Pick a brewery which will process the waste bread',
 
             priority=1
         )
@@ -156,33 +163,22 @@ class BreadToBeerSolution(GenerateBreadToBeerData):
                      material=barley[0],
                      solution_part=cls.bread_to_brewery)
 
+
 class BreadToBeerSolutionTest(BreadToBeerSolution):
     """Test the Solution definition for the Bread to Beer case"""
 
-    def test_setup(self):
-        assert self.bread_to_brewery.new_target_activity.name == 'Brewery'
-        assert self.bread_to_brewery.new_target_activity.nace == 'A-0000'
-
-
     def test_01_implementation(self):
-
-        ## implement the solution as the user would ##
-        implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
-                                       (56.0, 0.0), (0.0, 0.0)))
 
         user = UserInCasestudyFactory(casestudy=self.keyflow.casestudy,
                                       user__user__username='Hans Norbert')
         strategy = StrategyFactory(keyflow=self.keyflow, user=user)
         implementation = SolutionInStrategyFactory(
-            solution=self.solution, strategy=strategy,
-            geom=GeometryCollection(implementation_area))
+            solution=self.solution, strategy=strategy)
 
-        ActorInSolutionPart(solutionpart=self.bread_to_brewery,
-                            actor=self.brewery_1,
-                            implementation=implementation)
         answer = ImplementationQuantity(question=self.beer_question,
                                         implementation=implementation,
                                         value=1)
+
 
 class ApplyStrategyTest(TestCase):
 
@@ -359,152 +355,135 @@ class ApplyStrategyTest(TestCase):
             is_absolute=True # Note CF: is it?
         )
 
+        cls.possible_implementation_area = PossibleImplementationAreaFactory(
+            solution=cls.solution,
+            geom=MultiPolygon(Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))),
+            question=("Where are the facilities for composting "
+                      "the fungus located?")
+        )
+
         ## solution parts ##
 
         # the new flow based on flows from c-2399 to f-4110
         # Note CF: optional it could also be derived from flows out of the farms
+
+        implementation = FlowReferenceFactory(
+            origin_activity=manufacture_activity,
+            destination_activity=building_activity,
+            material=wool
+        )
+
+        shift = FlowReferenceFactory(
+            origin_activity=growing_activity,
+            material=fungus
+        )
+
         cls.new_fungus_insulation = SolutionPartFactory(
             solution=cls.solution,
             question=cls.fungus_question,
-            implements_new_flow = True,
-            implementation_flow_origin_activity = manufacture_activity,
-            implementation_flow_destination_activity = building_activity,
-            implementation_flow_material = wool,
-            implementation_flow_process = dummy_process,
-            # Note CF: where does it apply? actually it would make more sense to
-            # let the user decide about the households (not possible this way)
-            implementation_flow_spatial_application = SpatialChoice.DESTINATION,
-
+            flow_reference=implementation,
+            flow_changes=shift,
+            scheme=Scheme.SHIFTORIGIN,
             a = 1,
             b = 0,
-
-            keep_origin = False,
-            new_target_activity = growing_activity,
-            # Note CF: does picking even make sense? why not take all actors from
-            # new activity??? (only affects flows with fungus in it anyway)
-            map_request = 'Pick a fungus farm that produces the ',
-            # Note CF: no possibility to define that the material changed from
-            # wool to fungus!!!!
-
             priority=1
-        )
-
-        # you have to subtract the derived amounts from the original one
-        # (Note CF: at least i guess you have to,
-        # would be easier to already mark this in the part defining the new
-        # flow, this is almost the same definition)
-        reduction_existing_flow = SolutionPartFactory(
-            solution=cls.solution,
-            question=cls.fungus_question,
-            implements_new_flow = False,
-            implementation_flow_origin_activity = manufacture_activity,
-            implementation_flow_destination_activity = building_activity,
-            implementation_flow_material = wool,
-            implementation_flow_process = dummy_process,
-            implementation_flow_spatial_application = SpatialChoice.DESTINATION,
-
-            a = -1,
-            b = 0,
-
-            priority=2
         )
 
         # the new flow based on flows from c-2399 to f-4110
         # Note CF: optional it could also be derived from flows out of the farms
+
+        implementation = FlowReferenceFactory(
+            origin_activity=consumption_activity,
+            destination_activity=None,
+            process=dummy_process,
+            material=wool
+        )
+
+        # origin actually stays the same but there is no way to shift without
+        # referring to either new destination or origin
+        shift = FlowReferenceFactory(
+            origin_activity=consumption_activity,
+            material=fungus
+        )
+
         new_fungus_stock = SolutionPartFactory(
             solution=cls.solution,
             question=cls.fungus_question,
-            implements_new_flow = True,
-            implementation_flow_origin_activity = consumption_activity,
-            # Note CF: is this enough to tell that the implementation flow
-            # is a stock?
-            implementation_flow_destination_activity = None,
-            implementation_flow_material = wool,
-            implementation_flow_process = dummy_process,
-            implementation_flow_spatial_application = SpatialChoice.ORIGIN,
-
+            flow_reference=implementation,
+            flow_changes=shift,
+            scheme=Scheme.SHIFTORIGIN,
             a = 1,
             b = 0,
-
-            keep_origin = True,
-
-            # Note CF: there is no new origin, stays same
-            new_target_activity = None,
-            # Note CF: there is nothing to pick, bool for picking or not or nullable?
-            map_request = '',
-            # Note CF: again: no possibility to define new material
-
-            priority=3
+            priority=2
         )
-
-        # Note CF: do we have to define the reduction of the existing wool
-        # stock? (same as reduction_existing_flow)
 
         # new flow from F-4110 development to E-3821 treatment
         # Note CF: deriving it from existing F4110 to E3821, just guessing
+
+        implementation = FlowReferenceFactory(
+            origin_activity=building_activity,
+            destination_activity=treatment_activity,
+            material=wool,
+            process=dummy_process
+        )
+
+        # actually both activities stay the same
+        shift = FlowReferenceFactory(
+            origin_activity=building_activity,
+            destination_activity=treatment_activity,
+            material=fungus,
+            process=compost,
+            destination_area=cls.possible_implementation_area
+        )
+
         cls.new_building_disposal = SolutionPartFactory(
             solution=cls.solution,
             # Note CF: i guess we need different numbers than asked for in this
             # question, or do we even need a question??
             question=cls.fungus_question,
-            implements_new_flow = True,
-            implementation_flow_origin_activity = building_activity,
-            implementation_flow_destination_activity = treatment_activity,
-            implementation_flow_material = wool,
-            implementation_flow_process = dummy_process,
-            implementation_flow_spatial_application = SpatialChoice.ORIGIN,
-
+            flow_reference=implementation,
+            flow_changes=shift,
+            scheme=Scheme.SHIFTDESTINATION,
             a = 1,
             b = 0,
-
-            # actually both activities stay the same
-            keep_origin = True,
-
-            # Note CF: both activities actually stay the same, but a new
-            # destination has to be picked for composting
-            new_target_activity = treatment_activity,
-            map_request = ('Pick a treatment and disposal facility to '
-                           'compost the fungus'),
-
-            # Note CF: how to mark that the process changes to compost???
-
-            priority=4
+            priority=3
         )
-
-        # Note CF: reduce existing implementation flow?
 
         # new flow from fungus farms to E-3821 treatment
         # Note CF: most likely this should already be modelled in the status quo
         # deriving it from fungus stock
+
+        implementation = FlowReferenceFactory(
+            origin_activity=growing_activity,
+            destination_activity=None,
+            process=compost,
+            material=fungus
+        )
+
+        # origin actually stays the same but there is no way to shift without
+        # referring to either new destination or origin
+        shift = FlowReferenceFactory(
+            destination_activity=treatment_activity,
+            destination_area=cls.possible_implementation_area,
+            material=fungus
+        )
+
+        # Note CF: reduce existing implementation flow?
+
         new_fungus_disposal = SolutionPartFactory(
             solution=cls.solution,
             # Note CF: is there a question???
             question=None,
-            implements_new_flow = True,
-            implementation_flow_origin_activity = growing_activity,
-            implementation_flow_destination_activity = None,
-            implementation_flow_material = fungus,
-            implementation_flow_process = compost,  #  Note CF: ??
-            implementation_flow_spatial_application = SpatialChoice.DESTINATION,
+            flow_reference=implementation,
+            flow_changes=shift,
+            scheme=Scheme.SHIFTDESTINATION,
 
             a = 1,
             b = 0,
 
-            # actually both activities stay the same
-            keep_origin = True,
-
-            # if it is to be picked, is it the same as in new_building_disposal?
-            new_target_activity = treatment_activity,
-            map_request = ('Pick a treatment and disposal facility to '
-                           'compost the fungus'),
-
-            # Note CF: how to mark that the process changes to compost???
-
-            priority=5
+            priority=4
         )
-
-        # Note CF: reduce stock of fungus? (maybe we don't need previous
-        # solution part anyway)
 
         ## affected flows ##
 
@@ -513,7 +492,7 @@ class ApplyStrategyTest(TestCase):
         # (marking the implementation flows as well, i guess that doesn't matter)
         # B: who cares about the pull leader?!
 
-        parts = [cls.new_fungus_insulation, reduction_existing_flow,
+        parts = [cls.new_fungus_insulation,
                  new_fungus_stock, cls.new_building_disposal,
                  new_fungus_disposal]
 
@@ -559,26 +538,18 @@ class ApplyStrategyTest(TestCase):
 
         ## implement the solution as a user would ##
 
-        implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
-                                       (56.0, 0.0), (0.0, 0.0)))
-
         user = UserInCasestudyFactory(casestudy=self.keyflow.casestudy,
                                       user__user__username='Hans Herbert')
         strategy = StrategyFactory(keyflow=self.keyflow, user=user)
         implementation = SolutionInStrategyFactory(
-            solution=self.solution, strategy=strategy,
-            geom=GeometryCollection(implementation_area))
+            solution=self.solution, strategy=strategy)
 
-        # pick a farm (Note CF: necessary?)
-        # Note: too lazy to make factories for everything, model does the same
-        ActorInSolutionPart(solutionpart=self.new_fungus_insulation,
-                            actor=self.fungus_farm_1,
-                            implementation=implementation)
-
-        # pick a treatment facility for the fungus
-        ActorInSolutionPart(solutionpart=self.new_building_disposal,
-                            actor=self.treatment_compost,
-                            implementation=implementation)
+        implementation_area = ImplementationAreaFactory(
+            implementation=implementation,
+            geom=MultiPolygon(Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
+                                       (56.0, 0.0), (0.0, 0.0)))),
+            possible_implementation_area=self.possible_implementation_area
+        )
 
         # answer the question
         # Note CF: the diagram says 250 * 5 cubic meters, don't know what fungus
@@ -586,6 +557,8 @@ class ApplyStrategyTest(TestCase):
         answer = ImplementationQuantity(question=self.fungus_question,
                                         implementation=implementation,
                                         value=25)
+
+        # ToDo: asserts
 
 
 class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):

@@ -2,14 +2,16 @@ from repair.apps.changes.models import (
     SolutionCategory,
     Solution,
     ImplementationQuestion,
-    SolutionPart
+    SolutionPart,
+    PossibleImplementationArea
     )
 
 from repair.apps.changes.serializers import (
     SolutionSerializer,
     SolutionCategorySerializer,
     ImplementationQuestionSerializer,
-    SolutionPartSerializer
+    SolutionPartSerializer,
+    PossibleImplementationAreaSerializer
     )
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
@@ -35,5 +37,11 @@ class ImplementationQuestionViewSet(CasestudyViewSetMixin,
                                     ModelPermissionViewSet):
     serializer_class = ImplementationQuestionSerializer
     queryset = ImplementationQuestion.objects.all()
+
+
+class PossibleImplementationAreaViewSet(CasestudyViewSetMixin,
+                                        ModelPermissionViewSet):
+    serializer_class = PossibleImplementationAreaSerializer
+    queryset = PossibleImplementationArea.objects.all()
 
 

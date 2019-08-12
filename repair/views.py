@@ -28,7 +28,6 @@ class BaseView(TemplateView):
         kwargs['mode'] = self.modes[mode]
         kwargs['casestudy'] = casestudy
         kwargs['casestudies'] = self.casestudies()
-        kwargs['setup_mode_permitted'] = self.setup_mode_permitted()
         kwargs['data_entry_permitted'] = self.data_entry_permitted()
         kwargs['conclusions_permitted'] = self.conclusions_permitted()
         return kwargs
@@ -57,6 +56,11 @@ class BaseView(TemplateView):
 class ModeView(BaseView):
 
     def get(self, request, *args, **kwargs):
+        if 'mode' in request.GET:
+            mode = request.GET.get('mode')
+            mode = 1 if mode == 'setup' else 0
+            request.session['mode'] = mode
+
         mode = request.session.get('mode', 0)
 
         # all pages with modes require a casestudy to be selected
@@ -68,6 +72,11 @@ class ModeView(BaseView):
             return self.render_setup(request)
         else:
             return self.render_workshop(request)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs['setup_mode_permitted'] = self.setup_mode_permitted()
+        return kwargs
 
     def render_setup(self, request, *args, **kwargs):
         raise NotImplementedError

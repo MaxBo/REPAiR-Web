@@ -2,7 +2,7 @@
 
 django>=2.2.1
 django-webpack-loader>=0.5
-djangorestframework>=3.8.2
+djangorestframework==3.9.3
 djangorestframework-gis>=0.12
 djangorestframework-datatables>=0.3
 django-filter>=2.1
