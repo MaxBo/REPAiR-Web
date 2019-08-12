@@ -100,7 +100,7 @@ var BaseView = Backbone.View.extend(
                 name = model.get('name');
             item.text = name.substring(0, 70);
             if (name.length > 70) item.text += '...';
-            item.title = model.get('name');
+            item.title = name;
             item.level = 1;
             item.id = model.id;
             item.parent = model.get(parentAttr);
@@ -162,6 +162,13 @@ var BaseView = Backbone.View.extend(
                 wrapper.title = item.title;
                 if (options.onSelect) options.onSelect(model);
             })
+        }
+        select.select = function(id){
+            var li = select.querySelector('li[data-value="' + id + '"]');
+            if(li){
+                var item = li.querySelector('a');
+                item.click();
+            }
         }
         return select;
     },

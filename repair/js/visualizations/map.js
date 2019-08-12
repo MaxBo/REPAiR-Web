@@ -820,6 +820,9 @@ define([
                             layer.getSource().addFeature(geojsonFormat.readFeature(intersection));
                         }
                     });
+                    if (options.onDrawEnd){
+                        options.onDrawEnd(features);
+                    }
                 });
             }
 

@@ -92,8 +92,8 @@
                       <span class="caret"></span>
                     </button>
                     <div class="dropdown-content">
-                      <a {% if request.session.mode == 0 %} class="active" {% endif %} onclick="$('#mode').val(0); $('#mode-select').submit()"> {% trans "Workshop" %} </a>
-                      <a {% if request.session.mode == 1 %} class="active" {% endif %} onclick="$('#mode').val(1); $('#mode-select').submit()"> {% trans "Setup" %} </a>
+                      <a {% if request.session.mode == 0 %} class="active" {% endif %} href="{{ request.path }}?mode=workshop"> {% trans "Workshop" %} </a>
+                      <a {% if request.session.mode == 1 %} class="active" {% endif %} href="{{ request.path }}?mode=setup"> {% trans "Setup" %} </a>
                     </div>
                   </div>
                   <span class="caret drop-arrow"></span>

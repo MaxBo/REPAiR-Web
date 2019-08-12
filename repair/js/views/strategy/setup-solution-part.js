@@ -1,9 +1,9 @@
 
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'models/gdsemodel', 'app-config', 'utils/utils', 'bootstrap',
-        'bootstrap-select'],
+        'models/gdsemodel', 'app-config', 'viewerjs',
+        'utils/utils', 'bootstrap', 'bootstrap-select', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GDSEModel, config, utils){
+function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, utils){
 /**
 *
 * @author Christoph Franke
@@ -28,14 +28,11 @@ var SolutionPartView = BaseView.extend(
     initialize: function(options){
         SolutionPartView.__super__.initialize.apply(this, [options]);
         var _this = this;
-        _.bindAll(this, 'toggleNewFlow');
         _.bindAll(this, 'toggleHasQuestion');
         _.bindAll(this, 'toggleAbsolute');
-        _.bindAll(this, 'toggleReferencePart');
         _.bindAll(this, 'addAffectedFlow');
-        _.bindAll(this, 'toggleNewMaterial');
 
-        this.template = options.template;
+        this.template = 'solution-part-template';
 
         this.solutions = options.solutions;
         this.solutionParts = options.solutionParts;
@@ -44,6 +41,9 @@ var SolutionPartView = BaseView.extend(
         this.activityGroups = options.activityGroups;
         this.activities = options.activities;
         this.questions = options.questions;
+        this.areas = options.areas;
+        this.processes = options.processes;
+        this.scheme = options.scheme || this.model.get('scheme');
         this.render();
     },
 
@@ -54,72 +54,112 @@ var SolutionPartView = BaseView.extend(
     },
 
     /*
+    * scheme tags as keys and lists of [title, template, preview-image, example-image] as values
+    */
+    schemes: {
+        'modification': [gettext('Modify Flow'), 'modify-flow-template', 'schemes/modification.png', 'schemes/modification-example.png'],
+        'new': [gettext('New Flow'), 'new-flow-template', 'schemes/new.png', 'schemes/new-example.png'],
+        'shiftorigin': [gettext('Shift Origin'), 'shift-origin-template', 'schemes/shift-origin.png', 'schemes/shift-origin-example.png'],
+        'shiftdestination': [gettext('Shift Destination'), 'shift-destination-template', 'schemes/shift-destination.png', 'schemes/shift-destination-example.png'],
+        'prepend': [gettext('Prepend Flow'), 'prepend-flow-template', 'schemes/prepend.png', 'schemes/prepend-example.png'],
+        'append': [gettext('Append Flow'), 'append-flow-template', 'schemes/append.png', 'schemes/append-example.png']
+    },
+
+    /*
     * render the view
     */
     render: function(){
         var _this = this,
             html = document.getElementById(this.template).innerHTML,
             template = _.template(html);
-        this.el.innerHTML = template({});
 
-        this.nameInput = this.el.querySelector('input[name="name"]');
-        this.implNewFlowSelect = this.el.querySelector('select[name="impl-new-flow"]');
-        this.referencesPartSelect = this.el.querySelector('select[name="references-part"]');
-        this.solutionPartSelect = this.el.querySelector('select[name="referenced-part"]');
-        this.materialChangeSelect = this.el.querySelector('select[name="material-changes"]');
+        var scheme = this.scheme.toLowerCase(),
+            schemeAttr = this.schemes[scheme],
+            title = schemeAttr[0],
+            tmpl = schemeAttr[1],
+            schemepreview = schemeAttr[2],
+            schemeexample = schemeAttr[3];
+
+        this.el.innerHTML = template({
+            schemepreview: schemepreview,
+            schemeexample: schemeexample,
+            title: title
+        });
+
+        html = document.getElementById(tmpl).innerHTML;
+        template = _.template(html);
+        this.el.querySelector('#definition-content').innerHTML = template({});
+
+        this.viewer = new Viewer.default(this.el.querySelector('#scheme-preview'));
+
+        this.nameInput = this.el.querySelector('input[name="part-name"]');
+
+        this.referenceOriginSelect = this.el.querySelector('select[name="reference-origin"]');
+        this.referenceDestinationSelect = this.el.querySelector('select[name="reference-destination"]');
+        this.referenceMaterialSelect = this.el.querySelector('div[name="reference-material"]');
+        this.referenceProcessSelect = this.el.querySelector('select[name="reference-process"]');
+        this.referenceOriginAreaSelect = this.el.querySelector('select[name="reference-origin-area"]');
+        this.referenceDestinationAreaSelect = this.el.querySelector('select[name="reference-destination-area"]');
+
+        this.newOriginSelect = this.el.querySelector('select[name="new-origin"]');
+        this.newDestinationSelect = this.el.querySelector('select[name="new-destination"]');
         this.newMaterialSelect = this.el.querySelector('div[name="new-material"]');
-        this.materialSelect = this.el.querySelector('div[name="material"]');
-        this.originSelect = this.el.querySelector('select[name="origin"]');
-        this.destinationSelect = this.el.querySelector('select[name="destination"]');
-        this.spatialOriginCheck = this.el.querySelector('input[name="origin-in-area"]');
-        this.spatialDestinationCheck = this.el.querySelector('input[name="destination-in-area"]');
+        this.newProcessSelect = this.el.querySelector('select[name="new-process"]');
+        this.newOriginAreaSelect = this.el.querySelector('select[name="new-origin-area"]');
+        this.newDestinationAreaSelect = this.el.querySelector('select[name="new-destination-area"]');
+
         this.aInput = this.el.querySelector('input[name="a"]');
         this.bInput = this.el.querySelector('input[name="b"]');
         this.questionSelect = this.el.querySelector('select[name="question"]');
-        this.hasQuestionSelect = this.el.querySelector('select[name="has-question"]');
-        this.isAbsoluteSelect = this.el.querySelector('select[name="is-absolute"]');
+        this.hasQuestionRadios = this.el.querySelectorAll('input[name="has-question"]');
+        this.isAbsoluteRadios = this.el.querySelectorAll('input[name="is-absolute"]');
 
-        this.newTargetSelect = this.el.querySelector('select[name="new-target"]');
-        this.keepOriginInput = this.el.querySelector('select[name="keep-origin"]');
-        this.mapRequestArea = this.el.querySelector('textarea[name="map-request"]');
+        $(this.referenceOriginSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
+        $(this.referenceDestinationSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
+        $(this.newOriginSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
+        $(this.newDestinationSelect).selectpicker({size: 8, liveSearch: true, width: 'fit'});
 
-        $(this.originSelect).selectpicker({size: 10, liveSearch: true, width: 'fit'});
-        $(this.destinationSelect).selectpicker({size: 10, liveSearch: true, width: 'fit'});
-        $(this.newTargetSelect).selectpicker({size: 10, liveSearch: true});
-        this.populateActivitySelect(this.originSelect);
-        // ToDo: null allowed for stocks?
-        this.populateActivitySelect(this.destinationSelect);
-        this.populateActivitySelect(this.newTargetSelect);
-        this.populateSolutionPartSelect();
+        this.populateActivitySelect(this.referenceOriginSelect);
+        this.populateActivitySelect(this.referenceDestinationSelect);
+        this.populateActivitySelect(this.newOriginSelect);
+        this.populateActivitySelect(this.newDestinationSelect);
+
+        this.populateAreaSelect(this.referenceOriginAreaSelect);
+        this.populateAreaSelect(this.referenceDestinationAreaSelect);
+        this.populateAreaSelect(this.newOriginAreaSelect);
+        this.populateAreaSelect(this.newDestinationAreaSelect);
+
+        this.populateProcessSelect(this.referenceProcessSelect, {defaultOption: gettext('no specific process')});
+        this.populateProcessSelect(this.newProcessSelect, {defaultOption: gettext('no change')});
+
         this.populateQuestionSelect();
         this.affectedDiv = this.el.querySelector('#affected-flows');
 
-        this.renderMatFilter(this.materialSelect);
-        this.renderMatFilter(this.newMaterialSelect);
+        this.renderMatFilter(this.referenceMaterialSelect);
+        this.renderMatFilter(this.newMaterialSelect, {defaultOption: gettext('no change')});
 
-        this.implNewFlowSelect.addEventListener('change', this.toggleNewFlow);
-        this.referencesPartSelect.addEventListener('change', this.toggleReferencePart);
-        this.hasQuestionSelect.addEventListener('change', function(){
-            _this.toggleHasQuestion();
-            _this.toggleAbsolute();
-        });
-        this.keepOriginInput.addEventListener('change', function(){
-            var label = (this.value == "true") ? gettext('destination'): gettext('origin');
-            _this.el.querySelector('div[name="origdestlabel"]').innerHTML = label;
-        })
-        this.isAbsoluteSelect.addEventListener('change', this.toggleAbsolute);
-        this.questionSelect.addEventListener('change', this.toggleAbsolute);
+        this.setInputs();
 
-        this.setInputs(this.model);
+        if (this.hasQuestion == null) this.hasQuestion = true;
+        this.hasQuestionRadios.forEach(function(radio){
+            radio.addEventListener('change', function(){
+                _this.hasQuestion = this.value == 'true';
+                _this.toggleHasQuestion();
+                _this.toggleAbsolute();
+            });
+        })
 
-        // at least one checkbox has to be checked
-        this.spatialOriginCheck.addEventListener('change', function(){
-            if (!this.checked) _this.spatialDestinationCheck.checked = true;
+        if (this.isAbsolute == null) this.isAbsolute = true;
+        this.isAbsoluteRadios.forEach(function(radio){
+            radio.addEventListener('change', function(){
+                _this.isAbsolute = this.value == 'true';
+                _this.toggleAbsolute();
+            });
         })
-        this.spatialDestinationCheck.addEventListener('change', function(){
-            if (!this.checked) _this.spatialOriginCheck.checked = true;
-        })
-        this.materialChangeSelect.addEventListener('change', this.toggleNewMaterial);
+        this.toggleHasQuestion();
+        this.toggleAbsolute();
+
+        //this.materialChangeSelect.addEventListener('change', this.toggleNewMaterial);
 
         // forbid html escape codes in name
         this.nameInput.addEventListener('keyup', function(){
@@ -129,128 +169,98 @@ var SolutionPartView = BaseView.extend(
         this.el.querySelector('#affected-flows-tab button.add').addEventListener('click', this.addAffectedFlow);
     },
 
-    toggleNewMaterial: function(){
-        var materialChanges = this.materialChangeSelect.value == 'true';
-        this.newMaterialSelect.style.display = (materialChanges) ? 'inline-block' : 'none';
-    },
-
-    toggleNewFlow: function(){
-        var implementsNewFlow = this.implNewFlowSelect.value == "true",
-            modFlowElements = this.el.querySelectorAll('.modified-flow'),
-            newFlowElements = this.el.querySelectorAll('.new-flow');
-        modFlowElements.forEach(function(el){
-            el.style.display = (implementsNewFlow) ? 'none' :'inline-block';
-        })
-        newFlowElements.forEach(function(el){
-            el.style.display = (implementsNewFlow) ? 'inline-block' :'none';
-        })
-        this.toggleReferencePart();
-    },
-
     toggleHasQuestion: function(){
-        var hasQuestion = this.hasQuestionSelect.value == "true"
-            questElements = this.el.querySelectorAll('.with-question'),
-            noQuestElements = this.el.querySelectorAll('.no-question');
+        var questElements = this.el.querySelectorAll('.with-question'),
+            noQuestElements = this.el.querySelectorAll('.no-question'),
+            _this = this;
 
-        if (!hasQuestion)
+        if (!this.hasQuestion)
             this.aInput.value = 0;
 
         noQuestElements.forEach(function(el){
-            el.style.display = (hasQuestion) ? 'none' :'inline-block';
+            el.style.display = (_this.hasQuestion) ? 'none' :'inline-block';
         })
         questElements.forEach(function(el){
-            el.style.display = (hasQuestion) ? 'inline-block' :'none';
+            el.style.display = (_this.hasQuestion) ? 'inline-block' :'none';
         })
     },
 
     toggleAbsolute: function(){
         var absElements = this.el.querySelectorAll('.is-absolute'),
-            relElements = this.el.querySelectorAll('.is-relative');
-
-        var isAbsolute = false;
-        if (this.hasQuestionSelect.value == "false"){
-            isAbsolute = this.isAbsoluteSelect.value == "true";
-        } else {
-            var question = this.questions.get(this.questionSelect.value);
-            if (question)
-                isAbsolute = question.get('is_absolute') === true;
-        }
+            relElements = this.el.querySelectorAll('.is-relative'),
+            _this = this;
 
         relElements.forEach(function(el){
-            el.style.display = (isAbsolute) ? 'none' :'inline-block';
+            el.style.display = (_this.isAbsolute) ? 'none' :'inline-block';
         })
         absElements.forEach(function(el){
-            el.style.display = (isAbsolute) ? 'inline-block' :'none';
+            el.style.display = (_this.isAbsolute) ? 'inline-block' :'none';
         })
-    },
 
-    toggleReferencePart: function(){
-        var referencePart = this.implNewFlowSelect.value == 'true' && this.referencesPartSelect.value == 'true',
-            refElements = this.el.querySelectorAll('.reference-part'),
-            flowElements = this.el.querySelectorAll('.reference-flow');
-        flowElements.forEach(function(el){
-            el.style.display = (referencePart) ? 'none' :'inline-block';
-        })
-        refElements.forEach(function(el){
-            el.style.display = (referencePart) ? 'inline-block' :'none';
-        })
+        _this.populateQuestionSelect();
     },
 
     setInputs: function(){
-        var _this = this;
-        this.nameInput.value = this.model.get('name') || '';
-        this.implNewFlowSelect.value = this.model.get('implements_new_flow') || false;
-        this.referencesPartSelect.value = this.model.get('references_part') || false;
-        this.solutionPartSelect.value = this.model.get('implementation_flow_solution_part') || null;
-        this.originSelect.value = this.model.get('implementation_flow_origin_activity') || null;
-        this.destinationSelect.value = this.model.get('implementation_flow_destination_activity') || null;
-        var spatial = this.model.get('implementation_flow_spatial_application') || 'both';
-        spatial = spatial.toLowerCase();
-        this.spatialOriginCheck.checked = (spatial == 'origin' || spatial == 'both');
-        this.spatialDestinationCheck.checked = (spatial == 'destination' || spatial == 'both');
 
-        this.newTargetSelect.value = this.model.get('new_target_activity') || null;
-        this.mapRequestArea.value = this.model.get('map_request') || '';
-        var keepOrigin = this.model.get('keep_origin') || false;
-        this.keepOriginInput.value = keepOrigin;
-        var label = (keepOrigin) ? gettext('destination'): gettext('origin');
-        _this.el.querySelector('div[name="origdestlabel"]').innerHTML = label;
-
-        //this.spatialSelect.value = spatial.toLowerCase()
-        this.aInput.value = this.model.get('a') || 0;
-        this.bInput.value = this.model.get('b') || 0;
-
-        var question = this.model.get('question');
-        this.questionSelect.value = question || -1;
-        this.hasQuestionSelect.value = (question != null);
-        this.isAbsoluteSelect.value = this.model.get('is_absolute');
-
-        // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
-        var material = this.model.get('implementation_flow_material'),
-            li = this.materialSelect.querySelector('li[data-value="' + material + '"]');
-        if(li){
-            var matItem = li.querySelector('a');
-            matItem.click();
-        }
-        var material = this.model.get('new_material');
-        if (material) {
-            this.materialChangeSelect.value = true;
-            var li = this.newMaterialSelect.querySelector('li[data-value="' + material + '"]');
+         // hierarchy-select plugin offers no functions to set (actually no functions at all) -> emulate clicking on row
+        function setMaterial(matSelect, material){
+            var li = matSelect.querySelector('li[data-value="' + material + '"]');
             if(li){
                 var matItem = li.querySelector('a');
                 matItem.click();
             }
-        } else {
-            this.materialChangeSelect.value = false;
         }
-        $(this.originSelect).selectpicker('refresh');
-        $(this.destinationSelect).selectpicker('refresh');
-        $(this.newTargetSelect).selectpicker('refresh');
-        this.toggleNewFlow();
+
+        var _this = this;
+        this.nameInput.value = this.model.get('name') || '';
+        //this.scheme = this.model.get('scheme');
+
+        var refFlow = this.model.get('flow_reference'),
+            changeFlow = this.model.get('flow_changes');
+
+        if (refFlow){
+            if (this.referenceOriginSelect) this.referenceOriginSelect.value = refFlow.origin_activity;
+            if (this.referenceDestinationSelect) this.referenceDestinationSelect.value = refFlow.destination_activity;
+            if (this.referenceMaterialSelect) this.referenceMaterialSelect.select(refFlow.material);
+            if (this.referenceProcessSelect) this.referenceProcessSelect.value = refFlow.process || -1;
+            if (this.referenceOriginAreaSelect) this.referenceOriginAreaSelect.value = refFlow.origin_area || -1;
+            if (this.referenceDestinationAreaSelect) this.referenceDestinationAreaSelect.value = refFlow.destination_area || -1;
+        }
+
+        if (changeFlow){
+            if (this.newOriginSelect) this.newOriginSelect.value = changeFlow.origin_activity;
+            if (this.newDestinationSelect) this.newDestinationSelect.value = changeFlow.destination_activity;
+            if (this.newMaterialSelect) this.newMaterialSelect.select(changeFlow.material);
+            if (this.newProcessSelect) this.newProcessSelect.value = changeFlow.process || -1;
+            if (this.newOriginAreaSelect) this.newOriginAreaSelect.value = changeFlow.origin_area || -1;
+            if (this.newDestinationAreaSelect) this.newDestinationAreaSelect.value = changeFlow.destination_area || -1;
+        }
+
+        //this.spatialSelect.value = spatial.toLowerCase()
+        this.aInput.value = this.model.get('a') || 1;
+        this.bInput.value = this.model.get('b') || 0;
+
+        var question = this.model.get('question');
+        this.questionSelect.value = question || -1;
+        this.hasQuestion = (question != null);
+        question = this.questions.get(question);
+        this.isAbsolute = (this.hasQuestion) ? question.get('is_absolute'): this.model.get('is_absolute');
+
+        var questValue = (this.hasQuestion) ? 'true': 'false';
+        this.hasQuestionRadios.forEach(function(radio){
+            radio.checked = radio.value === questValue;
+        })
+        var absValue = (this.isAbsolute) ? 'true': 'false';
+        this.isAbsoluteRadios.forEach(function(radio){
+            radio.checked = radio.value === absValue;
+        })
+
+        $(this.referenceOriginSelect).selectpicker('refresh');
+        $(this.referenceDestinationSelect).selectpicker('refresh');
+        $(this.newOriginSelect).selectpicker('refresh');
+        $(this.newDestinationSelect).selectpicker('refresh');
         this.toggleHasQuestion();
         this.toggleAbsolute();
-        this.toggleNewMaterial();
-        this.toggleReferencePart();
 
         var affected = this.model.get('affected_flows') || [];
         affected.forEach(function(flow){
@@ -260,32 +270,45 @@ var SolutionPartView = BaseView.extend(
 
     applyInputs: function(){
         var _this = this;
+
+        var refFlow = {}, changeFlow = {};
+
+        this.model.set('scheme', this.scheme);
         this.model.set('name', this.nameInput.value);
-        this.model.set('implements_new_flow', this.implNewFlowSelect.value);
-        this.model.set('references_part', this.referencesPartSelect.value);
-        this.model.set('implementation_flow_solution_part', (this.solutionPartSelect.value != "-1") ? this.solutionPartSelect.value: null);
-        this.model.set('implementation_flow_origin_activity', (this.originSelect.value != "-1") ? this.originSelect.value: null);
-        this.model.set('implementation_flow_destination_activity', (this.destinationSelect.value != "-1") ? this.destinationSelect.value: null);
-        var selectedMaterial = this.materialSelect.dataset.selected;
-        this.model.set('implementation_flow_material', selectedMaterial);
-        var newMaterial = (this.materialChangeSelect.value == 'true') ? this.newMaterialSelect.dataset.selected: null;
-        this.model.set('new_material', newMaterial);
-        var spatial = (this.spatialOriginCheck.checked && this.spatialDestinationCheck.checked) ? 'both':
-                      (this.spatialOriginCheck.checked) ? 'origin': 'destination';
-        this.model.set('implementation_flow_spatial_application', spatial);
+
+        refFlow.origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null;
+        refFlow.destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value : null;
+        refFlow.material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null;
+        var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
+        refFlow.process = (process === '-1') ? null: process;
+        var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;
+        refFlow.origin_area = (area === '-1') ? null: area;
+        area = (this.referenceDestinationAreaSelect) ? this.referenceDestinationAreaSelect.value: null;
+        refFlow.destination_area = (area === '-1') ? null: area;
+        console.log(refFlow)
+
+        this.model.set('flow_reference', refFlow);
+        console.log(refFlow)
+
+
+        changeFlow.origin_activity = (this.newOriginSelect) ? this.newOriginSelect.value: null;
+        changeFlow.destination_activity = (this.newDestinationSelect) ? this.newDestinationSelect.value.value : null;
+        changeFlow.material = (this.newMaterialSelect) ? this.newMaterialSelect.dataset.selected: null;
+        process = (this.newProcessSelect) ? this.newProcessSelect.value: null;
+        changeFlow.process = (process === '-1') ? null: process;
+        area = (this.newOriginAreaSelect) ? this.newOriginAreaSelect.value: null;
+        changeFlow.origin_area = (area === '-1') ? null: area;
+        area = (this.newDestinationAreaSelect) ? this.newDestinationAreaSelect.value: null;
+        changeFlow.destination_area = (area === '-1') ? null: area;
+
+        this.model.set('flow_changes', changeFlow);
+
         this.model.set('documentation', '');
-        this.model.set('map_request', '');
         this.model.set('a', this.aInput.value);
         this.model.set('b', this.bInput.value);
         var question = this.questionSelect.value;
-        var hasQuestion = this.hasQuestionSelect.value == "true";
-        this.model.set('question', (hasQuestion && question != "-1") ? question: null);
-
-        this.model.get('is_absolute', this.isAbsoluteSelect.value);
-
-        this.model.set('new_target_activity', (this.newTargetSelect.value != "-1") ? this.newTargetSelect.value: null);
-        this.model.set('keep_origin', this.keepOriginInput.value);
-        this.model.set('map_request', this.mapRequestArea.value);
+        this.model.set('question', (this.hasQuestion && question != "-1") ? question: null);
+        this.model.get('is_absolute', this.isAbsolute);
 
         var affectedFlowRows = this.affectedDiv.querySelectorAll('.row'),
             affectedFlows = [];
@@ -307,27 +330,18 @@ var SolutionPartView = BaseView.extend(
         this.model.set('affected_flows', affectedFlows);
     },
 
-    populateSolutionPartSelect: function(){
-        var _this = this,
-            newFlowParts = this.solutionParts.filterBy({ implements_new_flow: true });
-        newFlowParts.forEach(function(part){
-            var option = document.createElement('option');
-            option.value = part.id;
-            option.innerHTML = part.get('name');
-            _this.solutionPartSelect.appendChild(option);
-        })
-    },
-
     populateQuestionSelect: function(){
         var _this = this;
         utils.clearSelect(this.questionSelect);
+
+        var questions = this.questions.where({is_absolute: this.isAbsolute});
 
         var option = document.createElement('option');
         option.value = -1;
         option.text = gettext('Select');
         option.disabled = true;
         this.questionSelect.appendChild(option);
-        this.questions.forEach(function(question){
+        questions.forEach(function(question){
             var option = document.createElement('option');
             option.value = question.id;
             option.text = question.get('question');
@@ -336,6 +350,7 @@ var SolutionPartView = BaseView.extend(
     },
 
     populateActivitySelect: function(select){
+        if (select == null) return;
         var _this = this;
         utils.clearSelect(select);
 
@@ -359,8 +374,45 @@ var SolutionPartView = BaseView.extend(
         $(select).selectpicker('refresh');
     },
 
-    renderMatFilter: function(el, width){
+    populateAreaSelect: function(select){
+        if (select == null) return;
         var _this = this;
+        utils.clearSelect(select);
+
+        var option = document.createElement('option');
+        option.value = -1;
+        option.text = gettext('no spatial restriction');
+        select.appendChild(option);
+        this.areas.forEach(function(area){
+            var option = document.createElement('option');
+            option.value = area.id;
+            option.text = area.get('question');
+            select.appendChild(option);
+        })
+    },
+
+    populateProcessSelect: function(select, options){
+        if (select == null) return;
+        var _this = this,
+            options = options || {};
+        utils.clearSelect(select);
+
+        var option = document.createElement('option');
+        option.value = -1;
+        option.text = options.defaultOption || gettext('Select');
+        select.appendChild(option);
+        this.processes.forEach(function(process){
+            var option = document.createElement('option');
+            option.value = process.id;
+            option.text = process.get('name');
+            select.appendChild(option);
+        })
+    },
+
+    renderMatFilter: function(el, options){
+        if (el == null) return;
+        var _this = this,
+            options = options || {};
         this.selectedMaterial = null;
         // select material
         var matSelect = document.createElement('div');
@@ -376,10 +428,10 @@ var SolutionPartView = BaseView.extend(
 
         var hierarchicalSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
-                 el.dataset.selected = model.id;
+                 el.dataset.selected = (model) ? model.id: null;
             },
-            width: width,
-            defaultOption: gettext('Select'),
+            width: options.width,
+            defaultOption: options.defaultOption || gettext('Select'),
             label: function(model, option){
                 var compCount = model.get('flow_count'),
                     childCount = flowsInChildren[model.id] || 0,
@@ -399,6 +451,7 @@ var SolutionPartView = BaseView.extend(
             a.classList.add(cls);
         })
         el.appendChild(hierarchicalSelect);
+        el.select = hierarchicalSelect.select;
     },
 
     addAffectedFlow: function(flow){
@@ -424,11 +477,7 @@ var SolutionPartView = BaseView.extend(
             originSelect.value = flow['origin_activity'];
             destinationSelect.value = flow['destination_activity'];
             destinationSelect.value = flow['destination_activity'];
-            li = matSelect.querySelector('li[data-value="' + flow['material'] + '"]');
-            if(li){
-                var matItem = li.querySelector('a');
-                matItem.click();
-            }
+            matSelect.select(flow['material']);
         }
 
         $(originSelect).selectpicker('refresh');

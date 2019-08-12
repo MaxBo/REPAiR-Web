@@ -1,4 +1,5 @@
 {% load i18n %}
+{% load staticfiles %}
 {% block content %}
 
 <!--setup solutions-->
@@ -133,12 +134,12 @@
     <ul class="nav nav-tabs">
       <li class="active"><a data-toggle="tab" href="#parts-tab">{% trans "Solution parts" %}</a></li>
       <li><a data-toggle="tab" href="#questions-tab">{% trans "Implementation questions" %}</a></li>
-      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation area" %}</a></li>
+      <li><a data-toggle="tab" href="#area-tab">{% trans "Possible implementation areas" %}</a></li>
     </ul>
     <div class="tab-content bordered" style="min-height: 500px;">
       <div class="tab-pane fade in active" id="parts-tab">
         <div class="row">
-          <h4 style="margin-bottom: 20px">{% trans "Parts in computing order" %}</h4>
+          <h4 style="margin-bottom: 20px">{% trans "Solution Parts in computing order (drag & drop to change order)" %}</h4>
           <div class="row">
             <div id="solution-parts-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
           </div>
@@ -149,6 +150,7 @@
       </div>
       <div class="tab-pane fade in" id="questions-tab">
         <div class="row">
+          <h4 style="margin-bottom: 20px">{% trans "Questions" %}</h4>
           <div class="row">
             <div id="questions-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
           </div>
@@ -159,24 +161,13 @@
       </div>
       <div class="tab-pane fade in" id="area-tab">
         <div class="row">
-          <div class="col-md-6">
-            <h4>{% trans "Map View" %}</h4>
-            <div name="area-map" style="min-height: 450px;"></div>
+          <h4 style="margin-bottom: 20px">{% trans "Areas (questions)" %}</h4>
+          <div class="row">
+            <div id="areas-panel" style="min-height: 100px; max-width: 600px;" class="item-panel bordered"></div>
           </div>
-          <div class="col-md-6">
-            <h4>{% trans "Possible Implementation Area as GeoJSON" %}</h4>
-            <div class="row">
-              <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
-            </div>
-            <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
-              Show
-              <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
-            </button>
-            <button style="float: right;" class="btn btn-primary upload" name="implementation-area" title="Upload GeoJSON">
-              Upload
-              <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
-            </button>
-          </div>
+          <button id="add-area" class="btn btn-primary add square" title="add area">
+            <span class="glyphicon glyphicon-plus"></span> {% trans "Add Area" %}
+          </button>
         </div>
       </div>
     </div>
@@ -187,13 +178,13 @@
   </div>
 </div>
 <div id="solution-part-modal" class="modal fade" role="dialog" style="z-index: 10000;">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
     <div class="modal-content col-md-12">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">&times;</button>
         <h4 class="modal-title">{% trans "Edit Solution Part" %}</h4>
       </div>
-      <div class="modal-body"></div>
+      <div class="modal-body sunken"></div>
       <div class="modal-footer">
         <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
         <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
@@ -216,191 +207,70 @@
     </div>
   </div>
 </div>
-</script>
-
-<!-- solution part-->
-<script type="text/template" id="solution-part-template">
-<div class="row">
-  <label>{% trans "Name" %} </label>
-  <input class="form-control" name="name">
-</div>
-<div class="row">
-  <select name="impl-new-flow" class="form-control">
-    <option value="false" selected> {% trans "This solution part modifies an existing flow." %}</option>
-    <option value="true"> {% trans "This solution part creates a new flow (based on an existing flow)." %}</option>
-  </select>
-</div>
-<ul class="nav nav-tabs" style="margin-top: 20px;">
-  <li class="active"><a data-toggle="tab" href="#flow-tab">
-    <div class="new-flow">{% trans "New Flow" %}</div>
-    <div class="modified-flow">{% trans "Initial Impact Flow" %}</div>
-  </a></li>
-  <li><a data-toggle="tab" href="#formula-tab">{% trans "New Amount" %}</a></li>
-  <li><a data-toggle="tab" href="#affected-flows-tab">{% trans "Possibly Affected Flows" %}</a></li>
-</ul>
-<div class="tab-content bordered">
-  <div class="tab-pane fade in active" id="flow-tab">
-    <div class="row modified-flow">
-      <p style="max-width: 800px;">
-        {% blocktrans %}
-        The initial impact flow is the flow which the solution part modifies directly.
-        As the solution definition does not include the implementation area and affected actors,
-        the initial impact flow has to be defined on activity level.
-        {% endblocktrans %}
-      </p>
-    </div>
-    <div class="row new-flow">
-      <h4> {% trans "Reference flow" %} </h4>
-      <p style="max-width: 800px;">
-        {% blocktrans %}
-        The reference flow is the flow which the solution part uses as reference for defining the new flow.
-        {% endblocktrans %}
-      </p>
-      <select name="references-part" class="form-control">
-        <option value="false" selected> {% trans "Reference an existing Status Quo flow." %}</option>
-        <option value="true"> {% trans "Reference a solution part that is implementing a new flow." %}</option>
-      </select>
-      <div class="row reference-part">
-        {% trans "Referenced part" %}
-        <select name="referenced-part" class="form-control" style='display: inline-block;'>
-          <option value="-1" disabled> {% trans "Select a solution part that is defining a new flow" %}</option>
-        </select>
+<div id="area-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
+    <div class="modal-content col-md-12">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">{% trans "Edit Possible Implementation Area" %}</h4>
       </div>
-    </div>
-    <div class="reference-flow">
-      <div class="row">
-        {% trans "Material" %}
-        <div name="material" style="display: inline-block;"></div>
+      <div class="modal-body">
       </div>
-      <div class="row">
-        {% trans "going from activity" %}
-        <select name="origin"></select>
-        <input name="origin-in-area" type="checkbox">
-        &nbsp;{% trans "activity has to be in the implementation area *)" %}
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
       </div>
-      <div class="row">
-        {% trans "to activity" %}
-        <select name="destination"></select>
-        <input name="destination-in-area" type="checkbox">
-        &nbsp;{% trans "activity has to be in the implementation area *)" %}
-      </div>
-      <p style="font-size: 0.8em;">{% trans "*) defined by the users in the workshop mode when implementing the solution" %}</p>
-      <br>
-    </div>
-    <div class="row modified-flow">
-      <p style="max-width: 800px;">
-        {% blocktrans %}
-        The change of the amount of the initial impact flow is defined on the next tab (“New amount”).
-        For enabling the GDSE to model indirect changes of other flows derived from the amount changes of
-        the initial impact flow, a list of all possibly affected flows (upstream and downstream) has to be
-        defined in the tab “Possibly affected flows”.
-        {% endblocktrans %}
-      </p>
-    </div>
-    <div class="row">
-      <h4>{% trans "Material" %}</h4>
-      <select name="material-changes" class="form-control" style="max-width: 150px; display: inline-block;">
-        <option value="false">{% trans "no change" %}</option>
-        <option value="true">{% trans "changes to" %}</option>
-      </select>
-      <div name="new-material" style="display: inline-block;"></div>
-    </div>
-    <div class="row new-flow">
-      <h4> {% trans "New flow" %} </h4>
-      <div style="max-width: 800px;">
-        {% trans "The new flow keeps the" %}
-        <select name="keep-origin" class="form-control" style="display: inline-block; width: 150px;">
-          <option value="true"> {% trans "Origin" %} </option>
-          <option value="false"> {% trans "Destination" %} </option>
-        </select>
-        {% trans "of the reference flow defined above." %} <br>
-        {% trans "The" %}
-        <div name="origdestlabel" style="display: inline;"></div>
-        {% trans "activity of the reference flow is replaced with the activity" %}
-        <select name="new-target" style="width: 100px;"></select>
-        <br>
-        <br>
-        {% blocktrans %}
-        When this solution is implemented by a user in the workshop mode, a specific actor with target activity above
-        has to be selected on the map. Please phrase the request the user should read above the respective map
-        (e.g. “Please select the recycling facility the collected material goes to.”)
-        {% endblocktrans %}
-        <textarea name="map-request" rows="2" style="width: 100%; resize: vertical;"></textarea>
-      </div>
-      <br>
-      <p style="max-width: 800px;">
-        {% blocktrans %}
-        The volume of the new flow is defined on the next tab (“New amount”).
-        For enabling the GDSE to model indirect changes of other flows derived from the new flow,
-        a list of all possibly affected flows (upstream and downstream) has to be defined in the
-        tab “Possibly affected flows”.
-        {% endblocktrans %}
-      </p>
     </div>
   </div>
-  <div class="tab-pane fade in" id="affected-flows-tab">
-    <p style="max-width: 800px;">
-      {% blocktrans %}
-      Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
-      Please include flows "downstream" as much as "upstream".
-      {% endblocktrans %}
-    </p>
-    <p style="max-width: 800px;">
-      {% blocktrans %}
-      Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and
-      therefore not change their volume. All flow definitions in this list have to be on activity level.
-      {% endblocktrans %}
-    </p>
-    <div id="affected-flows"></div>
-    <button class="btn btn-primary add square">
-      <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
-    </button>
-  </div>
-  <div class="tab-pane fade in" id="formula-tab">
-    <div class="modified-flow">
-     {% trans "Do you want to refer to a user question for calculating the flow modification?" %}
-    </div>
-    <div class="new-flow">
-     {% trans "Do you want to refer to a user question for calculating the amount of the new flow?" %}
-    </div>
-    <select name='has-question' class="form-control" style="width: 100px; display: inline-block;">
-        <option value="true"> {% trans "yes" %} </option>
-        <option value="false"> {% trans "no" %} </option>
-    </select>
-    <br>
-    <div class="row with-question">
-      <label>{% trans "Question" %}</label>
-      <select name='question' class="form-control"></select>
-    </div>
-    <div class="no-question">
-      <div class="modified-flow">
-        {% trans "Do you want to define the flow modification as an absolute or relative change?" %}
+</div>
+<div id="schemes-modal" class="modal fade" role="dialog" style="z-index: 10000;">
+  <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h3 class="modal-title">{% trans "Select a scheme for the solution part"%}</h3>
       </div>
-      <div class="new-flow">
-        {% trans "Do you want to define the amount of the new flow as an absolute or as a relative change of the amount of the reference flow?" %}
+      <div class="modal-body row">
+        <div class="col-md-6">
+          <div class="row">
+            <div class='scheme-preview selected noselect' data-scheme='modification' data-text='{% trans "The mass of each flow from Actors of Activity A1 in the Implementation Area I1 to Actors of Activity A2 in the implementation Area I2 is multiplied by factor F." %}'>
+              <label>{% trans "Modification" %}</label>
+              <img src="{{STATIC_URL}}img/schemes/modification.png">
+            </div>
+            <div class='scheme-preview noselect' data-scheme='shiftorigin' data-text='{% trans "The mass of each flow from Actors of the Activity A1 in the Implementation Area I1 to Actors of Activity A2 in the Implementation Area I2 will be multiplied by (1 - F). For each of these reduced flows a new flow with the respective mass multiplied by the Factor F will be created from the closest Actor of Activity A3 in the implementation area I3 to the respective Actor of the Activity A2 in the Implementation Area I2." %}'>
+              <label>{% trans "Shift Origin" %}</label>
+              <img src="{{STATIC_URL}}img/schemes/shift-origin.png">
+            </div>
+            <div class='scheme-preview noselect' data-scheme='shiftdestination' data-text='{% trans "The mass of each flow from Actors of the Activity A1 in the Implementation Area I1 to Actors of Activity A2 in the Implementation Area I2 will be multiplied by (1 - F). For each of these reduced flows a new flow with the respective mass multiplied by the Factor F will be created from each Actor of Activity A1 in the implementation area I1 to the closest Actor of the Activity A3 in the Implementation Area I3." %}'>
+              <label>{% trans "Shift Destination" %}</label>
+              <img src="{{STATIC_URL}}img/schemes/shift-destination.png">
+            </div>
+          </div>
+          <div class="row">
+            <div class='scheme-preview noselect' data-scheme='new' data-text='{% trans "For each Actor of Activity A1 in the Implementation Area I1 a new flow with the mass M is created to the closest Actor of the Activity A2 in the Implementation Area I2." %}'>
+              <label>{% trans "New Flow" %}</label>
+              <img src="{{STATIC_URL}}img/schemes/new.png">
+            </div>
+            <div class='scheme-preview noselect' data-scheme='prepend' data-text='{% trans "For each Actor of Activity A1 in the Implementation Area I1 that has flows to Actors of Activity A2 in the Implementation Area I2, a new Flow is created to the closest Actor of Activity A3 in the Implementation Area I3. The amount of this new Flow equals the sum of all the respective flows from the Actor of Activity A1 in the Implementation Area I1 to an Actor of Activity A2 in the Implementation Area A2 multiplied by a factor F." %}'>
+              <label>{% trans "Prepend Flow" %}</label>
+              <img src="{{STATIC_URL}}img/schemes/prepend.png">
+            </div>
+            <div class='scheme-preview noselect' data-scheme='append' data-text='{% trans "For each Actor of Activity A2 in the Implementation Area I2 that has inflows from Actors of Activity A1 in the Implementation Area I1, a new Flow is created to the closest Actor of Activity A3 in the Implementation Area I3. The amount of this new Flow equals the sum of all the respective inflows to the Actor of Activity A2 in the Implementation Area I2 from an Actor of Activity A1 in the Implementation Area A1 multiplied by a factor F." %}'>
+              <label>{% trans "Append Flow" %}</label>
+              <img src="{{STATIC_URL}}img/schemes/append.png">
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h4 id="selected-scheme-title"></h4>
+          <div id='selected-scheme-description'></div>
+          <img id='selected-scheme-image'></img>
+        </div>
       </div>
-      <select name="is-absolute" class="form-control" style="width: 100px; display: inline-block;">
-        <option value="true"> {% trans "absolute" %} </option>
-        <option value="false"> {% trans "relative" %} </option>
-      </select>
-    </div>
-    <div class="row" style="margin-top: 15px; font-size: 1.2em;">
-      <div class="modified-flow"> {% trans "Flow amount with solution impact = Flow amount in status quo" %} </div>
-      <div class="new-flow"> {% trans "Amount of new flow = Amount of reference flow" %} </div>
-      <div class="is-absolute"> &nbsp;+&nbsp;{% trans "Delta" %}</div>
-      <div class="is-relative"> &nbsp;*&nbsp;{% trans "Factor" %}</div>
-    </div>
-    <div class="row" style="font-size: 1.2em;">
-      <div class="is-absolute"> {% trans "Delta" %} </div>
-      <div class="is-relative"> {% trans "Factor" %} </div>
-      &nbsp;=&nbsp;
-      <div class='with-question'>
-        <input name='a' type="number" step="0.0001" style="display: inline-block; width: 150px;">
-        &nbsp;*&nbsp;{% trans "answer to selected question" %}&nbsp;+&nbsp;
+      <div class="modal-footer">
+        <button type="button" class="btn btn-basic cancel" data-dismiss="modal">{% trans "Cancel" %}</button>
+        <button type="button" class="btn btn-primary confirm" data-dismiss="modal">OK</button>
       </div>
-      <input name='b' type="number" step="0.0001" style="display: inline-block; width: 150px;">
-    </div>
-    <div class="row">
     </div>
   </div>
 </div>
@@ -453,6 +323,28 @@
 <div id="solution-modal" class="modal fade" role="dialog" style="z-index: 10000;"></div>
 </script>
 
+<!-- possible implementation area -->
+<script type="text/template" id="area-template">
+<label>{% trans "Question (as asked when drawing implementation area in workshop mode)" %} </label>
+<input class="form-control" name="question">
+<div class="row">
+  <div class="col-md-6">
+    <h4>{% trans "Map View" %}</h4>
+    <div name="area-map" style="min-height: 450px;"></div>
+  </div>
+  <div class="col-md-6">
+    <h4>{% trans "Possible Implementation Area as GeoJSON" %}</h4>
+    <div class="row">
+      <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
+    </div>
+    <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
+      {% trans "Validate and show" %}
+      <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
+    </button>
+  </div>
+</div>
+</script>
+
 <!-- modal for editing/viewing a solution and its charts -->
 <script type="text/template" id="view-solution-template">
 <div class="modal-dialog modal-lg" style="width: 80%; -webkit-transform: none; transform: none;">
@@ -467,7 +359,9 @@
         <ul class="nav nav-tabs">
           <li class="active"><a data-toggle="tab" href="#description-tab">{% trans "Description" %}</a></li>
           <li><a data-toggle="tab" href="#ce-diagrams-tab">{% trans "CE-Diagrams" %}</a></li>
+          <% if(activitiesSrc) { %>
           <li><a data-toggle="tab" href="#activities-tab">{% trans "Activities" %}</a></li>
+          <% } %>
         </ul>
         <div class="tab-content">
           <div class="tab-pane fade in active" id="description-tab">
