@@ -31,6 +31,7 @@
 {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{STATIC_URL}}css/strategy.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
 <div class="tab-content">
@@ -70,6 +71,7 @@
 </div>
 
 {% include "strategy/solutions.html" %}
+{% include "strategy/solution-parts.html" %}
 {% if request.session.mode != 1 %}
 {% include "strategy/strategy.html" %}
 {% include "studyarea/maps.html" %}

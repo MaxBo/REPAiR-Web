@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point, MultiPoint, LineString
 from repair.tests.test import BasicModelPermissionTest, BasicModelReadTest
 
 from repair.apps.changes.models import (ImplementationQuantity, SolutionPart,
-                                        ActorInSolutionPart, AffectedFlow)
+                                        AffectedFlow)
 from repair.apps.asmfa.models import Actor, Activity, Material
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 
@@ -24,6 +24,7 @@ from repair.apps.statusquo.models import SpatialChoice
 
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
+'''
 
 
 class ModelSolutionInStrategy(TestCase):
@@ -85,25 +86,6 @@ class ModelSolutionInStrategy(TestCase):
         quantities = ImplementationQuantity.objects.all()
         assert quantities.count() == 2
 
-    def test02_target_actor(self):
-        """Test the new solution strategy"""
-
-        strategy = StrategyFactory()
-        solution_in_strategy = SolutionInStrategyFactory(
-            solution=self.solution,
-            strategy=strategy)
-
-        new_flow_parts = SolutionPart.objects.filter(
-            solution=self.solution, implements_new_flow=True)
-
-        for part in new_flow_parts:
-            target = part.new_target_activity
-            actors = Actor.objects.filter(activity=target)
-            target_actor = ActorInSolutionPart(
-                solutionpart=part, actor=actors.first(),
-                implementation=solution_in_strategy
-            )
-            # ToDo: test sth meaningful here?
 
 class BreadToBeerSolution(GenerateBreadToBeerData):
     """Define the Solution for the Bread to Beer case"""
@@ -177,9 +159,6 @@ class BreadToBeerSolutionTest(BreadToBeerSolution):
             solution=self.solution, strategy=strategy,
             geom=GeometryCollection(implementation_area))
 
-        ActorInSolutionPart(solutionpart=self.bread_to_brewery,
-                            actor=self.brewery_1,
-                            implementation=implementation)
         answer = ImplementationQuantity(question=self.beer_question,
                                         implementation=implementation,
                                         value=1)
@@ -569,17 +548,6 @@ class ApplyStrategyTest(TestCase):
             solution=self.solution, strategy=strategy,
             geom=GeometryCollection(implementation_area))
 
-        # pick a farm (Note CF: necessary?)
-        # Note: too lazy to make factories for everything, model does the same
-        ActorInSolutionPart(solutionpart=self.new_fungus_insulation,
-                            actor=self.fungus_farm_1,
-                            implementation=implementation)
-
-        # pick a treatment facility for the fungus
-        ActorInSolutionPart(solutionpart=self.new_building_disposal,
-                            actor=self.treatment_compost,
-                            implementation=implementation)
-
         # answer the question
         # Note CF: the diagram says 250 * 5 cubic meters, don't know what fungus
         # insulation weighs
@@ -635,3 +603,5 @@ class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
             solution__solution_category__id=self.solutioncategory,
             solution__solution_category__keyflow=self.kic,
             id=self.solution_strategy)
+
+'''

@@ -222,7 +222,9 @@ var FlowTargetControlView = BaseView.extend(
                 strategy: _this.strategy.id
             },
             success: render,
-            error: _this.onError
+            error: function(){
+                loader.deactivate();
+            }
         })
 
         return row;
