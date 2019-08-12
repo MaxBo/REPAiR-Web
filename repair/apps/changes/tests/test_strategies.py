@@ -24,6 +24,7 @@ from repair.apps.statusquo.models import SpatialChoice
 
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
+'''
 
 
 class ModelSolutionInStrategy(TestCase):
@@ -602,3 +603,5 @@ class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
             solution__solution_category__id=self.solutioncategory,
             solution__solution_category__keyflow=self.kic,
             id=self.solution_strategy)
+
+'''

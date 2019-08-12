@@ -126,7 +126,9 @@
     <br>
     {% trans "Do you want to refer to a user question for calculating the change of the mass?" %} <br>
     <input type="radio" name="has-question" value="true" checked> {% trans "yes" %}
-    <select class="row with-question" name='question' style="margin-left: 20px; min-width: 200px;"></select>
+    <select class="with-question" name='question' style="margin-left: 20px; min-width: 200px;"></select>
+    <div class="with-question is-absolute"> {% trans "(absolute question)" %} </div>
+    <div class="with-question is-relative"> {% trans "(relative question)" %} </div>
     <br>
     <input type="radio" name="has-question" value="false"> {% trans "no" %} <br>
     <br>

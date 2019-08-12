@@ -25,6 +25,7 @@ from repair.apps.login.factories import UserInCasestudyFactory
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 from django.db.models.functions import Coalesce
 
+'''
 class GraphTest(LoginTestCase, APITestCase):
 
     @classmethod
@@ -220,7 +221,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
 
     def test_graph(self):
-        return
         self.graph = StrategyGraph(self.strategy, tag='test')
         # delete stored graph file to test creation of data
         self.graph.remove()
@@ -278,3 +278,4 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         )
         assert len(strategyflows) == 1
         assert strategyflows[0].amount == 0.0
+'''
