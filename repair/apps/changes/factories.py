@@ -68,7 +68,7 @@ class SolutionPartFactory(DjangoModelFactory):
     flow_changes = None
     priority = 0
 
-    question = factory.SubFactory(ImplementationQuestionFactory)
+    question = None
     a = 0
     b = 1
 

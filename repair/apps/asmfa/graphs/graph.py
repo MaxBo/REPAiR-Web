@@ -6,7 +6,7 @@ from repair.apps.changes.models import (SolutionInStrategy,
                                         AffectedFlow)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials
-from repair.apps.asmfa.graphs.graphwalker import GraphWalker, Formula
+from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 try:
     import graph_tool as gt
     from graph_tool import stats as gt_stats
@@ -24,6 +24,107 @@ from datetime import datetime
 from itertools import chain
 
 import time
+
+
+class Formula:
+    def __init__(self, a=1, b=0, q=0, is_absolute=False):
+        '''
+        linear change calculation
+
+        absolute change:
+        v’ = v + delta
+        delta = a * q + b
+
+        relative change:
+        v’ = v * factor
+        factor = a * q + b
+
+        Parameters
+        ----------
+        a: float, optional
+           by default 1
+        q: float, optional
+           quantity (user input), by default 0
+        b: float, optional
+           by default 0
+        is_absolute: bool, optional
+           absolute change, by default False
+        '''
+        self.a = a
+        self.b = b
+        self.q = q
+        self.is_absolute = is_absolute
+
+    @classmethod
+    def from_implementation(self, solution_part, implementation):
+        question = solution_part.question
+        is_absolute = solution_part.is_absolute
+        a = solution_part.a
+        b = solution_part.b
+        q = 0
+
+        if question:
+            quantity = ImplementationQuantity.objects.get(
+                question=solution_part.question,
+                implementation=implementation)
+            # question overrides is_absolute of part
+            is_absolute = question.is_absolute
+            q = quantity.value
+
+        formula = Formula(a=a, b=b, q=q, is_absolute=is_absolute)
+
+        return formula
+
+    def calculate(self, v):
+        '''
+        Parameters
+        ----------
+        v: float,
+           value to apply formula to
+
+        Returns
+        -------
+        v': float
+            calculated value
+        '''
+        return self.calculate_factor(v) * v
+
+    def calculate_delta(self, v):
+        '''
+        Parameters
+        ----------
+        v: float,
+           value to apply formula to
+
+        Returns
+        -------
+        delta: float
+           signed delta
+        '''
+        return self.calculate(v) - v
+
+    def calculate_factor(self, v=None):
+        '''
+        Parameters
+        ----------
+        v: float, optional
+           needed for calculation of a
+
+        Returns
+        -------
+        factor: float
+            calculated factor
+        '''
+        if self.is_absolute:
+            if v is None:
+                raise ValueError('Value needed for calculation of a factor for '
+                                 'absolute changes')
+            delta = self.a * self.q + self.b
+            v_ = v + delta
+            factor = v_ / v
+        else:
+            factor = self.a * self.q + self.b
+        return factor
 
 
 class BaseGraph:
@@ -516,16 +617,3 @@ class StrategyGraph(BaseGraph):
                 strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
-
-    def to_queryset(self):
-        if not self.graph:
-            self.load()
-
-        for e in self.graph.edges():
-            flow = {}
-            flow['id'] = self.graph.ep.id[e]
-            flow['source'] = self.graph.vp.id[e.source()]
-            flow['target'] = self.graph.vp.id[e.target()]
-            flow['material'] = self.graph.ep.material[e]
-            flow['amount'] = self.graph.ep.amount[e]
-            flows.append(flow)
