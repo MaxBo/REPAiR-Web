@@ -206,12 +206,16 @@
         <div class="col-md-8">
           <h3> {% trans "Where were the solutions applied?" %} </h3>
           <select name="solutions" class="form-control">
-            <option disabled selected>{% trans "Select a solution" %}</option>
+            <option disabled selected>{% trans "Select a possible implementation area" %}</option>
             <% solutions.forEach(function(solution){ %>
-              <% if (solution.get("implementation_count")) { %>
-              <option value="<%= solution.id %>"> <%= solution.get("name") %>&nbsp;(<%= solution.get("implementation_count") %>&nbsp;{% trans "implementations" %}) </option>
+              <% if (solution.areas.length > 0) { %>
+              <optgroup label="<%= solution.get('name') %>">
+                <% solution.areas.forEach(function(area){ %>
+                <option data-solution="<%= solution.id %>" value="<%= area.id %>"> <%= area.get('question') %></option>
+                <% }) %>
+              </optgroup>
               <% } %>
-            <% }); %>
+            <% }) %>
           </select>
           <div class="row">
             <div id='strategies-map'>
