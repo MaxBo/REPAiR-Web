@@ -11,10 +11,6 @@ class BaseView(TemplateView):
     def get(self, request, *args, **kwargs):
         if 'casestudy' not in request.session:
             request.session['casestudy'] = None
-        if 'mode' in request.GET:
-            mode = request.GET.get('mode')
-            mode = 1 if mode == 'setup' else 0
-            request.session['mode'] = mode
         if 'mode' not in request.session:
             request.session['mode'] = 0
 
@@ -27,16 +23,11 @@ class BaseView(TemplateView):
         except ObjectDoesNotExist:
             casestudy = None
 
-        if 'mode' in self.request.GET:
-            mode = self.request.GET.get('mode')
-            mode = 1 if mode == 'setup' else 0
-            self.request.session['mode'] = mode
         mode = self.request.session.get('mode', 0)
 
         kwargs['mode'] = self.modes[mode]
         kwargs['casestudy'] = casestudy
         kwargs['casestudies'] = self.casestudies()
-        kwargs['setup_mode_permitted'] = self.setup_mode_permitted()
         kwargs['data_entry_permitted'] = self.data_entry_permitted()
         kwargs['conclusions_permitted'] = self.conclusions_permitted()
         return kwargs
@@ -81,6 +72,11 @@ class ModeView(BaseView):
             return self.render_setup(request)
         else:
             return self.render_workshop(request)
+
+    def get_context_data(self, **kwargs):
+        kwargs = super().get_context_data(**kwargs)
+        kwargs['setup_mode_permitted'] = self.setup_mode_permitted()
+        return kwargs
 
     def render_setup(self, request, *args, **kwargs):
         raise NotImplementedError
