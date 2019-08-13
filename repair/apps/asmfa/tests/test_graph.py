@@ -1,8 +1,11 @@
 import os
 from test_plus import APITestCase
+from django.contrib.gis.geos import Polygon, Point, GeometryCollection
+from django.db.models.functions import Coalesce
+from django.contrib.gis.geos import Polygon, MultiPolygon
+
 from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
 from repair.tests.test import LoginTestCase, AdminAreaTest
-
 from repair.apps.asmfa.factories import (ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
@@ -21,17 +24,18 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            FlowReferenceFactory,
                                            ImplementationQuestionFactory,
                                            ImplementationQuantityFactory,
-                                           KeyflowInCasestudyFactory
+                                           KeyflowInCasestudyFactory,
+                                           PossibleImplementationAreaFactory
                                         )
 from repair.apps.asmfa.models import (Actor, FractionFlow, StrategyFractionFlow,
-                                      Activity, Material)
+                                      Activity, Material, KeyflowInCasestudy,
+                                      CaseStudy)
 from repair.apps.changes.models import (Solution, Strategy,
                                         ImplementationQuantity,
-                                        SolutionInStrategy, Scheme)
+                                        SolutionInStrategy, Scheme,
+                                        ImplementationArea)
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
-from django.contrib.gis.geos import Polygon, Point, GeometryCollection
-from django.db.models.functions import Coalesce
 
 
 class GraphTest(LoginTestCase, APITestCase):
@@ -75,7 +79,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.keyflow = KeyflowInCasestudyFactory()
+        cls.casestudy = CaseStudy.objects.get(name='SandboxCity')
+        cls.keyflow = KeyflowInCasestudy.objects.get(
+            casestudy=cls.casestudy,
+            keyflow__name='Food Waste')
         cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
         print('building basegraph')
         cls.basegraph.build()
@@ -131,9 +138,19 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         treatment = Activity.objects.get(nace='E-3821')
         food_waste = Material.objects.get(name='Food Waste')
 
+        possible_impl_area = PossibleImplementationAreaFactory(
+            solution=self.solution,
+            # should cover netherlands
+            geom=MultiPolygon(
+                Polygon(((3, 51), (3, 54),
+                        (7.5, 54), (7.5, 51), (3, 51)))),
+        )
+
         implementation_flow = FlowReferenceFactory(
             origin_activity=households,
+            origin_area=possible_impl_area,
             destination_activity=collection,
+            destination_area=possible_impl_area,
             material=food_waste
         )
 
@@ -143,15 +160,32 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             question=None,
             flow_reference=implementation_flow,
             scheme=scheme,
+            is_absolute=False,
             a = 0,
             b = 2
         )
 
-        strategy = StrategyFactory(keyflow=self.keyflow)
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
 
-        sg = StrategyGraph(strategy, self.basegraph.tag)
+        # set implementation area
+        implementation_area = ImplementationArea.objects.get(
+            implementation=implementation,
+            possible_implementation_area=possible_impl_area
+        )
+        # same as poss. impl. area, just for testing
+        implementation_area.geom = MultiPolygon(
+            Polygon(((3, 51), (3, 54),
+                     (7.5, 54), (7.5, 51), (3, 51))))
+        implementation_area.save()
 
-        strategy.build()
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
 
         original_flows = FractionFlow.objects.filter(
             origin__activity=households,

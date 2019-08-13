@@ -3,7 +3,8 @@ from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       StrategyFractionFlow)
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
-                                        AffectedFlow)
+                                        AffectedFlow, Scheme,
+                                        ImplementationArea)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
@@ -296,43 +297,6 @@ class StrategyGraph(BaseGraph):
         self.graph = gt.load_graph(self.filename)
         return self.graph
 
-    def mock_changes(self):
-        '''make some random changes for testing'''
-        flows = FractionFlow.objects.filter(
-            keyflow=self.keyflow, destination__isnull=False)
-        flow_ids = np.array(flows.values_list('id', flat=True))
-        # pick 30% of the flows for change of amount
-        choice = np.random.choice(
-            a=[False, True], size=len(flow_ids), p=[0.7, 0.3])
-        picked_flows = flows.filter(id__in=flow_ids[choice])
-        strat_flows = []
-        for flow in picked_flows:
-            # vary between -25% and +25%
-            new_amount = flow.amount * (1 + (np.random.random() / 2 - 0.25))
-            strat_flow = StrategyFractionFlow(
-                strategy=self.strategy, amount=new_amount, fractionflow=flow)
-            strat_flows.append(strat_flow)
-        StrategyFractionFlow.objects.bulk_create(strat_flows)
-
-        # pick 5% of flows as base for new flows
-        choice = np.random.choice(
-            a=[False, True], size=len(flow_ids), p=[0.95, 0.05])
-        picked_flows = flows.filter(id__in=flow_ids[choice])
-        actors = Actor.objects.filter(
-            activity__activitygroup__keyflow=self.keyflow)
-        actor_ids = np.array(actors.values_list('id', flat=True))
-        picked_actor_ids = np.random.choice(a=actor_ids, size=len(picked_flows))
-        for i, flow in enumerate(picked_flows):
-            change_origin = np.random.randint(2)
-            new_target = actors.get(id=picked_actor_ids[i])
-            # unset id
-            flow.pk = None
-            flow.strategy = self.strategy
-            flow.origin = flow.origin if not change_origin else new_target
-            flow.destination = flow.destination if change_origin else new_target
-            flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
-            flow.save()
-
     def create_new_flows(self, implementation_flows, target_actor,
                          graph, formula, material=None, keep_origin=True):
         '''
@@ -424,7 +388,43 @@ class StrategyGraph(BaseGraph):
         modified = StrategyFractionFlow.objects.filter(strategy=self.strategy)
         modified.delete()
 
-    def _get_flows(self, solution_part, implementation):
+    def _get_referenced_flows(self, flow_reference, implementation):
+        '''
+        return flows on actor level filtered by flow_reference attributes
+        and implementation areas
+        '''
+        #impl_materials = descend_materials(
+            #[flow_reference.material])
+
+        origins = Actor.objects.filter(
+            activity=flow_reference.origin_activity)
+        # filter by origin area
+        if flow_reference.origin_area:
+            # implementation area
+            implementation_area = flow_reference.origin_area\
+                .implementationarea_set.get(implementation=implementation)
+            # if user didn't draw sth. take poss. impl. area instead
+            geom = implementation_area.geom or flow_reference.origin_area.geom
+            origins = origins.filter(
+                        administrative_location__geom__intersects=geom)
+        destinations = Actor.objects.filter(
+            activity=flow_reference.destination_activity)
+        # filter by destination area
+        if flow_reference.destination_area:
+            implementation_area = flow_reference.destination_area\
+                .implementationarea_set.get(implementation=implementation)
+            geom = implementation_area.geom or \
+                flow_reference.destination_area.geom
+            destinations = destinations.filter(
+                        administrative_location__geom__intersects=geom)
+        reference_flows = FractionFlow.objects.filter(
+            origin__in=origins,
+            destination__in=destinations,
+            material=flow_reference.material
+        )
+        return reference_flows
+
+    def _get_affected_flows(self, solution_part):
         '''
         filters flows by definitions in solution part
         return tuple (implementation flows, affected flows)
@@ -432,12 +432,6 @@ class StrategyGraph(BaseGraph):
         # set the AffectedFlow include property to true
         affectedflows = AffectedFlow.objects.filter(
                         solution_part=solution_part)
-        solution = solution_part.solution
-        # if no area is drawn by user take possible area
-        implementation_area = (
-            implementation.geom or
-            solution.possible_implementation_area
-        )
         # get FractionFlows related to AffectedFlow
         affected_flows = FractionFlow.objects.none()
         for af in affectedflows:
@@ -447,40 +441,7 @@ class StrategyGraph(BaseGraph):
                     origin__activity=af.origin_activity,
                     destination__activity=af.destination_activity,
                     material__in=materials)
-        impl_materials = descend_materials(
-            [solution_part.implementation_flow_material])
-        # there might be no implementation area defined for the solution
-        if not implementation_area:
-            # implementation flows
-            implementation_flows = FractionFlow.objects.filter(
-                origin__activity=
-                solution_part.implementation_flow_origin_activity,
-                destination__activity=
-                solution_part.implementation_flow_destination_activity,
-                material__in=impl_materials
-            )
-        else:
-            origins = Actor.objects.filter(
-                activity=solution_part.implementation_flow_origin_activity)
-            destinations = Actor.objects.filter(
-                activity=solution_part.implementation_flow_destination_activity)
-            spatial_choice = solution_part.implementation_flow_spatial_application
-            # iterate collection
-            for geom in implementation_area:
-                if spatial_choice in [SpatialChoice.BOTH, SpatialChoice.ORIGIN]:
-                    origins = origins.filter(
-                        administrative_location__geom__intersects=geom)
-                if spatial_choice in [SpatialChoice.BOTH,
-                                      SpatialChoice.DESTINATION]:
-                    destinations = destinations.filter(
-                        administrative_location__geom__intersects=geom)
-            implementation_flows = FractionFlow.objects.filter(
-                origin__in=origins,
-                destination__in=destinations,
-                material__in=impl_materials
-            )
-
-        return implementation_flows, affected_flows
+        return affectedflows
 
     def _include(self, graph, flows, do_include=True):
         '''
@@ -549,28 +510,43 @@ class StrategyGraph(BaseGraph):
         # get the solutions in this strategy and order them by priority
         solutions_in_strategy = SolutionInStrategy.objects.filter(
             strategy=self.strategy).order_by('priority')
-        for solution_in_strategy in solutions_in_strategy.order_by('priority'):
-            solution = solution_in_strategy.solution
+        for implementation in solutions_in_strategy.order_by('priority'):
+            solution = implementation.solution
             parts = solution.solution_parts.all()
             # get the solution parts using the reverse relation
             for solution_part in parts.order_by('priority'):
+                deltas = []
                 formula = self._build_formula(
-                    solution_part, solution_in_strategy)
+                    solution_part, implementation)
 
-                implementation_flows, affected_flows = \
-                    self._get_flows(solution_part, solution_in_strategy)
+                if solution_part.scheme == Scheme.MODIFICATION:
+                    reference = solution_part.flow_reference
+                    implementation_flows = self._get_referenced_flows(
+                        reference, implementation)
+                    for flow in implementation_flows:
+                        delta = formula.calculate_delta(flow.amount)
+                        if formula.is_absolute:
+                            # equal distribution or distribution depending on
+                            # previous share on total amount?
+                            delta /= len(implementation_flows)
+                            # alternatively sth like that
+                            # delta *= flow.amount / total
+                        deltas.append(delta)
+                else:
+                    continue # only mod implemented for now
 
-                if solution_part.implements_new_flow:
-                    target_activity = solution_part.new_target_activity
-                    keep_origin = solution_part.keep_origin
-                    # ToDo: remove picking, ActorInSolutionPart already removed
-                    target_actor = Actor.objects.first()
-                    # the new flows will be the ones affected by
-                    # calculation first
-                    implementation_flows = self.create_new_flows(
-                        implementation_flows, target_actor,
-                        g, formula, keep_origin=keep_origin)
+                #if solution_part.scheme == Scheme.SHIFTDESTINATION:
+                    #target_activity = solution_part.new_target_activity
+                    #keep_origin = solution_part.keep_origin
+                    ## ToDo: remove picking, ActorInSolutionPart already removed
+                    #target_actor = Actor.objects.first()
+                    ## the new flows will be the ones affected by
+                    ## calculation first
+                    #implementation_flows = self.create_new_flows(
+                        #implementation_flows, target_actor,
+                        #g, formula, keep_origin=keep_origin)
 
+                affected_flows = self._get_affected_flows(solution_part)
                 # exclude all edges
                 self._reset_include(g, do_include=False)
                 # include affected flows
@@ -582,7 +558,7 @@ class StrategyGraph(BaseGraph):
 
                 # ToDo: SolutionInStrategy geometry for filtering?
                 gw = GraphWalker(g)
-                g = gw.calculate(impl_edges, formula)
+                g = gw.calculate(impl_edges, deltas)
 
         self.graph = g
         # save the strategy graph to a file
@@ -613,7 +589,7 @@ class StrategyGraph(BaseGraph):
                 strat_flow = StrategyFractionFlow(
                     strategy=self.strategy, amount=new_amount,
                     fractionflow=flow,
-                    material_id=flow.material)
+                    material_id=flow.material.id)
                 strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
