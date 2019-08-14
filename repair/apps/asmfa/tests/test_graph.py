@@ -181,7 +181,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         # set implementation area
         implementation_area = ImplementationArea.objects.get(
             implementation=implementation,
-            possible_implementation_area=possible_impl_area
+            possible_implementation_area=self.possible_impl_area
         )
 
         # same as poss. impl. area, just for testing (you could also completely

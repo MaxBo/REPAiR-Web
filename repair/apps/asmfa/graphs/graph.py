@@ -113,7 +113,7 @@ class Formula:
             if v is None:
                 raise ValueError('Value needed for calculation the delta for '
                                  'relative changes')
-            delta = v * self.calculate_factor(v)
+            delta = v * self.calculate_factor(v) - v
         return delta
 
     def calculate_factor(self, v):
