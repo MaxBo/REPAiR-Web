@@ -66,15 +66,15 @@ class GraphTest(LoginTestCase, APITestCase):
 class StrategyGraphTest(LoginTestCase, APITestCase):
     fixtures = ['peelpioneer_data']
 
-    fractionflows_count = 26
+    #fractionflows_count = 26
 
-    #ToDo: set correct values for testing
-    origin_actor_BvDid = 'SBC0011'
-    new_destination_actor_BvDid = 'SBC0009'
-    materialname = "Food Waste"
-    fractionflows_count_for_test_actor = 2
-    amount_before_shift = 5
-    amount_after_shift = 4.75
+    ##ToDo: set correct values for testing
+    #origin_actor_BvDid = 'SBC0011'
+    #new_destination_actor_BvDid = 'SBC0009'
+    #materialname = "Food Waste"
+    #fractionflows_count_for_test_actor = 2
+    #amount_before_shift = 5
+    #amount_after_shift = 4.75
 
     @classmethod
     def setUpClass(cls):
@@ -88,9 +88,22 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         print('building basegraph')
         cls.basegraph.build()
 
+        cls.households = Activity.objects.get(nace='V-0000')
+        cls.collection = Activity.objects.get(nace='E-3811')
+        cls.treatment = Activity.objects.get(nace='E-3821')
+        cls.food_waste = Material.objects.get(name='Food Waste')
+
     def setUp(self):
         super().setUp()
         self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
+
+        self.possible_impl_area = PossibleImplementationAreaFactory(
+            solution=self.solution,
+            # should cover netherlands
+            geom=MultiPolygon(
+                Polygon(((3, 51), (3, 54),
+                        (7.5, 54), (7.5, 51), (3, 51)))),
+        )
     '''
     def test_graph(self):
         self.strategy = Strategy.objects.get(pk=88)
@@ -140,20 +153,12 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         collection = Activity.objects.get(nace='E-3811')
         food_waste = Material.objects.get(name='Food Waste')
 
-        possible_impl_area = PossibleImplementationAreaFactory(
-            solution=self.solution,
-            # should cover netherlands
-            geom=MultiPolygon(
-                Polygon(((3, 51), (3, 54),
-                        (7.5, 54), (7.5, 51), (3, 51)))),
-        )
-
         implementation_flow = FlowReferenceFactory(
-            origin_activity=households,
-            origin_area=possible_impl_area,
-            destination_activity=collection,
-            destination_area=possible_impl_area,
-            material=food_waste
+            origin_activity=self.households,
+            origin_area=self.possible_impl_area,
+            destination_activity=self.collection,
+            destination_area=self.possible_impl_area,
+            material=self.food_waste
         )
 
         # this should multiply the flow amounts by factor
@@ -167,6 +172,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             b = factor
         )
 
+        # create the implementation along with the strategy
         implementation = SolutionInStrategyFactory(
             strategy__keyflow=self.keyflow,
             solution=self.solution
@@ -177,7 +183,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             implementation=implementation,
             possible_implementation_area=possible_impl_area
         )
-        # same as poss. impl. area, just for testing
+
+        # same as poss. impl. area, just for testing (you could also completely
+        # skip the implementation area, possible impl. area is sufficient
+        # for spatial filtering)
         implementation_area.geom = MultiPolygon(
             Polygon(((3, 51), (3, 54),
                      (7.5, 54), (7.5, 51), (3, 51))))
@@ -191,20 +200,20 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         # validate outcome
 
-        original_flows = FractionFlow.objects.filter(
-            origin__activity=households,
-            destination__activity=collection,
-            material=food_waste
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste
         )
 
         changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=original_flows)
+            fractionflow__in=status_quo_flows)
 
         # the origin flows are all in the netherlands
         # and impl. area covers all of the netherlands -> all should be changed
-        assert len(original_flows) == len(changes)
+        assert len(status_quo_flows) == len(changes)
 
-        old_sum = original_flows.aggregate(
+        old_sum = status_quo_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
         new_sum = changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
@@ -216,31 +225,18 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     def test_shift_destination(self):
         scheme = Scheme.SHIFTDESTINATION
 
-        households = Activity.objects.get(nace='V-0000')
-        collection = Activity.objects.get(nace='E-3811')
-        treatment = Activity.objects.get(nace='E-3821')
-        food_waste = Material.objects.get(name='Food Waste')
-
         factor = 0.5
 
-        possible_impl_area = PossibleImplementationAreaFactory(
-            solution=self.solution,
-            # should cover netherlands
-            geom=MultiPolygon(
-                Polygon(((3, 51), (3, 54),
-                        (7.5, 54), (7.5, 51), (3, 51)))),
-        )
-
         implementation_flow = FlowReferenceFactory(
-            origin_activity=households,
-            destination_activity=collection,
-            material=food_waste
+            origin_activity=self.households,
+            destination_activity=self.collection,
+            material=self.food_waste
         )
 
         # shift from collection to treatment
         shift = FlowReferenceFactory(
-            destination_activity=treatment,
-            destination_area=possible_impl_area,
+            destination_activity=self.treatment,
+            destination_area=self.possible_impl_area,
         )
 
         # shift half of the amount
@@ -255,6 +251,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             b = factor
         )
 
+        # create the implementation along with the strategy
         implementation = SolutionInStrategyFactory(
             strategy__keyflow=self.keyflow,
             solution=self.solution
@@ -266,14 +263,14 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         sg.build()
 
-        original_flows = FractionFlow.objects.filter(
-            origin__activity=households,
-            destination__activity=collection,
-            material=food_waste,
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste,
             strategy__isnull=True
         )
         changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=original_flows)
+            fractionflow__in=status_quo_flows)
 
         new_flows = FractionFlow.objects.filter(
             origin__activity=households,
@@ -282,12 +279,48 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             strategy=implementation.strategy
         )
 
-        assert len(original_flows) ==  len(new_flows)
+        assert len(status_quo_flows) ==  len(new_flows)
 
         # original flows should have been reduced
-        old_sum = original_flows.aggregate(
+        old_sum = status_quo_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
         new_sum = changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
         assert new_sum == old_sum * factor
 
+        # ToDo: additional asserts, affected flows
+
+    def test_new_flows(self):
+        scheme = Scheme.NEW
+
+        new_flow = FlowReferenceFactory(
+            origin_activity=self.collection,
+            destination_activity=self.treatment,
+            material=self.food_waste
+        )
+
+        amount = 1000
+
+        new_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_changes=new_flow,
+            scheme=scheme,
+            is_absolute=True,
+            a = 0,
+            b = amount
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        # ToDo: asserts, affected flows

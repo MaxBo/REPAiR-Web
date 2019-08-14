@@ -15,7 +15,7 @@ from django.conf import settings
 import os
 from datetime import datetime
 from itertools import chain
-
+import itertools
 import time
 
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
@@ -62,6 +62,9 @@ class Formula:
     def from_implementation(self, solution_part, implementation):
         question = solution_part.question
         is_absolute = solution_part.is_absolute
+        if solution_part.scheme == Scheme.NEW and not is_absolute:
+            raise ValueError('new flows without reference can only be defined '
+                             'as absolute changes')
         a = solution_part.a
         b = solution_part.b
         q = 0
@@ -90,9 +93,9 @@ class Formula:
         v': float
             calculated value
         '''
-        return self.calculate_factor(v) * v
+        return self.calculate_delta(v) + v
 
-    def calculate_delta(self, v):
+    def calculate_delta(self, v=None):
         '''
         Parameters
         ----------
@@ -104,9 +107,16 @@ class Formula:
         delta: float
            signed delta
         '''
-        return self.calculate(v) - v
+        if self.is_absolute:
+            delta = self.a * self.q + self.b
+        else:
+            if v is None:
+                raise ValueError('Value needed for calculation the delta for '
+                                 'relative changes')
+            delta = v * self.calculate_factor(v)
+        return delta
 
-    def calculate_factor(self, v=None):
+    def calculate_factor(self, v):
         '''
         Parameters
         ----------
@@ -119,10 +129,7 @@ class Formula:
             calculated factor
         '''
         if self.is_absolute:
-            if v is None:
-                raise ValueError('Value needed for calculation of a factor for '
-                                 'absolute changes')
-            delta = self.a * self.q + self.b
+            delta = self.calculate_delta()
             v_ = v + delta
             factor = v_ / v
         else:
@@ -300,6 +307,9 @@ class StrategyGraph(BaseGraph):
         return self.graph
 
     def _modify_flows(self, flows, formula):
+        '''
+        modify flows with formula
+        '''
         deltas = []
         for flow in flows:
             delta = formula.calculate_delta(flow.amount)
@@ -307,21 +317,57 @@ class StrategyGraph(BaseGraph):
                 # equal distribution or distribution depending on
                 # previous share on total amount?
                 delta /= len(flows)
-                # alternatively sth like that
-                # delta *= flow.amount / total
+                # alternatively sth like that: delta *= flow.amount / total
             deltas.append(delta)
         return deltas
+
+    def _create_flows(self, origins, destinations, material, process, formula):
+        '''
+        create flows between all origin and destination actors
+        '''
+        total = formula.calculate_delta()
+        flow_count = len(origins) * len(destinations)
+        # equal distribution
+        amount = total / flow_count
+        deltas = [amount] * flow_count
+        new_flows = []
+        for origin, destination in itertools.product(origins, destinations):
+            new_flow = FractionFlow(
+                origin=origin, destination=destination,
+                material=material, process=process,
+                amount=0,
+                strategy=self.strategy,
+                keyflow=self.keyflow
+            )
+            new_flows.append(new_flow)
+        FractionFlow.objects.bulk_create(new_flows)
+
+        # ToDo: optimize (and/or make seperate function, almost the same
+        # in shift_flows())
+        for new_flow in new_flows:
+            # create the edge in the graph
+            o_vertex = util.find_vertex(
+                self.graph, self.graph.vp['id'], origin.id)[0]
+            d_vertex = util.find_vertex(
+                self.graph, self.graph.vp['id'], destination.id)[0]
+            new_edge = self.graph.add_edge(o_vertex, d_vertex)
+            self.graph.ep.id[new_edge] = new_flow.id
+            self.graph.ep.amount[new_edge] = 0
+            self.graph.ep.material[new_edge] = new_flow.material.id
+            self.graph.ep.process[new_edge] = \
+                new_flow.process.id if new_flow.process is not None else - 1
+
+        return new_flows, deltas
 
     def _shift_flows(self, referenced_flows, possible_new_targets,
                      formula, new_material=None, new_process=None,
                      shift_origin=True, reduce_reference=True):
         '''
-        creates new flows based on given implementation flows and redirects them
+        creates new flows based on given referenced flows and redirects them
         to target actor (either origin or destinations are changing)
-        implementation_flows stay untouched
-        graph is updated in place
-        Warning: side effects on implementation_flows
-        factors in place
+
+        referenced_flows are reduced by amout of new flows if reduce_reference
+        is True, otherwise they stay untouched
 
         returns flows to be changed in order of change and the deltas added to
         be to each flow in walker algorithm in same order as flows
@@ -524,7 +570,7 @@ class StrategyGraph(BaseGraph):
                 edges.append(e[0])
             else:
                 # shouldn't happen if graph is up to date
-                raise Exception(f'graph is missing flow {flow.name}')
+                raise Exception(f'graph is missing flow {flow.id}')
         return edges
 
     def build(self):
@@ -561,28 +607,37 @@ class StrategyGraph(BaseGraph):
                 formula = Formula.from_implementation(
                     solution_part, implementation)
 
-                # all but new flows reference existing flows
+                # all but new flows reference existing flows (there the
+                # implementation flows are the new ones themselves)
                 reference = solution_part.flow_reference
                 changes = solution_part.flow_changes
-                implementation_flows = self._get_referenced_flows(
-                    reference, implementation)
+                if solution_part.scheme != Scheme.NEW:
+                    implementation_flows = self._get_referenced_flows(
+                        reference, implementation)
 
                 if solution_part.scheme == Scheme.MODIFICATION:
                     deltas = self._modify_flows(implementation_flows, formula)
 
                 elif solution_part.scheme == Scheme.SHIFTDESTINATION:
-                    origins, destinations = self._get_actors(
+                    o, possible_destinations = self._get_actors(
                         changes, implementation)
                     implementation_flows, deltas = self._shift_flows(
-                        implementation_flows, destinations,
+                        implementation_flows, possible_destinations,
                         formula, shift_origin=False)
 
                 elif solution_part.scheme == Scheme.SHIFTORIGIN:
-                    origins, destinations = self._get_actors(
+                    possible_origins, d = self._get_actors(
                         changes, implementation)
                     implementation_flows, deltas = self._shift_flows(
-                        implementation_flows, origins,
+                        implementation_flows, possible_origins,
                         formula, shift_origin=True)
+
+                elif solution_part.scheme == Scheme.NEW:
+                    origins, destinations = self._get_actors(
+                        changes, implementation)
+                    implementation_flows, deltas = self._create_flows(
+                        origins, destinations, changes.material,
+                        changes.process, formula)
 
                 else:
                     raise ValueError(
