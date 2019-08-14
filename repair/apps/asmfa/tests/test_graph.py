@@ -3,6 +3,7 @@ from test_plus import APITestCase
 from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 from django.db.models.functions import Coalesce
 from django.contrib.gis.geos import Polygon, MultiPolygon
+from django.db.models import Sum
 
 from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
 from repair.tests.test import LoginTestCase, AdminAreaTest
@@ -133,9 +134,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     def test_modify(self):
         scheme = Scheme.MODIFICATION
 
+        factor = 2
+
         households = Activity.objects.get(nace='V-0000')
         collection = Activity.objects.get(nace='E-3811')
-        treatment = Activity.objects.get(nace='E-3821')
         food_waste = Material.objects.get(name='Food Waste')
 
         possible_impl_area = PossibleImplementationAreaFactory(
@@ -154,7 +156,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             material=food_waste
         )
 
-        # this should double the flows
+        # this should multiply the flow amounts by factor
         mod_part = SolutionPartFactory(
             solution=self.solution,
             question=None,
@@ -162,7 +164,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             scheme=scheme,
             is_absolute=False,
             a = 0,
-            b = 2
+            b = factor
         )
 
         implementation = SolutionInStrategyFactory(
@@ -187,6 +189,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         sg.build()
 
+        # validate outcome
+
         original_flows = FractionFlow.objects.filter(
             origin__activity=households,
             destination__activity=collection,
@@ -195,4 +199,95 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         changes = StrategyFractionFlow.objects.filter(
             fractionflow__in=original_flows)
+
+        # the origin flows are all in the netherlands
+        # and impl. area covers all of the netherlands -> all should be changed
+        assert len(original_flows) == len(changes)
+
+        old_sum = original_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_sum = changes.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert new_sum == old_sum * factor
+
+        # ToDo: affected flows and tests for changed new amounts
+
+    def test_shift_destination(self):
+        scheme = Scheme.SHIFTDESTINATION
+
+        households = Activity.objects.get(nace='V-0000')
+        collection = Activity.objects.get(nace='E-3811')
+        treatment = Activity.objects.get(nace='E-3821')
+        food_waste = Material.objects.get(name='Food Waste')
+
+        factor = 0.5
+
+        possible_impl_area = PossibleImplementationAreaFactory(
+            solution=self.solution,
+            # should cover netherlands
+            geom=MultiPolygon(
+                Polygon(((3, 51), (3, 54),
+                        (7.5, 54), (7.5, 51), (3, 51)))),
+        )
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=households,
+            destination_activity=collection,
+            material=food_waste
+        )
+
+        # shift from collection to treatment
+        shift = FlowReferenceFactory(
+            destination_activity=treatment,
+            destination_area=possible_impl_area,
+        )
+
+        # shift half of the amount
+        shift_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            flow_changes=shift,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        original_flows = FractionFlow.objects.filter(
+            origin__activity=households,
+            destination__activity=collection,
+            material=food_waste,
+            strategy__isnull=True
+        )
+        changes = StrategyFractionFlow.objects.filter(
+            fractionflow__in=original_flows)
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=households,
+            destination__activity=treatment,
+            material=food_waste,
+            strategy=implementation.strategy
+        )
+
+        assert len(original_flows) ==  len(new_flows)
+
+        # original flows should have been reduced
+        old_sum = original_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_sum = changes.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        assert new_sum == old_sum * factor
 
