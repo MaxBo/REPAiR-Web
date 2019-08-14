@@ -35,6 +35,11 @@
 .part-table{
     table-layout: fixed;
     max-width: 100%;
+    width: 100%;
+}
+
+.part-table .btn-group, .part-table select{
+    max-width: 100%;
 }
 
 .part-table th{
@@ -52,7 +57,6 @@
 
 #scheme-preview img{
     max-width: 100%;
-    max-height: 100px;
     cursor: pointer;
     border: 1px solid darkgrey;
 }

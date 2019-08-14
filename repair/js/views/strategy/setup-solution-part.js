@@ -288,11 +288,9 @@ var SolutionPartView = BaseView.extend(
         console.log(refFlow)
 
         this.model.set('flow_reference', refFlow);
-        console.log(refFlow)
-
 
         changeFlow.origin_activity = (this.newOriginSelect) ? this.newOriginSelect.value: null;
-        changeFlow.destination_activity = (this.newDestinationSelect) ? this.newDestinationSelect.value.value : null;
+        changeFlow.destination_activity = (this.newDestinationSelect) ? this.newDestinationSelect.value : null;
         changeFlow.material = (this.newMaterialSelect) ? this.newMaterialSelect.dataset.selected: null;
         process = (this.newProcessSelect) ? this.newProcessSelect.value: null;
         changeFlow.process = (process === '-1') ? null: process;

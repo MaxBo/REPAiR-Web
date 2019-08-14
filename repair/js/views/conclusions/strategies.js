@@ -101,6 +101,11 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                         apiTag: 'questions',
                         apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
                     });
+                    solution.areas = new GDSECollection([], {
+                        apiTag: 'possibleImplementationAreas',
+                        apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
+                    });
+                    promises.push(solution.areas.fetch());
                     promises.push(questions.fetch({
                         success: function (){
                             _this.questions[solution.id] = questions;
@@ -160,6 +165,8 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
 
             // quantity values per user and question
             this.quantities = {};
+            // drawings per user and possible implementation area
+            this.implementationAreas = {};
             var i = 0;
             this.users.forEach(function(user){
 
@@ -211,6 +218,15 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                             _this.quantities[user.id][quantity.question] = [];
                         _this.quantities[user.id][quantity.question].push(quantity.value);
                     });
+
+                    // memorize drawings inputs by users
+                    implementation.get('areas').forEach(function(area){
+                        if (!_this.implementationAreas[user.id]) _this.implementationAreas[user.id] = {};
+                        if (!_this.implementationAreas[user.id][area.possible_implementation_area])
+                            _this.implementationAreas[user.id][area.possible_implementation_area] = [];
+                        _this.implementationAreas[user.id][area.possible_implementation_area].push(area.geom);
+                    });
+
                     // memorize activities directly affected by user strategies
                     solution.get('affected_activities').forEach(function(activityId){
                         var users = _this.directlyAffectedActivities[activityId];
@@ -300,18 +316,15 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
 
         // Step 5
         drawImplementations: function(){
-            var solution = this.solutions.get(this.solutionSelect.value),
-                possImplArea = solution.get('possible_implementation_area'),
+            var selectedOption = this.solutionSelect.options[this.solutionSelect.selectedIndex],
+                possibleAreaId = selectedOption.value,
+                solution = this.solutions.get(selectedOption.dataset.solution),
+                possImplArea = solution.areas.get(possibleAreaId).get('geom'),
                 focusarea = this.caseStudy.get('properties').focusarea,
                 _this = this;
 
-            if (possImplArea) {
-                var poly = new ol.geom.MultiPolygon(possImplArea.coordinates);
-                this.strategiesMap.centerOnPolygon(poly, { projection: this.projection });
-            } else if (focusarea){
-                var poly = new ol.geom.MultiPolygon(focusarea.coordinates);
-                this.strategiesMap.centerOnPolygon(poly, { projection: this.projection });
-            };
+            var poly = new ol.geom.MultiPolygon(possImplArea.coordinates);
+            this.strategiesMap.centerOnPolygon(poly, { projection: this.projection });
 
             this.users.forEach(function(user){
                 _this.strategiesMap.clearLayer('user' + user.id);
@@ -322,12 +335,12 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                     implementations = _this.implementations[strategy.id].where({solution: solution.id}),
                     userName = user.get('alias') || user.get('name');
                 implementations.forEach(function(solutionImpl){
-                    var implAreas = solutionImpl.get('geom');
-                    // implementation areas are collections
-                    if (!implAreas || implAreas.geometries.length == 0) return;
-                    implAreas.geometries.forEach(function(geom){
+                    var geometries = _this.implementationAreas[user.id][possibleAreaId];
+                    if (!geometries) return;
+                    geometries.forEach(function(geom){
+                        if (!geom) return;
                         _this.strategiesMap.addGeometry(geom.coordinates, {
-                            projection: 'EPSG:3857',
+                            projection: 'EPSG:4326',
                             layername: 'user' + user.id,
                             type: geom.type,
                             tooltip: userName
