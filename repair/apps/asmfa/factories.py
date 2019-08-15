@@ -210,6 +210,8 @@ class ProductFractionFactory(DjangoModelFactory):
 class FractionFlowFactory(FlowFactory):
     class Meta:
         model = models.FractionFlow
+    flow = factory.SubFactory(Actor2ActorFactory)
+    stock = factory.SubFactory(ActorStockFactory)
     origin = factory.SubFactory(ActorFactory)
     destination = factory.SubFactory(ActorFactory)
     material = factory.SubFactory(MaterialFactory)
