@@ -29,6 +29,7 @@ from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.utils import descend_materials, copy_django_model
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 
+
 class Formula:
     def __init__(self, a=1, b=0, q=0, is_absolute=False):
         '''
@@ -339,13 +340,10 @@ class StrategyGraph(BaseGraph):
                 strategy=self.strategy,
                 keyflow=self.keyflow
             )
-            new_flows.append(new_flow)
-        FractionFlow.objects.bulk_create(new_flows)
-
-        # ToDo: optimize (and/or make seperate function, almost the same
-        # in shift_flows())
-        for new_flow in new_flows:
-            # create the edge in the graph
+            #new_flows.append(new_flow)
+            # spatialite doesn't set the ids when bulk creating
+            # when saving it does (weird)
+            new_flow.save()
             o_vertex = util.find_vertex(
                 self.graph, self.graph.vp['id'], origin.id)[0]
             d_vertex = util.find_vertex(
@@ -356,7 +354,9 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.material[new_edge] = new_flow.material.id
             self.graph.ep.process[new_edge] = \
                 new_flow.process.id if new_flow.process is not None else - 1
+            new_flows.append(new_flow)
 
+        #FractionFlow.objects.bulk_create(new_flows)
         return new_flows, deltas
 
     def _shift_flows(self, referenced_flows, possible_new_targets,
@@ -828,7 +828,9 @@ class StrategyGraph(BaseGraph):
                 strat_flow = StrategyFractionFlow(
                     strategy=self.strategy, amount=new_amount,
                     fractionflow=flow,
-                    material_id=flow.material.id)
+                    material_id=flow.material.id,
+                    process_id=flow.process.id
+                )
                 strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
@@ -859,30 +861,31 @@ class StrategyGraph(BaseGraph):
         while (actors_not_found_yet
                and max_distance <= ABSOLUTE_MAX_DISTANCE):
 
-            query_actors_in_solution = str(actors_not_found_yet
-                .annotate(pnt=F('administrative_location__geom'))
-                .values('id', 'pnt')
-                .query)
+            query_actors_in_solution = actors_not_found_yet \
+                .annotate(pnt=F('administrative_location__geom')) \
+                .values('id', 'pnt') \
+                .query
 
-            query_target_actors = str(
-                possible_target_actors
-                .annotate(pnt=F('administrative_location__geom'))
-                .values('id', 'pnt')
-                .query)
+            query_target_actors = possible_target_actors \
+                .annotate(pnt=F('administrative_location__geom')) \
+                .values('id', 'pnt') \
+                .query
 
             if backend == 'sqlite':
-                query_actors_in_solution = query_actors_in_solution.replace(
+                querytext_actors_in_solution,  params_actors_in_solution = query_actors_in_solution.sql_with_params()
+                querytext_actors_in_solution = querytext_actors_in_solution.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                     '"asmfa_administrativelocation"."geom"')
 
-                query_target_actors = query_target_actors.replace(
+                querytext_target_actors,  params_target_actors = query_target_actors.sql_with_params()
+                querytext_target_actors = querytext_target_actors.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                     '"asmfa_administrativelocation"."geom"')
 
                 query = f'''
                 WITH
-                  ais AS ({query_actors_in_solution}),
-                  pta AS ({query_target_actors})
+                  ais AS ({querytext_actors_in_solution}),
+                  pta AS ({querytext_target_actors})
                 SELECT
                   a.actor_id,
                   a.target_actor_id
@@ -913,12 +916,14 @@ class StrategyGraph(BaseGraph):
                 AND a.meter = b.min_meter
                 '''
 
+                params = params_actors_in_solution + params_target_actors
+
             elif backend == 'postgresql':
-                query_actors_in_solution = query_actors_in_solution.replace(
+                query_actors_in_solution = str(query_actors_in_solution).replace(
                     '"asmfa_administrativelocation"."geom"::bytea',
                     '"asmfa_administrativelocation"."geom"')
 
-                query_target_actors = query_target_actors.replace(
+                query_target_actors = str(query_target_actors).replace(
                     '"asmfa_administrativelocation"."geom"::bytea',
                     '"asmfa_administrativelocation"."geom"')
 
@@ -946,12 +951,14 @@ class StrategyGraph(BaseGraph):
                 WHERE a.rn = 1
                 '''
 
+                params = ()
+
             else:
                 raise ConnectionError(f'unknown backend: {backend}')
 
 
             with connection.cursor() as cursor:
-                cursor.execute(query)
+                cursor.execute(query,  params)
                 rows = cursor.fetchall()
             target_actors.update(dict(rows))
 
