@@ -633,11 +633,14 @@ class StrategyGraph(BaseGraph):
         #impl_materials = descend_materials(
             #[flow_reference.material])
         origins, destinations = self._get_actors(flow_reference, implementation)
-        reference_flows = FractionFlow.objects.filter(
-            origin__in=origins,
-            destination__in=destinations,
-            material=flow_reference.material
-        )
+        kwargs = {
+            'origin__in': origins,
+            'destination__in': destinations,
+            'material': flow_reference.material
+        }
+        if flow_reference.process:
+            kwargs['process': flow_reference.process]
+        reference_flows = FractionFlow.objects.filter(**kwargs)
         return reference_flows
 
     def _get_affected_flows(self, solution_part):
@@ -651,12 +654,16 @@ class StrategyGraph(BaseGraph):
         # get FractionFlows related to AffectedFlow
         affected_flows = FractionFlow.objects.none()
         for af in affectedflows:
-            materials = descend_materials([af.material])
+            #materials = descend_materials([af.material])
+            kwargs = {
+                'origin__activity': af.origin_activity,
+                'destination__activity': af.destination_activity,
+                'material': af.material
+            }
+            if af.process:
+                kwargs['process': af.process]
             affected_flows = \
-                affected_flows | FractionFlow.objects.filter(
-                    origin__activity=af.origin_activity,
-                    destination__activity=af.destination_activity,
-                    material__in=materials)
+                affected_flows | FractionFlow.objects.filter(**kwargs)
         return affectedflows
 
     def _include(self, flows, do_include=True):
