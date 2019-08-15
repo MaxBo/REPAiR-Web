@@ -88,6 +88,7 @@ class StrategyFractionFlowFactory(DjangoModelFactory):
     strategy = factory.SubFactory(StrategyFactory)
     fractionflow = factory.SubFactory(FractionFlowFactory)
     material = factory.SubFactory(MaterialFactory)
+    process = None
     amount = 0.0
 
 

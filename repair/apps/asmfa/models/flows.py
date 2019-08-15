@@ -249,13 +249,13 @@ class FractionFlow(Flow):
 
 
 class StrategyFractionFlow(GDSEModel):
-    strategy = models.ForeignKey(Strategy,
-                             on_delete=models.CASCADE,
-                             related_name='f_fractionflowstrategy')
-    fractionflow = models.ForeignKey(FractionFlow,
-                                     on_delete=models.CASCADE,
+    strategy = models.ForeignKey(Strategy, on_delete=models.CASCADE,
+                                 related_name='f_fractionflowstrategy')
+    fractionflow = models.ForeignKey(FractionFlow, on_delete=models.CASCADE,
                                      related_name='f_strategyfractionflow')
     amount = models.FloatField(default=0)
-    material = models.ForeignKey(Material, null=True,
-                                 on_delete=PROTECT_CASCADE,
+    material = models.ForeignKey(Material, null=True, on_delete=PROTECT_CASCADE,
                                  related_name='f_strategyfractionflowmaterials')
+    process = models.ForeignKey(
+        Process, null=True, on_delete=PROTECT_CASCADE,
+        related_name='f_strategyfractionflowprocesses')
