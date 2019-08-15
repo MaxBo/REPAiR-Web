@@ -377,23 +377,26 @@ class StrategyGraph(BaseGraph):
         changed_ref_deltas = []
         new_deltas = []
 
-        ids = referenced_flows.values_list('origin') if shift_origin\
-            else referenced_flows.values_list('destination')
-        actors_to_shift = Actor.objects.filter(id__in=ids)
+        # the actors to keep (not shifted)
+        ids = referenced_flows.values_list('destination') if shift_origin\
+            else referenced_flows.values_list('origin')
+        actors_kept = Actor.objects.filter(id__in=ids)
 
-        shift_dict = self.find_closest_actor(actors_to_shift,
+        # actors in possible new targets that are closest
+        closest_dict = self.find_closest_actor(actors_kept,
                                              possible_new_targets)
+
         # create new flows and add corresponding edges
         for flow in referenced_flows:
-            old_id = flow.origin_id if shift_origin \
-                else flow.destination_id
+            kept_id = flow.destination_id if shift_origin \
+                else flow.origin_id
 
             # no target actor found within range
-            if old_id not in shift_dict:
+            if kept_id not in closest_dict:
                 continue
 
             # get new target out of dictionary
-            new_id = shift_dict[old_id]
+            new_id = closest_dict[kept_id]
 
             new_vertex = util.find_vertex(
                 self.graph, self.graph.vp['id'], new_id)[0]
@@ -424,7 +427,8 @@ class StrategyGraph(BaseGraph):
             # a new one, changed material and process also require real shift
             if new_edge and not new_material and not new_process:
                 # get flow from database and add to new_flows
-                changed_ref_flow = Flows.get(id=new_edge.id)
+                changed_ref_flow = FractionFlow.objects.get(
+                    id=self.graph.ep.id[new_edge])
 
                 # add flow and delta to changed_ref arrays
                 changed_ref_flows.append(changed_ref_flow)
@@ -472,6 +476,116 @@ class StrategyGraph(BaseGraph):
 
         # new flows shall be created before modifying the existing ones
         return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
+
+
+    def _chain_flows(self, referenced_flows, possible_new_targets,
+                     formula, new_material=None, new_process=None,
+                     prepend=True):
+        '''
+        creates new flows based on given referenced flows and prepends
+        (prepend==True) or appends (prepend==False) them
+
+        if new flows already exist, changes existing ones instead
+
+        returns new/changed flows and deltas in same order as flows
+
+        ToDo: almost the same as shift_flows(), generalize!
+        '''
+        changed_flows = []
+        deltas = []
+
+        ids = referenced_flows.values_list('destination') if prepend\
+            else referenced_flows.values_list('origin')
+        actors_kept = Actor.objects.filter(id__in=ids)
+
+        closest_dict = self.find_closest_actor(actors_kept,
+                                             possible_new_targets)
+
+        # create new flows and add corresponding edges
+        for flow in referenced_flows:
+            kept_id = flow.destination_id if prepend \
+                else flow.origin_id
+
+            # no target actor found within range
+            if kept_id not in closest_dict:
+                continue
+
+            # get new target out of dictionary
+            new_id = closest_dict[kept_id]
+
+            new_vertex = util.find_vertex(
+                self.graph, self.graph.vp['id'], new_id)[0]
+
+            delta = formula.calculate_delta(flow.amount)
+            # ToDo: distribute total change to changes on edges
+            # depending on share of total or distribute equally?
+            if formula.is_absolute:
+                # equally
+                delta /= len(referenced_flows)
+
+            # the edge corresponding to the referenced flow
+            edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
+            if len(edges) > 1:
+                raise ValueError("FractionFlow.id ", flow.id,
+                                 " is not unique in the graph")
+            elif len(edges) == 0:
+                print("Cannot find FractionFlow.id ", flow.id, " in the graph")
+                continue
+            edge = edges[0]
+
+            new_edge_args = [new_vertex, edge.source()] if prepend \
+                else [edge.target(), new_vertex]
+            new_edge = self.graph.edge(*new_edge_args)
+
+            # the edge might already exist, change this one instead of creating
+            # a new one, changed material and process also require real shift
+            if new_edge and not new_material and not new_process:
+                # get flow from database and add to new_flows
+                changed_ref_flow = FractionFlow.objects.get(
+                    id=self.graph.ep.id[new_edge])
+
+                # add flow and delta to changed_ref arrays
+                changed_flows.append(changed_ref_flow)
+                deltas.append(delta)
+            else:
+                # create a new fractionflow for the implementation flow in db,
+                # setting id to None creates new one when saving
+                # while keeping attributes of original model;
+                # the new flow is added with zero amount and to be changed
+                # by calculated delta
+                new_flow = copy_django_model(flow)
+                new_flow.id = None
+                new_flow.amount = 0
+                if prepend:
+                    new_flow.destination_id = new_flow.origin_id
+                    new_flow.origin_id = new_id
+                else:
+                    new_flow.origin_id = new_flow.destination_id
+                    new_flow.destination_id = new_id
+                if new_material:
+                    new_flow.material = new_material
+                if new_process:
+                    new_flow.process = new_process
+
+                # strategy marks flow as new flow
+                new_flow.strategy = self.strategy
+                new_flow.save()
+
+                # create the edge in the graph
+                new_edge = self.graph.add_edge(*new_edge_args)
+                self.graph.ep.id[new_edge] = new_flow.id
+                self.graph.ep.amount[new_edge] = 0
+
+                self.graph.ep.material[new_edge] = new_flow.material.id
+                # process doesn't have to be set, missing attributes
+                # are marked with -1 in graph (if i remember correctly?)
+                self.graph.ep.process[new_edge] = \
+                    new_flow.process.id if new_flow.process is not None else - 1
+
+                changed_flows.append(new_flow)
+                deltas.append(delta)
+
+        return changed_flows, deltas
 
     def clean_db(self):
         '''
@@ -623,14 +737,19 @@ class StrategyGraph(BaseGraph):
                         changes, implementation)
                     implementation_flows, deltas = self._shift_flows(
                         implementation_flows, possible_destinations,
-                        formula, shift_origin=False)
+                        formula, shift_origin=False,
+                        new_material=changes.material,
+                        new_process=changes.process)
 
                 elif solution_part.scheme == Scheme.SHIFTORIGIN:
                     possible_origins, d = self._get_actors(
                         changes, implementation)
                     implementation_flows, deltas = self._shift_flows(
                         implementation_flows, possible_origins,
-                        formula, shift_origin=True)
+                        formula, shift_origin=True,
+                        new_material=changes.material,
+                        new_process=changes.process
+                    )
 
                 elif solution_part.scheme == Scheme.NEW:
                     origins, destinations = self._get_actors(
@@ -638,6 +757,24 @@ class StrategyGraph(BaseGraph):
                     implementation_flows, deltas = self._create_flows(
                         origins, destinations, changes.material,
                         changes.process, formula)
+
+                elif solution_part.scheme == Scheme.PREPEND:
+                    possible_origins, d = self._get_actors(
+                        changes, implementation)
+                    implementation_flows, deltas = self._chain_flows(
+                        implementation_flows, possible_origins,
+                        formula, prepend=True,
+                        new_material=changes.material,
+                        new_process=changes.process)
+
+                elif solution_part.scheme == Scheme.APPEND:
+                    o, possible_destinations = self._get_actors(
+                        changes, implementation)
+                    implementation_flows, deltas = self._chain_flows(
+                        implementation_flows, possible_destinations,
+                        formula, prepend=False,
+                        new_material=changes.material,
+                        new_process=changes.process)
 
                 else:
                     raise ValueError(

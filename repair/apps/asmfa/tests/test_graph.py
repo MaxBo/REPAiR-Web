@@ -273,9 +273,9 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             fractionflow__in=status_quo_flows)
 
         new_flows = FractionFlow.objects.filter(
-            origin__activity=households,
-            destination__activity=treatment,
-            material=food_waste,
+            origin__activity=self.households,
+            destination__activity=self.treatment,
+            material=self.food_waste,
             strategy=implementation.strategy
         )
 
@@ -324,3 +324,67 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         sg.build()
 
         # ToDo: asserts, affected flows
+
+    def test_append(self):
+        scheme = Scheme.APPEND
+
+        factor = 0.5
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=self.households,
+            destination_activity=self.collection,
+            material=self.food_waste
+        )
+
+        # shift from collection to treatment
+        appendix = FlowReferenceFactory(
+            destination_activity=self.treatment,
+            destination_area=self.possible_impl_area,
+        )
+
+        # shift half of the amount
+        shift_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            flow_changes=appendix,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste,
+            strategy__isnull=True
+        )
+
+        changed_flows = StrategyFractionFlow.objects.filter(
+            fractionflow__in=status_quo_flows)
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy=implementation.strategy
+        )
+
+        # there are some that are changed instead of newly created
+        # (because there already are some existing)
+        assert len(status_quo_flows) == len(new_flows) + len(changed_flows)
+
+        # ToDo: additional asserts (test origins/destinations), affected flows
