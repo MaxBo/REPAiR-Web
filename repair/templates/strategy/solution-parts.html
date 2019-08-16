@@ -32,24 +32,50 @@
     </div>
   </div>
   <div class="tab-pane fade in" id="affected-flows-tab">
-    <p style="max-width: 800px;">
-      {% blocktrans %}
-      Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
-      Please include flows "downstream" as much as "upstream".
-      {% endblocktrans %}
-    </p>
-    <p style="max-width: 800px;">
-      {% blocktrans %}
-      Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and
-      therefore not change their volume. All flow definitions in this list have to be on activity level.
-      {% endblocktrans %}
-    </p>
-    <div id="affected-flows"></div>
-    <button class="btn btn-primary add square">
-      <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
-    </button>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="row">
+          <div name="affected-material"></div>
+        </div>
+        <div class="row" style="position: relative;">
+          <div class="sankey-wrapper" class="noselect" style="width: 100%; min-height: 200px;">
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <p style="max-width: 800px;">
+          {% blocktrans %}
+          Please list all flows that could possibly be changed due to the changes of the initial impact flow caused by this solution part.
+          Please include flows "downstream" as much as "upstream".
+          {% endblocktrans %}
+        </p>
+        <p style="max-width: 800px;">
+          {% blocktrans %}
+          Flows not included in this list will be ignored when applying this solution part to the flow model algorithm and
+          therefore not change their volume. All flow definitions in this list have to be on activity level.
+          {% endblocktrans %}
+        </p>
+        <div id="affected-flows"></div>
+        <button class="btn btn-primary add square">
+          <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
+        </button>
+      </div>
+    </div>
   </div>
 </div>
+</script>
+
+<!-- affected flow row-->
+<script type="text/template" id="affected-flow-row-template">
+  {% trans "Material" %}
+  <div name="material" style="width: 200px; display: inline-block;"></div>
+  {% trans "from" %}
+  <select name="origin" style="width: 200px; display: inline-block;"></select>
+  {% trans "to" %}
+  <select name="destination" style="width: 200px; display: inline-block;"></select>
+  <button class="btn btn-warning square remove" title="remove affected flow">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
 </script>
 
 <!-- modify flow -->
@@ -57,64 +83,64 @@
 <h4> {% trans "Filter the flow that will be modified" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="reference-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="reference-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
 <h4> {% trans "Modification of the flow" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="new-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="new-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
@@ -154,76 +180,76 @@
 <h4> {% trans "Filter the flow that will be shifted" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="reference-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="reference-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
 <h4> {% trans "To which activity shall the flow be shifted?" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="new-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="new-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "New Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="new-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="new-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
@@ -263,76 +289,76 @@
 <h4> {% trans "Filter the flow that will be shifted" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="reference-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="reference-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
 <h4> {% trans "To which activity shall the flow be shifted?" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="new-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="new-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "New Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="new-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="new-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
@@ -372,44 +398,44 @@
 <h4> {% trans "Attributes of the new flow" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="new-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="new-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="new-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="new-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="new-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="new-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
@@ -441,76 +467,76 @@
 <h4> {% trans "Filter the flow the new flow is prepended to" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin (= Destination of new flow)" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="reference-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="reference-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
 <h4> {% trans "From which activity will the new flow originate from?" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="new-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="new-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "New Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="new-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="new-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
@@ -548,76 +574,76 @@
 <h4> {% trans "Filter the flow the new flow is append to" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Origin" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-origin"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Destination (= Origin of new flow)" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="reference-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="reference-destination-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="reference-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="reference-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>
 <h4> {% trans "To which activity will the new flow go?" %} </h4>
 <table class='part-table'>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Destination" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select name="new-destination"></select>
-    </th>
-    <th>
+    </td>
+    <td>
       <label> {% trans "Possible Impl. Area" %} </label>
       <select name="new-origin-area"></select>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label style="float: left"> {% trans "New Material" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <div name="new-material"></div>
-    </th>
+    </td>
   </tr>
   <tr>
-    <th>
+    <td>
       <label> {% trans "New Process" %} </label>
-    </th>
-    <th>
+    </td>
+    <td>
       <select class="form-control" name="new-process"></select>
-    </th>
+    </td>
   </tr>
 </table>
 <br>

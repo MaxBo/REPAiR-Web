@@ -285,7 +285,8 @@ class SolutionPartSerializer(serializers.ModelSerializer):
                 subvalue = value.get(subfield, '')
                 if not subvalue:
                     errors[f'{required_field}__{subfield}'] = error_msg
-        if 'question' not in data and 'is_absolute' not in data:
+        question = data.get('question', None)
+        if not question and 'is_absolute' not in data:
             errors['is_absolute'] = error_msg
         if len(errors) > 0:
             raise ValidationError(errors)

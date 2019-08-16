@@ -50,6 +50,7 @@ var FlowSankeyView = BaseView.extend(
         this.originLevel = options.originLevel;
         this.destinationLevel = options.destinationLevel;
         this.flows = options.flows;
+        this.renderStocks = (options.renderStocks == null) ? true: options.renderStocks;
         this.showRelativeComposition = (options.showRelativeComposition == null) ? true : options.showRelativeComposition;
         this.forceSignum = options.forceSignum || false;
         this.stretchInput = this.el.querySelector('#sankey-stretch');
@@ -235,6 +236,7 @@ var FlowSankeyView = BaseView.extend(
             var origin = flow.get('origin'),
                 destination = flow.get('destination'),
                 isStock = flow.get('stock');
+            if (isStock && !_this.renderStocks) return;
             if (!isStock && origin.id == destination.id) {
                 console.log('Warning: self referencing cycle at node ' + origin.name);
                 return;
