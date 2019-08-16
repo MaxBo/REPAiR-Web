@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
+from django.contrib.gis.db.models.functions import MakeValid, GeoFunc
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext as _
 
 from repair.apps.asmfa.models import Activity
 from repair.apps.changes.models import (SolutionCategory,
@@ -20,8 +23,6 @@ from repair.apps.login.serializers import (InCasestudyField,
                                            IDRelatedField)
 from repair.apps.statusquo.models import SpatialChoice
 from repair.apps.utils.serializers import EnumField
-
-from django.contrib.gis.db.models.functions import MakeValid, GeoFunc
 
 
 class CollectionExtract(GeoFunc):
@@ -217,6 +218,78 @@ class SolutionPartSerializer(serializers.ModelSerializer):
             'documentation': {'required': False, 'allow_blank': True},
             'is_absolute': {'required': False}
         }
+        depending_requirements = {
+            'scheme': {
+                'NEW': [
+                    'flow_changes__origin_activity',
+                    'flow_changes__destination_activity',
+                    'flow_changes__material'
+                ],
+                'MODIFICATION': [
+                    'flow_reference__origin_activity',
+                    'flow_reference__destination_activity',
+                    'flow_reference__material'
+                ],
+                'SHIFTDESTINATION': [
+                    'flow_reference__origin_activity',
+                    'flow_reference__destination_activity',
+                    'flow_reference__material',
+                    'flow_changes__destination_activity'
+                ],
+                'SHIFTORIGIN': [
+                    'flow_reference__origin_activity',
+                    'flow_reference__destination_activity',
+                    'flow_reference__material',
+                    'flow_changes__origin_activity'
+                ],
+                'PREPEND': [
+                    'flow_reference__origin_activity',
+                    'flow_reference__destination_activity',
+                    'flow_reference__material',
+                    'flow_changes__origin_activity'
+                ],
+                'APPEND': [
+                    'flow_reference__origin_activity',
+                    'flow_reference__destination_activity',
+                    'flow_reference__material',
+                    'flow_changes__destination_activity'
+                ],
+            }
+        }
+
+    def validate(self, data):
+        '''
+        check fields that are not defined as required but whose requirements
+        follows an internal logic depending on scheme
+        '''
+        request = self.context['request']
+
+        # patching single attributes is going unchecked
+        # ToDo: patching might mess up the logic
+        if request.method == 'PATCH' and 'scheme' not in data:
+            return data
+
+        scheme = data['scheme'].name
+        required = self.Meta.depending_requirements['scheme'][scheme]
+        errors = {}
+        # ToDo: return different message if field is not in data
+        error_msg = _('This field may not be blank.')
+        for required_field in required:
+            subfield = None
+            if '__' in required_field:
+                required_field, subfield = required_field.split('__')
+            value = data.get(required_field, None)
+            if not value:
+                errors[required_field] = error_msg
+            if subfield:
+                subvalue = value.get(subfield, '')
+                if not subvalue:
+                    errors[f'{required_field}__{subfield}'] = error_msg
+        if 'question' not in data and 'is_absolute' not in data:
+            errors['is_absolute'] = error_msg
+        if len(errors) > 0:
+            raise ValidationError(errors)
+        return data
 
     def create(self, validated_data):
         v = validated_data.copy()

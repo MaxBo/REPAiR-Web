@@ -68,7 +68,7 @@ class SolutionPartFactory(DjangoModelFactory):
     flow_changes = None
     priority = 0
 
-    question = factory.SubFactory(ImplementationQuestionFactory)
+    question = None
     a = 0
     b = 1
 
@@ -88,6 +88,7 @@ class StrategyFractionFlowFactory(DjangoModelFactory):
     strategy = factory.SubFactory(StrategyFactory)
     fractionflow = factory.SubFactory(FractionFlowFactory)
     material = factory.SubFactory(MaterialFactory)
+    process = None
     amount = 0.0
 
 

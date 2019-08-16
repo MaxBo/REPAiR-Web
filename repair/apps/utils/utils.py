@@ -1,4 +1,12 @@
 from repair.apps.asmfa.models import Material
+from django.db.models import AutoField
+
+def copy_django_model(obj):
+    initial = dict([(f.name, getattr(obj, f.name))
+                    for f in obj._meta.fields
+                    if not isinstance(f, AutoField) and\
+                       not f in obj._meta.parents.values()])
+    return obj.__class__(**initial)
 
 def descend_materials(materials):
     """return list of material ids of given materials and all of their

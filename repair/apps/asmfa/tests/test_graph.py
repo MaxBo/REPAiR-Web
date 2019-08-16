@@ -1,13 +1,18 @@
 import os
 from test_plus import APITestCase
+from django.contrib.gis.geos import Polygon, Point, GeometryCollection
+from django.db.models.functions import Coalesce
+from django.contrib.gis.geos import Polygon, MultiPolygon
+from django.db.models import Sum
+
 from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
 from repair.tests.test import LoginTestCase, AdminAreaTest
-
 from repair.apps.asmfa.factories import (ActorFactory,
                                          ActivityFactory,
                                          ActivityGroupFactory,
                                          MaterialFactory,
-                                         FractionFlowFactory
+                                         FractionFlowFactory,
+                                         AdministrativeLocationFactory
                                         )
 from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionInStrategyFactory,
@@ -16,18 +21,24 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            SolutionPartFactory,
                                            ImplementationQuestionFactory,
                                            ImplementationQuantityFactory,
-                                           AffectedFlowFactory
+                                           AffectedFlowFactory,
+                                           FlowReferenceFactory,
+                                           ImplementationQuestionFactory,
+                                           ImplementationQuantityFactory,
+                                           KeyflowInCasestudyFactory,
+                                           PossibleImplementationAreaFactory
                                         )
-from repair.apps.changes.models import ImplementationQuantity
-from repair.apps.asmfa.models import FractionFlow, StrategyFractionFlow
+from repair.apps.asmfa.models import (Actor, FractionFlow, StrategyFractionFlow,
+                                      Activity, Material, KeyflowInCasestudy,
+                                      CaseStudy)
+from repair.apps.changes.models import (Solution, Strategy,
+                                        ImplementationQuantity,
+                                        SolutionInStrategy, Scheme,
+                                        ImplementationArea)
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
-from django.contrib.gis.geos import Polygon, Point, GeometryCollection
-from django.db.models.functions import Coalesce
 
-'''
 class GraphTest(LoginTestCase, APITestCase):
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -50,232 +61,329 @@ class GraphTest(LoginTestCase, APITestCase):
     def test_graph(self):
         self.graph = BaseGraph(self.kic, tag='test')
 
+
+'''
 class StrategyGraphTest(LoginTestCase, APITestCase):
-    stakeholdercategoryid = 48
-    stakeholderid = 21
-    strategyid = 1
-    actor_originid = 1
-    actor_old_targetid = 2
-    actor_new_targetid = 3
-    materialname = 'wool insulation'
+    fixtures = ['peelpioneer_data']
+
+    #fractionflows_count = 26
+
+    ##ToDo: set correct values for testing
+    #origin_actor_BvDid = 'SBC0011'
+    #new_destination_actor_BvDid = 'SBC0009'
+    #materialname = "Food Waste"
+    #fractionflows_count_for_test_actor = 2
+    #amount_before_shift = 5
+    #amount_after_shift = 4.75
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
 
+        cls.casestudy = CaseStudy.objects.get(name='SandboxCity')
+        cls.keyflow = KeyflowInCasestudy.objects.get(
+            casestudy=cls.casestudy,
+            keyflow__name='Food Waste')
+        cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
+        print('building basegraph')
+        cls.basegraph.build()
+
+        cls.households = Activity.objects.get(nace='V-0000')
+        cls.collection = Activity.objects.get(nace='E-3811')
+        cls.treatment = Activity.objects.get(nace='E-3821')
+        cls.food_waste = Material.objects.get(name='Food Waste')
+
     def setUp(self):
         super().setUp()
-        self.activitygroup1 = ActivityGroupFactory(name='MyGroup',
-                                                   keyflow=self.kic)
-        self.activitygroup2 = ActivityGroupFactory(name='AnotherGroup',
-                                                   keyflow=self.kic)
-        self.activity1 = ActivityFactory(nace='NACE1',
-                                         activitygroup=self.activitygroup1)
-        self.activity2 = ActivityFactory(nace='NACE2',
-                                         activitygroup=self.activitygroup1)
-        self.activity3 = ActivityFactory(nace='NACE1',
-                                         activitygroup=self.activitygroup1)
-        self.activity4 = ActivityFactory(nace='NACE3',
-                                         activitygroup=self.activitygroup2)
+        self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
 
-
-        stakeholder = StakeholderFactory(
-            id=self.stakeholderid,
-            stakeholder_category__id=self.stakeholdercategoryid,
-            stakeholder_category__casestudy=self.uic.casestudy,
+        self.possible_impl_area = PossibleImplementationAreaFactory(
+            solution=self.solution,
+            # should cover netherlands
+            geom=MultiPolygon(
+                Polygon(((3, 51), (3, 54),
+                        (7.5, 54), (7.5, 51), (3, 51)))),
         )
-        user = UserInCasestudyFactory(casestudy=self.kic.casestudy,
-                                      user__user__username='Hans Norbert')
-        ## generate a new strategy
-        self.strategy = StrategyFactory(id=self.strategyid,
-                                   keyflow=self.kic,
-                                   user=user,
-                                   name='Test Strategy')
-
-        # Create a solution with 3 parts 2 questions
-        self.solution1 = SolutionFactory(name='Solution 1')
-
-        question1 = ImplementationQuestionFactory(
-            question="What is the answer to life, the universe and everything?",
-            min_value=0.0,
-            max_value=10000.0,
-            step=0.01,
-            select_values='0.0,3.14,42,1234.43',
-            solution=self.solution1
-        )
-        question2 = ImplementationQuestionFactory(
-            question="What is 1 + 1?",
-            min_value=1,
-            max_value=1000,
-            step=1,
-            solution=self.solution1
-        )
-
-        #self.solutionpart1 = SolutionPartFactory(
-            #solution=self.solution1,
-            #question=question1,
-            #a=0,
-            #b=1
-        #)
-        #self.solutionpart2 = SolutionPartFactory(
-            #solution=self.solution1,
-            #question=question2
-        #)
-
-        # new origin with new actor
-        origin_activity = ActivityFactory(name='origin_activity')
-        origin_actor = ActorFactory(id=self.actor_originid,
-                                    name='origin_actor',
-                                    activity=origin_activity)
-
-        # old target with actor
-        old_destination_activity = ActivityFactory(
-            name='old_destination_activity_activity')
-        old_destination_actor = ActorFactory(id=self.actor_old_targetid,
-                                             name='old_destination_actor',
-                                             activity=old_destination_activity)
-
-        # new target with new actor
-        new_destination_activity = ActivityFactory(name='target_activity')
-        new_destination_actor = ActorFactory(id=self.actor_new_targetid,
-                                             name='new_destination_actor',
-                                             activity=new_destination_activity)
-
-        # actor 11
-        actor11 = ActorFactory(id=11, name='Actor11',
-                               activity=old_destination_activity)
-        # actor 12
-        actor12 = ActorFactory(id=12, name='Actor12',
-                               activity=new_destination_activity)
-
-        # new material
-        wool = MaterialFactory(name=self.materialname,
-                               keyflow=self.kic)
-
-        part_new_flow = SolutionPartFactory(
-            solution=self.solution1,
-            implementation_flow_origin_activity=origin_activity,
-            implementation_flow_destination_activity=old_destination_activity,
-            implementation_flow_material=wool,
-            #implementation_flow_process=,
-            question=question1,
-            a=1.0,
-            b=1.0,
-            implements_new_flow=True,
-            keep_origin=True,
-            new_target_activity=new_destination_activity,
-            map_request="pick an actor"
-        )
-
-        # create fraction flow
-        new_flow = FractionFlowFactory(
-            origin=origin_actor,
-            destination=old_destination_actor,
-            material=wool,
-            amount=1000,
-            keyflow=self.kic
-        )
-        # create fraction flow 2
-        new_flow2 = FractionFlowFactory(
-            origin=actor11,
-            destination=actor12,
-            material=wool,
-            amount=11000,
-            keyflow=self.kic
-        )
-
-        implementation_area = Polygon(((0.0, 0.0), (0.0, 20.0), (56.0, 20.0),
-                                       (56.0, 0.0), (0.0, 0.0)))
-        solution_in_strategy1 = SolutionInStrategyFactory(
-            solution=self.solution1, strategy=self.strategy,
-            geom=GeometryCollection(implementation_area), priority=0)
-
-        # quantities are auto-generated, don't create new ones!
-        answer = ImplementationQuantity.objects.get(
-            question=question1,
-            implementation=solution_in_strategy1
-        )
-        answer.value = 1
-        answer.save()
-        #answer = ImplementationQuantityFactory(
-            #question=question1,
-            #implementation=solution_in_strategy1,
-            #value=1.0)
-
-        # create AffectedFlow
-        affected = AffectedFlowFactory(
-            solution_part=part_new_flow,
-            origin_activity=origin_activity,
-            destination_activity=new_destination_activity,
-            material=wool)
-
-        #self.solution2 = SolutionFactory(name='Solution 2')
-        #solution_in_strategy2 = SolutionInStrategyFactory(
-            #solution=self.solution2, strategy=self.strategy,
-            #priority=1)
-
-        base_graph = BaseGraph(self.kic, tag='test')
-        base_graph.remove()
-        base_graph.build()
-        base_graph.save()
-
-
     def test_graph(self):
+        self.strategy = Strategy.objects.get(pk=88)
+
+        # test if peelpioneer has 26 fraction flows
+        assert len(FractionFlow.objects.all()) == self.fractionflows_count
+
         self.graph = StrategyGraph(self.strategy, tag='test')
         # delete stored graph file to test creation of data
         self.graph.remove()
         self.graph.build()
 
-        assert len(FractionFlow.objects.all()) == 4
-
-        flows = FractionFlow.objects.filter(
-            origin_id=self.actor_originid,
-            destination_id=self.actor_new_targetid).annotate(
-            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))
-
-        assert len(flows) == 1
-        ff = flows[0]
-        assert ff.material.name == self.materialname
-        assert ff.destination.id == self.actor_new_targetid
-        #flow is split to new destination thus devided by 2
-        assert ff.actual_amount == 500
-
-        # there is 1 strategyflows that sets the amount to 0 for the
-        # implementation_flow; no other strategyflows because we didnt include
-        # the flows in AffectedFlows
-        assert len(StrategyFractionFlow.objects.all()) == 1
-        strategyflows = StrategyFractionFlow.objects.filter(
-            fractionflow__id=1,
-            material__name=self.materialname
-        )
-        assert len(strategyflows) == 1
-        assert strategyflows[0].amount == 0.0
+        # assert graph using values
+        self.assert_graph_values()
 
         # test again but now with loading the stored graph
-        self.graph.build()
+        #self.graph.build()
 
-        assert len(FractionFlow.objects.all()) == 4
+        # assert graph using values
+        #self.assert_graph_values()
 
-        flows = FractionFlow.objects.filter(
-            origin_id=self.actor_originid,
-            destination_id=self.actor_new_targetid).annotate(
+    def assert_graph_values(self):
+        origin_actor = Actor.objects.get(BvDid=self.origin_actor_BvDid)
+        new_destination_actor = Actor.objects.get(
+            BvDid=self.new_destination_actor_BvDid)
+
+        # test assertions using values above
+        fractionflows = FractionFlow.objects.filter(
+            origin=origin_actor).annotate(
             actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))
+        assert len(fractionflows) == self.fractionflows_count_for_test_actor
 
-        assert len(flows) == 1
-        ff = flows[0]
+        # test new created flow
+        ff = fractionflows.get(destination=new_destination_actor)
         assert ff.material.name == self.materialname
-        assert ff.destination.id == self.actor_new_targetid
-        #flow is split to new destination thus devided by 2
-        assert ff.actual_amount == 500
+        assert ff.destination == new_destination_actor
+        assert ff.amount == self.amount_before_shift
+        assert ff.actual_amount == self.amount_after_shift
 
-        # there is 1 strategyflows that sets the amount to 0 for the
-        # implementation_flow; no other strategyflows because we didnt include
-        # the flows in AffectedFlows
-        assert len(StrategyFractionFlow.objects.all()) == 1
-        strategyflows = StrategyFractionFlow.objects.filter(
-            fractionflow__id=1,
-            material__name=self.materialname
+    def test_modify(self):
+        scheme = Scheme.MODIFICATION
+
+        factor = 2
+
+        households = Activity.objects.get(nace='V-0000')
+        collection = Activity.objects.get(nace='E-3811')
+        food_waste = Material.objects.get(name='Food Waste')
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=self.households,
+            origin_area=self.possible_impl_area,
+            destination_activity=self.collection,
+            destination_area=self.possible_impl_area,
+            material=self.food_waste
         )
-        assert len(strategyflows) == 1
-        assert strategyflows[0].amount == 0.0
+
+        # this should multiply the flow amounts by factor
+        mod_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        # set implementation area
+        implementation_area = ImplementationArea.objects.get(
+            implementation=implementation,
+            possible_implementation_area=self.possible_impl_area
+        )
+
+        # same as poss. impl. area, just for testing (you could also completely
+        # skip the implementation area, possible impl. area is sufficient
+        # for spatial filtering)
+        implementation_area.geom = MultiPolygon(
+            Polygon(((3, 51), (3, 54),
+                     (7.5, 54), (7.5, 51), (3, 51))))
+        implementation_area.save()
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        # validate outcome
+
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste
+        )
+
+        changes = StrategyFractionFlow.objects.filter(
+            fractionflow__in=status_quo_flows)
+
+        # the origin flows are all in the netherlands
+        # and impl. area covers all of the netherlands -> all should be changed
+        assert len(status_quo_flows) == len(changes)
+
+        old_sum = status_quo_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_sum = changes.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert new_sum == old_sum * factor
+
+        # ToDo: affected flows and tests for changed new amounts
+
+    def test_shift_destination(self):
+        scheme = Scheme.SHIFTDESTINATION
+
+        factor = 0.5
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=self.households,
+            destination_activity=self.collection,
+            material=self.food_waste
+        )
+
+        # shift from collection to treatment
+        shift = FlowReferenceFactory(
+            destination_activity=self.treatment,
+            destination_area=self.possible_impl_area,
+        )
+
+        # shift half of the amount
+        shift_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            flow_changes=shift,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste,
+            strategy__isnull=True
+        )
+        changes = StrategyFractionFlow.objects.filter(
+            fractionflow__in=status_quo_flows)
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy=implementation.strategy
+        )
+
+        assert len(status_quo_flows) ==  len(new_flows)
+
+        # original flows should have been reduced
+        old_sum = status_quo_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_sum = changes.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        assert new_sum == old_sum * factor
+
+        # ToDo: additional asserts, affected flows
+
+    def test_new_flows(self):
+        scheme = Scheme.NEW
+
+        new_flow = FlowReferenceFactory(
+            origin_activity=self.collection,
+            destination_activity=self.treatment,
+            material=self.food_waste
+        )
+
+        amount = 1000
+
+        new_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_changes=new_flow,
+            scheme=scheme,
+            is_absolute=True,
+            a = 0,
+            b = amount
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        # ToDo: asserts, affected flows
+
+    def test_append(self):
+        scheme = Scheme.APPEND
+
+        factor = 0.5
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=self.households,
+            destination_activity=self.collection,
+            material=self.food_waste
+        )
+
+        # shift from collection to treatment
+        appendix = FlowReferenceFactory(
+            destination_activity=self.treatment,
+            destination_area=self.possible_impl_area,
+        )
+
+        # shift half of the amount
+        shift_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            flow_changes=appendix,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste,
+            strategy__isnull=True
+        )
+
+        changed_flows = StrategyFractionFlow.objects.filter(
+            fractionflow__in=status_quo_flows)
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy=implementation.strategy
+        )
+
+        # there are some that are changed instead of newly created
+        # (because there already are some existing)
+        assert len(status_quo_flows) == len(new_flows) + len(changed_flows)
+
+        # ToDo: additional asserts (test origins/destinations), affected flows
 '''
