@@ -1,9 +1,9 @@
 
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'models/gdsemodel', 'app-config', 'viewerjs',
+        'models/gdsemodel', 'app-config', 'viewerjs', 'views/common/flowsankey',
         'utils/utils', 'bootstrap', 'bootstrap-select', 'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, utils){
+function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, FlowSankeyView, utils){
 /**
 *
 * @author Christoph Franke
@@ -31,8 +31,13 @@ var SolutionPartView = BaseView.extend(
         _.bindAll(this, 'toggleHasQuestion');
         _.bindAll(this, 'toggleAbsolute');
         _.bindAll(this, 'addAffectedFlow');
+        _.bindAll(this, 'drawSankey');
+        _.bindAll(this, 'linkSelected');
 
         this.template = 'solution-part-template';
+
+        this.caseStudy = options.caseStudy;
+        this.keyflowId = options.keyflowId;
 
         this.solutions = options.solutions;
         this.solutionParts = options.solutionParts;
@@ -90,6 +95,11 @@ var SolutionPartView = BaseView.extend(
         template = _.template(html);
         this.el.querySelector('#definition-content').innerHTML = template({});
 
+        this.sankeyWrapper = this.el.querySelector('.sankey-wrapper');
+        this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
+        //this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
+        //this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
+
         this.viewer = new Viewer.default(this.el.querySelector('#scheme-preview'));
 
         this.nameInput = this.el.querySelector('input[name="part-name"]');
@@ -107,6 +117,8 @@ var SolutionPartView = BaseView.extend(
         this.newProcessSelect = this.el.querySelector('select[name="new-process"]');
         this.newOriginAreaSelect = this.el.querySelector('select[name="new-origin-area"]');
         this.newDestinationAreaSelect = this.el.querySelector('select[name="new-destination-area"]');
+
+        this.affectedMaterialSelect = this.el.querySelector('div[name="affected-material"]');
 
         this.aInput = this.el.querySelector('input[name="a"]');
         this.bInput = this.el.querySelector('input[name="b"]');
@@ -137,6 +149,7 @@ var SolutionPartView = BaseView.extend(
 
         this.renderMatFilter(this.referenceMaterialSelect);
         this.renderMatFilter(this.newMaterialSelect, {defaultOption: gettext('no change')});
+        this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey});
 
         this.setInputs();
 
@@ -285,7 +298,6 @@ var SolutionPartView = BaseView.extend(
         refFlow.origin_area = (area === '-1') ? null: area;
         area = (this.referenceDestinationAreaSelect) ? this.referenceDestinationAreaSelect.value: null;
         refFlow.destination_area = (area === '-1') ? null: area;
-        console.log(refFlow)
 
         this.model.set('flow_reference', refFlow);
 
@@ -306,7 +318,7 @@ var SolutionPartView = BaseView.extend(
         this.model.set('b', this.bInput.value);
         var question = this.questionSelect.value;
         this.model.set('question', (this.hasQuestion && question != "-1") ? question: null);
-        this.model.get('is_absolute', this.isAbsolute);
+        this.model.set('is_absolute', this.isAbsolute);
 
         var affectedFlowRows = this.affectedDiv.querySelectorAll('.row'),
             affectedFlows = [];
@@ -427,6 +439,7 @@ var SolutionPartView = BaseView.extend(
         var hierarchicalSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
                  el.dataset.selected = (model) ? model.id: null;
+                 if (options.onSelect) options.onSelect();
             },
             width: options.width,
             defaultOption: options.defaultOption || gettext('Select'),
@@ -474,7 +487,6 @@ var SolutionPartView = BaseView.extend(
         if (flow){
             originSelect.value = flow['origin_activity'];
             destinationSelect.value = flow['destination_activity'];
-            destinationSelect.value = flow['destination_activity'];
             matSelect.select(flow['material']);
         }
 
@@ -483,7 +495,98 @@ var SolutionPartView = BaseView.extend(
         removeBtn.addEventListener('click', function(){
             _this.affectedDiv.removeChild(row);
         })
-    }
+    },
+
+    fetchFlows: function(options){
+        var displayLevel = 'activity',
+            _this = this,
+            material = this.affectedMaterialSelect.dataset.selected;
+
+        var filterParams = {
+            materials: { ids: [material]},
+            aggregation_level: {
+                origin: displayLevel,
+                destination: displayLevel
+            }
+        };
+
+        var flows = new GDSECollection([], {
+            apiTag: 'flows',
+            apiIds: [ this.caseStudy.id, this.keyflowId]
+        });
+
+        //this.loader.activate();
+        var data = {};
+        var loader = new utils.Loader(this.sankeyWrapper);
+        loader.activate();
+        flows.postfetch({
+            body: filterParams,
+            success: function(response){
+                var idx = 0;
+                flows.forEach(function(flow){
+                    var origin = flow.get('origin'),
+                        destination = flow.get('destination');
+                    // api aggregates flows and doesn't return an id
+                    // generate an internal one to assign interactions
+                    flow.set('id', idx);
+                    idx++;
+                    origin.color = utils.colorByName(origin.name);
+                })
+                if (options.success){
+                    loader.deactivate();
+                    options.success(flows);
+                }
+            },
+            error: function(error){
+                loader.deactivate();
+                _this.onError(error);
+            }
+        })
+    },
+
+    drawSankey: function(){
+        if (this.flowSankeyView != null) this.flowSankeyView.close();
+        var displayLevel = 'activity',
+            _this = this;
+
+        this.fetchFlows({
+            success: function(flows){
+                _this.flowSankeyView = new FlowSankeyView({
+                    el: _this.sankeyWrapper,
+                    width:  _this.sankeyWrapper.clientWidth - 10,
+                    flows: flows,
+                    height: 400,
+                    originLevel: displayLevel,
+                    destinationLevel: displayLevel,
+                    renderStocks: false
+                })
+            }
+        })
+    },
+
+    linkSelected: function(e){
+        // only actors atm
+        var data = e.detail,
+            _this = this;
+
+        if (!Array.isArray(data)) data = [data];
+
+        data.forEach(function(d){
+            var origin = d.get('origin'),
+                destination = d.get('destination'),
+                materials = d.get('materials');
+            materials.forEach(function(m){
+                var material = m.material;
+                _this.addAffectedFlow({
+                    origin_activity: origin.id,
+                    destination_activity: destination.id,
+                    material: m.material
+                })
+            })
+        })
+    },
+
+
 
 });
 return SolutionPartView;
