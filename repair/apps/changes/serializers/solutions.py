@@ -305,11 +305,6 @@ class SolutionPartSerializer(serializers.ModelSerializer):
         flow_reference = validated_data.pop('flow_reference', None)
         flow_changes = validated_data.pop('flow_changes', None)
         instance = super().update(instance, validated_data)
-        if affected_flows:
-            AffectedFlow.objects.filter(solution_part=instance).delete()
-            for f in affected_flows:
-                flow = AffectedFlow(solution_part=instance, **f)
-                flow.save()
         if flow_reference:
             if instance.flow_reference:
                 instance.flow_reference.delete()
@@ -322,6 +317,11 @@ class SolutionPartSerializer(serializers.ModelSerializer):
             ref_model = FlowReference(**flow_changes)
             ref_model.save()
             instance.flow_changes = ref_model
+        if affected_flows:
+            AffectedFlow.objects.filter(solution_part=instance).delete()
+            for f in affected_flows:
+                flow = AffectedFlow(solution_part=instance, **f)
+                flow.save()
         instance.save()
         return instance
 
