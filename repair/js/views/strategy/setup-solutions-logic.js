@@ -397,7 +397,9 @@ var SolutionsLogicView = BaseView.extend(
             questions: this.questions,
             solutionParts: this.solutionParts,
             areas: this.areas,
-            processes: this.processes
+            processes: this.processes,
+            caseStudy: this.caseStudy,
+            keyflowId: this.keyflowId
         })
         if (type === 'possibleImplementationAreas')
            $(modal).on('shown.bs.modal', function (e) {

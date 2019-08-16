@@ -42,6 +42,10 @@
     max-width: 100%;
 }
 
+#affected-flows .btn-group, .affected-flows select{
+    max-width: 150px;
+}
+
 .part-table th{
     padding: 5px;
     font-weight: normal;
@@ -49,6 +53,10 @@
 
 .part-table tr{
     border-bottom: 1px solid lightgrey;
+}
+
+.part-table td:first-child{
+    width:10%;
 }
 
 .part-table tr:last-child{
