@@ -38,7 +38,6 @@ from repair.apps.changes.models import (Solution, Strategy,
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 
-
 class GraphTest(LoginTestCase, APITestCase):
     @classmethod
     def setUpClass(cls):
@@ -63,6 +62,7 @@ class GraphTest(LoginTestCase, APITestCase):
         self.graph = BaseGraph(self.kic, tag='test')
 
 
+'''
 class StrategyGraphTest(LoginTestCase, APITestCase):
     fixtures = ['peelpioneer_data']
 
@@ -104,7 +104,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
                 Polygon(((3, 51), (3, 54),
                         (7.5, 54), (7.5, 51), (3, 51)))),
         )
-    '''
     def test_graph(self):
         self.strategy = Strategy.objects.get(pk=88)
 
@@ -142,7 +141,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         assert ff.destination == new_destination_actor
         assert ff.amount == self.amount_before_shift
         assert ff.actual_amount == self.amount_after_shift
-    '''
 
     def test_modify(self):
         scheme = Scheme.MODIFICATION
@@ -388,3 +386,4 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         assert len(status_quo_flows) == len(new_flows) + len(changed_flows)
 
         # ToDo: additional asserts (test origins/destinations), affected flows
+'''
