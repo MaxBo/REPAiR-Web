@@ -361,7 +361,7 @@ class IndicatorArea(ComputeIndicator):
             res = amount[0] / ha if ha > 0 else None
             if self.strategy:
                 strategy_res = amount[1] / ha if ha > 0 else None
-                if (strategy_amount is None or amount is None):
+                if (strategy_res is None or amount is None):
                     delta = None
                 else:
                     delta = strategy_res - res
