@@ -230,9 +230,9 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder'
 )
 
-FIXTURE_DIRS = (
+FIXTURE_DIRS = [
     os.path.join(PROJECT_DIR, "fixtures"),
-)
+]
 
 LOGGING = {
     'version': 1,

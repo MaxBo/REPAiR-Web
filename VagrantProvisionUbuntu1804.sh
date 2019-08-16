@@ -24,8 +24,8 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt-get update && sudo apt-get install -y --allow-unauthenticated yarn
 
 echo "Installing graph-tools..."
-sudo add-apt-repository -y "deb http://downloads.skewed.de/apt/bionic bionic universe"
 sudo apt-key adv --keyserver pgp.skewed.de --recv-key 612DEFB798507F25
+sudo add-apt-repository -y "deb http://downloads.skewed.de/apt/bionic bionic universe"
 sudo apt-get update && sudo apt-get install -y --allow-unauthenticated python3-graph-tool
 
 sudo apt-get install -y libcairo2-dev libjpeg-dev libgif-dev

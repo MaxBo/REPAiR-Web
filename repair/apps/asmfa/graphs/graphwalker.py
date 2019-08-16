@@ -14,74 +14,6 @@ from repair.apps.asmfa.models.flows import FractionFlow
 from repair.apps.asmfa.models import Actor
 
 
-class Formula:
-    def __init__(self, a=1, b=0, q=0, is_absolute=False):
-        '''
-        linear change calculation
-
-        absolute change:
-        v’ = v + delta
-        delta = a * q + b
-
-        relative change:
-        v’ = v * factor
-        factor = a * q + b
-
-        Parameters
-        ----------
-        a: float, optional
-           by default 1
-        q: float, optional
-           quantity (user input), by default 0
-        b: float, optional
-           by default 0
-        is_absolute: bool, optional
-           absolute change, by default False
-        '''
-        self.a = a
-        self.b = b
-        self.q = q
-        self.is_absolute = is_absolute
-
-    def calculate(self, v):
-        '''
-        Parameters
-        ----------
-        v: float,
-           value to apply formula to
-
-        Returns
-        -------
-        v': float
-            calculated value
-        '''
-        return self.calculate_factor(v) * v
-
-    def calculate_factor(self, v=None):
-        '''
-        Parameters
-        ----------
-        v: float, optional
-           needed for calculation of a
-
-        Returns
-        -------
-        factor: float
-            calculated factor
-        '''
-        if self.is_absolute:
-            if v is None:
-                raise ValueError('Value needed for calculation of a factor for '
-                                 'absolute changes')
-            delta = self.a * self.q + self.b
-            v_ = v + delta
-            factor = v_ / v
-        else:
-            factor = self.a * self.q + self.b
-        return factor
-
-
-
 class NodeVisitor(BFSVisitor):
 
     def __init__(self, name, solution, amount, visited, change):
@@ -116,15 +48,17 @@ class NodeVisitor(BFSVisitor):
                     if len(e_src_out) > 1:
                         # For the case when an inflow edge shares the
                         # source vertex
-                        self.change[e] = (
-                            self.amount[e] / sum(
-                                [self.amount[out_f] for out_f in e_src_out])
-                            ) * self.solution
+                        sum_out_f = sum(self.amount[out_f] for out_f in e_src_out)
+                        if sum_out_f and self.amount[e]:
+                            self.change[e] = (self.amount[e] / sum_out_f) * self.solution
+                        else:
+                            # If there are neighbour edges sharing the same source, but their sum is 0, then
+                            # revert to compute the ratio from all inflows. However this case might mean that
+                            # we are trying to compute something where we don't have enough information yet. Because
+                            # the edges exist, but their amount is 0.
+                            self.change[e] = (self.amount[e] / sum(self.amount[in_f] for in_f in all_in)) * self.solution
                     else:
-                        self.change[e] = (
-                            self.amount[e] / sum(
-                                [self.amount[in_f] for in_f in all_in])
-                            ) * self.solution
+                        self.change[e] = (self.amount[e] / sum(self.amount[in_f] for in_f in all_in)) * self.solution
                     # print(self.id[e.source()], '-->',
                     # self.id[e.target()], self.change[e])
                     self.visited[e] = True
@@ -140,8 +74,7 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     ----------
     g : the graph to explore
     edge : the starting edge, normally this is the *solution edge*
-    solution : relative change of implementation flow
-               (factor to multiply amount with)
+    solution : absolute change of implementation flow (delta)
     amount : PropertyMap
     upstream : The direction of traversal. When upstream is True, the graph
                is explored upstream first, otherwise downstream first.
@@ -184,51 +117,40 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
 class GraphWalker:
     def __init__(self, g):
         self.graph = gt.Graph(g)
-        self.edge_mask = self.graph.new_edge_property("bool")
 
-    def calculate(self, implementation_edges, formula: Formula):
+    def calculate(self, implementation_edges, factors):
         """Calculate the changes on flows for a solution"""
+        # ToDo: deepcopy might be expensive. Why do we clone here?
         g = copy.deepcopy(self.graph)
-        g.ep.change.a[:] = 0
 
         # store the changes for each actor to sum total in the end
-        changes_actors = []
-        if formula.is_absolute:
-            total = sum(g.ep.amount[edge] for edge in implementation_edges)
-            new_total = formula.calculate(total)
-            #factor = formula.calculate_factor(total)
-        else:
-            factor = formula.calculate_factor()
+        overall_changes = None
+
+        # set all changes to zero
+        g.ep.change.a[:] = 0
 
         for i, edge in enumerate(implementation_edges):
 
             g.ep.include[edge] = True
             start = time.time()
-            amount = g.ep.amount[edge]
-            if formula.is_absolute:
-                # distribute total change to changes on edges
-                # depending on share of total
-                solution_factor = new_total * amount / total
-            else:
-                solution_factor = factor
+            solution_factor = factors[i]
+            # ToDo: why do we pass the property dict for amounts?
+            #       the graph is already passed linking to this dict
             changes = traverse_graph(g, edge=edge,
                                      solution=solution_factor,
                                      amount=g.ep.amount)
-            changes_actors.append(changes)
-            self.graph.ep.include[edge] = False
             end = time.time()
-            print(f'edge {i} - {end-start}s')
+            print(i, end-start)
+            if overall_changes is None:
+                overall_changes = changes.a
+            else:
+                overall_changes += changes.a
+            self.graph.ep.include[edge] = False
 
-            if (i > 50):
-                break
+        if overall_changes is not None:
+            g.ep.amount.a += overall_changes
 
-        # we compute the solution for each distinct Actor-Actor flow in the
-        # implementation flows and assume that we can just sum the changes
-        # of this part to the changes of the previous part
-        for e in g.edges():
-            # ToDo: optimize performance of summing changes (get rid of loops)
-            delta = sum(ch[e] for ch in changes_actors)
-            g.ep.amount[e] += delta
-            if (delta != 0):
-                g.ep.changed[e] = True
+        has_changed = overall_changes != 0
+        g.ep.changed.a[has_changed] = True
+
         return g
