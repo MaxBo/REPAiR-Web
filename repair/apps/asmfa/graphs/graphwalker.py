@@ -56,9 +56,17 @@ class NodeVisitor(BFSVisitor):
                             # revert to compute the ratio from all inflows. However this case might mean that
                             # we are trying to compute something where we don't have enough information yet. Because
                             # the edges exist, but their amount is 0.
-                            self.change[e] = (self.amount[e] / sum(self.amount[in_f] for in_f in all_in)) * self.solution
+                            sum_in_f = sum(self.amount[in_f] for in_f in all_in)
+                            if sum_in_f:
+                                self.change[e] = (self.amount[e] / sum_in_f) * self.solution
+                            else:
+                                self.change[e] = 0
                     else:
-                        self.change[e] = (self.amount[e] / sum(self.amount[in_f] for in_f in all_in)) * self.solution
+                        sum_in_f = sum(self.amount[in_f] for in_f in all_in)
+                        if sum_in_f:
+                            self.change[e] = (self.amount[e] / sum_in_f) * self.solution
+                        else:
+                            self.change[e] = 0
                     # print(self.id[e.source()], '-->',
                     # self.id[e.target()], self.change[e])
                     self.visited[e] = True
