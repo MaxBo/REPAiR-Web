@@ -60,13 +60,13 @@ class NodeVisitor(BFSVisitor):
                             if sum_in_f:
                                 self.change[e] = (self.amount[e] / sum_in_f) * self.solution
                             else:
-                                self.change[e] = 0
+                                self.change[e] = self.solution
                     else:
                         sum_in_f = sum(self.amount[in_f] for in_f in all_in)
                         if sum_in_f:
                             self.change[e] = (self.amount[e] / sum_in_f) * self.solution
                         else:
-                            self.change[e] = 0
+                            self.change[e] = self.solution
                     # print(self.id[e.source()], '-->',
                     # self.id[e.target()], self.change[e])
                     self.visited[e] = True

@@ -149,10 +149,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         factor = 2
 
-        households = Activity.objects.get(nace='V-0000')
-        collection = Activity.objects.get(nace='E-3811')
-        food_waste = Material.objects.get(name='Food Waste')
-
         implementation_flow = FlowReferenceFactory(
             origin_activity=self.households,
             origin_area=self.possible_impl_area,
@@ -203,7 +199,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         status_quo_flows = FractionFlow.objects.filter(
             origin__activity=self.households,
             destination__activity=self.collection,
-            material=self.food_waste
+            material=self.food_waste,
+            strategy__isnull=True, 
         )
 
         changes = StrategyFractionFlow.objects.filter(
@@ -211,14 +208,19 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         # the origin flows are all in the netherlands
         # and impl. area covers all of the netherlands -> all should be changed
-        assert len(status_quo_flows) == len(changes)
+        assert len(status_quo_flows) == len(changes), (
+                f'There are {len(status_quo_flows)} status_quo_flows '
+                f'and {len(changes)} changed flows. '
+                f'There should be one changed flow per status quo flow')
 
         old_sum = status_quo_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
         new_sum = changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert new_sum == old_sum * factor
+        assert new_sum == old_sum * factor, (
+            f'new sum: {new_sum}, old sum:{old_sum}, factor: {factor}'
+        )
 
         # ToDo: affected flows and tests for changed new amounts
 
@@ -322,6 +324,28 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             self.basegraph.tag)
 
         sg.build()
+        
+        changes = StrategyFractionFlow.objects.all()
+        
+        assert not changes, (
+            f'there should be no changes, '
+            f'but there are {len(changes)} changed flows')
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=self.collection,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy=implementation.strategy
+        )
+        
+        
+        new_sum = new_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        assert new_sum == amount, (
+            f'new_flow should have the amount of {amount} of the strategy, '
+            f'but has an amount of {new_sum} '
+            f"and values of {new_flows.values_list('amount')}"
+        )
 
         # ToDo: asserts, affected flows
 
