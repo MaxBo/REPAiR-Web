@@ -26,21 +26,22 @@ var StakeholdersView = BaseView.extend(
     initialize: function(options){
         StakeholdersView.__super__.initialize.apply(this, [options]);
         var _this = this;
+        _.bindAll(this, 'initStakeholders');
 
         this.template = options.template;
         this.caseStudy = options.caseStudy;
-        var caseStudyId = this.caseStudy.id;
+        this.caseStudyId = this.caseStudy.id;
 
         this.mode = options.mode || 0;
 
         this.stakeholderCategories = new GDSECollection([], {
             apiTag: 'stakeholderCategories',
-            apiIds: [ caseStudyId ]
+            apiIds: [ _this.caseStudyId ]
         });
 
         this.stakeholderCategories.fetch({
             success: function(stakeholderCategories){
-                _this.initStakeholders(stakeholderCategories, caseStudyId);
+                _this.initStakeholders();
             },
             error: _this.onError
         });
@@ -54,14 +55,14 @@ var StakeholdersView = BaseView.extend(
         'click #add-category-button': 'addCategory',
     },
 
-    initStakeholders: function(stakeholderCategories, caseStudyId){
+    initStakeholders: function(){
         var _this = this;
         var promises = [];
 
-        stakeholderCategories.forEach(function(category){
+        this.stakeholderCategories.forEach(function(category){
             var stakeholders = new GDSECollection([], {
                 apiTag: 'stakeholders',
-                apiIds: [ caseStudyId, category.id ]
+                apiIds: [ _this.caseStudyId, category.id ]
             });
 
             promises.push(stakeholders.fetch({
@@ -295,7 +296,8 @@ var StakeholdersView = BaseView.extend(
         // with the same attributes
         function onConfirm(name){
             _this.stakeholderCategories.create({name: name}, {
-                success: _this.render,
+                // ToDo: atm we just fetch and rerender everything (because lazy?)
+                success: _this.initStakeholders,
                 error: _this.onError,
                 wait: true
             });
