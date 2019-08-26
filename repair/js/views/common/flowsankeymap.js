@@ -84,7 +84,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 position: 'topright',
                 filename: 'sankey-map',
                 exportOnly: true,
-                hideControlContainer: true
+                hideControlContainer: true,
+                sizeModes: ['A4Landscape']
             }));
             this.leafletMap.on("zoomend", this.zoomed);
 
@@ -103,7 +104,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             // easyprint is not customizable enough (buttons, remove menu etc.) and not touch friendly
             // workaround: hide it and pass on clicks (actually strange, but easyprint was still easiest to use export plugin out there)
             var easyprintCtrl = this.el.querySelector('.leaflet-control-easyPrint'),
-                easyprintCsBtn = this.el.querySelector('.easyPrintHolder .CurrentSize');
+                easyprintCsBtn = this.el.querySelector('.easyPrintHolder .A4Landscape');
             easyprintCtrl.style.visibility = 'hidden';
             exportImgBtn.addEventListener('click', function(){
                 easyprintCsBtn.click();
