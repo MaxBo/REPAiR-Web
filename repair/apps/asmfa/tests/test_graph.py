@@ -200,7 +200,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             origin__activity=self.households,
             destination__activity=self.collection,
             material=self.food_waste,
-            strategy__isnull=True, 
+            strategy__isnull=True,
         )
 
         changes = StrategyFractionFlow.objects.filter(
@@ -292,6 +292,49 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         # ToDo: additional asserts, affected flows
 
+    def test_shift_origin(self):
+        scheme = Scheme.SHIFTORIGIN
+
+        factor = 0.5
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=self.households,
+            destination_activity=self.treatment,
+            material=self.food_waste
+        )
+
+        # shift from households to collection
+        shift = FlowReferenceFactory(
+            origin_activity=self.collection,
+            destination_area=self.possible_impl_area,
+        )
+
+        # shift half of the amount
+        shift_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            flow_changes=shift,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        # ToDo: asserts, affected flows
+
     def test_new_flows(self):
         scheme = Scheme.NEW
 
@@ -324,9 +367,9 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             self.basegraph.tag)
 
         sg.build()
-        
+
         changes = StrategyFractionFlow.objects.all()
-        
+
         assert not changes, (
             f'there should be no changes, '
             f'but there are {len(changes)} changed flows')
@@ -337,8 +380,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             material=self.food_waste,
             strategy=implementation.strategy
         )
-        
-        
+
+
         new_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
         assert new_sum == amount, (
@@ -346,6 +389,49 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             f'but has an amount of {new_sum} '
             f"and values of {new_flows.values_list('amount')}"
         )
+
+        # ToDo: asserts, affected flows
+
+    def test_prepend(self):
+        scheme = Scheme.PREPEND
+
+        factor = 0.5
+
+        implementation_flow = FlowReferenceFactory(
+            origin_activity=self.households,
+            destination_activity=self.collection,
+            material=self.food_waste
+        )
+
+        # shift from collection to treatment
+        prefix = FlowReferenceFactory(
+            origin_activity=self.treatment,
+            origin_area=self.possible_impl_area,
+        )
+
+        # shift half of the amount
+        shift_part = SolutionPartFactory(
+            solution=self.solution,
+            question=None,
+            flow_reference=implementation_flow,
+            flow_changes=prefix,
+            scheme=scheme,
+            is_absolute=False,
+            a = 0,
+            b = factor
+        )
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
 
         # ToDo: asserts, affected flows
 
