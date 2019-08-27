@@ -173,7 +173,7 @@ define([
                 totalValues.push(totalValue)
             })
             this.maxFlowValue = Math.max(...totalValues);
-            this.minFlowValue = Math.min(...totalValues);
+            //this.minFlowValue = Math.min(...totalValues);
         }
 
         draw() {

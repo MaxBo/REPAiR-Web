@@ -618,9 +618,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                         if (!mat){
                             mat = Object.assign({}, material);
                             fractions[material.material] = mat;
+                            mat.amount = (material.amount != null) ? material.amount: material.statusquo_amount;
                         }
                         else{
-                            mat.amount += material.amount;
+                            mat.amount += (material.amount != null) ? material.amount: material.statusquo_amount;
                         }
                     })
                     mapped.amount += flow.get('amount');
@@ -682,9 +683,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel+ '<br>' + processLabel ;
 
                 if(splitByComposition){
-                    var cl = []
+                    var cl = [];
                     fractions.forEach(function(material){
-                        var amount = Math.round(material.amount),
+                        var amount = (material.amount != null) ? material.amount: material.statusquo_amount,
                             label = flowLabel + '<br><b>Material: </b>' + material.name +
                                     '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
                             color;
@@ -702,7 +703,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             label: label,
                             source: source.id,
                             target: target.id,
-                            value: Math.abs(amount),
+                            value: Math.abs(Math.round(amount)),
                             material: material.material,
                             tag: material.material,
                             color: color
@@ -733,7 +734,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 if(splitByComposition){
                     var cs = [];
                     fractions.forEach(function(material){
-                        var amount = Math.round(material.amount),
+                        var amount = (material.amount != null) ? material.amount: material.statusquo_amount,
                             label = stockLabel + '<br><b>Material: </b>' + material.name + '<br><b>Amount: </b>' + _this.format(amount) + ' t/year',
                             color;
                         if (!uniqueMaterials[material.material]){
@@ -752,7 +753,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                             lon: source.lon,
                             lat: source.lat,
                             //radius: radius,
-                            value: Math.abs(amount),
+                            value: Math.abs(Math.round(amount)),
                             tag: material.material
                         })
                     })
