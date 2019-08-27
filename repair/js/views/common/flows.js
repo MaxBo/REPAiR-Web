@@ -389,7 +389,10 @@ var FlowsView = BaseView.extend(
                             f._amount = f.get('amount');
                             var materials = f.get('materials');
                             f.get('materials').forEach(function(material){
-                                material._amount =  material.amount;
+                                // ToDo: change filter API response
+                                // workaround: show statusquo if amount is null
+                                if (material.amount == null) material.amount = material.statusquo_amount;
+                                material._amount = material.amount;
                             })
                             f.set('materials', materials);
                         })

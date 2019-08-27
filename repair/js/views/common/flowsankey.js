@@ -211,7 +211,7 @@ var FlowSankeyView = BaseView.extend(
                 fractions = flow.get('materials'),
                 totalAmount = flow.get('amount');
             fractions.forEach(function(material){
-                var amount = (material.value != null) ? material.value: (material.amount != null) ? material.amount: material.statusquo_amount;
+                var amount = (material.value != null) ? material.value: material.amount;
                 if (amount == 0) return;
                 if (_this.forceSignum && amount >= 0)
                     text += '+';
