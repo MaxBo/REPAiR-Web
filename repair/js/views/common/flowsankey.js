@@ -50,6 +50,7 @@ var FlowSankeyView = BaseView.extend(
         this.originLevel = options.originLevel;
         this.destinationLevel = options.destinationLevel;
         this.flows = options.flows;
+        this.selectOnDoubleClick = options.selectOnDoubleClick || false;
         this.renderStocks = (options.renderStocks == null) ? true: options.renderStocks;
         this.showRelativeComposition = (options.showRelativeComposition == null) ? true : options.showRelativeComposition;
         this.forceSignum = options.forceSignum || false;
@@ -70,6 +71,7 @@ var FlowSankeyView = BaseView.extend(
         'click .export-csv': 'exportCSV',
         'click .select-all': 'selectAll',
         'click .deselect-all': 'deselectAll',
+        'change #sankey-dblclick': 'changeDblClick',
         'change #sankey-alignment': 'alignSankey',
         'change #sankey-scale': 'scale',
         'change #sankey-stretch': 'stretch'
@@ -104,8 +106,11 @@ var FlowSankeyView = BaseView.extend(
             language: config.session.get('language'),
             selectable: true,
             gradient: false,
-            stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1
+            stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1,
+            selectOnDoubleClick: this.selectOnDoubleClick
         })
+        var dblclkCheck = this.el.querySelector('#sankey-dblclick');
+        if (dblclkCheck) dblclkCheck.checked = this.selectOnDoubleClick;
 
         // redirect the event with same properties
         function redirectEvent(e){
@@ -126,17 +131,27 @@ var FlowSankeyView = BaseView.extend(
         //this.render(this.transformedData);
     },
 
+    changeDblClick: function(evt){
+        this.deselectAll();
+        var checked = evt.target.checked;
+        this.sankey.selectOnDoubleClick = checked;
+        this.sankey.render(this.transformedData);
+    },
+
     alignSankey: function(evt){
+        this.deselectAll();
         this.sankey.align(evt.target.value);
         this.sankey.render(this.transformedData);
     },
 
     scale: function(){
+        this.deselectAll();
         this.transformedData = this.transformData(this.flows);
         this.render(this.transformedData);
     },
 
     stretch: function(evt){
+        this.deselectAll();
         this.sankey.stretch(evt.target.value)
         this.sankey.render(this.transformedData)
     },

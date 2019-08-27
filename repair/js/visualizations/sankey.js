@@ -40,6 +40,7 @@ class Sankey{
             .align(alignment);
         this.selectable = options.selectable;
         this.gradient = options.gradient;
+        this.selectOnDoubleClick = options.selectOnDoubleClick || false;
     }
 
     format(d) {
@@ -208,6 +209,7 @@ class Sankey{
             .attr("width", this.width  * this.stretchFactor)
             .attr("height", this.height)
             .call(this.zoom)
+            .on("dblclick.zoom", null)
             .call(tipLinks)
             .call(tipNodes)
 
@@ -249,6 +251,9 @@ class Sankey{
             return d.color || d.source.color || '#000';
         }
 
+        var selectEvent = (this.selectOnDoubleClick) ? 'dblclick': 'click';
+        console.log(selectEvent)
+
         var link = g.append("g").attr("class", "link-container")
             .selectAll(".link")
             .data(data.links)
@@ -271,7 +276,7 @@ class Sankey{
                 })
             .on('mouseover', function(d) { tipLinks.show(d, this); })
             .on('mouseout', function(d) { tipLinks.hide(d, this); })
-            .on('click', function(d){
+            .on(selectEvent, function(d){
                 if (_this.selectable){
                     var link = d3.select(this),
                         selected = link.classed("selected");
