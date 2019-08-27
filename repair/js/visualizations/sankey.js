@@ -252,7 +252,6 @@ class Sankey{
         }
 
         var selectEvent = (this.selectOnDoubleClick) ? 'dblclick': 'click';
-        console.log(selectEvent)
 
         var link = g.append("g").attr("class", "link-container")
             .selectAll(".link")

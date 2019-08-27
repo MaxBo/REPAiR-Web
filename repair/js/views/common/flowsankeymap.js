@@ -273,6 +273,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             legendControl.onAdd = function () { return _this.legend; };
             legendControl.addTo(this.leafletMap);
             this.el.querySelector('.leaflet-right.leaflet-bottom').classList.add('leaflet-legend');
+            L.DomEvent.disableClickPropagation(this.legend);
+            L.DomEvent.disableScrollPropagation(this.legend);
         },
 
         toggleMaterials(){
