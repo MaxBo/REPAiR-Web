@@ -158,10 +158,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 aniDiv = document.createElement('div'),
                 aniCheckWrap = document.createElement('div'),
                 aniToggleDiv = document.createElement('div'),
-                toggleAniBtn = document.createElement('button'),
                 clusterDiv = document.createElement('div');
 
-            toggleAniBtn.classList.add('glyphicon', 'glyphicon-chevron-right');
             matDiv.appendChild(this.materialCheck);
             matDiv.appendChild(matLabel);
             matDiv.style.cursor = 'pointer';
@@ -181,25 +179,27 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             aniCheckWrap.appendChild(this.animationCheck);
             aniCheckWrap.appendChild(aniLabel);
             aniDiv.appendChild(aniCheckWrap);
-            aniDiv.appendChild(toggleAniBtn);
             aniCheckWrap.style.cursor = 'pointer';
-            aniToggleDiv.style.visibility = 'hidden';
 
             var aniLinesLabel = document.createElement('label'),
                 aniDotsLabel = document.createElement('label');
 
             this.aniLinesRadio = document.createElement('input');
-            this.aniLinesRadio.checked = true;
             this.aniDotsRadio = document.createElement('input');
             this.aniLinesRadio.type = 'radio';
             this.aniDotsRadio.type = 'radio';
             this.aniLinesRadio.name = 'animation';
             this.aniDotsRadio.name = 'animation';
+            this.aniLinesRadio.style.transform = 'scale(1.5)';
+            this.aniLinesRadio.style.marginLeft = '5px';
+            this.aniDotsRadio.style.transform = 'scale(1.5)';
+            this.aniDotsRadio.style.marginLeft = '5px';
+
+            this.aniDotsRadio.checked = true;
 
             aniCheckWrap.style.float = 'left';
             aniCheckWrap.style.marginRight = '5px';
             aniToggleDiv.style.float = 'left';
-            toggleAniBtn.style.float = 'left';
             aniLinesLabel.style.marginRight = '3px';
 
             aniLinesLabel.innerHTML = 'lines only';
@@ -239,9 +239,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             aniCheckWrap.addEventListener("click", function(){
                 _this.animationCheck.checked = !_this.animationCheck.checked;
                 _this.flowMap.toggleAnimation(_this.animationCheck.checked);
-            });
-            toggleAniBtn.addEventListener("click", function(){
-                aniToggleDiv.style.visibility = (aniToggleDiv.style.visibility == 'hidden') ? 'visible': 'hidden';
             });
             aniToggleDiv.addEventListener("click", function(){
                 if (_this.aniDotsRadio.checked)
