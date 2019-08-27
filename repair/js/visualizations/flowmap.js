@@ -240,20 +240,29 @@ define([
                             };
                         }
                     }
+                    var options = {
+                        xshift: xshift,
+                        yshift: yshift,
+                        animate: _this.animate,
+                        dash: dash,
+                        curve: curve
+                    };
+                    var coords = [
+                        {x: sourceCoords[0], y: sourceCoords[1]},
+                        {x: targetCoords[0], y: targetCoords[1]}
+                    ];
                     var path = _this.drawPath(
-                        [
-                            {x: sourceCoords[0], y: sourceCoords[1]},
-                            {x: targetCoords[0], y: targetCoords[1]}
-                        ],
-                        flow.label, flow.color, strokeWidth,
-                        {
-                            xshift: xshift,
-                            yshift: yshift,
-                            animate: _this.animate,
-                            dash: dash,
-                            curve: curve
-                        }
+                        coords, flow.label, flow.color, strokeWidth, options
                     );
+                    // workaround for mouseover very thin lines
+                    // put invisible line on top (with mouseover)
+                    if (!_this.animate && strokeWidth < 7) {
+                        options.opacity = 0;
+                        var bufferedPath = _this.drawPath(
+                            coords, flow.label, flow.color, 7, options
+                        );
+                    }
+
                     xshift -= shiftStep;
                     yshift += shiftStep;
                 });
@@ -426,12 +435,13 @@ define([
                      + " " + (target.x + controls[2]) + "," + (target.y + controls[3])
                      + " " + target.x + "," + target.y;
             };
+            var opacity = (options.opacity != null) ? options.opacity : 0.5;
             var path = this.g.append("path")
                 .attr('d', bezier(points))
                 .attr("stroke-width", strokeWidth)
                 .attr("stroke", color)
                 .attr("fill", 'none')
-                .attr("stroke-opacity", 0.5)
+                .attr("stroke-opacity", opacity)
                 .attr("stroke-linecap", (!options.animate || (options.dash && options.dash.rounded)) ? "round": "unset")
                 .style("pointer-events", (options.animate && (options.dash && options.dash.rounded)) ? 'none' : 'stroke')
                 .on("mouseover", function () {
@@ -450,7 +460,7 @@ define([
                     _this.tooltip.transition()
                         .duration(500)
                         .style("opacity", 0)
-                    path.attr("stroke-opacity", 0.5)
+                    path.attr("stroke-opacity", opacity)
                 })
                 .classed('flow', true)
                 .classed('animated', options.animate);
