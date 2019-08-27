@@ -294,20 +294,22 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     text = document.createElement('div'),
                     check = document.createElement('input'),
                     colorDiv = document.createElement('div');
-                div.style.height = '25px';
+                div.style.height = '30px';
                 div.style.cursor = 'pointer';
                 text.innerHTML = material.name;
                 text.style.fontSize = '1.3em';
                 text.style.overflow = 'hidden';
                 text.style.whiteSpace = 'nowrap';
                 text.style.textOverflow = 'ellipsis';
-                colorDiv.style.width = '20px';
+                colorDiv.style.width = '25px';
                 colorDiv.style.height = '100%';
                 colorDiv.style.textAlign = 'center';
                 colorDiv.style.background = color;
                 colorDiv.style.float = 'left';
+                colorDiv.style.paddingTop = '5px';
                 check.type = 'checkbox';
                 check.checked = _this.showMaterials[matId] === true;
+                check.style.transform = 'scale(1.7)';
                 check.style.pointerEvents = 'none';
                 div.appendChild(colorDiv);
                 div.appendChild(text);
