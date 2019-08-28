@@ -208,14 +208,16 @@ define([
             }
 
             function labelStyle(feature, resolution) {
+                var fontSize = options.labelFontSize || '15px';
                 return new ol.style.Text({
-                    font: '15px Open Sans,sans-serif',
+                    font: fontSize + ' Open Sans,sans-serif',
                     fill: new ol.style.Fill({ color: options.labelColor || '#4253f4' }),
                     stroke: new ol.style.Stroke({
                         color: options.labelOutline || 'white', width: 3
                     }),
                     text: feature.get('label'),
-                    overflow: false
+                    overflow: false,
+                    offsetY: options.labelOffset || 0
                 })
             }
 

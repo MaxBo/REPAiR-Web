@@ -394,7 +394,8 @@ var StrategyView = BaseView.extend(
     */
     renderSolutionPreviewMap: function(solutionImpl, item){
         var divid = 'solutionImpl' + solutionImpl.id,
-            _this = this;
+            _this = this,
+            areas = solutionImpl.get('areas');
         var mapDiv = item.querySelector('.olmap');
         mapDiv.id = divid;
         mapDiv.innerHTML = '';
@@ -404,13 +405,18 @@ var StrategyView = BaseView.extend(
             showControls: false,
             enableDrag: false
         });
-        var geom = solutionImpl.get('geom');
-        if (geom != null){
+        var geometries = [];
+        areas.forEach(function(area){
+            if (!area.geom) return;
+            geometries.push(area.geom)
+        })
+        if (geometries.length > 0){
             previewMap.addLayer('geometry');
-            geom.geometries.forEach(function(g){
-                previewMap.addGeometry(g.coordinates, {
-                    projection: _this.projection, layername: 'geometry',
-                    type: g.type
+            geometries.forEach(function(geom){
+                previewMap.addGeometry(geom.coordinates, {
+                    projection: _this.projection,
+                    layername: 'geometry',
+                    type: geom.type
                 });
             })
             previewMap.centerOnLayer('geometry');
@@ -460,6 +466,8 @@ var StrategyView = BaseView.extend(
             strokeWidth: 3,
             zIndex: 1000
         });
+
+        this.activityNames = [];
 
         var removeBtn = this.drawingTools.querySelector('.remove'),
             tools = this.drawingTools.querySelectorAll('.tool'),
@@ -529,6 +537,12 @@ var StrategyView = BaseView.extend(
         this.editorMap.clearLayer('implementation-area');
         this.editorMap.clearLayer('drawing');
 
+        this.activityNames.forEach(function(name){
+            _this.editorMap.removeLayer('actors' + name);
+            _this.removeFromLegend(name);
+        });
+        this.activityNames = [];
+
         var solution = this.solutions.get(solutionImpl.get('solution')),
             areaId = this.areaSelect.value;
             possImplArea = solution.areas.get(areaId),
@@ -546,8 +560,8 @@ var StrategyView = BaseView.extend(
         var area = this.editorMap.addPolygon(geom.coordinates, {
                 projection: this.projection,
                 layername: 'implementation-area',
-                type: geom.type,
-                tooltip: gettext('possible implementation area')
+                type: geom.type
+                //tooltip: gettext('possible implementation area')
             });
         this.editorMap.centerOnPolygon(area, { projection: this.projection });
 
@@ -558,6 +572,67 @@ var StrategyView = BaseView.extend(
             });
             _this.editorMap.centerOnLayer('drawing');
         }
+
+        var actorIds = possImplArea.get('affected_actors');
+        var actors = new GDSECollection([], {
+            apiTag: 'actors',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        });
+        var locations = new GeoLocations([], {
+            apiTag: 'adminLocations',
+            apiIds: [this.caseStudy.id, this.keyflowId]
+        });
+        var promises = [];
+        this.loader.activate();
+        promises.push(actors.fetch({
+            data: {id__in: actorIds.join(',')},
+            error: _this.onError
+        }));
+        promises.push(locations.fetch({
+            data: {actor__id__in: actorIds.join(',')},
+            error: _this.onError
+        }));
+
+        function bgColor(color){
+            if(color.length < 5) {
+                color += color.slice(1);
+            }
+            return (color.replace('#','0x')) > (0xffffff/2) ? '#333' : '#fff';
+        };
+
+        Promise.all(promises).then(function(){
+            var activityNames = [...new Set(actors.pluck('activity_name'))];
+            activityNames.forEach(function(activityName){
+                var color = utils.colorByName(activityName),
+                    layername = 'actors' + activityName;
+                _this.editorMap.addLayer(layername, {
+                    stroke: 'black',
+                    fill: color,
+                    labelColor: color,
+                    labelOutline: bgColor(color),
+                    labelFontSize: '12px',
+                    labelOffset: 15,
+                    strokeWidth: 1,
+                    zIndex: 1001
+                });
+                _this.addToLegend(activityName, color);
+                _this.activityNames.push(activityName);
+            })
+            locations.forEach(function(location){
+                var geom = location.get('geometry'),
+                    actor = actors.get(location.get('properties').actor),
+                    activityName = actor.get('activity_name');
+                if (!geom && !geom.get('coordinates')) return;
+                _this.editorMap.addGeometry(geom.get('coordinates'), {
+                    projection: _this.projection,
+                    tooltip: actor.get('name'),
+                    layername: 'actors' + activityName,
+                    label: actor.get('name'),
+                    type: 'Point'
+                });
+            })
+            _this.loader.deactivate();
+        })
     },
 
     saveOrder: function(){
@@ -569,7 +644,38 @@ var StrategyView = BaseView.extend(
             _this.solutionsInStrategy.get(id).save({ priority: i }, { patch: true })
             i++;
         });
-    }
+    },
+
+    addToLegend: function(activityName, color){
+        var legend = this.el.querySelector('#legend'),
+            itemsDiv = legend.querySelector('.items'),
+            legendDiv = document.createElement('div'),
+            circle = document.createElement('div'),
+            textDiv = document.createElement('div'),
+            head = document.createElement('b'),
+            img = document.createElement('img');
+        legendDiv.dataset['activity'] = activityName;
+        textDiv.innerHTML = gettext('actors') + ' ' + activityName;
+        textDiv.style.overflow = 'hidden';
+        textDiv.style.textOverflow = 'ellipsis';
+        legendDiv.appendChild(circle);
+        legendDiv.appendChild(textDiv);
+        circle.style.backgroundColor = color;
+        circle.style.float = 'left';
+        circle.style.width = '20px';
+        circle.style.height = '20px';
+        circle.style.marginRight = '5px';
+        circle.style.borderRadius = '10px';
+        legendDiv.style.marginBottom = '10px';
+        itemsDiv.prepend(legendDiv);
+    },
+
+    removeFromLegend: function(activityName){
+        var legend = this.el.querySelector('#legend'),
+            itemsDiv = legend.querySelector('.items');
+            entry = itemsDiv.querySelector('div[data-activity="' + activityName + '"]');
+        itemsDiv.removeChild(entry);
+    },
 
 });
 return StrategyView;
