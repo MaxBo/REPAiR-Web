@@ -325,8 +325,14 @@
       <textarea rows="20" name="implementation-area" style="width:100%; resize: vertical;"> </textarea>
     </div>
     <button style="float: left;" class="btn btn-tertiary" name="show-area" title="show area">
-      {% trans "Validate and show" %}
+      {% trans "Show geometry on map" %}
       <span class="glyphicon glyphicon-arrow-left" style="float: left; margin-right: 5px;"></span>
+    </button>
+    <button style="float: right; margin-left: 10px;" class="btn btn-secondary" name="set-focus-area" title="{% trans "set to focus area" %}">
+      {% trans "Set to focus area" %}
+    </button>
+    <button style="float: right;" class="btn btn-tertiary" name="set-casestudy" title="{% trans "set to case study region" %}">
+      {% trans "Set to case study region" %}
     </button>
   </div>
 </div>
