@@ -31,6 +31,7 @@ var PossibleImplementationAreaView = BaseView.extend(
 
         this.template = 'area-template';
         this.solutions = options.solutions;
+        this.caseStudy = options.caseStudy;
 
         this.render();
     },
@@ -39,7 +40,9 @@ var PossibleImplementationAreaView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click button[name="show-area"]': 'showArea'
+        'click button[name="show-area"]': 'showArea',
+        'click button[name="set-focus-area"]': 'setFocusArea',
+        'click button[name="set-casestudy"]': 'setCaseStudy'
     },
 
     /*
@@ -58,8 +61,8 @@ var PossibleImplementationAreaView = BaseView.extend(
             el: mapDiv
         });
         this.areaMap.addLayer('implementation-area', {
-            stroke: '#aad400',
-            fill: 'rgba(170, 212, 0, 0.1)',
+            stroke: 'rgb(0, 98, 255)',
+            fill: 'rgba(0, 98, 255, 0.1)',
             strokeWidth: 1,
             zIndex: 0
         });
@@ -92,7 +95,7 @@ var PossibleImplementationAreaView = BaseView.extend(
             var poly = this.areaMap.addPolygon(geoJSON.coordinates, {
                 projection: this.projection,
                 layername: 'implementation-area',
-                tooltip: gettext('Focus area'),
+                tooltip: gettext('possible implementation area'),
                 type: geoJSON.type.toLowerCase()
             });
         }
@@ -118,8 +121,27 @@ var PossibleImplementationAreaView = BaseView.extend(
             this.alert(gettext('type has to be MultiPolygon or Polygon'));
             return;
         }
-
         return geoJSON;
+    },
+
+    setFocusArea: function(){
+        var focusArea = this.caseStudy.get('properties').focusarea;
+        if (!focusArea) {
+            this.onError(gettext('focus area is not set for this case study'));
+            return;
+        }
+        this.implAreaText.value = JSON.stringify(focusArea);
+        this.showArea();
+    },
+
+    setCaseStudy: function(){
+        var geom = this.caseStudy.get('geometry');
+        if (!geom) {
+            this.alert(gettext('case study region is not set for this case study'));
+            return;
+        }
+        this.implAreaText.value = JSON.stringify(geom);
+        this.showArea();
     },
 
 });
