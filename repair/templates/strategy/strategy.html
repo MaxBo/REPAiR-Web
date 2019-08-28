@@ -90,11 +90,13 @@
              <% if (implementationAreas.length > 0) { %>
             <li><a data-toggle="tab" href="#strategy-area-tab">{% trans "Implementation Areas" %}</a></li>
              <% } %>
+            <li><a data-toggle="tab" href="#description-instrat-tab">{% trans "Description" %}</a></li>
           </ul>
           <div class="tab-content">
             <div class="tab-pane fade in active" id="questions-tab">
               <div class="col-md-12 bordered">
                 <div class="row" style="margin-top: 15px">
+                  <h3>{% trans "Stakeholders" %}</h3>
                   {% trans "Stakeholders in charge of the solution’s strategy in the strategy area" %}:
                   <div class="row">
                     <select id="strategy-stakeholders" class="selectpicker" multiple data-width="500px">
@@ -109,11 +111,11 @@
                   </div>
                 </div>
                 <% if (solutionImpl.get('quantities').length > 0) { %>
-                  <h4>{% trans "Questions" %}</h4>
+                  <h3>{% trans "Questions" %}</h3>
                   <% solutionImpl.get('quantities').forEach(function(quantity){ %>
                   <div class="row">
                     <% var question = questions.get(quantity.question); %>
-                    <%= question.get('question') %>
+                    <h4><%= question.get('question') %></h4>
                     <input class="form-control" name="quantity" value="<%= quantity.value %>" data-id="<%= question.id %>" type="number" step="<%= question.get('step') %>" min="<%= question.get('min_value') %>" max="<%= question.get('max_value') %>" style="margin-left: 10px; text-align: right; width: 150px; display: inline;">
                     <% if (question.get('is_absolute')) { %>
                     {% trans "t/year" %}
@@ -137,10 +139,17 @@
                 </div>
               </div>
             </div>
+            <div class="tab-pane fade in" id="description-instrat-tab">
+              <div class="col-md-12 bordered">
+                <div class="row" style="width: 900px; max-width: 100%;">
+                  <div name="description"><%= solution.get('description') %></div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="col-md-3">
-          <h4> {% trans "Notes"%} </h4>
+          <h4> {% trans "Personal Notes"%} </h4>
           <textarea name="description" rows="20" style="width: 100%; max-width: 100%;"><%= solutionImpl.get('note') %></textarea>
         </div>
       </div>
