@@ -393,7 +393,6 @@ var StrategyView = BaseView.extend(
     * render the map with the drawn polygons into the solution item
     */
     renderSolutionPreviewMap: function(solutionImpl, item){
-    console.log(solutionImpl)
         var divid = 'solutionImpl' + solutionImpl.id,
             _this = this,
             areas = solutionImpl.get('areas');
@@ -406,20 +405,25 @@ var StrategyView = BaseView.extend(
             showControls: false,
             enableDrag: false
         });
-
-        previewMap.addLayer('geometry');
+        var geometries = [];
         areas.forEach(function(area){
             if (!area.geom) return;
-            previewMap.addGeometry(area.geom.coordinates, {
-                projection: _this.projection,
-                layername: 'geometry',
-                type: area.geom.type
-            });
+            geometries.push(area.geom)
         })
-        if (areas && areas.length > 0)
+        if (geometries.length > 0){
+            previewMap.addLayer('geometry');
+            geometries.forEach(function(geom){
+                previewMap.addGeometry(geom.coordinates, {
+                    projection: _this.projection,
+                    layername: 'geometry',
+                    type: geom.type
+                });
+            })
             previewMap.centerOnLayer('geometry');
-        else if (this.focusPoly)
+        }
+        else if (this.focusPoly){
             previewMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
+        }
     },
 
     /*
