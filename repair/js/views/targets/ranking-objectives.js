@@ -116,15 +116,15 @@ function(_, BaseView, GDSECollection, Muuri){
                 overlay.style.display = 'inline-block';
                 overlay.innerHTML = '#' + priority;
             }
-            var desc = aim.get('description') || '-';
-
-            $(panelItem).popover({
-                trigger: "hover",
-                container: 'body',
-                //placement: 'bottom',
-                content: desc.replace(/\n/g, "<br/>"),
-                html: true
-            });
+            var desc = aim.get('description');
+            if (desc){
+                $(panelItem).popover({
+                    trigger: "hover",
+                    container: 'body',
+                    content: desc.replace(/\n/g, "<br/>"),
+                    html: true
+                });
+            }
         },
 
         uploadPriorities: function(draggedId){

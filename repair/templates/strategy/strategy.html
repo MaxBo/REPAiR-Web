@@ -112,6 +112,7 @@
                 </div>
                 <% if (solutionImpl.get('quantities').length > 0) { %>
                   <h3>{% trans "Questions" %}</h3>
+                  {% trans "Your answers to these questions will determine the impact on the status quo."%}
                   <% solutionImpl.get('quantities').forEach(function(quantity){ %>
                   <div class="row">
                     <% var question = questions.get(quantity.question); %>

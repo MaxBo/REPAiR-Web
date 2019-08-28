@@ -394,7 +394,8 @@ var StrategyView = BaseView.extend(
     */
     renderSolutionPreviewMap: function(solutionImpl, item){
         var divid = 'solutionImpl' + solutionImpl.id,
-            _this = this;
+            _this = this,
+            areas = solutionImpl.get('areas');
         var mapDiv = item.querySelector('.olmap');
         mapDiv.id = divid;
         mapDiv.innerHTML = '';
@@ -404,13 +405,18 @@ var StrategyView = BaseView.extend(
             showControls: false,
             enableDrag: false
         });
-        var geom = solutionImpl.get('geom');
-        if (geom != null){
+        var geometries = [];
+        areas.forEach(function(area){
+            if (!area.geom) return;
+            geometries.push(area.geom)
+        })
+        if (geometries.length > 0){
             previewMap.addLayer('geometry');
-            geom.geometries.forEach(function(g){
-                previewMap.addGeometry(g.coordinates, {
-                    projection: _this.projection, layername: 'geometry',
-                    type: g.type
+            geometries.forEach(function(geom){
+                previewMap.addGeometry(geom.coordinates, {
+                    projection: _this.projection,
+                    layername: 'geometry',
+                    type: geom.type
                 });
             })
             previewMap.centerOnLayer('geometry');
@@ -604,7 +610,7 @@ var StrategyView = BaseView.extend(
                     fill: color,
                     labelColor: color,
                     labelOutline: bgColor(color),
-                    labelFontSize: '10px',
+                    labelFontSize: '12px',
                     labelOffset: 15,
                     strokeWidth: 1,
                     zIndex: 1001
