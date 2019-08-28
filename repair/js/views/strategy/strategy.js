@@ -393,8 +393,10 @@ var StrategyView = BaseView.extend(
     * render the map with the drawn polygons into the solution item
     */
     renderSolutionPreviewMap: function(solutionImpl, item){
+    console.log(solutionImpl)
         var divid = 'solutionImpl' + solutionImpl.id,
-            _this = this;
+            _this = this,
+            areas = solutionImpl.get('areas');
         var mapDiv = item.querySelector('.olmap');
         mapDiv.id = divid;
         mapDiv.innerHTML = '';
@@ -404,20 +406,20 @@ var StrategyView = BaseView.extend(
             showControls: false,
             enableDrag: false
         });
-        var geom = solutionImpl.get('geom');
-        if (geom != null){
-            previewMap.addLayer('geometry');
-            geom.geometries.forEach(function(g){
-                previewMap.addGeometry(g.coordinates, {
-                    projection: _this.projection, layername: 'geometry',
-                    type: g.type
-                });
-            })
+
+        previewMap.addLayer('geometry');
+        areas.forEach(function(area){
+            if (!area.geom) return;
+            previewMap.addGeometry(area.geom.coordinates, {
+                projection: _this.projection,
+                layername: 'geometry',
+                type: area.geom.type
+            });
+        })
+        if (areas && areas.length > 0)
             previewMap.centerOnLayer('geometry');
-        }
-        else if (this.focusPoly){
+        else if (this.focusPoly)
             previewMap.centerOnPolygon(this.focusPoly, { projection: this.projection });
-        }
     },
 
     /*
@@ -604,7 +606,7 @@ var StrategyView = BaseView.extend(
                     fill: color,
                     labelColor: color,
                     labelOutline: bgColor(color),
-                    labelFontSize: '10px',
+                    labelFontSize: '12px',
                     labelOffset: 15,
                     strokeWidth: 1,
                     zIndex: 1001
