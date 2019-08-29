@@ -652,7 +652,7 @@ class StrategyGraph(BaseGraph):
         affectedflows = AffectedFlow.objects.filter(
                         solution_part=solution_part)
         # get FractionFlows related to AffectedFlow
-        affected_flows = FractionFlow.objects.none()
+        flows = FractionFlow.objects.none()
         for af in affectedflows:
             #materials = descend_materials([af.material])
             kwargs = {
@@ -662,9 +662,8 @@ class StrategyGraph(BaseGraph):
             }
             if af.process:
                 kwargs['process': af.process]
-            affected_flows = \
-                affected_flows | FractionFlow.objects.filter(**kwargs)
-        return affectedflows
+            flows = flows | FractionFlow.objects.filter(**kwargs)
+        return flows
 
     def _include(self, flows, do_include=True):
         '''

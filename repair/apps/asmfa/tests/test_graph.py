@@ -168,6 +168,13 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             b = factor
         )
 
+        AffectedFlowFactory(
+            origin_activity=self.collection,
+            destination_activity=self.treatment,
+            solution_part=mod_part,
+            material=self.food_waste
+        )
+
         # create the implementation along with the strategy
         implementation = SolutionInStrategyFactory(
             strategy__keyflow=self.keyflow,
@@ -196,33 +203,55 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         # validate outcome
 
-        status_quo_flows = FractionFlow.objects.filter(
+        impl_flows = FractionFlow.objects.filter(
             origin__activity=self.households,
             destination__activity=self.collection,
             material=self.food_waste,
             strategy__isnull=True,
         )
 
-        changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=status_quo_flows)
+        affected_flows = FractionFlow.objects.filter(
+            origin__activity=self.collection,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy__isnull=True,
+        )
+
+        impl_changes = StrategyFractionFlow.objects.filter(
+            fractionflow__in=impl_flows)
+
+        aff_changes = StrategyFractionFlow.objects.filter(
+            fractionflow__in=affected_flows)
 
         # the origin flows are all in the netherlands
         # and impl. area covers all of the netherlands -> all should be changed
-        assert len(status_quo_flows) == len(changes), (
-                f'There are {len(status_quo_flows)} status_quo_flows '
-                f'and {len(changes)} changed flows. '
-                f'There should be one changed flow per status quo flow')
+        assert len(impl_flows) == len(impl_changes), (
+                f'There are {len(impl_flows)} implementation flows '
+                f'and {len(impl_changes)} changes to those. '
+                f'There should be one changed flow per implementation flow')
 
-        old_sum = status_quo_flows.aggregate(
+        impl_old_sum = impl_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
-        new_sum = changes.aggregate(
+        impl_new_sum = impl_changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
         assert new_sum == old_sum * factor, (
             f'new sum: {new_sum}, old sum:{old_sum}, factor: {factor}'
         )
 
-        # ToDo: affected flows and tests for changed new amounts
+        assert len(affected_flows) == len(aff_changes), (
+                f'There are {len(affected_flows)} affected flows '
+                f'and {len(aff_changes)} changes to those. '
+                f'There should be one changed flow per affected flow')
+
+        aff_old_sum = affected_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        aff_new_sum = aff_changes.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        # ToDo: this is what's calculated, does it make sense?
+        assert aff_new_sum == (new_sum - old_sum) + aff_old_sum
+
 
     def test_shift_destination(self):
         scheme = Scheme.SHIFTDESTINATION
@@ -380,7 +409,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             material=self.food_waste,
             strategy=implementation.strategy
         )
-
 
         new_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
