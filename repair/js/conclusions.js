@@ -18,6 +18,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
     var consensusLevels, sections, modal, objectivesView, flowTargetsView,
         strategiesView, modifiedFlowsView, sustainabilityView, keyflowSelect;
 
+    var conclusionsInCasestudy = {};
+
 
     html2image = function(container, onSuccess){
         html2canvas(container).then(canvas => {
@@ -26,23 +28,56 @@ require(['models/casestudy', 'views/conclusions/setup-users',
         });
     }
 
-    addConclusion = function(){
+    addConclusion = function(keyflowId){
         var html = document.getElementById('conclusion-template').innerHTML,
-            template = _.template(html);
+            template = _.template(html),
+            content = document.getElementById('content');
+
+        function upload(conclusion){
+
+            //conclusionsInCasestudy[keyflow.id].create()
+        }
+
         if (!modal) {
             modal = document.getElementById('conclusion-modal');
             $(modal).on('shown.bs.modal', function() {
-                console.log('show')
                 new Viewer.default(modal.querySelector('img'));
             });
         }
-        html2image(document.getElementById('content'), function(image){
+
+        html2image(content, function(image){
             modal.innerHTML = template({
                 consensusLevels: consensusLevels,
                 sections: sections,
                 image: image
             });
             $(modal).modal('show');
+
+            modal.querySelector('.btn.confirm').addEventListener('click', function(){
+                console.log('click')
+                var step = content.querySelector('.tab-pane.active').dataset.step,
+                    conclusions = conclusionsInCasestudy[keyflowId];
+                console.log(step)
+                conclusions.create({
+                    "consensus_level": modal.querySelector('select[name="consensus"]').value,
+                    "section": modal.querySelector('select[name="section"]').value,
+                    "step": step,
+                    "text": modal.querySelector('textarea[name="comment"]').value,
+                    //"image": ,
+                }, {
+                    wait: true,
+                    success: function(){
+                        console.log(conclusions)
+                    },
+                    error: function(arg1, arg2){
+                        var response = (arg1.status) ? arg1 : arg2;
+                        if (response.responseText)
+                            alert(response.responseText);
+                        else
+                            alert(response.statusText);
+                    }
+                })
+            })
         })
     }
 
@@ -74,7 +109,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
     };
 
     renderWorkshop = function(caseStudy, keyflowId, keyflowName, objectives,
-                              participants, indicators, strategies, aims){
+                              participants, indicators, strategies, aims,
+                              conclusions){
         if (participants.size() === 0){
             var warning = document.createElement('h3');
             warning.innerHTML = gettext('There are no specified users! Please go to setup mode.')
@@ -133,8 +169,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             template: 'sustainability-template',
             keyflowId: keyflowId
         })
-
-        document.getElementById('add-conclusion').addEventListener('click', addConclusion);
     };
 
     function render(caseStudy, mode){
@@ -190,7 +224,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                     apiIds: [caseStudy.id],
                     comparator: 'name'
                 });
-                var promises = [];
                 promises.push(strategies.fetch({
                     data: { 'user__in': participants.pluck('id').join(',') },
                     error: alert
@@ -251,6 +284,11 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             session.save();
             renderKeyflow(keyflowId, keyflowName);
         });
+
+        document.getElementById('add-conclusion').addEventListener('click', function(){
+            var keyflowId = keyflowSelect.value;
+            addConclusion(keyflowId);
+        });
     }
 
     appConfig.session.fetch({
@@ -276,7 +314,26 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             promises.push(sections.fetch());
 
             Promise.all(promises).then(function(){
-                render(caseStudy, mode);
+                var keyflows = new GDSECollection([], {
+                    apiTag: 'keyflowsInCaseStudy',
+                    apiIds: [caseStudyId]
+                });
+                keyflows.fetch({
+                    success: function(){
+                        var promises = [];
+                        keyflows.forEach(function(keyflow){
+                            var conclusions = new GDSECollection([], {
+                                apiTag: 'conclusions',
+                                apiIds: [caseStudy.id, keyflow.id]
+                            });
+                            conclusionsInCasestudy[keyflow.id] = conclusions;
+                            promises.push(conclusions.fetch({error: alert}));
+                            Promise.all(promises).then(function(){
+                                render(caseStudy, mode);
+                            })
+                        })
+                    }
+                })
             })
         }
     });

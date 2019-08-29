@@ -22,7 +22,7 @@
   <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon fas fa-bullseye"></span></a></li>
   <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
   <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
-  <li><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
+  <li style="border-bottom: solid 1px #e6e6e6;"><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
   <li><a href="#conclusions" data-toggle="pill" style="margin-right: 5px;">{% trans "Conclusions" %} <span class="sub-icon far fa-lightbulb"></span></a></li>
 </ul>
 {% endblock %}
@@ -95,12 +95,12 @@
     <div class="modal-body">
       <div class="row">
         <label> {% trans "Section" %} </label>
-        <select class="section form-control">
+        <select name="section" class="form-control">
         </select>
       </div>
       <div class="row">
         <label> {% trans "Consensus Level" %} </label>
-        <select class="consensus form-control">
+        <select name="consensus" class="form-control">
           <% consensusLevels.forEach(function(level){ %>
             <option value="<%= level.id %>"> <%= level.get("name") %> </option>
           <% }); %>
@@ -108,10 +108,10 @@
       </div>
       <div class="row">
         <label> {% trans "Description" %} </label>
-        <textarea class="comment form-control" style="width: 100%; resize: vertical;" rows="4"></textarea>
+        <textarea name="comment" class="form-control" style="width: 100%; resize: vertical;" rows="4"></textarea>
       </div>
       <div class="row" style="margin-top: 10px;">
-        <input type="checkbox" class="screenshot-check" style="transform: scale(1.5); margin-right: 5px;"/>
+        <input type="checkbox" name="screenshot" class="check" style="transform: scale(1.5); margin-right: 5px;"/>
         <label> {% trans "Append screenshot" %} </label>
         <br>
         <img class="bordered" src="<%= image %>" style="height: 200px; cursor: pointer;"/>
