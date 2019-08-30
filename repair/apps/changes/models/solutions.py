@@ -103,6 +103,8 @@ class FlowReference(GDSEModel):
         Material, on_delete=PROTECT_CASCADE, null=True)
     process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE, null=True)
+    waste = models.IntegerField(default=-1)
+    hazardous = models.IntegerField(default=-1)
     origin_area = models.ForeignKey(
         PossibleImplementationArea, on_delete=PROTECT_CASCADE,
         related_name='possible_origin_area', null=True)

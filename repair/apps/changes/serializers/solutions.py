@@ -183,7 +183,11 @@ class FlowReferenceSerializer(serializers.ModelSerializer):
         model = FlowReference
         fields = ('origin_activity', 'destination_activity',
                   'material', 'process', 'origin_area',
-                  'destination_area')
+                  'destination_area', 'waste', 'hazardous')
+        extra_kwargs = {
+            'waste': {'required': False},
+            'hazardous': {'required': False}
+        }
 
 
 class SolutionPartSerializer(serializers.ModelSerializer):

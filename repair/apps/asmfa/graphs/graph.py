@@ -221,6 +221,10 @@ class BaseGraph:
             self.graph.new_edge_property("int")
         self.graph.edge_properties['process'] = \
             self.graph.new_edge_property("int")
+        #self.graph.edge_properties['waste'] = \
+            #self.graph.new_edge_property("bool")
+        #self.graph.edge_properties['hazardous'] = \
+            #self.graph.new_edge_property("bool")
 
         for i in range(len(flows)):
             # get the start and and actor id's
@@ -361,7 +365,8 @@ class StrategyGraph(BaseGraph):
 
     def _shift_flows(self, referenced_flows, possible_new_targets,
                      formula, new_material=None, new_process=None,
-                     shift_origin=True, reduce_reference=True):
+                     shift_origin=True, reduce_reference=True,
+                     new_waste=-1, new_hazardous=-1):
         '''
         creates new flows based on given referenced flows and redirects them
         to target actor (either origin or destinations are changing)
@@ -423,6 +428,7 @@ class StrategyGraph(BaseGraph):
                 else [edge.source(), new_vertex]
             new_edge = self.graph.edge(*new_edge_args)
 
+            # ToDo: ALWAYS create new flows (messes up product/waste else)
             # the edge might already exist, change this one instead of creating
             # a new one, changed material and process also require real shift
             if new_edge and not new_material and not new_process:
@@ -450,6 +456,10 @@ class StrategyGraph(BaseGraph):
                     new_flow.material = new_material
                 if new_process:
                     new_flow.process = new_process
+                if new_waste >= 0:
+                    new_flow.waste = new_waste == 1
+                if new_hazardous >= 0:
+                    new_flow.hazardous = new_hazardous == 1
 
                 # strategy marks flow as new flow
                 new_flow.strategy = self.strategy
@@ -480,7 +490,7 @@ class StrategyGraph(BaseGraph):
 
     def _chain_flows(self, referenced_flows, possible_new_targets,
                      formula, new_material=None, new_process=None,
-                     prepend=True):
+                     prepend=True, new_waste=-1, new_hazardous=-1):
         '''
         creates new flows based on given referenced flows and prepends
         (prepend==True) or appends (prepend==False) them
@@ -566,6 +576,10 @@ class StrategyGraph(BaseGraph):
                     new_flow.material = new_material
                 if new_process:
                     new_flow.process = new_process
+                if new_waste >= 0:
+                    new_flow.waste = new_waste == 1
+                if new_hazardous >= 0:
+                    new_flow.hazardous = new_hazardous == 1
 
                 # strategy marks flow as new flow
                 new_flow.strategy = self.strategy
@@ -745,7 +759,10 @@ class StrategyGraph(BaseGraph):
                         implementation_flows, possible_destinations,
                         formula, shift_origin=False,
                         new_material=changes.material,
-                        new_process=changes.process)
+                        new_process=changes.process,
+                        new_waste=changes.waste,
+                        new_hazardous=changes.hazardous
+                    )
 
                 elif solution_part.scheme == Scheme.SHIFTORIGIN:
                     possible_origins, d = self._get_actors(
@@ -754,7 +771,9 @@ class StrategyGraph(BaseGraph):
                         implementation_flows, possible_origins,
                         formula, shift_origin=True,
                         new_material=changes.material,
-                        new_process=changes.process
+                        new_process=changes.process,
+                        new_waste=changes.waste,
+                        new_hazardous=changes.hazardous
                     )
 
                 elif solution_part.scheme == Scheme.NEW:
@@ -771,7 +790,9 @@ class StrategyGraph(BaseGraph):
                         implementation_flows, possible_origins,
                         formula, prepend=True,
                         new_material=changes.material,
-                        new_process=changes.process)
+                        new_process=changes.process,
+                        new_waste=changes.waste,
+                        new_hazardous=changes.hazardous)
 
                 elif solution_part.scheme == Scheme.APPEND:
                     o, possible_destinations = self._get_actors(
@@ -780,7 +801,9 @@ class StrategyGraph(BaseGraph):
                         implementation_flows, possible_destinations,
                         formula, prepend=False,
                         new_material=changes.material,
-                        new_process=changes.process)
+                        new_process=changes.process,
+                        new_waste=changes.waste,
+                        new_hazardous=changes.hazardous)
 
                 else:
                     raise ValueError(
