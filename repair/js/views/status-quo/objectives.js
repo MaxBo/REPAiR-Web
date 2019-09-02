@@ -4,7 +4,7 @@ define(['underscore','views/common/baseview', 'collections/gdsecollection',
 function(_, BaseView, GDSECollection, GDSEModel, Muuri){
     /**
     *
-    * @author Christoph Franke, Balázs Dukai
+    * @author Christoph Franke
     * @name module:views/ChallengesAimsView
     * @augments Backbone.View
     */

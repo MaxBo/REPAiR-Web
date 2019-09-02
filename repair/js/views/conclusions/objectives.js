@@ -19,7 +19,7 @@ function(_, BaseView, GDSECollection, Muuri){
         * @param {HTMLElement} options.el                      element the view will be rendered in
         * @param {string} options.template                     id of the script element containing the underscore template to render this view
         * @param {module:models/CaseStudy} options.caseStudy   the casestudy of the keyflow
-        * @param {module:models/CaseStudy} options.keyflowId   the keyflow the objectives belong to
+        * @param {module:models/CaseStudy} options.keyflow   the keyflow the objectives belong to
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -31,8 +31,7 @@ function(_, BaseView, GDSECollection, Muuri){
             this.caseStudy = options.caseStudy;
             this.aims = options.aims;
             this.objectives = options.objectives;
-            this.keyflowId = options.keyflowId;
-            this.keyflowName = options.keyflowName;
+            this.keyflow = options.keyflow;
             this.users = options.users;
 
             // ToDo: non-keyflow related collections obviously don't change when changing keyflow
@@ -63,7 +62,7 @@ function(_, BaseView, GDSECollection, Muuri){
             var _this = this;
                 objectivesTable = this.el.querySelector('#objectives-table'),
                 generalTable = this.el.querySelector('#general-objectives-table');
-            var title = gettext('Objectives for keyflow <i>' + this.keyflowName + '</i>');
+            var title = gettext('Objectives for keyflow <i>' + this.keyflow.get('name') + '</i>');
             this.renderObjTable(this.objectives, this.aims, objectivesTable, title);
             title = gettext('General objectives');
             this.renderObjTable(this.generalObjectives, this.generalAims, generalTable, title);

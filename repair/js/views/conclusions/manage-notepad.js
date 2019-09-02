@@ -5,7 +5,7 @@ define(['underscore','views/common/baseview', 'collections/gdsecollection',
 function(_, BaseView, GDSECollection, Muuri){
     /**
     *
-    * @author Christoph Franke, Balázs Dukai
+    * @author Christoph Franke
     * @name module:views/SetupNotepadView
     * @augments Backbone.View
     */
