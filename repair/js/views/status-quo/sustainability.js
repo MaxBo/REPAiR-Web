@@ -28,19 +28,12 @@ var SustainabilityView = BaseView.extend(
         var _this = this;
 
         this.caseStudy = options.caseStudy;
-        this.keyflow = new GDSEModel({ id: options.keyflowId }, {
-            apiTag: 'keyflowsInCaseStudy',
-            apiIds: [ this.caseStudy.id ]
-        });
         this.mode = options.mode || 0;
+        this.keyflow = options.keyflow;
         this.scale = 1;
 
         this.fileAttr = options.fileAttr;
-
-        this.keyflow.fetch({
-            success: this.render,
-            error: this.onError
-        })
+        this.render();
     },
 
     /*
@@ -155,7 +148,8 @@ var SustainabilityView = BaseView.extend(
         if (this.pdfInput.files && this.pdfInput.files[0]){
             var pdf = this.pdfInput.files[0],
                 data = {};
-            data[_this.fileAttr] = pdf;
+            data[this.fileAttr] = pdf;
+            console.log(data)
             //this.keyflow.set('sustainability_conclusions', pdf);
             this.keyflow.save(data, {
                 success: function () {
