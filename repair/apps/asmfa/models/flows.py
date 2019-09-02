@@ -237,7 +237,7 @@ class FractionFlow(Flow):
                                     on_delete=models.SET_NULL,
                                     related_name='f_pub')
     avoidable = models.BooleanField(default=True)
-    hazardous = models.BooleanField(default=True)
+    hazardous = models.BooleanField(default=False)
 
     # composition related information
     nace = models.CharField(max_length=255, blank=True)
@@ -259,3 +259,5 @@ class StrategyFractionFlow(GDSEModel):
     process = models.ForeignKey(
         Process, null=True, on_delete=PROTECT_CASCADE,
         related_name='f_strategyfractionflowprocesses')
+    waste = models.BooleanField(default=False)
+    hazardous = models.BooleanField(default=False)

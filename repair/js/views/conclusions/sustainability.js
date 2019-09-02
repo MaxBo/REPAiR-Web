@@ -35,7 +35,7 @@ var SustainabilityView = BaseView.extend(
         this.mode = options.mode || 0;
         this.scale = 1;
 
-        this.fileAttr = 'sustainability_conclusions';
+        this.fileAttr = options.fileAttr;
 
         this.keyflow.fetch({
             success: this.render,
