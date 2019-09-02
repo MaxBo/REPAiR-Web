@@ -416,6 +416,11 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         if strategy is not None:
                             agg_mat_ser['delta'] += grouped_mat['delta']
                 grouped_mats = aggregated.values()
+            else:
+                # for some reason the groups forget their field 'amount'
+                for grouped_mat in grouped_mats:
+                    if 'amount' not in grouped_mat:
+                        grouped_mat['amount'] = grouped_mat['statusquo_amount']
             process = Process.objects.get(id=group['process']) \
                 if group['process'] else None
             flow_item = OrderedDict((

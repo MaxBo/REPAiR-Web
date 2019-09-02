@@ -1,5 +1,4 @@
 from abc import ABCMeta
-from enum import Enum
 import numpy as np
 from django.db.models import Q, Sum, Case, When, F, Value
 from collections import OrderedDict

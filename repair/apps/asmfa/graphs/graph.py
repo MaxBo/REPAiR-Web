@@ -701,7 +701,8 @@ class StrategyGraph(BaseGraph):
         return edges
 
     def build(self):
-
+        #self.mock_changes()
+        #return
         base_graph = BaseGraph(self.keyflow, tag=self.tag)
         # if the base graph is not built yet, it shouldn't be done automatically
         # there are permissions controlling who is allowed to build it and
@@ -999,3 +1000,40 @@ class StrategyGraph(BaseGraph):
             max_distance *= 2
 
         return target_actors
+
+    def mock_changes(self):
+        '''make some random changes for testing'''
+        flows = FractionFlow.objects.filter(
+            keyflow=self.keyflow, destination__isnull=False)
+        flow_ids = np.array(flows.values_list('id', flat=True))
+        # pick 30% of the flows for change of amount
+        choice = np.random.choice(
+            a=[False, True], size=len(flow_ids), p=[0.7, 0.3])
+        picked_flows = flows.filter(id__in=flow_ids[choice])
+        strat_flows = []
+        for flow in picked_flows:
+            # vary between -25% and +25%
+            new_amount = flow.amount * (1 + (np.random.random() / 2 - 0.25))
+            strat_flow = StrategyFractionFlow(
+                strategy=self.strategy, amount=new_amount, fractionflow=flow)
+            strat_flows.append(strat_flow)
+        StrategyFractionFlow.objects.bulk_create(strat_flows)
+
+        # pick 5% of flows as base for new flows
+        choice = np.random.choice(
+            a=[False, True], size=len(flow_ids), p=[0.95, 0.05])
+        picked_flows = flows.filter(id__in=flow_ids[choice])
+        actors = Actor.objects.filter(
+            activity__activitygroup__keyflow=self.keyflow)
+        actor_ids = np.array(actors.values_list('id', flat=True))
+        picked_actor_ids = np.random.choice(a=actor_ids, size=len(picked_flows))
+        for i, flow in enumerate(picked_flows):
+            change_origin = np.random.randint(2)
+            new_target = actors.get(id=picked_actor_ids[i])
+            # unset id
+            flow.pk = None
+            flow.strategy = self.strategy
+            flow.origin = flow.origin if not change_origin else new_target
+            flow.destination = flow.destination if change_origin else new_target
+            flow.amount += flow.amount * (np.random.random() / 2 - 0.25)
+            flow.save()

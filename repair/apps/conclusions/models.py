@@ -6,16 +6,6 @@ from repair.apps.asmfa.models.keyflows import KeyflowInCasestudy
 from repair.apps.login.models import CaseStudy
 
 
-STEP_CHOICES = (
-    (0, 'None'),
-    (1, 'Objectives'),
-    (2, 'Flow Targets'),
-    (3, 'Strategies'),
-    (4, 'Modified Flows'),
-    (5, 'Sustainability')
-)
-
-
 class ConsensusLevel(GDSEModel):
     casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
     name = models.TextField()
@@ -36,4 +26,4 @@ class Conclusion(GDSEModel):
     consensus_level = models.ForeignKey(ConsensusLevel,
                                         on_delete=PROTECT_CASCADE)
     section = models.ForeignKey(Section, on_delete=PROTECT_CASCADE)
-    step = models.IntegerField(choices=STEP_CHOICES, default=0)
+    step = models.CharField(max_length=20, default='None')

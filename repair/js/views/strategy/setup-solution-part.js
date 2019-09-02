@@ -33,6 +33,7 @@ var SolutionPartView = BaseView.extend(
         _.bindAll(this, 'addAffectedFlow');
         _.bindAll(this, 'drawSankey');
         _.bindAll(this, 'linkSelected');
+        _.bindAll(this, 'linkDeselected');
 
         this.template = 'solution-part-template';
 
@@ -97,7 +98,7 @@ var SolutionPartView = BaseView.extend(
 
         this.sankeyWrapper = this.el.querySelector('.sankey-wrapper');
         this.sankeyWrapper.addEventListener('linkSelected', this.linkSelected);
-        //this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
+        this.sankeyWrapper.addEventListener('linkDeselected', this.linkDeselected);
         //this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
 
         this.viewer = new Viewer.default(this.el.querySelector('#scheme-preview'));
@@ -479,6 +480,7 @@ var SolutionPartView = BaseView.extend(
             html = document.getElementById('affected-flow-row-template').innerHTML,
             template = _.template(html),
             _this = this;
+        if (flow.tag) row.dataset.tag = flow.tag;
         row.innerHTML = template({});
         row.classList.add('row');
         var matSelect = row.querySelector('div[name="material"]'),
@@ -589,8 +591,24 @@ var SolutionPartView = BaseView.extend(
                 _this.addAffectedFlow({
                     origin_activity: origin.id,
                     destination_activity: destination.id,
-                    material: m.material
+                    material: m.material,
+                    tag: d.id
                 })
+            })
+        })
+    },
+
+    linkDeselected: function(e){
+        // only actors atm
+        var data = e.detail,
+            _this = this;
+
+        if (!Array.isArray(data)) data = [data];
+
+        data.forEach(function(d){
+            var rows = _this.affectedDiv.querySelectorAll('div[data-tag="' + d.id + '"]');
+            rows.forEach(function(row){
+                _this.affectedDiv.removeChild(row);
             })
         })
     },

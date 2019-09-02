@@ -2,9 +2,10 @@ from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 from django.contrib.gis.db.models.functions import MakeValid, GeoFunc
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from repair.apps.asmfa.models import Activity
+from repair.apps.asmfa.models import Activity, Actor
 from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
                                         ImplementationQuestion,
@@ -76,6 +77,7 @@ class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
                                            NestedHyperlinkedModelSerializer):
     solution = IDRelatedField(read_only=True)
     edit_mask = serializers.ReadOnlyField()
+    affected_actors = serializers.SerializerMethodField()
     parent_lookup_kwargs = {
         'casestudy_pk': 'solution__solution_category__keyflow__casestudy__id',
         'keyflow_pk': 'solution__solution_category__keyflow__id',
@@ -84,7 +86,8 @@ class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
 
     class Meta:
         model = PossibleImplementationArea
-        fields = ('url', 'id', 'solution', 'question', 'geom', 'edit_mask')
+        fields = ('url', 'id', 'solution', 'question', 'geom', 'edit_mask',
+                  'affected_actors')
 
     def create(self, validated_data):
         instance = super().create(validated_data)
@@ -100,6 +103,33 @@ class PossibleImplementationAreaSerializer(SolutionDetailCreateMixin,
             qs.update(geom=CollectionExtract(MakeValid('geom'), 3))
             instance = qs[0]
         return instance
+
+    def get_affected_actors(self, obj):
+        parts = obj.solution.solution_parts
+        #references = parts.values_list('flow_reference', flat=True)
+        #changes = parts.values_list('flow_changes', flat=True)
+        #flow_references = FlowReference.objects.filter(
+            #id__in=list(references) + list(changes))
+        #flow_references.filter(Q(origin_area=obj) | Q(destination_area=obj))
+
+        # should be a sufficient filter because the area is solution specific
+        flow_references = FlowReference.objects.filter(
+            Q(origin_area=obj) | Q(destination_area=obj))
+        affected_actors = []
+        for flow_reference in flow_references:
+            for area, activity in [
+                (flow_reference.origin_area,
+                 flow_reference.origin_activity),
+                (flow_reference.destination_area,
+                 flow_reference.destination_activity)]:
+                if area != obj:
+                    continue
+                actors = Actor.objects.filter(activity=activity)
+                actors = actors.filter(
+                    administrative_location__geom__intersects=obj.geom)
+                affected_actors.extend(actors.values_list('id', flat=True))
+        affected_actors = set(affected_actors)
+        return affected_actors
 
 
 class SolutionSerializer(CreateWithUserInCasestudyMixin,

@@ -84,7 +84,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 position: 'topright',
                 filename: 'sankey-map',
                 exportOnly: true,
-                hideControlContainer: true
+                hideControlContainer: true,
+                sizeModes: ['A4Landscape']
             }));
             this.leafletMap.on("zoomend", this.zoomed);
 
@@ -103,7 +104,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             // easyprint is not customizable enough (buttons, remove menu etc.) and not touch friendly
             // workaround: hide it and pass on clicks (actually strange, but easyprint was still easiest to use export plugin out there)
             var easyprintCtrl = this.el.querySelector('.leaflet-control-easyPrint'),
-                easyprintCsBtn = this.el.querySelector('.easyPrintHolder .CurrentSize');
+                easyprintCsBtn = this.el.querySelector('.easyPrintHolder .A4Landscape');
             easyprintCtrl.style.visibility = 'hidden';
             exportImgBtn.addEventListener('click', function(){
                 easyprintCsBtn.click();
@@ -157,10 +158,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 aniDiv = document.createElement('div'),
                 aniCheckWrap = document.createElement('div'),
                 aniToggleDiv = document.createElement('div'),
-                toggleAniBtn = document.createElement('button'),
                 clusterDiv = document.createElement('div');
 
-            toggleAniBtn.classList.add('glyphicon', 'glyphicon-chevron-right');
             matDiv.appendChild(this.materialCheck);
             matDiv.appendChild(matLabel);
             matDiv.style.cursor = 'pointer';
@@ -180,25 +179,27 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             aniCheckWrap.appendChild(this.animationCheck);
             aniCheckWrap.appendChild(aniLabel);
             aniDiv.appendChild(aniCheckWrap);
-            aniDiv.appendChild(toggleAniBtn);
             aniCheckWrap.style.cursor = 'pointer';
-            aniToggleDiv.style.visibility = 'hidden';
 
             var aniLinesLabel = document.createElement('label'),
                 aniDotsLabel = document.createElement('label');
 
             this.aniLinesRadio = document.createElement('input');
-            this.aniLinesRadio.checked = true;
             this.aniDotsRadio = document.createElement('input');
             this.aniLinesRadio.type = 'radio';
             this.aniDotsRadio.type = 'radio';
             this.aniLinesRadio.name = 'animation';
             this.aniDotsRadio.name = 'animation';
+            this.aniLinesRadio.style.transform = 'scale(1.5)';
+            this.aniLinesRadio.style.marginLeft = '5px';
+            this.aniDotsRadio.style.transform = 'scale(1.5)';
+            this.aniDotsRadio.style.marginLeft = '5px';
+
+            this.aniDotsRadio.checked = true;
 
             aniCheckWrap.style.float = 'left';
             aniCheckWrap.style.marginRight = '5px';
             aniToggleDiv.style.float = 'left';
-            toggleAniBtn.style.float = 'left';
             aniLinesLabel.style.marginRight = '3px';
 
             aniLinesLabel.innerHTML = 'lines only';
@@ -239,9 +240,6 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this.animationCheck.checked = !_this.animationCheck.checked;
                 _this.flowMap.toggleAnimation(_this.animationCheck.checked);
             });
-            toggleAniBtn.addEventListener("click", function(){
-                aniToggleDiv.style.visibility = (aniToggleDiv.style.visibility == 'hidden') ? 'visible': 'hidden';
-            });
             aniToggleDiv.addEventListener("click", function(){
                 if (_this.aniDotsRadio.checked)
                     _this.aniLinesRadio.checked = true;
@@ -272,6 +270,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             legendControl.onAdd = function () { return _this.legend; };
             legendControl.addTo(this.leafletMap);
             this.el.querySelector('.leaflet-right.leaflet-bottom').classList.add('leaflet-legend');
+            L.DomEvent.disableClickPropagation(this.legend);
+            L.DomEvent.disableScrollPropagation(this.legend);
         },
 
         toggleMaterials(){
@@ -293,20 +293,22 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     text = document.createElement('div'),
                     check = document.createElement('input'),
                     colorDiv = document.createElement('div');
-                div.style.height = '25px';
+                div.style.height = '30px';
                 div.style.cursor = 'pointer';
                 text.innerHTML = material.name;
                 text.style.fontSize = '1.3em';
                 text.style.overflow = 'hidden';
                 text.style.whiteSpace = 'nowrap';
                 text.style.textOverflow = 'ellipsis';
-                colorDiv.style.width = '20px';
+                colorDiv.style.width = '25px';
                 colorDiv.style.height = '100%';
                 colorDiv.style.textAlign = 'center';
                 colorDiv.style.background = color;
                 colorDiv.style.float = 'left';
+                colorDiv.style.paddingTop = '5px';
                 check.type = 'checkbox';
                 check.checked = _this.showMaterials[matId] === true;
+                check.style.transform = 'scale(1.7)';
                 check.style.pointerEvents = 'none';
                 div.appendChild(colorDiv);
                 div.appendChild(text);
@@ -677,7 +679,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                     flowLabel = source.name + '&#10132; '  + target.name + '<br>' + wasteLabel+ '<br>' + processLabel ;
 
                 if(splitByComposition){
-                    var cl = []
+                    var cl = [];
                     fractions.forEach(function(material){
                         var amount = Math.round(material.amount),
                             label = flowLabel + '<br><b>Material: </b>' + material.name +

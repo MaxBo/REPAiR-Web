@@ -77,7 +77,6 @@
                     {% endif %}
                   </div>
                 </div>
-                <span class="caret drop-arrow"></span>
               </form>
             </li>
             {% if setup_mode_permitted %}
@@ -96,7 +95,6 @@
                       <a {% if request.session.mode == 1 %} class="active" {% endif %} href="{{ request.path }}?mode=setup"> {% trans "Setup" %} </a>
                     </div>
                   </div>
-                  <span class="caret drop-arrow"></span>
                 </form>
               </li>
            {% endif %}
@@ -160,7 +158,6 @@
                     </option>
                   {% endfor %}
                 </select>
-                <span class="caret drop-arrow"></span>
               </div>
             </form>
           </li>
