@@ -428,61 +428,49 @@ class StrategyGraph(BaseGraph):
                 else [edge.source(), new_vertex]
             new_edge = self.graph.edge(*new_edge_args)
 
-            # ToDo: ALWAYS create new flows (messes up product/waste else)
-            # the edge might already exist, change this one instead of creating
-            # a new one, changed material and process also require real shift
-            if new_edge and not new_material and not new_process:
-                # get flow from database and add to new_flows
-                changed_ref_flow = FractionFlow.objects.get(
-                    id=self.graph.ep.id[new_edge])
-
-                # add flow and delta to changed_ref arrays
-                changed_ref_flows.append(changed_ref_flow)
-                changed_ref_deltas.append(delta)
+            # create a new fractionflow for the implementation flow in db,
+            # setting id to None creates new one when saving
+            # while keeping attributes of original model;
+            # the new flow is added with zero amount and to be changed
+            # by calculated delta
+            new_flow = copy_django_model(flow)
+            new_flow.id = None
+            new_flow.amount = 0
+            if shift_origin:
+                new_flow.origin_id = new_id
             else:
-                # create a new fractionflow for the implementation flow in db,
-                # setting id to None creates new one when saving
-                # while keeping attributes of original model;
-                # the new flow is added with zero amount and to be changed
-                # by calculated delta
-                new_flow = copy_django_model(flow)
-                new_flow.id = None
-                new_flow.amount = 0
-                if shift_origin:
-                    new_flow.origin_id = new_id
-                else:
-                    new_flow.destination_id = new_id
-                if new_material:
-                    new_flow.material = new_material
-                if new_process:
-                    new_flow.process = new_process
-                if new_waste >= 0:
-                    new_flow.waste = new_waste == 1
-                if new_hazardous >= 0:
-                    new_flow.hazardous = new_hazardous == 1
+                new_flow.destination_id = new_id
+            if new_material:
+                new_flow.material = new_material
+            if new_process:
+                new_flow.process = new_process
+            if new_waste >= 0:
+                new_flow.waste = new_waste == 1
+            if new_hazardous >= 0:
+                new_flow.hazardous = new_hazardous == 1
 
-                # strategy marks flow as new flow
-                new_flow.strategy = self.strategy
-                new_flow.save()
+            # strategy marks flow as new flow
+            new_flow.strategy = self.strategy
+            new_flow.save()
 
-                # create the edge in the graph
-                new_edge = self.graph.add_edge(*new_edge_args)
-                self.graph.ep.id[new_edge] = new_flow.id
-                self.graph.ep.amount[new_edge] = 0
+            # create the edge in the graph
+            new_edge = self.graph.add_edge(*new_edge_args)
+            self.graph.ep.id[new_edge] = new_flow.id
+            self.graph.ep.amount[new_edge] = 0
 
-                self.graph.ep.material[new_edge] = new_flow.material.id
-                # process doesn't have to be set, missing attributes
-                # are marked with -1 in graph (if i remember correctly?)
-                self.graph.ep.process[new_edge] = \
-                    new_flow.process.id if new_flow.process is not None else - 1
+            self.graph.ep.material[new_edge] = new_flow.material.id
+            # process doesn't have to be set, missing attributes
+            # are marked with -1 in graph (if i remember correctly?)
+            self.graph.ep.process[new_edge] = \
+                new_flow.process.id if new_flow.process is not None else - 1
 
-                new_flows.append(new_flow)
-                new_deltas.append(delta)
+            new_flows.append(new_flow)
+            new_deltas.append(-delta)
 
-                # reduce (resp. increase) the referenced flow by the same amount
-                if reduce_reference:
-                    changed_ref_flows.append(flow)
-                    changed_ref_deltas.append(-delta)
+            # reduce (resp. increase) the referenced flow by the same amount
+            if reduce_reference:
+                changed_ref_flows.append(flow)
+                changed_ref_deltas.append(delta)
 
         # new flows shall be created before modifying the existing ones
         return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
@@ -501,7 +489,7 @@ class StrategyGraph(BaseGraph):
 
         ToDo: almost the same as shift_flows(), generalize!
         '''
-        changed_flows = []
+        new_flows = []
         deltas = []
 
         ids = referenced_flows.values_list('destination') if prepend\
@@ -547,59 +535,48 @@ class StrategyGraph(BaseGraph):
                 else [edge.target(), new_vertex]
             new_edge = self.graph.edge(*new_edge_args)
 
-            # the edge might already exist, change this one instead of creating
-            # a new one, changed material and process also require real shift
-            if new_edge and not new_material and not new_process:
-                # get flow from database and add to new_flows
-                changed_ref_flow = FractionFlow.objects.get(
-                    id=self.graph.ep.id[new_edge])
-
-                # add flow and delta to changed_ref arrays
-                changed_flows.append(changed_ref_flow)
-                deltas.append(delta)
+            # create a new fractionflow for the implementation flow in db,
+            # setting id to None creates new one when saving
+            # while keeping attributes of original model;
+            # the new flow is added with zero amount and to be changed
+            # by calculated delta
+            new_flow = copy_django_model(flow)
+            new_flow.id = None
+            new_flow.amount = 0
+            if prepend:
+                new_flow.destination_id = new_flow.origin_id
+                new_flow.origin_id = new_id
             else:
-                # create a new fractionflow for the implementation flow in db,
-                # setting id to None creates new one when saving
-                # while keeping attributes of original model;
-                # the new flow is added with zero amount and to be changed
-                # by calculated delta
-                new_flow = copy_django_model(flow)
-                new_flow.id = None
-                new_flow.amount = 0
-                if prepend:
-                    new_flow.destination_id = new_flow.origin_id
-                    new_flow.origin_id = new_id
-                else:
-                    new_flow.origin_id = new_flow.destination_id
-                    new_flow.destination_id = new_id
-                if new_material:
-                    new_flow.material = new_material
-                if new_process:
-                    new_flow.process = new_process
-                if new_waste >= 0:
-                    new_flow.waste = new_waste == 1
-                if new_hazardous >= 0:
-                    new_flow.hazardous = new_hazardous == 1
+                new_flow.origin_id = new_flow.destination_id
+                new_flow.destination_id = new_id
+            if new_material:
+                new_flow.material = new_material
+            if new_process:
+                new_flow.process = new_process
+            if new_waste >= 0:
+                new_flow.waste = new_waste == 1
+            if new_hazardous >= 0:
+                new_flow.hazardous = new_hazardous == 1
 
-                # strategy marks flow as new flow
-                new_flow.strategy = self.strategy
-                new_flow.save()
+            # strategy marks flow as new flow
+            new_flow.strategy = self.strategy
+            new_flow.save()
 
-                # create the edge in the graph
-                new_edge = self.graph.add_edge(*new_edge_args)
-                self.graph.ep.id[new_edge] = new_flow.id
-                self.graph.ep.amount[new_edge] = 0
+            # create the edge in the graph
+            new_edge = self.graph.add_edge(*new_edge_args)
+            self.graph.ep.id[new_edge] = new_flow.id
+            self.graph.ep.amount[new_edge] = 0
 
-                self.graph.ep.material[new_edge] = new_flow.material.id
-                # process doesn't have to be set, missing attributes
-                # are marked with -1 in graph (if i remember correctly?)
-                self.graph.ep.process[new_edge] = \
-                    new_flow.process.id if new_flow.process is not None else - 1
+            self.graph.ep.material[new_edge] = new_flow.material.id
+            # process doesn't have to be set, missing attributes
+            # are marked with -1 in graph (if i remember correctly?)
+            self.graph.ep.process[new_edge] = \
+                new_flow.process.id if new_flow.process is not None else - 1
 
-                changed_flows.append(new_flow)
-                deltas.append(delta)
+            new_flows.append(new_flow)
+            deltas.append(-delta)
 
-        return changed_flows, deltas
+        return new_flows, deltas
 
     def clean_db(self):
         '''

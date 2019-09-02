@@ -235,8 +235,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         impl_new_sum = impl_changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert new_sum == old_sum * factor, (
-            f'new sum: {new_sum}, old sum:{old_sum}, factor: {factor}'
+        assert impl_new_sum == impl_old_sum * factor, (
+            f'new sum: {impl_new_sum}, old sum:{impl_old_sum}, factor: {factor}'
         )
 
         assert len(affected_flows) == len(aff_changes), (
@@ -250,7 +250,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             sum_amount=Sum('amount'))['sum_amount']
 
         # ToDo: this is what's calculated, does it make sense?
-        assert aff_new_sum == (new_sum - old_sum) + aff_old_sum
+        assert aff_new_sum == (impl_new_sum - impl_old_sum) + aff_old_sum
 
 
     def test_shift_destination(self):
@@ -310,14 +310,18 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             strategy=implementation.strategy
         )
 
-        assert len(status_quo_flows) ==  len(new_flows)
+        assert len(status_quo_flows) == len(new_flows)
 
         # original flows should have been reduced
         old_sum = status_quo_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
         new_sum = changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
+        new_flow_sum = new_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
         assert new_sum == old_sum * factor
+        assert new_flow_sum == old_sum - new_sum
 
         # ToDo: additional asserts, affected flows
 
@@ -362,7 +366,34 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         sg.build()
 
-        # ToDo: asserts, affected flows
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy__isnull=True
+        )
+        changes = StrategyFractionFlow.objects.filter(
+            fractionflow__in=status_quo_flows)
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=self.collection,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy=implementation.strategy
+        )
+
+        assert len(status_quo_flows) == len(new_flows)
+
+        # original flows should have been reduced
+        old_sum = status_quo_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_sum = changes.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_flow_sum = new_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert new_sum == old_sum * factor
+        assert new_flow_sum == old_sum - new_sum
 
     def test_new_flows(self):
         scheme = Scheme.NEW
@@ -426,14 +457,14 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         factor = 0.5
 
         implementation_flow = FlowReferenceFactory(
-            origin_activity=self.households,
-            destination_activity=self.collection,
+            origin_activity=self.collection,
+            destination_activity=self.treatment,
             material=self.food_waste
         )
 
         # shift from collection to treatment
         prefix = FlowReferenceFactory(
-            origin_activity=self.treatment,
+            origin_activity=self.households,
             origin_area=self.possible_impl_area,
         )
 
@@ -461,7 +492,29 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         sg.build()
 
-        # ToDo: asserts, affected flows
+        status_quo_flows = FractionFlow.objects.filter(
+            origin__activity=self.collection,
+            destination__activity=self.treatment,
+            material=self.food_waste,
+            strategy__isnull=True
+        )
+
+        new_flows = FractionFlow.objects.filter(
+            origin__activity=self.households,
+            destination__activity=self.collection,
+            material=self.food_waste,
+            strategy=implementation.strategy
+        )
+
+        sq_sum = status_quo_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        prep_sum = new_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert len(status_quo_flows) == len(new_flows)
+        assert prep_sum == sq_sum * factor
+
+        # ToDo: additional asserts (test origins/destinations), affected flows
 
     def test_append(self):
         scheme = Scheme.APPEND
@@ -515,14 +568,18 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             fractionflow__in=status_quo_flows)
 
         new_flows = FractionFlow.objects.filter(
-            origin__activity=self.households,
+            origin__activity=self.collection,
             destination__activity=self.treatment,
             material=self.food_waste,
             strategy=implementation.strategy
         )
 
-        # there are some that are changed instead of newly created
-        # (because there already are some existing)
-        assert len(status_quo_flows) == len(new_flows) + len(changed_flows)
+        sq_sum = status_quo_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        app_sum = new_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert len(status_quo_flows) == len(new_flows)
+        assert app_sum == sq_sum * factor
 
         # ToDo: additional asserts (test origins/destinations), affected flows
