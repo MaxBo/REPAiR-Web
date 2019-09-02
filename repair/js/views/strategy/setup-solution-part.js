@@ -118,6 +118,8 @@ var SolutionPartView = BaseView.extend(
         this.newProcessSelect = this.el.querySelector('select[name="new-process"]');
         this.newOriginAreaSelect = this.el.querySelector('select[name="new-origin-area"]');
         this.newDestinationAreaSelect = this.el.querySelector('select[name="new-destination-area"]');
+        this.newWasteSelect = this.el.querySelector('select[name="new-waste"]');
+        this.newHazardousSelect = this.el.querySelector('select[name="new-hazardous"]');
 
         this.affectedMaterialSelect = this.el.querySelector('div[name="affected-material"]');
 
@@ -142,14 +144,16 @@ var SolutionPartView = BaseView.extend(
         this.populateAreaSelect(this.newOriginAreaSelect);
         this.populateAreaSelect(this.newDestinationAreaSelect);
 
+        var defaultText = (scheme == 'new') ? gettext('Select') : gettext('No change');
+
         this.populateProcessSelect(this.referenceProcessSelect, {defaultOption: gettext('no specific process')});
-        this.populateProcessSelect(this.newProcessSelect, {defaultOption: gettext('no change')});
+        this.populateProcessSelect(this.newProcessSelect, {defaultOption: defaultText});
 
         this.populateQuestionSelect();
         this.affectedDiv = this.el.querySelector('#affected-flows');
 
         this.renderMatFilter(this.referenceMaterialSelect);
-        this.renderMatFilter(this.newMaterialSelect, {defaultOption: gettext('no change')});
+        this.renderMatFilter(this.newMaterialSelect, {defaultOption: defaultText});
         this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey});
 
         this.setInputs();
@@ -248,6 +252,8 @@ var SolutionPartView = BaseView.extend(
             if (this.newProcessSelect) this.newProcessSelect.value = changeFlow.process || -1;
             if (this.newOriginAreaSelect) this.newOriginAreaSelect.value = changeFlow.origin_area || -1;
             if (this.newDestinationAreaSelect) this.newDestinationAreaSelect.value = changeFlow.destination_area || -1;
+            if (this.newHazardousSelect) this.newHazardousSelect.value = (changeFlow.hazardous != null) ? changeFlow.waste: -1;
+            if (this.newWasteSelect) this.newWasteSelect.value = (changeFlow.waste != null) ? changeFlow.waste: -1;
         }
 
         //this.spatialSelect.value = spatial.toLowerCase()
@@ -311,6 +317,9 @@ var SolutionPartView = BaseView.extend(
         changeFlow.origin_area = (area === '-1') ? null: area;
         area = (this.newDestinationAreaSelect) ? this.newDestinationAreaSelect.value: null;
         changeFlow.destination_area = (area === '-1') ? null: area;
+        process = (this.newProcessSelect) ? this.newProcessSelect.value: null;
+        changeFlow.waste = (this.newWasteSelect) ? this.newWasteSelect.value: -1;
+        changeFlow.hazardous = (this.newHazardousSelect) ? this.newHazardousSelect.value: -1;
 
         this.model.set('flow_changes', changeFlow);
 

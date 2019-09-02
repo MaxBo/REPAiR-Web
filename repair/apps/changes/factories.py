@@ -57,6 +57,8 @@ class FlowReferenceFactory(DjangoModelFactory):
     process = None
     origin_area = None
     destination_area = None
+    waste = -1
+    hazardous = -1
 
 
 class SolutionPartFactory(DjangoModelFactory):

@@ -28,12 +28,19 @@ var SustainabilityView = BaseView.extend(
         var _this = this;
 
         this.caseStudy = options.caseStudy;
-        this.keyflow = options.keyflow;
+        this.keyflow = new GDSEModel({ id: options.keyflowId }, {
+            apiTag: 'keyflowsInCaseStudy',
+            apiIds: [ this.caseStudy.id ]
+        });
         this.mode = options.mode || 0;
         this.scale = 1;
 
-        this.fileAttr = 'sustainability_conclusions';
-        this.render();
+        this.fileAttr = options.fileAttr;
+
+        this.keyflow.fetch({
+            success: this.render,
+            error: this.onError
+        })
     },
 
     /*
