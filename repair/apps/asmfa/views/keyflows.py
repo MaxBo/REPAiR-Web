@@ -67,7 +67,8 @@ class KeyflowInCasestudyViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = KeyflowInCasestudy.objects.order_by('id')
     serializer_class = KeyflowInCasestudySerializer
     serializers = {'create': KeyflowInCasestudyPostSerializer,
-                   'update': KeyflowInCasestudyPostSerializer, }
+                   'update': KeyflowInCasestudyPostSerializer,
+                   'patch': KeyflowInCasestudyPostSerializer}
 
     @action(methods=['get', 'post'], detail=True)
     def build_graph(self, request, **kwargs ):
