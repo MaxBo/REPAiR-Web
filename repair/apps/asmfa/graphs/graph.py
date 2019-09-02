@@ -221,10 +221,10 @@ class BaseGraph:
             self.graph.new_edge_property("int")
         self.graph.edge_properties['process'] = \
             self.graph.new_edge_property("int")
-        #self.graph.edge_properties['waste'] = \
-            #self.graph.new_edge_property("bool")
-        #self.graph.edge_properties['hazardous'] = \
-            #self.graph.new_edge_property("bool")
+        self.graph.edge_properties['waste'] = \
+            self.graph.new_edge_property("bool")
+        self.graph.edge_properties['hazardous'] = \
+            self.graph.new_edge_property("bool")
 
         for i in range(len(flows)):
             # get the start and and actor id's
@@ -311,12 +311,16 @@ class StrategyGraph(BaseGraph):
         self.graph = gt.load_graph(self.filename)
         return self.graph
 
-    def _modify_flows(self, flows, formula):
+    def _modify_flows(self, flows, formula, new_material=None, new_process=None,
+                      new_waste=-1, new_hazardous=-1):
         '''
         modify flows with formula
         '''
         deltas = []
-        for flow in flows:
+        if (new_material or new_process or
+            new_waste >= 0 or new_hazardous >= 0):
+            edges = self._get_edges(flows)
+        for i, flow in enumerate(flows):
             delta = formula.calculate_delta(flow.amount)
             if formula.is_absolute:
                 # equal distribution or distribution depending on
@@ -324,6 +328,14 @@ class StrategyGraph(BaseGraph):
                 delta /= len(flows)
                 # alternatively sth like that: delta *= flow.amount / total
             deltas.append(delta)
+            if new_material:
+                self.graph.ep.material[edges[i]] = new_material.id
+            if new_process:
+                self.graph.ep.process[edges[i]] = new_process.id
+            if new_waste >= 0:
+                self.graph.ep.waste[edges[i]] = new_waste == 1
+            if new_hazardous >= 0:
+                self.graph.ep.hazardous[edges[i]] = new_hazardous == 1
         return deltas
 
     def _create_flows(self, origins, destinations, material, process, formula):
@@ -463,6 +475,8 @@ class StrategyGraph(BaseGraph):
             # are marked with -1 in graph (if i remember correctly?)
             self.graph.ep.process[new_edge] = \
                 new_flow.process.id if new_flow.process is not None else - 1
+            self.graph.ep.waste[new_edge] = new_flow.waste
+            self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
             new_deltas.append(-delta)
@@ -572,6 +586,8 @@ class StrategyGraph(BaseGraph):
             # are marked with -1 in graph (if i remember correctly?)
             self.graph.ep.process[new_edge] = \
                 new_flow.process.id if new_flow.process is not None else - 1
+            self.graph.ep.waste[new_edge] = new_flow.waste
+            self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
             deltas.append(-delta)
@@ -727,7 +743,15 @@ class StrategyGraph(BaseGraph):
                         reference, implementation)
 
                 if solution_part.scheme == Scheme.MODIFICATION:
-                    deltas = self._modify_flows(implementation_flows, formula)
+                    kwargs = {}
+                    if changes:
+                        kwargs['new_material'] = changes.material
+                        kwargs['new_process'] = changes.process
+                        kwargs['new_waste'] = changes.waste
+                        kwargs['new_hazardous'] = changes.hazardous
+
+                    deltas = self._modify_flows(implementation_flows, formula,
+                                                **kwargs)
 
                 elif solution_part.scheme == Scheme.SHIFTDESTINATION:
                     o, possible_destinations = self._get_actors(
@@ -816,6 +840,10 @@ class StrategyGraph(BaseGraph):
             new_amount = self.graph.ep.amount[edge]
             # get the related FractionFlow
             flow = FractionFlow.objects.get(id=self.graph.ep.id[edge])
+            material = self.graph.ep.material[edge]
+            process = self.graph.ep.process[edge]
+            waste = self.graph.ep.waste[edge]
+            hazardous = self.graph.ep.hazardous[edge]
             # new flow is marked with strategy relation
             # (no seperate strategy fraction flow needed)
             if flow.strategy is not None:
@@ -823,13 +851,17 @@ class StrategyGraph(BaseGraph):
                 flow.save()
             # changed flow gets a related strategy fraction flow holding changes
             else:
-                # ToDo: get material from graph
                 strat_flow = StrategyFractionFlow(
                     strategy=self.strategy, amount=new_amount,
                     fractionflow=flow,
-                    material_id=flow.material.id,
-                    process_id=flow.process.id
+                    material_id=material,
+                    waste=waste,
+                    hazardous=hazardous
                 )
+                if process == -1:
+                    strat_flow.process = None
+                else:
+                    strat_flow.process_id = process
                 strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)

@@ -92,6 +92,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         cls.collection = Activity.objects.get(nace='E-3811')
         cls.treatment = Activity.objects.get(nace='E-3821')
         cls.food_waste = Material.objects.get(name='Food Waste')
+        cls.orange_product = Material.objects.get(name='Essential Orange oils')
 
     def setUp(self):
         super().setUp()
@@ -157,11 +158,17 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             material=self.food_waste
         )
 
+        flow_changes = FlowReferenceFactory(
+            material=self.orange_product,
+            waste=0
+        )
+
         # this should multiply the flow amounts by factor
         mod_part = SolutionPartFactory(
             solution=self.solution,
             question=None,
             flow_reference=implementation_flow,
+            flow_changes=flow_changes,
             scheme=scheme,
             is_absolute=False,
             a = 0,
@@ -222,6 +229,16 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         aff_changes = StrategyFractionFlow.objects.filter(
             fractionflow__in=affected_flows)
+        materials = impl_changes.values_list('material', flat=True).distinct()
+        waste = impl_changes.values_list('waste', flat=True).distinct()
+        assert (len(materials) == 1 and
+                materials[0] == self.orange_product.id), (
+                    "The material was supposed to change but didn't "
+                    "change in database")
+        assert (len(waste) == 1 and
+                waste[0] == False), (
+                    "The flows were supposed to change from from product to "
+                    "waste but didn't change in database")
 
         # the origin flows are all in the netherlands
         # and impl. area covers all of the netherlands -> all should be changed
@@ -268,6 +285,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         shift = FlowReferenceFactory(
             destination_activity=self.treatment,
             destination_area=self.possible_impl_area,
+            material=self.orange_product,
+            waste=0
         )
 
         # shift half of the amount
@@ -306,11 +325,22 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flows = FractionFlow.objects.filter(
             origin__activity=self.households,
             destination__activity=self.treatment,
-            material=self.food_waste,
+            material=self.orange_product,
             strategy=implementation.strategy
         )
 
         assert len(status_quo_flows) == len(new_flows)
+
+        materials = new_flows.values_list('material', flat=True).distinct()
+        waste = new_flows.values_list('waste', flat=True).distinct()
+        assert (len(materials) == 1 and
+                materials[0] == self.orange_product.id), (
+                    "The material was supposed to change but didn't "
+                    "change in database")
+        assert (len(waste) == 1 and
+                waste[0] == False), (
+                    "The flows were supposed to change from from product to "
+                    "waste but didn't change in database")
 
         # original flows should have been reduced
         old_sum = status_quo_flows.aggregate(
@@ -466,6 +496,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         prefix = FlowReferenceFactory(
             origin_activity=self.households,
             origin_area=self.possible_impl_area,
+            material=self.orange_product,
+            waste=0
         )
 
         # shift half of the amount
@@ -502,7 +534,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flows = FractionFlow.objects.filter(
             origin__activity=self.households,
             destination__activity=self.collection,
-            material=self.food_waste,
+            material=self.orange_product,
             strategy=implementation.strategy
         )
 
@@ -513,6 +545,17 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         assert len(status_quo_flows) == len(new_flows)
         assert prep_sum == sq_sum * factor
+
+        materials = new_flows.values_list('material', flat=True).distinct()
+        waste = new_flows.values_list('waste', flat=True).distinct()
+        assert (len(materials) == 1 and
+                materials[0] == self.orange_product.id), (
+                    "The material was supposed to change but didn't "
+                    "change in database")
+        assert (len(waste) == 1 and
+                waste[0] == False), (
+                    "The flows were supposed to change from from product to "
+                    "waste but didn't change in database")
 
         # ToDo: additional asserts (test origins/destinations), affected flows
 
