@@ -144,7 +144,7 @@ var SolutionPartView = BaseView.extend(
         this.populateAreaSelect(this.newDestinationAreaSelect);
 
         var defaultText = (scheme == 'new') ? gettext('Select') : gettext('No change');
-        
+
         this.populateProcessSelect(this.referenceProcessSelect, {defaultOption: gettext('no specific process')});
         this.populateProcessSelect(this.newProcessSelect, {defaultOption: defaultText});
 
@@ -251,8 +251,8 @@ var SolutionPartView = BaseView.extend(
             if (this.newProcessSelect) this.newProcessSelect.value = changeFlow.process || -1;
             if (this.newOriginAreaSelect) this.newOriginAreaSelect.value = changeFlow.origin_area || -1;
             if (this.newDestinationAreaSelect) this.newDestinationAreaSelect.value = changeFlow.destination_area || -1;
-            if (this.newHazardousSelect) this.newHazardousSelect.value = changeFlow.hazardous || -1;
-            if (this.newWasteSelect) this.newWasteSelect.value = changeFlow.waste || -1;
+            if (this.newHazardousSelect) this.newHazardousSelect.value = (changeFlow.hazardous != null) ? changeFlow.waste: -1;
+            if (this.newWasteSelect) this.newWasteSelect.value = (changeFlow.waste != null) ? changeFlow.waste: -1;
         }
 
         //this.spatialSelect.value = spatial.toLowerCase()
