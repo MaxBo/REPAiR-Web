@@ -2,12 +2,13 @@ require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets', 'views/conclusions/strategies',
          'views/conclusions/modified-flows', 'views/conclusions/sustainability',
+         'views/conclusions/conclusions',
          'models/indicator', 'collections/gdsecollection', 'app-config', 'utils/utils',
-         'underscore', 'html2canvas', 'viewerjs', 'base', 'viewerjs/dist/viewer.css'
+         'underscore', 'base'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
              EvalFlowTargetsView, EvalStrategiesView, EvalModifiedFlowsView,
-             SustainabilityView, Indicator, GDSECollection, appConfig,
-             utils, _, html2canvas, Viewer) {
+             SustainabilityView, ConclusionsView, Indicator, GDSECollection,
+             appConfig, utils, _) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
      *
@@ -15,72 +16,9 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      * @module Conclusions
      */
 
-    var consensusLevels, sections, modal, objectivesView, flowTargetsView,
+    var consensusLevels, sections, objectivesView, flowTargetsView,
         strategiesView, modifiedFlowsView, sustainabilityView, keyflowSelect,
         keyflows;
-
-    var conclusionsInCasestudy = {};
-
-
-    html2image = function(container, onSuccess){
-        html2canvas(container).then(canvas => {
-            var data = canvas.toDataURL("image/png");
-            onSuccess(data);
-        });
-    }
-
-    addConclusion = function(keyflowId){
-        var html = document.getElementById('conclusion-template').innerHTML,
-            template = _.template(html),
-            content = document.getElementById('content');
-
-        function upload(conclusion){
-
-            //conclusionsInCasestudy[keyflow.id].create()
-        }
-
-        if (!modal) {
-            modal = document.getElementById('conclusion-modal');
-            $(modal).on('shown.bs.modal', function() {
-                new Viewer.default(modal.querySelector('img'));
-            });
-        }
-
-        html2image(content, function(image){
-            modal.innerHTML = template({
-                consensusLevels: consensusLevels,
-                sections: sections,
-                image: image
-            });
-            $(modal).modal('show');
-
-            modal.querySelector('.btn.confirm').addEventListener('click', function(){
-                console.log('click')
-                var step = content.querySelector('.tab-pane.active').dataset.step,
-                    conclusions = conclusionsInCasestudy[keyflowId];
-                console.log(step)
-                conclusions.create({
-                    "consensus_level": modal.querySelector('select[name="consensus"]').value,
-                    "section": modal.querySelector('select[name="section"]').value,
-                    "step": step,
-                    "text": modal.querySelector('textarea[name="comment"]').value,
-                    //"image": ,
-                }, {
-                    wait: true,
-                    success: function(){
-                        console.log(conclusions)
-                    },
-                    error: function(arg1, arg2){
-                        var response = (arg1.status) ? arg1 : arg2;
-                        if (response.responseText)
-                            alert(response.responseText);
-                        else
-                            alert(response.statusText);
-                    }
-                })
-            })
-        })
-    }
 
     renderSetup = function(caseStudy){
         var usersView = new SetupUsersView({
@@ -283,9 +221,18 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             renderKeyflow(keyflow);
         });
 
+        var conclusionsView = new ConclusionsView({
+            caseStudy: caseStudy,
+            el: document.getElementById('conclusions'),
+            template: 'conclusions-template',
+            consensusLevels: consensusLevels,
+            sections: sections,
+            keyflows: keyflows
+        })
+
         document.getElementById('add-conclusion').addEventListener('click', function(){
             var keyflowId = keyflowSelect.value;
-            addConclusion(keyflowId);
+            conclusionsView.addConclusion(keyflowId);
         });
     }
 
@@ -317,20 +264,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                     apiIds: [caseStudyId]
                 });
                 keyflows.fetch({
-                    success: function(){
-                        var promises = [];
-                        keyflows.forEach(function(keyflow){
-                            var conclusions = new GDSECollection([], {
-                                apiTag: 'conclusions',
-                                apiIds: [caseStudy.id, keyflow.id]
-                            });
-                            conclusionsInCasestudy[keyflow.id] = conclusions;
-                            promises.push(conclusions.fetch({error: alert}));
-                        })
-                        Promise.all(promises).then(function(){
-                            render(caseStudy, mode);
-                        })
-                    }
+                    success: function(){ render(caseStudy, mode); }
                 })
             })
         }

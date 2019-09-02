@@ -47,22 +47,21 @@
     <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
     </div>
     <div class="tab-pane fade" id="conclusions">
-      <h2> ToDo </h2>
     </div>
   </div>
   <div id='comment-section'> <!--class="col-md-2"-->
-      <div class="row">
-        <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
-          <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
-        </button>
-      </div>
-      <div class="row">
-        <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
-          <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
-        </button>
-      </div>
+    <div class="row">
+      <button id="add-conclusion" class="btn btn-secondary inverted" title="add conclusion">
+        <span class="far fa-comment"></span> {% trans "Add Conclusion" %}
+      </button>
+    </div>
+    <div class="row">
+      <button id="manage-conclusions" class="btn btn-secondary inverted" title="manage conclusions">
+        <span class="far fa-comments"></span> {% trans "Manage Conclusions" %}
+      </button>
+    </div>
   </div>
-  <div id="conclusion-modal" class="modal fade" role="dialog">
+  <div id="add-conclusion-modal" class="modal fade" role="dialog">
   <div id="manage-conclusions-modal"></div>
     <div class="modal-dialog modal-lg">
       <div class="modal-content col-md-12">
@@ -85,7 +84,7 @@
 
 <!-- i put the template scripts directly in here, they are not that complex -->
 
-<script type="text/template" id="conclusion-template">
+<script type="text/template" id="add-conclusion-template">
 <div class="modal-dialog modal-lg">
   <div class="modal-content col-md-12">
     <div class="modal-header">
@@ -96,6 +95,9 @@
       <div class="row">
         <label> {% trans "Section" %} </label>
         <select name="section" class="form-control">
+          <% sections.forEach(function(section){ %>
+            <option value="<%= section.id %>"> <%= section.get("name") %> </option>
+          <% }); %>
         </select>
       </div>
       <div class="row">
@@ -122,6 +124,12 @@
       <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
     </div>
   </div>
+</div>
+</script>
+
+<script type="text/template" id="conclusions-template">
+<div class="col-md-12">
+  <h3> Conclusions </h3>
 </div>
 </script>
 
