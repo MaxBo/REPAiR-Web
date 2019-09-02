@@ -6,6 +6,7 @@ import pandas as pd
 from django.urls import reverse
 from test_plus import APITestCase
 from rest_framework import status
+from http.client import responses
 from repair.tests.test import LoginTestCase
 from django.urls import reverse
 import numpy as np
@@ -121,7 +122,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
 
             res = self.client.post(self.ag_url, data)
             res_json = res.json()
-            assert res.status_code == 201
+            assert res.status_code == status.HTTP_201_CREATED
             assert res_json['count'] == len(file_codes)
             assert len(res_json['created']) == len(new_codes)
 
@@ -146,7 +147,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             'bulk_upload' : open(file_path, 'rb'),
         }
         res = self.client.post(self.ag_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_bulk_activity_errors(self):
         file_path = os.path.join(os.path.dirname(__file__),
@@ -156,7 +157,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             'bulk_upload' : open(file_path, 'rb'),
         }
         res = self.client.post(self.ac_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_excel(self):
         file_path = os.path.join(os.path.dirname(__file__),
@@ -166,7 +167,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             'bulk_upload' : open(file_path, 'rb'),
         }
         res = self.client.post(self.ac_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_bulk_activity(self):
         """Test bulk upload activities"""
@@ -188,7 +189,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         new_nace = [c for c in file_nace if str(c) not in existing_nace]
 
         res = self.client.post(self.ac_url, data)
-        assert res.status_code == 201
+        assert res.status_code == status.HTTP_201_CREATED
         res_json = res.json()
         assert res_json['count'] == len(file_nace)
         assert len(res_json['created']) == len(new_nace)
@@ -215,7 +216,8 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.actor_url, data)
-        assert res.status_code == 201
+        assert res.status_code == status.HTTP_201_CREATED, (
+            responses.get(res.status_code, res.status_code), res.content)
 
     def test_bulk_actor_errors(self):
         """Test that activity matches activitygroup"""
@@ -227,7 +229,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.actor_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_bulk_locations(self):
         """Test bulk upload actors"""
@@ -242,7 +244,8 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             }
 
             res = self.client.post(self.location_url, data)
-            assert res.status_code == 201
+            assert res.status_code == status.HTTP_201_CREATED, (
+            responses.get(res.status_code, res.status_code), res.content)
             lengths.append(len(AdministrativeLocation.objects.all()))
 
         assert lengths[0] == lengths[1]
@@ -255,7 +258,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.location_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     @skip('not implemented yet')
     def test_actor_matches_activity(self):
@@ -355,7 +358,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
             }
 
             res = self.client.post(self.a2a_url, data)
-            assert res.status_code == 201
+            assert res.status_code == status.HTTP_201_CREATED
             lengths.append(Actor2Actor.objects.count())
         # check that 2nd loop does not create additional products
         # but updates them
@@ -372,7 +375,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.a2a_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
@@ -382,7 +385,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.a2a_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
     def test_bulk_stock(self):
         """Test file-based upload of actor2actor"""
@@ -395,7 +398,7 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
 
         res = self.client.post(self.astock_url, data)
         assert FractionFlow.objects.filter(to_stock=True).count() > 0
-        assert res.status_code == 201
+        assert res.status_code == status.HTTP_201_CREATED
 
 
 class BulkImportMaterialsTest(LoginTestCase, APITestCase):
@@ -454,7 +457,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.mat_url, data)
-        assert res.status_code == 201
+        assert res.status_code == status.HTTP_201_CREATED
 
     def test_bulk_materials_errors(self):
         file_path = os.path.join(os.path.dirname(__file__),
@@ -466,7 +469,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.mat_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
         n_after = len(Material.objects.all())
         assert n_after == n_before
 
@@ -479,7 +482,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.waste_url, data)
-        assert res.status_code == 201
+        assert res.status_code == status.HTTP_201_CREATED
 
     def test_bulk_products(self):
         lengths = []
@@ -492,7 +495,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
             }
 
             res = self.client.post(self.product_url, data)
-            assert res.status_code == 201
+            assert res.status_code == status.HTTP_201_CREATED
             lengths.append(ProductFraction.objects.count())
         # check that 2nd loop does not create additional fractions
         # but updates (kind of)
@@ -517,7 +520,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.product_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
@@ -527,7 +530,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.product_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 
         file_path = os.path.join(os.path.dirname(__file__),
                                 self.testdata_folder,
@@ -537,5 +540,5 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         }
 
         res = self.client.post(self.product_url, data)
-        assert res.status_code == 400
+        assert res.status_code == status.HTTP_400_BAD_REQUEST
 

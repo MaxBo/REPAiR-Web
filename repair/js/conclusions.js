@@ -103,7 +103,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 caseStudy: caseStudy,
                 el: el,
                 template: 'sustainability-template',
-                keyflowId: keyflowSelect.value
+                keyflowId: keyflowSelect.value,
+                fileAttr: 'sustainability_conclusions'
             })
         })
     };
