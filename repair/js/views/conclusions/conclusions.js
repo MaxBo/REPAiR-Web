@@ -197,6 +197,17 @@ function(_, BaseView, GDSECollection, GDSEModel, html2canvas, Muuri, Viewer){
             item.style.height = '100px';
             grid.add(item);
             new Viewer.default(item);
+
+            item.querySelector('button[name="remove"]').addEventListener('click', function(){
+                var message = gettext('Do you really want to delete the conclusion?');
+                _this.confirm({ message: message, onConfirm: function(){
+                    conclusion.destroy({
+                        success: function() { grid.remove(item, { removeElements: true }); },
+                        error: _this.onError,
+                        wait: true
+                    })
+                }});
+            })
         }
 
     });
