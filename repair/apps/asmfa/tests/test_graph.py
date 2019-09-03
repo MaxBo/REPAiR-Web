@@ -322,7 +322,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             strategy__isnull=True
         )
         changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=status_quo_flows)
+            fractionflow__in=status_quo_flows, 
+            strategy=implementation.strategy)
 
         new_flows = FractionFlow.objects.filter(
             origin__activity=self.households,
@@ -352,8 +353,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert new_sum == old_sum * factor
-        assert new_flow_sum == old_sum - new_sum
+        msg = f'new_sum: {new_sum} should be factor: {factor} * old_sum: {old_sum}'
+        self.assertAlmostEqual(new_sum, old_sum*factor, msg=msg)
+        msg = f'new_flow_sum: {new_flow_sum} should be the difference of old_sum: {old_sum} - new_sum: {new_sum}'
+        self.assertAlmostEqual(new_flow_sum, old_sum - new_sum, msg=msg)
 
         # ToDo: additional asserts, affected flows
 
