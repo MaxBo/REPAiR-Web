@@ -3,46 +3,43 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: .\node_modules\d3-selection\dist\d3-selection.min.js:2
-#: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:25
-#: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-05-29 10:52+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2019-07-19 11:55+0200\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.2.3\n"
+"Language: hu_HU\n"
 
 #: .\docs\views_baseview.js.html:181 .\repair\js\views\common\baseview.js:176
 msgid "Warning"
-msgstr ""
+msgstr "Figyelmeztetés"
 
 #: .\docs\views_baseview.js.html:197 .\repair\js\views\common\baseview.js:299
 msgid "The server responded with: "
-msgstr ""
+msgstr "A kiszolgáló válaszol "
 
 #: .\docs\views_baseview.js.html:198
 msgid "Server does not respond."
-msgstr ""
+msgstr "A kiszolgáló nem válaszol."
 
 #: .\docs\views_baseview.js.html:199
 #: .\docs\views_data-entry_edit-node.js.html:646
 #: .\repair\js\views\data-entry\bulk-upload.js:399
 #: .\repair\js\views\data-entry\edit-node.js:697 .\repair\js\welcome.js:119
 msgid "Error"
-msgstr ""
+msgstr "Hiba"
 
 #: .\docs\views_changes_solutions.js.html:107
 msgid "Solution"
-msgstr ""
+msgstr "Megoldás"
 
 #: .\docs\views_changes_solutions.js.html:168
 #: .\docs\views_changes_solutions.js.html:169
@@ -57,23 +54,23 @@ msgstr ""
 #: .\repair\js\views\data-entry\edit-actor.js:825
 #: .\repair\js\views\strategy\setup-solutions-logic.js:427
 msgid "Focus area"
-msgstr ""
+msgstr "Fókuszterület"
 
 #: .\docs\views_data-entry_actors.js.html:132
 #: .\docs\views_data-entry_edit-node.js.html:797
 #: .\repair\js\views\data-entry\edit-node.js:868
 msgid "Search"
-msgstr ""
+msgstr "Keresés"
 
 #: .\docs\views_data-entry_actors.js.html:252
 #: .\repair\js\views\data-entry\actors-flows.js:389
 msgid "Add Actor"
-msgstr ""
+msgstr "Szereplő hozzáadása"
 
 #: .\docs\views_data-entry_actors.js.html:264
 #: .\repair\js\views\data-entry\actors-flows.js:399
 msgid "Do you really want to delete the actor"
-msgstr ""
+msgstr "Biztosan törölni akarja a szereplőt"
 
 #: .\docs\views_data-entry_actors.js.html:289
 #: .\docs\views_data-entry_materials.js.html:308
@@ -87,12 +84,12 @@ msgstr ""
 #: .\repair\js\views\study-area\stakeholders.js:230
 #: .\repair\js\views\study-area\stakeholders.js:263
 msgid "Name"
-msgstr ""
+msgstr "Név"
 
 #: .\docs\views_data-entry_edit-actor.js.html:496
 #: .\repair\js\views\data-entry\edit-actor.js:490
 msgid "select an area"
-msgstr ""
+msgstr "Válasszon területet "
 
 #: .\docs\views_data-entry_edit-node.js.html:268
 #: .\docs\views_flowsankey.js.html:190 .\docs\views_flowsankey.js.html:206
@@ -101,69 +98,69 @@ msgstr ""
 #: .\repair\js\views\data-entry\edit-node.js:258
 #: .\repair\js\views\strategy\setup-question.js:67
 msgid "t/year"
-msgstr ""
+msgstr "t/év"
 
 #: .\docs\views_data-entry_edit-node.js.html:306
 #: .\repair\js\views\common\flowsankeymap.js:674
 #: .\repair\js\views\data-entry\edit-node.js:328
 msgid "Waste"
-msgstr ""
+msgstr "Hulladék"
 
 #: .\docs\views_data-entry_edit-node.js.html:309
 #: .\repair\js\views\common\flowsankeymap.js:674
 #: .\repair\js\views\data-entry\edit-node.js:331
 msgid "Product"
-msgstr ""
+msgstr "Termék"
 
 #: .\docs\views_data-entry_edit-node.js.html:323
 #: .\repair\js\views\data-entry\edit-node.js:349
 msgid "Composition"
-msgstr ""
+msgstr "Összetétel"
 
 #: .\docs\views_data-entry_edit-node.js.html:439
 msgid "edit datasource"
-msgstr ""
+msgstr "adatforrás szerkesztése"
 
 #: .\docs\views_data-entry_edit-node.js.html:495
 #: .\docs\views_data-entry_edit-node.js.html:655
 #: .\repair\js\views\data-entry\edit-node.js:534
 #: .\repair\js\views\data-entry\edit-node.js:706
 msgid "custom"
-msgstr ""
+msgstr "általános"
 
 #: .\docs\views_data-entry_edit-node.js.html:573
 #: .\repair\js\views\data-entry\edit-node.js:630
 msgid "remove fraction"
-msgstr ""
+msgstr "a frakció eltávolítása"
 
 #: .\docs\views_data-entry_edit-node.js.html:626
 #: .\repair\js\views\data-entry\edit-node.js:683
 msgid "The fractions have to sum up to 100!"
-msgstr ""
+msgstr "A frakciók összege max. 100 lehet!"
 
 #: .\docs\views_data-entry_edit-node.js.html:626
 #: .\repair\js\views\data-entry\edit-node.js:683
 msgid "current sum"
-msgstr ""
+msgstr "jelenlegi érték"
 
 #: .\docs\views_data-entry_edit-node.js.html:634
 #: .\repair\js\views\data-entry\edit-node.js:690
 msgid "All materials have to be set!"
-msgstr ""
+msgstr "Minden anyagot be kell állítani!"
 
 #: .\docs\views_data-entry_edit-node.js.html:638
 msgid "Multiple fractions with the same material are not allowed!"
-msgstr ""
+msgstr "Több frakció egyazon anyaggal nem megengedett!"
 
 #: .\docs\views_data-entry_materials.js.html:215
 #: .\repair\js\views\data-entry\materials.js:207
 msgid "Add Material"
-msgstr ""
+msgstr "Anyag hozzáadása"
 
 #: .\docs\views_data-entry_materials.js.html:244
 #: .\repair\js\views\data-entry\materials.js:248
 msgid "Edit Material"
-msgstr ""
+msgstr "Anyag szerkesztése"
 
 #: .\docs\views_data-entry_materials.js.html:262
 #: .\repair\js\views\data-entry\materials.js:278
@@ -171,708 +168,711 @@ msgid ""
 "Do you really want to delete the selected material and all of its children "
 "from the database?"
 msgstr ""
+"Biztosan törölni szeretné a kiválasztott anyagot és az összes számaztatott részt az "
+"adatbázisból?"
 
 #: .\docs\views_status-quo_flows.js.html:163
 #: .\repair\js\views\common\filter-flows.js:380
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:251
 msgid "All"
-msgstr ""
+msgstr "Mind"
 
 #: .\docs\views_study-area_charts.js.html:157
 #: .\docs\views_study-area_setup-maps.js.html:272
 #: .\repair\js\views\study-area\charts.js:295
 #: .\repair\js\views\study-area\setup-maps.js:223
 msgid "Add Category"
-msgstr ""
+msgstr "Kategória hozzáadása"
 
 #: .\docs\views_study-area_setup-maps.js.html:115
 #: .\repair\js\views\status-quo\objectives.js:106
 msgid "Remove"
-msgstr ""
+msgstr "Törlés"
 
 #: .\docs\views_study-area_setup-maps.js.html:331
 #: .\repair\js\views\study-area\setup-maps.js:292
 msgid "Do you really want to delete the selected layer?"
-msgstr ""
+msgstr "Biztosan eltávolítja a kiválasztott réteget?"
 
 #: .\docs\views_study-area_setup-maps.js.html:332
 msgid "Do you really want to delete the selected category?"
-msgstr ""
+msgstr "Biztosan eltávoítja a kiválasztott kategóriát?"
 
 #: .\docs\views_study-area_setup-maps.js.html:394
 #: .\repair\js\views\study-area\charts.js:417
 #: .\repair\js\views\study-area\setup-maps.js:351
 msgid "Edit Name"
-msgstr ""
+msgstr "Név szerkesztése"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:25
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " "
-msgstr ""
+msgstr " "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:25
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "."
-msgstr ""
+msgstr "."
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "*"
-msgstr ""
+msgstr "*"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "import"
-msgstr ""
+msgstr "importálás"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "{}"
-msgstr ""
+msgstr "{}"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "this"
-msgstr ""
+msgstr "ez"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "super"
-msgstr ""
+msgstr "szuper"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "null"
-msgstr ""
+msgstr "hiányzó érték"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid ",\n"
-msgstr ""
+msgstr ",\n"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " = "
-msgstr ""
+msgstr " = "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "debugger;"
-msgstr ""
+msgstr "hibakereső "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid ":"
-msgstr ""
+msgstr ":"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "empty"
-msgstr ""
+msgstr "üres"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "any"
-msgstr ""
+msgstr "bármely"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "mixed"
-msgstr ""
+msgstr "vegyes"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "boolean"
-msgstr ""
+msgstr "logikai"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "interface "
-msgstr ""
+msgstr "interfész "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " & "
-msgstr ""
+msgstr " & "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "number"
-msgstr ""
+msgstr "szám"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "string"
-msgstr ""
+msgstr "string"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "typeof "
-msgstr ""
+msgstr "típusú"
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid " | "
-msgstr ""
+msgstr " | "
 
 #: .\node_modules\get-down\node_modules\ajv\dist\regenerator.min.js:26
 msgid "void"
-msgstr ""
+msgstr "üres, hiányos"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "using url"
-msgstr ""
+msgstr "url használat"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_receiveInfo"
-msgstr ""
+msgstr "_receiveInfo"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "info"
-msgstr ""
+msgstr "információ"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid " enabled transports"
-msgstr ""
+msgstr " engedélyezett szállítás"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "attempt"
-msgstr ""
+msgstr "kísérlet"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "waiting for body"
-msgstr ""
+msgstr "waiting for body"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "using timeout"
-msgstr ""
+msgstr "időtúllépés használata"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "transport url"
-msgstr ""
+msgstr "szállítási url"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_transportTimeout"
-msgstr ""
+msgstr "szállításiIdőtúllépés "
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_transportMessage"
-msgstr ""
+msgstr "szállításiÜzenet"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "heartbeat"
-msgstr ""
+msgstr "heartbeat"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "bad json"
-msgstr ""
+msgstr "rossz json"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "message"
-msgstr ""
+msgstr "üzenet"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "empty payload"
-msgstr ""
+msgstr "üres hasznos teher "
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_transportClose"
-msgstr ""
+msgstr "szállításBezárás "
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_open"
-msgstr ""
+msgstr "_megnyitás"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "connected"
-msgstr ""
+msgstr "kapcsolódva"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "_close"
-msgstr ""
+msgstr "_bezárás"
 
 #: .\node_modules\webpack-dev-server\client\index.bundle.js:1
 msgid "disconnected"
-msgstr ""
+msgstr "szétkapcsolás"
 
 #: .\repair\apps\admin.py:51
 msgid "The requested admin page is "
-msgstr ""
+msgstr "A kért admin oldal "
 
 #: .\repair\apps\asmfa\serializers\bulkcreate.py:136
 msgid "Flows from an actor to itself are not allowed."
-msgstr ""
+msgstr "A aktor átal saját magához való áramoltatás nem megengedett."
 
 #: .\repair\apps\asmfa\serializers\bulkcreate.py:263
 msgid "fractions per composition have to sum up to 1.0 with "
-msgstr ""
+msgstr "a frakció / kompozíciók összege legfeljebb 1,0 lehet az alábbival "
 
 #: .\repair\apps\asmfa\serializers\keyflows.py:41
 msgid "Select the Casestudies the Keyflow is used in"
-msgstr ""
+msgstr "Válassza ki az esettanulmányt amelyben az Anyagáramot használni kívánja"
 
 #: .\repair\apps\asmfa\serializers\locations.py:58
 msgid "Actor <{}> already has an administrative location "
-msgstr ""
+msgstr "A szereplő már rendelkezik adminisztratív hellyel "
 
 #: .\repair\apps\asmfa\serializers\nodes.py:66
 msgid "This field is required."
-msgstr ""
+msgstr "kötelezenően kitöltendő mező  "
 
 #: .\repair\apps\asmfa\serializers\nodes.py:67
 msgid "Invalid Actor ID - Object does not exist."
-msgstr ""
+msgstr "Érvénytelen ID -az objektum nem létezik."
 
 #: .\repair\apps\asmfa\serializers\nodes.py:68
 msgid "This field may not be null."
-msgstr ""
+msgstr "A mező értéke nem lehet nulla."
 
 #: .\repair\apps\asmfa\serializers\nodes.py:177
 msgid "Enter a valid URL (or leave it blank)."
-msgstr ""
+msgstr "Adjon meg egy érvényes URL-t (vagy hagyja üresen)."
 
 #: .\repair\apps\asmfa\views\flowfilter.py:172
 #: .\repair\apps\statusquo\views\indicators.py:425
 msgid "calculation is not done yet"
-msgstr ""
+msgstr "számítás még nincs kész"
 
 #: .\repair\apps\asmfa\views\flowfilter.py:175
 #: .\repair\apps\statusquo\views\indicators.py:428
 msgid "calculation is still in process"
-msgstr ""
+msgstr "A számítás folyamatban van. "
 
 #: .\repair\apps\asmfa\views\keyflows.py:243
 msgid "This material is a default material "
-msgstr ""
+msgstr "Alapértelmezett anyag "
 
 #: .\repair\apps\changes\models\solutions.py:20
 msgid "Enter only floats separated by commas."
-msgstr ""
+msgstr "Vesszővel válassza el a bevitt tételeket."
 
 #: .\repair\apps\changes\serializers\strategies.py:105
 msgid "not calculated yet"
-msgstr ""
+msgstr "számítás alatt"
 
 #: .\repair\apps\changes\serializers\strategies.py:109
 msgid "calculation started"
-msgstr ""
+msgstr "A szímátás elkezdődött.  "
 
 #: .\repair\apps\changes\serializers\strategies.py:111
 #: .\repair\apps\changes\serializers\strategies.py:118
 msgid "(server time)"
-msgstr ""
+msgstr "(szerveridő)"
 
 #: .\repair\apps\changes\serializers\strategies.py:112
 msgid "elapsed"
-msgstr ""
+msgstr "lejárt az idő"
 
 #: .\repair\apps\changes\serializers\strategies.py:116
 msgid "calculation finished"
-msgstr ""
+msgstr "a számítás elkészült"
 
 #: .\repair\apps\changes\views\strategies.py:75
 msgid "The base data is not set up. "
-msgstr ""
+msgstr "Az alapadatok nincsenek beállítva. "
 
 #: .\repair\apps\login\serializers\bases.py:109
 msgid "User {} has no permission to access casestudy {}"
-msgstr ""
+msgstr "A felhasználónak nincs hozzáférése az esettanulmányhoz.  "
 
 #: .\repair\apps\login\serializers\users.py:40
 msgid "Select the Casestudies the user works on"
-msgstr ""
+msgstr "Az esettanulmány kiválasztása amelyen a felhasználó dolgozik"
 
 #: .\repair\apps\login\views\users.py:124
 #: .\repair\apps\login\views\users.py:171
 #: .\repair\apps\login\views\users.py:195
 #: .\repair\apps\login\views\users.py:200
 msgid "Unauthorized"
-msgstr ""
+msgstr "nem engedélyezett "
 
 #: .\repair\apps\statusquo\views\indicators.py:243
 msgid "SUM aggregation Flow A"
-msgstr ""
+msgstr "SUM aggregáció Flow A"
 
 #: .\repair\apps\statusquo\views\indicators.py:244
 msgid "Flow A"
-msgstr ""
+msgstr "A áram"
 
 #: .\repair\apps\statusquo\views\indicators.py:245
 msgid "t / year"
-msgstr ""
+msgstr "t / év"
 
 #: .\repair\apps\statusquo\views\indicators.py:261
 msgid "SUM aggregation Flow A / SUM aggregation Flow B"
-msgstr ""
+msgstr "SUM \"A\" ggregációs áram / SUM \"B\" aggregációs áram  "
 
 #: .\repair\apps\statusquo\views\indicators.py:262
 msgid "(Flow A / Flow B) * 100"
-msgstr ""
+msgstr "(A áram / B áram ) * 110"
 
 #: .\repair\apps\statusquo\views\indicators.py:298
 msgid "SUM aggregation Flow A / Inhabitants in Area"
-msgstr ""
+msgstr "SUM aggregáció Flow A / lakosok a területen"
 
 #: .\repair\apps\statusquo\views\indicators.py:299
 msgid "Flow A / Inhabitants"
-msgstr ""
+msgstr "A áram / lakosok"
 
 #: .\repair\apps\statusquo\views\indicators.py:300
 msgid "kg / inhabitant and year"
-msgstr ""
+msgstr "kg / lakos és év"
 
 #: .\repair\apps\statusquo\views\indicators.py:341
 msgid "SUM aggregation Flow A / geometrical area in hectar"
-msgstr ""
+msgstr "SUM aggregáció Áramlás A / geometriai terület hektárban"
 
 #: .\repair\apps\statusquo\views\indicators.py:342
 msgid "Flow A / Area (ha)"
-msgstr ""
+msgstr "A áram / terület  (ha)"
 
 #: .\repair\apps\statusquo\views\indicators.py:343
 msgid "t / hectar and year"
-msgstr ""
+msgstr "t / hektár és év"
 
 #: .\repair\apps\studyarea\serializers\areas.py:135
 msgid "you may only pass parent_area_id OR "
-msgstr ""
+msgstr "csak a parent area id-jét érheti el VAGY "
 
 #: .\repair\apps\studyarea\serializers\areas.py:148
 msgid "parent_level is required when relating to "
-msgstr ""
+msgstr "a parent_levelre akkor van szükség, ha az"
 
 #: .\repair\apps\utils\serializers.py:417
 msgid "unsupported filetype"
-msgstr ""
+msgstr "nem támogatott fájltípus  "
 
 #: .\repair\apps\utils\serializers.py:422
 msgid "wrong file-encoding ({} used)"
-msgstr ""
+msgstr "rossz fájlkódolás ({} használva)"
 
 #: .\repair\apps\utils\serializers.py:457
 msgid "Index column(s) missing: {}"
-msgstr ""
+msgstr "Az index oszlop (ok) hiányzik: {}"
 
 #: .\repair\apps\utils\serializers.py:465
 msgid "Index \"{}\" has to be unique!"
-msgstr ""
+msgstr "Index {{} \" csak önmagában állhat!"
 
 #: .\repair\apps\utils\serializers.py:468
 msgid "The combination of indices \"{}\" have to be unique!"
-msgstr ""
+msgstr "A \"{}\" indexek kombinációjának egyedinek kell lennie!"
 
 #: .\repair\apps\utils\serializers.py:470
 msgid "Duplicates found: {}"
-msgstr ""
+msgstr "A másolatok megtalálhatók: {}"
 
 #: .\repair\apps\utils\serializers.py:572
 msgid "invalid geometry"
-msgstr ""
+msgstr "érvénytelen geometria "
 
 #: .\repair\apps\utils\serializers.py:575
 msgid "Invalid geometries"
-msgstr ""
+msgstr "Érvénytelen geometriák "
 
 #: .\repair\apps\utils\serializers.py:588
 msgid "Integer expected: number without decimals"
-msgstr ""
+msgstr "Egész szám szükséges: szám tizedes nélkül"
 
 #: .\repair\apps\utils\serializers.py:592
 msgid "Float expected: number with or without "
-msgstr ""
+msgstr "Folytonos szám szükséges: szám vagy az alábbival, vagy anélkül"
 
 #: .\repair\apps\utils\serializers.py:597
 msgid "Boolean expected (\"true\" or \"false\")"
-msgstr ""
+msgstr "Logikai válasz szükséges (\"igaz\" or \"hamis\")"
 
 #: .\repair\apps\utils\serializers.py:601
 msgid "Number format errors"
-msgstr ""
+msgstr "A számformátum hibás"
 
 #: .\repair\apps\utils\serializers.py:628
 msgid "Column(s) missing: {}"
-msgstr ""
+msgstr "Oszlop(ok) hiányzik: {}"
 
 #: .\repair\apps\utils\serializers.py:652
 msgid "{c} - related models {m} not found"
-msgstr ""
+msgstr "{c} - a vonatkozó modellek {m} nem találhatóak"
 
 #: .\repair\apps\utils\serializers.py:655
 msgid "relation not found"
-msgstr ""
+msgstr "kapcsolat nem található"
 
 #: .\repair\apps\utils\views.py:303
 msgid "Referencing Object(s)"
-msgstr ""
+msgstr "Referencia tárgy(ak)"
 
 #: .\repair\js\conclusions.js:63
 msgid "There are no specified users! Please go to setup mode."
-msgstr ""
+msgstr "Nincs felhasználó megjelölve! Használja a setup módot"
 
 #: .\repair\js\strategy.js:96
 msgid "Calculation started. Please wait till it is finished (check Status)."
-msgstr ""
+msgstr "A számolás megkezdődött. Kérjük várjon amíg befejeződik (figyelje a státuszt)"
 
 #: .\repair\js\strategy.js:140
 msgid "Graph was successfully build."
-msgstr ""
+msgstr "Az ábra sikeresen felépítésre került"
 
 #: .\repair\js\targets.js:52
 msgid ""
 "Flow targets can't be set for general objectives.<br><br>Please select a "
 "keyflow inside the side-menu."
-msgstr ""
+msgstr "Az áram célját nem sikerült általános térgyra beállítani<br><br> Kérjük, válaszzon egy "
+"kulcsáramot az oldalsó menü használatával"
 
 #: .\repair\js\views\common\baseview.js:278
 msgid "Info"
-msgstr ""
+msgstr "Információ"
 
 #: .\repair\js\views\common\baseview.js:300
 msgid "Error <b>"
-msgstr ""
+msgstr "Hiba <b>"
 
 #: .\repair\js\views\common\filter-flows.js:392
 #: .\repair\js\views\data-entry\materials.js:77
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:263
 msgid "flows"
-msgstr ""
+msgstr "áram"
 
 #: .\repair\js\views\common\filter-flows.js:399
 msgid "too many to display"
-msgstr ""
+msgstr "túl sokat kellene egyszerre megjeleníteni"
 
 #: .\repair\js\views\common\filter-flows.js:485
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:305
 msgid "All materials"
-msgstr ""
+msgstr "Minden anyagfajta"
 
 #: .\repair\js\views\common\flowsankey.js:92
 msgid "No flow data found for applied filters."
-msgstr ""
+msgstr "Nem található adat a kiválasztott áramhoz"
 
 #: .\repair\js\views\common\flowsankey.js:174
 #: .\repair\js\views\common\flowsankeymap.js:559
 msgid "Actor"
-msgstr ""
+msgstr "Szereplő"
 
 #: .\repair\js\views\common\flowsankey.js:210
 msgid "avoidable"
-msgstr ""
+msgstr "elkerülhető"
 
 #: .\repair\js\views\common\flowsankey.js:222
 #: .\repair\js\views\common\flowsankeymap.js:675
 msgid "Process"
-msgstr ""
+msgstr "Folyamat"
 
 #: .\repair\js\views\common\flowsankey.js:308
 #: .\repair\js\views\strategy\setup-solution-part.js:107
 #: .\repair\js\views\strategy\setup-solution-part.js:216
 msgid "origin"
-msgstr ""
+msgstr "eredet"
 
 #: .\repair\js\views\common\flowsankey.js:308
 msgid "origin_code"
-msgstr ""
+msgstr "eredet_kód"
 
 #: .\repair\js\views\common\flowsankey.js:309
 #: .\repair\js\views\strategy\setup-solution-part.js:107
 #: .\repair\js\views\strategy\setup-solution-part.js:216
 msgid "destination"
-msgstr ""
+msgstr "desztináció"
 
 #: .\repair\js\views\common\flowsankey.js:309
 msgid "destination_code"
-msgstr ""
+msgstr "desztináció kód"
 
 #: .\repair\js\views\common\flowsankey.js:310
 msgid "amount"
-msgstr ""
+msgstr "összeg"
 
 #: .\repair\js\views\common\flowsankey.js:310
 msgid "composition"
-msgstr ""
+msgstr "összetétel"
 
 #: .\repair\js\views\common\flowsankey.js:318
 #: .\repair\js\views\common\flowsankeymap.js:727
 msgid "Stock"
-msgstr ""
+msgstr "Helyben maradó"
 
 #: .\repair\js\views\common\flowsankeymap.js:131
 msgid "Display materials"
-msgstr ""
+msgstr "Mutasd az anyagot"
 
 #: .\repair\js\views\common\flowsankeymap.js:132
 msgid "Animate flows"
-msgstr ""
+msgstr "Az áram animációja"
 
 #: .\repair\js\views\common\flowsankeymap.js:133
 msgid "Cluster locations"
-msgstr ""
+msgstr "A klaszter lokalizációja"
 
 #: .\repair\js\views\common\flowsankeymap.js:134
 msgid "Show actors"
-msgstr ""
+msgstr "szereplők megmutatása"
 
 #: .\repair\js\views\common\flowsankeymap.js:135
 msgid "Show flows"
-msgstr ""
+msgstr "áramok megmutatása"
 
 #: .\repair\js\views\common\flowsankeymap.js:136
 msgid "Show stocks"
-msgstr ""
+msgstr "Helyben maradó anyagok megmutatása"
 
 #: .\repair\js\views\common\flowsankeymap.js:522
 msgid "actors"
-msgstr ""
+msgstr "szereplők"
 
 #: .\repair\js\views\common\flowsankeymap.js:563
 msgid "Actor referenced by flow, but missing a location:"
-msgstr ""
+msgstr "Szereplő amelyre az áramlás vonatkozik, de hiányó hely:"
 
 #: .\repair\js\views\conclusions\flow-targets.js:112
 msgid "Objectives for key flow <i>"
-msgstr ""
+msgstr "A kulcs áram célpontjai <i>"
 
 #: .\repair\js\views\conclusions\flow-targets.js:158
 msgid "Indicators used as target setting in the key flow <i>"
-msgstr ""
+msgstr "A célállapothoz használt indikátorok a kulcs áramban <i>"
 
 #: .\repair\js\views\conclusions\manage-notepad.js:145
 #: .\repair\js\views\status-quo\objectives.js:309
 msgid "Edit"
-msgstr ""
+msgstr "szerkesztés"
 
 #: .\repair\js\views\conclusions\manage-notepad.js:163
 msgid "Do you want to delete the item?"
-msgstr ""
+msgstr "Törölni akarja az elemet?"
 
 #: .\repair\js\views\conclusions\manage-notepad.js:173
 #: .\repair\js\views\status-quo\objectives.js:339
 #: .\repair\js\views\strategy\setup-solutions-logic.js:295
 msgid "Do you want to delete the selected item?"
-msgstr ""
+msgstr "Szeretné törölni a kiválasztott elemet?"
 
 #: .\repair\js\views\conclusions\objectives.js:66
 msgid "Objectives for keyflow <i>"
-msgstr ""
+msgstr "A kulcs áram céljai"
 
 #: .\repair\js\views\conclusions\objectives.js:68
 msgid "General objectives"
-msgstr ""
+msgstr "Általános célok"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:55
 #: .\repair\js\views\data-entry\edit-node.js:825
 #: .\repair\js\views\data-entry\edit-node.js:831
 msgid "Activity Group"
-msgstr ""
+msgstr "tevékenységcsoport"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:56
 msgid "Activities"
-msgstr ""
+msgstr "Tevékenységek"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:57
 msgid "Actors"
-msgstr ""
+msgstr "Szereplők"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:58
 msgid "Actor Locations"
-msgstr ""
+msgstr "Szereplő helyzete"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:59
 msgid "Materials"
-msgstr ""
+msgstr "Anyagok"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:60
 msgid "Products"
-msgstr ""
+msgstr "Termékek"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:61
 msgid "Wastes"
-msgstr ""
+msgstr "Hulladékok"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:62
 msgid "Actor to Actor Flows"
-msgstr ""
+msgstr "Szereplőtől szereplőhöz áramlás"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:63
 msgid "Actor Stocks"
-msgstr ""
+msgstr "Tároló szereplők"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:66
 msgid "Area Levels"
-msgstr ""
+msgstr "Területi szintek"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:67
 msgid "Areas"
-msgstr ""
+msgstr "Területek"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:68
 msgid "Publications"
-msgstr ""
+msgstr "Publikációk"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:106
 msgid "Upload bibtex files"
-msgstr ""
+msgstr "Bibtex fájl feltöltés"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:108
 msgid "here"
-msgstr ""
+msgstr "Itt"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:137
 msgid "Focusarea updated"
-msgstr ""
+msgstr "A fókuszterület aktualizálva lett"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:141
 msgid "Focusarea update failed"
-msgstr ""
+msgstr "A fókuszterület aktualizálása nem sikerült"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:157
 msgid "Casestudy Region updated"
-msgstr ""
+msgstr "Esettanulmány  régió frissült "
 
 #: .\repair\js\views\data-entry\bulk-upload.js:161
 msgid "Casestudy Region update failed"
-msgstr ""
+msgstr "Esettanulmány  régió frissítése sikertelen"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:188
 msgid "Do you really want to delete the keyflow and <b>ALL</b> of its data?"
-msgstr ""
+msgstr "Biztosan törölni akarja a kulcsáramot és <b>ALL</b> adatait"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:191
 msgid "Are you sure?"
-msgstr ""
+msgstr "Biztos benne?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:213
 msgid "Removing data"
-msgstr ""
+msgstr "Adatok törlése"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:218
 msgid "Nothing to remove"
-msgstr ""
+msgstr "Semmit nem töröl"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:227
 msgid "entries removed"
-msgstr ""
+msgstr "a beírás törlésre került"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:228
 msgid "entries failed to remove"
-msgstr ""
+msgstr "a beírás kitörlése nem sikerült"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:265
 msgid "Successfully deleted"
-msgstr ""
+msgstr "Sikeresen törölve"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:293
 msgid "Force CASCADED deletion (delete referencing objects, even if protected)"
-msgstr ""
+msgstr "CASCADED törlés erőltetése (törli a referencia célokat, akkor is, ha azok védettek)"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:299
 msgid "Do you really want to delete the existing data and the related data?"
-msgstr ""
+msgstr "Biztosan törölni akarja a létező és kapcsolódó adatokat?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:333
 msgid "No file selected to upload!"
-msgstr ""
+msgstr "Nem választotta ki a feltöltendő fájlt"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:348
 msgid "Uploading"
-msgstr ""
+msgstr "töltés"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:356
 msgid "Created models:"
-msgstr ""
+msgstr "létrehozott modellek"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:361
 msgid "Updated models:"
-msgstr ""
+msgstr "frissített modellek"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:371
 #: .\repair\js\views\status-quo\setup-flow-assessment.js:198
@@ -881,26 +881,27 @@ msgstr ""
 #: .\repair\js\views\strategy\setup-solutions.js:197
 #: .\repair\js\views\study-area\keyflows.js:116
 msgid "Success"
-msgstr ""
+msgstr "siker"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:436
 msgid ""
 "Warning: Uploading Area Levels removes all Areas in the casestudy as well. "
 "Do you wish to continue?"
-msgstr ""
+msgstr "Figyelem: A területi szint feltöltése törli az összes területet az esettanulmány területen is. "
+"Biztosan folytatja?"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:451
 msgid "Response"
-msgstr ""
+msgstr "válasz"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:489
 #: .\repair\js\views\data-entry\bulk-upload.js:497
 msgid "count"
-msgstr ""
+msgstr "számol"
 
 #: .\repair\js\views\data-entry\bulk-upload.js:499
 msgid "defaults excluded"
-msgstr ""
+msgstr "alapértelmezett kizárva"
 
 #: .\repair\js\views\data-entry\edit-node.js:292
 msgid "Lade..."
@@ -908,11 +909,11 @@ msgstr ""
 
 #: .\repair\js\views\data-entry\edit-node.js:414
 msgid "None"
-msgstr ""
+msgstr "egyik sem"
 
 #: .\repair\js\views\data-entry\edit-node.js:604
 msgid "Select a material"
-msgstr ""
+msgstr "válasszon anyagot "
 
 #: .\repair\js\views\data-entry\edit-node.js:826
 msgid "Nace Code"
@@ -920,45 +921,47 @@ msgstr ""
 
 #: .\repair\js\views\data-entry\edit-node.js:830
 msgid "Activity"
-msgstr ""
+msgstr "tevékenység"
 
 #: .\repair\js\views\data-entry\edit-node.js:832
 msgid "City"
-msgstr ""
+msgstr "város"
 
 #: .\repair\js\views\data-entry\edit-node.js:833
 msgid "Address"
-msgstr ""
+msgstr "cím"
 
 #: .\repair\js\views\data-entry\materials.js:83
 msgid "read only"
-msgstr ""
+msgstr "csak olvasásra"
 
 #: .\repair\js\views\data-entry\materials.js:120
 msgid "Material (directly used in flows / children in flows)"
-msgstr ""
+msgstr "Anyag (közvetlenül áramlásokban / áramlásokban használt gyermekeknél)"
 
 #: .\repair\js\views\status-quo\edit-indicator-flow.js:271
 msgid "select an activity/group to display specific nodes"
 msgstr ""
+"válasszon egy tevékenységet / csoportot, hogy megjelenítse az adott "
+"csomópontokat"
 
 #: .\repair\js\views\status-quo\objectives.js:88
 msgid "General"
-msgstr ""
+msgstr "általános"
 
 #: .\repair\js\views\status-quo\objectives.js:159
 #: .\repair\js\views\status-quo\objectives.js:238
 msgid "Challenge"
-msgstr ""
+msgstr "kihívás"
 
 #: .\repair\js\views\status-quo\objectives.js:160
 #: .\repair\js\views\status-quo\objectives.js:284
 msgid "Aim"
-msgstr ""
+msgstr "cél"
 
 #: .\repair\js\views\status-quo\objectives.js:245
 msgid "Add Challenge"
-msgstr ""
+msgstr "kihívás hozzásadás"
 
 #: .\repair\js\views\status-quo\objectives.js:253
 #: .\repair\js\views\status-quo\objectives.js:299
@@ -966,11 +969,11 @@ msgstr ""
 #: .\repair\js\views\study-area\stakeholders.js:234
 #: .\repair\js\views\study-area\stakeholders.js:268
 msgid "Description"
-msgstr ""
+msgstr "leírás"
 
 #: .\repair\js\views\status-quo\objectives.js:291
 msgid "Add Aim"
-msgstr ""
+msgstr "Cél hozzáadása"
 
 #: .\repair\js\views\status-quo\setup-flow-assessment.js:198
 #: .\repair\js\views\status-quo\setup-flows.js:125
@@ -978,19 +981,19 @@ msgstr ""
 #: .\repair\js\views\strategy\setup-solutions.js:197
 #: .\repair\js\views\study-area\keyflows.js:116
 msgid "Upload successful"
-msgstr ""
+msgstr "feltöltés sikeres"
 
 #: .\repair\js\views\status-quo\setup-flow-assessment.js:240
 msgid "Do you want to delete the Indicator"
-msgstr ""
+msgstr "Valóban törölni kívánja az indikátort? "
 
 #: .\repair\js\views\status-quo\setup-flows.js:168
 msgid "Do you want to delete the Filter"
-msgstr ""
+msgstr "Valóban törölni kívánja a szűrőt?"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:496
 msgid "Case Study <br> Region"
-msgstr ""
+msgstr "Esettanulmány <br> Régió"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:496
 msgid "Focus <br> Area"
@@ -998,272 +1001,277 @@ msgstr ""
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:603
 msgid "Region"
-msgstr ""
+msgstr "Régió"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:661
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:662
 #: .\repair\js\views\targets\flow-targets.js:227
 msgid "Focus Area"
-msgstr ""
+msgstr "Fókuszterület"
 
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:672
 #: .\repair\js\views\status-quo\workshop-flow-assessment.js:673
 #: .\repair\js\views\targets\flow-targets.js:227
 msgid "Casestudy Region"
-msgstr ""
+msgstr "Esettanulmány Régió"
 
 #: .\repair\js\views\strategy\setup-solution-part.js:327
 #: .\repair\js\views\strategy\setup-solution-part.js:344
 #: .\repair\js\views\strategy\setup-solution-part.js:382
 #: .\repair\js\views\strategy\setup-solutions-logic.js:218
 msgid "Select"
-msgstr ""
+msgstr "válasszon"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:181
 msgid "successfully cloned"
-msgstr ""
+msgstr "sikeres klónozás"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:264
 msgid "clone item"
-msgstr ""
+msgstr "tétel klónozása"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:405
 msgid "GeoJSON needs attributes \"type\" and \"coordinates\""
-msgstr ""
+msgstr "A GeoJSON-nak attribútumokra  és \"koordinátákat\" van szüksége"
 
 #: .\repair\js\views\strategy\setup-solutions-logic.js:408
 msgid "type has to be MultiPolygon or Polygon"
-msgstr ""
+msgstr "típusnak MultiPolygonnak vagy sokszögnek kell lennie"
 
 #: .\repair\js\views\strategy\setup-solutions.js:241
 msgid "Do you want to delete the category?"
-msgstr ""
+msgstr "Törli a kategóriát?"
 
 #: .\repair\js\views\strategy\setup-solutions.js:327
 msgid "Do you want to delete the selected solution?"
-msgstr ""
+msgstr "Valóban törli  a kiválasztott megoldást?"
 
 #: .\repair\js\views\strategy\strategy.js:248
 msgid "Do you really want to delete your solution?"
-msgstr ""
+msgstr "Valóban törli a megoldást?"
 
 #: .\repair\js\views\strategy\strategy.js:640
 #: .\repair\js\views\strategy\strategy.js:646
 msgid "possible implementation area"
-msgstr ""
+msgstr "lehetséges megvalósítási terület"
 
 #: .\repair\js\views\study-area\charts.js:76
 msgid "The charts are not set up."
-msgstr ""
+msgstr "A diagramok nincsenek beállítva."
 
 #: .\repair\js\views\study-area\charts.js:354
 msgid "Do you really want to delete the selected chart?"
-msgstr ""
+msgstr "Tényleg törölni szeretné a kiválasztott diagramot?"
 
 #: .\repair\js\views\study-area\charts.js:355
 msgid "Do you really want to delete the selected category and all its charts?"
 msgstr ""
+"Tényleg törölni szeretné a kiválasztott kategóriát és az összes diagramját?"
 
 #: .\repair\js\views\study-area\keyflows.js:92
 msgid "Upload"
-msgstr ""
+msgstr "feltöltés"
 
 #: .\repair\js\views\study-area\setup-maps.js:293
 msgid "Do you really want to delete the selected category and all its layers?"
-msgstr ""
+msgstr "Valóban törölni akarja a kiválasztott szereplőt és rétegeit? "
 
 #: .\repair\js\views\study-area\stakeholders.js:87
 msgid "The stakeholders are not set up."
-msgstr ""
+msgstr "a szereplők nincsenek beállítva"
 
 #: .\repair\js\views\study-area\stakeholders.js:131
 msgid "Stakeholder"
-msgstr ""
+msgstr "szereplő"
 
 #: .\repair\js\views\study-area\stakeholders.js:132
 msgid "add stakeholder"
-msgstr ""
+msgstr "szereplő hozzáadása"
 
 #: .\repair\js\views\study-area\stakeholders.js:141
 msgid "Remove category"
-msgstr ""
+msgstr "kategória eltávolítása"
 
 #: .\repair\js\views\study-area\stakeholders.js:152
 msgid "Edit category"
-msgstr ""
+msgstr "kategória szerkesztése"
 
 #: .\repair\js\views\study-area\stakeholders.js:226
 msgid "Add Stakeholder"
-msgstr ""
+msgstr "Szereplő hozzáadása"
 
 #: .\repair\js\views\study-area\stakeholders.js:258
 msgid "Edit Stakeholder"
-msgstr ""
+msgstr "szereplő szerkesztése"
 
 #: .\repair\js\views\study-area\stakeholders.js:288
 msgid "Do you want to delete the selected stakeholder?"
-msgstr ""
+msgstr "Valóban törli a kiválasztott szereplőt?"
 
 #: .\repair\js\views\study-area\stakeholders.js:304
 msgid "Add Stakeholder Category"
-msgstr ""
+msgstr "Szereplőcsoport hozzáadása"
 
 #: .\repair\js\views\study-area\stakeholders.js:311
 msgid "Do you really want to delete the stakeholder category?"
-msgstr ""
+msgstr "Tényleg törölni kívánja az érintettek kategóriáját?"
 
 #: .\repair\js\views\study-area\stakeholders.js:337
 msgid "Edit Category"
-msgstr ""
+msgstr "Kategória szerkesztése"
 
 #: .\repair\js\views\study-area\workshop-maps.js:204
 msgid "The map is not set up."
-msgstr ""
+msgstr "A térkép nincs beállítva."
 
 #: .\repair\js\views\study-area\workshop-maps.js:468
 msgid "legend not found"
-msgstr ""
+msgstr "legenda nem található"
 
 #: .\repair\js\views\study-area\workshop-maps.js:508
 msgid "Layer"
-msgstr ""
+msgstr "réteg"
 
 #: .\repair\js\views\targets\flow-targets.js:193
 msgid "Remove target"
-msgstr ""
+msgstr "cél eltávolítása"
 
 #: .\repair\js\views\targets\flow-targets.js:300
 msgid ""
 "No indicators available for the target definition. Please contact your "
 "workshop leader."
 msgstr ""
+"Nincsenek elérhető mutatók a célmeghatározáshoz. Kérjük, forduljon a "
+"műhelyvezetőhöz."
 
 #: .\repair\js\views\targets\flow-targets.js:337
 msgid ""
 "Indicator is duplicate in this objective. Please remove or set another "
 "indicator."
 msgstr ""
+"A mutató ebben a célkitűzésben ismétlődik. Kérjük, távolítson el vagy "
+"állítson be egy másik mutatót."
 
 #: .\repair\js\views\targets\ranking-objectives.js:59
 msgid "Ranking general objectives"
-msgstr ""
+msgstr "Az általános célok rangsorolása"
 
 #: .\repair\js\views\targets\ranking-objectives.js:61
 msgid "Ranking objectives for the keyflow "
-msgstr ""
+msgstr "A kulcsáramlási célok rangsorolása "
 
 #: .\repair\settings.py:168
 msgid "English"
-msgstr ""
+msgstr "angol "
 
 #: .\repair\settings.py:169
 msgid "German"
-msgstr ""
+msgstr "német "
 
 #: .\repair\settings.py:170
 msgid "Dutch"
-msgstr ""
+msgstr "holland "
 
 #: .\repair\settings.py:171
 msgid "Polish"
-msgstr ""
+msgstr "lengyel "
 
 #: .\repair\settings.py:172
 msgid "Hungarian"
-msgstr ""
+msgstr "magyar  "
 
 #: .\repair\settings.py:173
 msgid "Italian"
-msgstr ""
+msgstr "olasz  "
 
 #: .\repair\static\bundles\prod\0.js:1
 msgid "brush"
-msgstr ""
+msgstr "ecset"
 
 #: .\repair\static\bundles\prod\0.js:1
 msgid "brushend"
-msgstr ""
+msgstr "az ecset bezárása"
 
 #: .\repair\static\bundles\prod\0.js:1
 msgid "brushstart"
-msgstr ""
+msgstr "az ecset megnyitása"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:112
 msgid "Mark selected %(verbose_name_plural)s as drafts"
-msgstr ""
+msgstr "A kiválasztott % (verbose_name_plural) megjelölése vázlatként"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:117
 msgid "Mark selected %(verbose_name_plural)s as submitted"
-msgstr ""
+msgstr "A kiválasztott % (verbose_name_plural) megjelölése benyújtottként"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:122
 msgid "Mark selected %(verbose_name_plural)s as accepted"
-msgstr ""
+msgstr "A kiválasztott % (verbose_name_plural) megjelölése elfogadottként"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\admin\publicationadmin.py:127
 msgid "Mark selected %(verbose_name_plural)s as published"
-msgstr ""
+msgstr "A kiválasztott % (verbose_name_plural) megjelölése közzétettként"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:41
 msgid "January"
-msgstr ""
+msgstr "január  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:42
 msgid "February"
-msgstr ""
+msgstr "február  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:43
 msgid "March"
-msgstr ""
+msgstr "március  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:44
 msgid "April"
-msgstr ""
+msgstr "Április "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:45
 msgid "May"
-msgstr ""
+msgstr "május  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:46
 msgid "June"
-msgstr ""
+msgstr "június   "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:47
 msgid "July"
-msgstr ""
+msgstr "július  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:48
 msgid "August"
-msgstr ""
+msgstr "augusztus  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:49
 msgid "September"
-msgstr ""
+msgstr "szeptember  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:50
 msgid "October"
-msgstr ""
+msgstr "október  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:51
 msgid "November"
-msgstr ""
+msgstr "november  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:52
 msgid "December"
-msgstr ""
+msgstr "december  "
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:68
 msgid "draft"
-msgstr ""
+msgstr "vázlat"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:69
 msgid "submitted"
-msgstr ""
+msgstr "benyújtva"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:70
 msgid "accepted"
-msgstr ""
+msgstr "elfogadva"
 
 #: .\src\django-publications-bootstrap\publications_bootstrap\models\publication.py:71
 msgid "published"
-msgstr ""
+msgstr "közzétett"
