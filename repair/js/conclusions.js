@@ -42,7 +42,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                 caseStudy: caseStudy,
                 el: el,
                 template: 'sustainability-template',
-                keyflow: keyflows.get(keyflowSelect.value),
+                keyflowId: keyflowSelect.value,
                 fileAttr: 'sustainability_conclusions'
             })
         })
@@ -103,7 +103,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             caseStudy: caseStudy,
             el: document.getElementById('sustainability'),
             template: 'sustainability-template',
-            keyflow: keyflow,
+            keyflowId: keyflow.id,
             fileAttr: 'sustainability_conclusions'
         })
     };

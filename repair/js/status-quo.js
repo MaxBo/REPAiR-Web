@@ -1,14 +1,14 @@
 require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     'views/status-quo/setup-flows',
-    'views/status-quo/objectives',
+    'views/status-quo/objectives', 'views/status-quo/sustainability',
     'views/status-quo/setup-flow-assessment',
     'views/study-area/workshop-maps', 'views/study-area/setup-maps',
     'views/status-quo/workshop-flow-assessment',
     'app-config', 'utils/overrides', 'base',
     'static/css/status-quo.css'
 ], function (d3, CaseStudy, FlowsWorkshopView, FlowsSetupView,
-    ChallengesAimsView, FlowAssessmentSetupView, BaseMapView, SetupMapView,
-    FlowAssessmentWorkshopView, appConfig) {
+    ChallengesAimsView, SustainabilityView, FlowAssessmentSetupView, BaseMapView,
+    SetupMapView, FlowAssessmentWorkshopView, appConfig) {
 
     /**
      * entry point for views on subpages of "StatusQuo" menu item
@@ -100,6 +100,22 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
                 else {
                     renderWorkshop(caseStudy);
                 }
+
+                var sustainabilityView,
+                    el = document.getElementById('sustainability-content');
+                keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
+                keyflowSelect.disabled = false;
+                keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
+                keyflowSelect.addEventListener('change', function(){
+                    if (sustainabilityView) sustainabilityView.close();
+                    sustainabilityView = new SustainabilityView({
+                        caseStudy: caseStudy,
+                        el: el,
+                        template: 'sustainability-template',
+                        keyflowId: keyflowSelect.value,
+                        fileAttr: 'sustainability_statusquo'
+                    })
+                })
             }});
         }
     });
