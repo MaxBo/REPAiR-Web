@@ -161,16 +161,18 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                     apiIds: [caseStudy.id],
                     comparator: 'name'
                 });
-                promises.push(strategies.fetch({
-                    data: { 'user__in': participants.pluck('id').join(',') },
-                    error: alert
-                }));
-                // here we need profile resp. user id (same ids)
-                // shitty naming, there is a chain of 3 different 'user' models
-                promises.push(objectives.fetch({
-                    data: { keyflow: keyflow.id, 'user__in': participants.pluck('user').join(',') },
-                    error: alert
-                }));
+                if (participants.size() > 0){
+                    promises.push(strategies.fetch({
+                        data: { 'user__in': participants.pluck('id').join(',') },
+                        error: alert
+                    }));
+                    // here we need profile resp. user id (same ids)
+                    // shitty naming, there is a chain of 3 different 'user' models
+                    promises.push(objectives.fetch({
+                        data: { keyflow: keyflow.id, 'user__in': participants.pluck('user').join(',') },
+                        error: alert
+                    }));
+                }
                 Promise.all(promises).then(function(){
                     var promises = [];
                     objectives.sort();
