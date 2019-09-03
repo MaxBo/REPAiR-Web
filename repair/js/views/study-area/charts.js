@@ -307,6 +307,7 @@ var BaseChartsView = BaseView.extend(
 
             var image = imgInput.files[0],
                 name = this.el.querySelector('#chart-name').value;
+            console.log(image)
 
             var data = {
                 name: name,

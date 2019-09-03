@@ -342,7 +342,14 @@ var StrategyView = BaseView.extend(
                     var multi = new ol.geom.MultiPolygon();
                     features.forEach(function(feature) {
                         var geom = feature.getGeometry().transform(_this.editorMap.mapProjection, _this.projection);
-                        multi.appendPolygon(geom);
+                        console.log(geom.getType())
+                        if (geom.getType() == 'MultiPolygon'){
+                            geom.getPolygons().forEach(function(poly){
+                                multi.appendPolygon(poly);
+                            })
+                        } else {
+                            multi.appendPolygon(geom);
+                        }
                     });
                     var geoJSON = new ol.format.GeoJSON(),
                         geoJSONText = geoJSON.writeGeometry(multi);
@@ -583,15 +590,17 @@ var StrategyView = BaseView.extend(
             apiIds: [this.caseStudy.id, this.keyflowId]
         });
         var promises = [];
-        this.loader.activate();
-        promises.push(actors.fetch({
-            data: {id__in: actorIds.join(',')},
-            error: _this.onError
-        }));
-        promises.push(locations.fetch({
-            data: {actor__id__in: actorIds.join(',')},
-            error: _this.onError
-        }));
+        if (actorIds.length > 0){
+            this.loader.activate();
+            promises.push(actors.fetch({
+                data: {id__in: actorIds.join(',')},
+                error: _this.onError
+            }));
+            promises.push(locations.fetch({
+                data: {actor__id__in: actorIds.join(',')},
+                error: _this.onError
+            }));
+        }
 
         function bgColor(color){
             if(color.length < 5) {

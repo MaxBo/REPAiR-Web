@@ -20,7 +20,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
         * @param {HTMLElement} options.el                      element the view will be rendered in
         * @param {string} options.template                     id of the script element containing the underscore template to render this view
         * @param {module:models/CaseStudy} options.caseStudy   the casestudy of the keyflow
-        * @param {module:models/CaseStudy} options.keyflowId   the keyflow the objectives belong to
+        * @param {module:models/CaseStudy} options.keyflow     the keyflow the objectives belong to
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -30,13 +30,12 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             var _this = this;
             this.template = options.template;
             this.caseStudy = options.caseStudy;
-            this.keyflowId = options.keyflowId;
-            this.keyflowName = options.keyflowName;
+            this.keyflow = options.keyflow;
             this.users = options.users;
 
             this.solutions = new GDSECollection([], {
                 apiTag: 'solutions',
-                apiIds: [this.caseStudy.id, this.keyflowId],
+                apiIds: [this.caseStudy.id, this.keyflow.id],
                 comparator: 'implementation_count'
             });
             this.strategies = options.strategies;
@@ -46,12 +45,12 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             });
             this.activities = new GDSECollection([], {
                 apiTag: 'activities',
-                apiIds: [this.caseStudy.id, this.keyflowId],
+                apiIds: [this.caseStudy.id, this.keyflow.id],
                 comparator: 'name'
             });
             this.activityGroups = new GDSECollection([], {
                 apiTag: 'activitygroups',
-                apiIds: [this.caseStudy.id, this.keyflowId],
+                apiIds: [this.caseStudy.id, this.keyflow.id],
                 comparator: 'name'
             });
 
@@ -66,7 +65,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             this.strategies.forEach(function(strategy){
                 var implementations = new GDSECollection([], {
                     apiTag: 'solutionsInStrategy',
-                    apiIds: [_this.caseStudy.id, _this.keyflowId, strategy.id]
+                    apiIds: [_this.caseStudy.id, _this.keyflow.id, strategy.id]
                 });
                 promises.push(implementations.fetch({
                     success: function (){
@@ -99,11 +98,11 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 _this.solutions.forEach(function(solution){
                     var questions = new GDSECollection([], {
                         apiTag: 'questions',
-                        apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
+                        apiIds: [_this.caseStudy.id, _this.keyflow.id, solution.id]
                     });
                     solution.areas = new GDSECollection([], {
                         apiTag: 'possibleImplementationAreas',
-                        apiIds: [_this.caseStudy.id, _this.keyflowId, solution.id]
+                        apiIds: [_this.caseStudy.id, _this.keyflow.id, solution.id]
                     });
                     promises.push(solution.areas.fetch());
                     promises.push(questions.fetch({
@@ -356,7 +355,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 table = this.el.querySelector('#solution-question-table'),
                 header = table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
-            fTh.innerHTML = gettext('Solutions for key flow <i>' + this.keyflowName + '</i>');
+            fTh.innerHTML = gettext('Solutions for key flow <i>' + this.keyflow.get('name') + '</i>');
             header.appendChild(fTh);
             var userColumns = [];
             this.users.forEach(function(user){
@@ -434,8 +433,8 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 ifTh = document.createElement('th'),
                 levelSelect = this.el.querySelector('select[name="level-select"]'),
                 gName = (levelSelect.value == 'activity') ? 'Activities' : 'Activity groups';
-            fTh.innerHTML = gName + ' ' + gettext('directly affected by user strategies <br> in key flow <i>' + this.keyflowName + '</i>');
-            ifTh.innerHTML = gName + ' ' + gettext('indirectly affected by user strategies <br> in key flow <i>' + this.keyflowName + '</i>');
+            fTh.innerHTML = gName + ' ' + gettext('directly affected by user strategies <br> in key flow <i>' + this.keyflow.get('name') + '</i>');
+            ifTh.innerHTML = gName + ' ' + gettext('indirectly affected by user strategies <br> in key flow <i>' + this.keyflow.get('name') + '</i>');
             directHeader.appendChild(fTh);
             indirectHeader.appendChild(ifTh);
             var userColumns = [];
