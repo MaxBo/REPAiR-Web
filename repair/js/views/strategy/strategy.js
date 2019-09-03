@@ -342,6 +342,7 @@ var StrategyView = BaseView.extend(
                     var multi = new ol.geom.MultiPolygon();
                     features.forEach(function(feature) {
                         var geom = feature.getGeometry().transform(_this.editorMap.mapProjection, _this.projection);
+                        console.log(geom)
                         multi.appendPolygon(geom);
                     });
                     var geoJSON = new ol.format.GeoJSON(),

@@ -34,6 +34,8 @@
 {% else %}
 
   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/conclusions.css">
+  <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
+
   <div class="tab-content" style="padding-right: 50px"><!--col-md-10-->
     <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
     <div class="tab-pane fade in active" id="objectives" data-step="Objectives">
@@ -120,7 +122,7 @@
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary confirm" aria-hidden="true">{% trans "OK"%}</button>
+      <button class="btn btn-primary confirm" data-dismiss="modal" aria-hidden="true">{% trans "OK"%}</button>
       <button class="btn" data-dismiss="modal" aria-hidden="true">{% trans "Cancel"%}</button>
     </div>
   </div>
@@ -129,7 +131,58 @@
 
 <script type="text/template" id="conclusions-template">
 <div class="col-md-12">
-  <h3> Conclusions </h3>
+  <!--<div class="row disabled">-->
+    <!--<h4 style="float: left; margin-top: 0px; margin-right: 10px;"> {% trans "Sorted by"%} </h4>-->
+    <!--1)-->
+    <!--<select name="sort-level-1">-->
+    <!--</select>-->
+    <!--2)-->
+    <!--<select name="sort-level-2">-->
+    <!--</select>-->
+    <!--3)-->
+    <!--<select name="sort-level-3">-->
+    <!--</select>-->
+  <!--</div>-->
+
+  <% keyflows.forEach(function(keyflow){ %>
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading" data-toggle="collapse" style="padding: 0px;">
+        <h4 style="margin-top: 0; margin-bottom: 0;">
+          <a role="button" data-toggle="collapse" href="#keyflow-<%= keyflow.id %>" aria-expanded="false" aria-controls="#keyflow-<%= keyflow.id %>" class="toggle-details accordion-toggle">
+            <!--{% trans "Keyflow" %}--> <%= keyflow.get('name') %>
+          </a>
+        </h4>
+      </div>
+      <div id="keyflow-<%= keyflow.id %>" class="panel-collapse" style="padding: 10px;">
+        <% consensusLevels.forEach(function(level){ %>
+        <h4> <%= level.get('name') %> </h4>
+        <div class="row">
+            <div class='item-panel bordered' data-level="<%= level.id %>"></div>
+        </div>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+  <% }); %>
+<!--</div>-->
+</script>
+
+<script type="text/template" id="conclusion-item-template">
+<div class="row" style="height: 100%;">
+  <div class="col-md-7 bordered" style="height: 100%;">
+    <%= conclusion.get('text') %>
+  </div>
+  <div class="col-md-1 bordered" style="height: 100%; overflow: hidden;">
+    <img class="bordered" src="<%= conclusion.get('image') %>" style="max-width: 100%; cursor: pointer;">
+  </div>
+  <div class="col-md-2 bordered" style="height: 100%; overflow: hidden;">
+    <label><%= section %></label>
+  </div>
+  <div class="col-md-2 bordered" style="height: 100%; overflow: hidden;">
+    <label><%= conclusion.get('step') %></label>
+  </div>
+
 </div>
 </script>
 

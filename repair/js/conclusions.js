@@ -263,6 +263,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             promises.push(sections.fetch());
 
             Promise.all(promises).then(function(){
+                consensusLevels.sort();
+                sections.sort();
                 keyflows = new GDSECollection([], {
                     apiTag: 'keyflowsInCaseStudy',
                     apiIds: [caseStudyId]
