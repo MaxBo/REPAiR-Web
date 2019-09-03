@@ -225,10 +225,13 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         )
 
         impl_changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=impl_flows)
+            fractionflow__in=impl_flows,
+            strategy=implementation.strategy)
 
         aff_changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=affected_flows)
+            fractionflow__in=affected_flows,
+            strategy=implementation.strategy)
+
         materials = impl_changes.values_list('material', flat=True).distinct()
         waste = impl_changes.values_list('waste', flat=True).distinct()
         assert (len(materials) == 1 and
@@ -266,7 +269,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         aff_new_sum = aff_changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        # ToDo: this is what's calculated, does it make sense?
         assert aff_new_sum == (impl_new_sum - impl_old_sum) + aff_old_sum
 
 
