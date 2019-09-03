@@ -17,6 +17,7 @@ class AdminLevels(GDSEUniqueNameModel):
                            ('casestudy', 'name',),
                            )
         abstract = False
+        ordering = ['id']
 
     def create_area(self, **kwargs):
         """Create an area of the according level"""

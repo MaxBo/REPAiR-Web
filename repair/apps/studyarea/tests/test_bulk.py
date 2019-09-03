@@ -12,6 +12,8 @@ from django.urls import reverse
 from repair.apps.studyarea.factories import AdminLevelsFactory
 from repair.apps.studyarea.models import Area, AdminLevels
 
+pd.set_option('mode.chained_assignment', 'raise')
+
 
 class BulkImportAreaTest(LoginTestCase, APITestCase):
     testdata_folder = 'data'
