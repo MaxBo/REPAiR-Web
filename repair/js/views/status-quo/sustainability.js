@@ -28,11 +28,14 @@ var SustainabilityView = BaseView.extend(
         var _this = this;
 
         this.caseStudy = options.caseStudy;
+        this.scale = 1;
+
+        this.fileAttr = options.fileAttr;
+
         this.keyflow = new GDSEModel({ id: options.keyflowId }, {
             apiTag: 'keyflowsInCaseStudy',
             apiIds: [ this.caseStudy.id ]
         });
-        this.mode = options.mode || 0;
         this.scale = 1;
 
         this.fileAttr = options.fileAttr;
@@ -51,7 +54,8 @@ var SustainabilityView = BaseView.extend(
         'click #prev': 'prevPage',
         'click #next': 'nextPage',
         'click .fullscreen-toggle': 'toggleFullscreen',
-        'click #upload-sustainability-file': 'uploadFile'
+        'click #upload-sustainability-file': 'uploadFile',
+        'click #remove-sustainability-file': 'removeFile'
     },
 
     /*
@@ -60,11 +64,13 @@ var SustainabilityView = BaseView.extend(
     render: function(){
         SustainabilityView.__super__.render.call(this);
         var _this = this;
+        var url = this.keyflow.get(this.fileAttr);
         this.canvas = this.el.querySelector("canvas");
         this.canvasWrapper = this.el.querySelector('#canvas-wrapper');
         this.pageStatus = this.el.querySelector('#page-status');
         this.pdfInput =  this.el.querySelector('#sustainability-file-input');
-        var url = this.keyflow.get(this.fileAttr);
+        this.status = document.createElement('h3');
+        this.el.appendChild(this.status);
         if (url) {
             this.loader.activate();
             PDFJS.getDocument({url: url}).then(function(pdf) {
@@ -73,12 +79,15 @@ var SustainabilityView = BaseView.extend(
                 _this.renderPage(_this.pageNumber);
                 _this.loader.deactivate();
             });
+        } else {
+            this.status.innerHTML = gettext('There is no report not set tup yet.');
         }
     },
 
     showFilePreview: function(event){
         var input = event.target,
             _this = this;
+        this.status.innerHTML = '';
         if (input.files && input.files[0]){
             var reader = new FileReader();
             reader.onload = function (e) {
@@ -155,7 +164,7 @@ var SustainabilityView = BaseView.extend(
         if (this.pdfInput.files && this.pdfInput.files[0]){
             var pdf = this.pdfInput.files[0],
                 data = {};
-            data[_this.fileAttr] = pdf;
+            data[this.fileAttr] = pdf;
             //this.keyflow.set('sustainability_conclusions', pdf);
             this.keyflow.save(data, {
                 success: function () {
@@ -169,6 +178,29 @@ var SustainabilityView = BaseView.extend(
         else {
             this.alert(gettext('No file selected. Canceling upload...'))
         }
+    },
+
+    removeFile: function(){
+        if (!this.keyflow.get(this.fileAttr)) {
+            //this.canvasWrapper.style.display = 'none';
+            return;
+        }
+        var data = {},
+            _this = this;
+        data[this.fileAttr] = null;
+        this.confirm({
+            message: gettext('Do you want to remove the currently uploaded report from the keyflow?'),
+            onConfirm: function(){
+                _this.keyflow.save(data, {
+                    success: function () {
+                        _this.status.innerHTML = gettext('There is no report not set tup yet.');
+                        _this.canvasWrapper.style.display = 'none';
+                    },
+                    error: _this.onError,
+                    patch: true
+                });
+            }
+        })
     }
 
 });

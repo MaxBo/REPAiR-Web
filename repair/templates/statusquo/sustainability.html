@@ -1,0 +1,36 @@
+{% load i18n %}
+{% block content %}
+
+<script type="text/template" id="sustainability-template">
+  {% if request.session.mode == 1 %}
+  <div class="row" style="margin-bottom: 20px;">
+    <h4> {% trans "PDF Report" %} </h4>
+    <button class="btn btn-danger upload square" id="remove-sustainability-file" title="Remove PDF file">
+      {% trans "Remove" %}
+      <span class="glyphicon glyphicon-remove-circle" style="float: left; margin-right: 5px;"></span>
+    </button>
+  </div>
+  <div class="row">
+    <input type="file" id="sustainability-file-input" accept=".pdf" style="float: left; margin-right: 10px;">
+    <button class="btn btn-primary upload" id="upload-sustainability-file" title="Upload PDF file">
+      {% trans "Upload" %}
+      <span class="glyphicon glyphicon-upload" style="float: left; margin-right: 5px;"></span>
+    </button>
+  </div>
+  {% endif %}
+  <div class="bordered sunken" id="canvas-wrapper" style='background-color: white; text-align: center; display: none; overflow: auto;'>
+    <div class="row">
+      <div style="float: left;">
+        <h4 id="page-status" style="float: left; margin: 5px 10px 0px 0px;"></h4>
+        <button class="btn btn-primary square" id="prev">{% trans "Previous" %}</button>
+        <button class="btn btn-primary square" id="next">{% trans "Next" %}</button>
+      </div>
+      <div style="float: right;">
+        <button class="fullscreen-toggle fas fa-expand btn btn-primary"></button>
+      </div>
+    </div>
+    <canvas></canvas>
+  </div>
+</script>
+
+{% endblock %}
