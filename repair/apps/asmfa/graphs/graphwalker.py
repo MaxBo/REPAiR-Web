@@ -107,15 +107,14 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     # print("\nTraversing in 1. direction")
-    search.bfs_search(g, node, NodeVisitor(
-        g.vp["id"], solution, amount, visited, change))
+    node_visitor = NodeVisitor(g.vp["id"], solution, amount, visited, change)
+    search.bfs_search(g, node, node_visitor)
     if g.is_reversed():
         g.set_reversed(False)
     else:
         g.set_reversed(True)
     # print("\nTraversing in 2. direction")
-    search.bfs_search(g, node, NodeVisitor(
-        g.vp["id"], solution, amount, visited, change))
+    search.bfs_search(g, node, node_visitor)
     del visited
     g.set_reversed(False)
     g.clear_filters()
@@ -126,7 +125,7 @@ class GraphWalker:
     def __init__(self, g):
         self.graph = gt.Graph(g)
 
-    def calculate(self, implementation_edges, factors):
+    def calculate(self, implementation_edges, deltas):
         """Calculate the changes on flows for a solution"""
         # ToDo: deepcopy might be expensive. Why do we clone here?
         g = copy.deepcopy(self.graph)
@@ -141,11 +140,11 @@ class GraphWalker:
 
             g.ep.include[edge] = True
             start = time.time()
-            solution_factor = factors[i]
+            solution_delta = deltas[i]
             # ToDo: why do we pass the property dict for amounts?
             #       the graph is already passed linking to this dict
             changes = traverse_graph(g, edge=edge,
-                                     solution=solution_factor,
+                                     solution=solution_delta,
                                      amount=g.ep.amount)
             end = time.time()
             print(i, end-start)
@@ -153,7 +152,7 @@ class GraphWalker:
                 overall_changes = changes.a
             else:
                 overall_changes += changes.a
-            self.graph.ep.include[edge] = False
+            g.ep.include[edge] = False
 
         if overall_changes is not None:
             g.ep.amount.a += overall_changes

@@ -84,10 +84,11 @@ function(Backbone, utils, config) {
                 // remove trailing slash if there is one
                 var url = this.urlRoot().replace(/\/$/, "");
                 // post to resource if already existing (indicated by id) else create by posting to list view
+                var method = (options.patch) ? 'PATCH' : (this.id != null) ? 'PUT': 'POST'
                 if (this.id != null) url += '/' + this.id;
                 url += '/';
                 utils.uploadForm(data, url, {
-                    method: (options.patch) ? 'PATCH' : (this.id != null) ? 'PUT': 'POST',
+                    method: method,
                     success: function(resData, textStatus, jqXHR){
                         // set attributes corresponding to response
                         for(key in resData){

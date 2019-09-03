@@ -20,7 +20,7 @@ function(_, BaseView, GDSECollection, BarChart){
         * @param {HTMLElement} options.el                      element the view will be rendered in
         * @param {string} options.template                     id of the script element containing the underscore template to render this view
         * @param {module:models/CaseStudy} options.caseStudy   the casestudy of the keyflow
-        * @param {module:models/CaseStudy} options.keyflowId   the keyflow the objectives belong to
+        * @param {module:models/CaseStudy} options.keyflow   the keyflow the objectives belong to
         *
         * @constructs
         * @see http://backbonejs.org/#View
@@ -30,8 +30,7 @@ function(_, BaseView, GDSECollection, BarChart){
             var _this = this;
             this.template = options.template;
             this.caseStudy = options.caseStudy;
-            this.keyflowId = options.keyflowId;
-            this.keyflowName = options.keyflowName;
+            this.keyflow = options.keyflow;
             this.users = options.users;
             this.strategies = options.strategies;
             this.indicators = options.indicators;
@@ -116,7 +115,7 @@ function(_, BaseView, GDSECollection, BarChart){
                 table = this.el.querySelector('table[name="indicator-table"]'),
                 header = table.createTHead().insertRow(0),
                 fTh = document.createElement('th');
-            fTh.innerHTML = gettext('Flow indicators for key flow <i>' + this.keyflowName + '</i>');
+            fTh.innerHTML = gettext('Flow indicators for key flow <i>' + this.keyflow.get('name') + '</i>');
             header.appendChild(fTh);
 
             var userColumns = [];
@@ -160,7 +159,7 @@ function(_, BaseView, GDSECollection, BarChart){
                 header = table.createTHead().insertRow(0),
                 fTh = document.createElement('th'),
                 sTh = document.createElement('th');
-            fTh.innerHTML = gettext('Flow indicators for key flow <i>' + this.keyflowName + '</i>');
+            fTh.innerHTML = gettext('Flow indicators for key flow <i>' + this.keyflow.get('name') + '</i>');
             sTh.innerHTML = gettext('Status');
             header.appendChild(fTh);
             header.appendChild(sTh);

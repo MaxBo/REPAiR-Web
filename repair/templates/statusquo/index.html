@@ -51,10 +51,18 @@
     <div id="flow-assessment-content"></div>
   </div>
   <div class="tab-pane fade" id="sustainability-assessment">
-    <h2>ToDo</h2>
+    <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
+      <option disabled selected> {% trans "Select" %} </option>
+      {% for keyflow in keyflows %}
+        <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
+      {% endfor %}
+    </select>
+    <div id="sustainability-content">
+    </div>
   </div>
 </div>
 
+{% include "statusquo/sustainability.html" %}
 {% include "statusquo/flows.html" %}
 {% include "studyarea/maps.html" %}
 {% include "statusquo/challenges-aims.html" %}
