@@ -871,7 +871,7 @@ class StrategyGraph(BaseGraph):
     def find_closest_actor(actors_in_solution,
                            possible_target_actors,
                            max_distance: int=500,
-                           ABSOLUTE_MAX_DISTANCE: int=100000):
+                           absolute_max_distance: int=100000):
         # ToDo: for each actor pick a closest new one
         #     don't distribute amounts equally!
         #     (calc. amount based on the shifted flow for relative or distribute
@@ -891,7 +891,7 @@ class StrategyGraph(BaseGraph):
         actors_not_found_yet = actors_in_solution
 
         while (actors_not_found_yet
-               and max_distance < ABSOLUTE_MAX_DISTANCE):
+               and max_distance < absolute_max_distance):
 
             query_actors_in_solution = actors_not_found_yet \
                 .annotate(pnt=F('administrative_location__geom')) \
@@ -1003,7 +1003,7 @@ class StrategyGraph(BaseGraph):
                 id__in=target_actors.keys())
 
             max_distance *= 2
-            max_distance = min(max_distance, ABSOLUTE_MAX_DISTANCE)
+            max_distance = min(max_distance, absolute_max_distance)
 
         return target_actors
 
