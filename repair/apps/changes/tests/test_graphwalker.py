@@ -1,9 +1,10 @@
 import random
 from django.test import TestCase
 from django.contrib.gis.geos import Point
-from django.db.models import Count
+from django.db.models import Count, Sum
 from repair.apps.asmfa.models import (Actor, Activity, Actor2Actor,
-                                      ActorStock, AdministrativeLocation)
+                                      ActorStock, AdministrativeLocation,
+                                      FractionFlow, Material)
 from repair.apps.changes.models import Solution, Strategy
 from repair.apps.asmfa.graphs.graph import StrategyGraph
 
@@ -71,15 +72,7 @@ class GraphWalkerTests(TestCase, ClosestActorMixin):
         #assert solution.name == "Simplified Peel Pioneer"
 
 
-class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
-    """
-    Testclass for performance tests of the graph walker
-
-    loads the data for the peel pioneer example from a fixture
-    and clone the data to get a big testcase
-    """
-
-    fixtures = ['peelpioneer_data']
+class MultiplyTestDataMixin:
 
     @classmethod
     def setUpTestData(cls):
@@ -90,6 +83,7 @@ class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
         # clone actors
         new_actors = []
         new_stocks = []
+        new_fraction_flows = []
         new_locations = []
         for activity in activities:
             actors = Actor.objects.filter(activity=activity)
@@ -110,9 +104,8 @@ class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
                     new_actors.append(new_actor)
 
                     # add new stocks
-                    old_stock = ActorStock.objects.filter(origin=actor)
-                    if old_stock:
-                        old_stock = old_stock[0]
+                    try:
+                        old_stock = ActorStock.objects.get(origin=actor)
                         new_amount = (random.random() + 0.5) * old_stock.amount
                         new_stock = ActorStock(
                             origin=new_actor,
@@ -125,14 +118,39 @@ class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
                         )
                         new_stocks.append(new_stock)
 
+                        # add the fractionflow for the stocks
+                        old_fraction_flow = FractionFlow.objects.get(
+                            stock=old_stock)
+
+                        new_fraction_flow = FractionFlow(
+                            stock=new_stock,
+                            origin=new_actor,
+                            material=old_fraction_flow.material,
+                            to_stock=True,
+                            amount=new_amount,
+                            publication=old_fraction_flow.publication,
+                            avoidable=old_fraction_flow.avoidable,
+                            hazardous=old_fraction_flow.hazardous,
+                            nace=old_fraction_flow.nace,
+                            composition_name=old_fraction_flow.composition_name,
+                            strategy=old_fraction_flow.strategy,
+                        )
+                        new_fraction_flows.append(new_fraction_flow)
+
+                    except (ActorStock.DoesNotExist,
+                            FractionFlow.DoesNotExist):
+                        # continue if no stock or fraction flow exists
+                        pass
+
+
                     # add new locations
                     old_location = AdministrativeLocation.objects.filter(
                         actor=actor)
                     if old_location:
                         old_location = old_location[0]
-                        #  spatial offset
-                        dx = random.randint(-100, 100) / 200.
-                        dy = random.randint(-100, 100) / 200.
+                        #  spatial offset by +/- 0.01 degrees
+                        dx = random.randint(-100, 100) / 10000.
+                        dy = random.randint(-100, 100) / 10000.
                         geom = Point(x=old_location.geom.x + dx,
                                      y=old_location.geom.y + dy,
                                      srid=old_location.geom.srid)
@@ -163,6 +181,16 @@ class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
                 id=origin_destination['destination__activity'])
             flows = Actor2Actor.objects.filter(origin__activity=activity1,
                                                destination__activity=activity2)
+            fraction_flows = FractionFlow.objects.filter(
+                origin__activity=activity1,
+                destination__activity=activity2)
+            fraction_flow_materials = fraction_flows\
+                .values('material')\
+                .annotate(Count('id'))\
+                .annotate(Sum('amount'))
+            total_amount = fraction_flows.aggregate(Sum('amount'))\
+                ['amount__sum']
+
             source_actors = Actor.objects.filter(activity=activity1)
             destination_actors = Actor.objects.filter(activity=activity2)
             for flow in flows:
@@ -180,7 +208,41 @@ class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
                         year=flow.year,
                     )
                     new_flows.append(new_flow)
+
+                    for fraction_flow_material in fraction_flow_materials:
+                        material = Material.objects.get(
+                            id=fraction_flow_material['material'])
+                        fraction = (fraction_flow_material['amount__sum'] /
+                                    total_amount)
+
+                        new_fraction_flow = FractionFlow(
+                            keyflow=new_flow.keyflow,
+                            waste=new_flow.waste,
+                            process=new_flow.process,
+                            flow=new_flow,
+                            origin=new_flow.origin,
+                            destination=new_flow.destination,
+                            material=material,
+                            amount=new_amount * fraction,
+                            publication=new_flow.publication,
+                        )
+                        new_fraction_flows.append(new_fraction_flow)
+
         Actor2Actor.objects.bulk_create(new_flows)
+        FractionFlow.objects.bulk_create(new_fraction_flows)
+
+
+class GraphWalkerPerformanceTests(MultiplyTestDataMixin,
+                                  TestCase,
+                                  ClosestActorMixin):
+    """
+    Testclass for performance tests of the graph walker
+
+    loads the data for the peel pioneer example from a fixture
+    and clone the data to get a big testcase
+    """
+
+    fixtures = ['peelpioneer_data']
 
     def test_cloned_actors_and_flows(self):
         # this solution is not in the fixtures anymore
@@ -188,4 +250,6 @@ class GraphWalkerPerformanceTests(TestCase, ClosestActorMixin):
         print(len(ActorStock.objects.all()))
         print(len(AdministrativeLocation.objects.all()))
         print(len(Actor2Actor.objects.all()))
+        print(len(FractionFlow.objects.all()))
+
 
