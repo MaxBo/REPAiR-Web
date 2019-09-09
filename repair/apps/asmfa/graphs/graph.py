@@ -346,7 +346,7 @@ class StrategyGraph(BaseGraph):
         flow_count = len(origins) * len(destinations)
         # equal distribution
         amount = total / flow_count
-        deltas = [amount] * flow_count
+        deltas = np.full((flow_count), amount)
         new_flows = []
         for origin, destination in itertools.product(origins, destinations):
             new_flow = FractionFlow(
