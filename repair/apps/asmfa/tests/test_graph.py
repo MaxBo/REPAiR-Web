@@ -238,7 +238,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     def test_shift_destination(self):
         scheme = Scheme.SHIFTDESTINATION
 
-        factor = 0.5
+        factor = 0.2
 
         implementation_flow = FlowReferenceFactory(
             origin_activity=self.households,
@@ -452,7 +452,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     def test_prepend(self):
         scheme = Scheme.PREPEND
 
-        factor = 0.5
+        factor = 0.3
 
         implementation_flow = FlowReferenceFactory(
             origin_activity=self.collection,
@@ -512,7 +512,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             sum_amount=Sum('amount'))['sum_amount']
 
         assert len(status_quo_flows) == len(new_flows)
-        assert prep_sum == sq_sum * factor
+        assert prep_sum == sq_sum * factor, (f'new flows sum up to {prep_sum}, '
+                                             f'expected: {sq_sum * factor}')
 
         materials = new_flows.values_list('material', flat=True).distinct()
         waste = new_flows.values_list('waste', flat=True).distinct()

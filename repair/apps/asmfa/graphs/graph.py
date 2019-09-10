@@ -586,7 +586,7 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            deltas.append(-delta)
+            deltas.append(flow.amount + delta)
 
         return new_flows, deltas
 
