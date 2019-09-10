@@ -346,7 +346,7 @@ class StrategyGraph(BaseGraph):
         flow_count = len(origins) * len(destinations)
         # equal distribution
         amount = total / flow_count
-        deltas = [amount] * flow_count
+        deltas = np.full((flow_count), amount)
         new_flows = []
         for origin, destination in itertools.product(origins, destinations):
             new_flow = FractionFlow(
@@ -886,7 +886,9 @@ class StrategyGraph(BaseGraph):
 
     @staticmethod
     def find_closest_actor(actors_in_solution,
-                           possible_target_actors):
+                           possible_target_actors,
+                           max_distance: int=500,
+                           absolute_max_distance: int=100000):
         # ToDo: for each actor pick a closest new one
         #     don't distribute amounts equally!
         #     (calc. amount based on the shifted flow for relative or distribute
@@ -901,14 +903,12 @@ class StrategyGraph(BaseGraph):
 
         # code for auto picking actor by distance
         # start with maximum distance of 500m
-        max_distance = 500
-        ABSOLUTE_MAX_DISTANCE = 100000
         target_actors = dict()
 
         actors_not_found_yet = actors_in_solution
 
         while (actors_not_found_yet
-               and max_distance <= ABSOLUTE_MAX_DISTANCE):
+               and max_distance < absolute_max_distance):
 
             query_actors_in_solution = actors_not_found_yet \
                 .annotate(pnt=F('administrative_location__geom')) \
@@ -921,12 +921,15 @@ class StrategyGraph(BaseGraph):
                 .query
 
             if backend == 'sqlite':
-                querytext_actors_in_solution,  params_actors_in_solution = query_actors_in_solution.sql_with_params()
-                querytext_actors_in_solution = querytext_actors_in_solution.replace(
-                    'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
-                    '"asmfa_administrativelocation"."geom"')
+                querytext_actors_in_solution,  params_actors_in_solution = \
+                    query_actors_in_solution.sql_with_params()
+                querytext_actors_in_solution = \
+                    querytext_actors_in_solution.replace(
+                        'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
+                        '"asmfa_administrativelocation"."geom"')
 
-                querytext_target_actors,  params_target_actors = query_target_actors.sql_with_params()
+                querytext_target_actors,  params_target_actors = \
+                    query_target_actors.sql_with_params()
                 querytext_target_actors = querytext_target_actors.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                     '"asmfa_administrativelocation"."geom"')
@@ -957,8 +960,8 @@ class StrategyGraph(BaseGraph):
                         ST_Transform(pta.pnt, 3035))) AS min_meter
                   FROM ais, pta
                   WHERE PtDistWithin(ais.pnt,
-                                   pta.pnt,
-                                   {max_distance})
+                                     pta.pnt,
+                                     {max_distance})
                   GROUP BY ais.id
                   ) b
                 WHERE a.actor_id = b.actor_id
@@ -968,7 +971,8 @@ class StrategyGraph(BaseGraph):
                 params = params_actors_in_solution + params_target_actors
 
             elif backend == 'postgresql':
-                query_actors_in_solution = str(query_actors_in_solution).replace(
+                query_actors_in_solution = str(
+                    query_actors_in_solution).replace(
                     '"asmfa_administrativelocation"."geom"::bytea',
                     '"asmfa_administrativelocation"."geom"')
 
@@ -1009,12 +1013,14 @@ class StrategyGraph(BaseGraph):
             with connection.cursor() as cursor:
                 cursor.execute(query,  params)
                 rows = cursor.fetchall()
+
             target_actors.update(dict(rows))
 
             actors_not_found_yet = actors_in_solution.exclude(
                 id__in=target_actors.keys())
 
             max_distance *= 2
+            max_distance = min(max_distance, absolute_max_distance)
 
         return target_actors
 

@@ -38,6 +38,8 @@ from repair.apps.changes.models import (Solution, Strategy,
 from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 
+from repair.apps.changes.tests.test_graphwalker import MultiplyTestDataMixin
+
 
 class GraphTest(LoginTestCase, APITestCase):
     @classmethod
@@ -283,7 +285,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             strategy__isnull=True
         )
         changes = StrategyFractionFlow.objects.filter(
-            fractionflow__in=status_quo_flows, 
+            fractionflow__in=status_quo_flows,
             strategy=implementation.strategy)
 
         new_flows = FractionFlow.objects.filter(
@@ -827,5 +829,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             strategy=implementation.strategy,
             fractionflow__in=sq_flows)
 
-        print()
 
+class StrategyGraphPerformanceTest(MultiplyTestDataMixin,
+                                   StrategyGraphTest):
+    """The same tests but with bigger data"""
