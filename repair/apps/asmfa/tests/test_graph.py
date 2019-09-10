@@ -30,7 +30,7 @@ from repair.apps.changes.factories import (StrategyFactory,
                                         )
 from repair.apps.asmfa.models import (Actor, FractionFlow, StrategyFractionFlow,
                                       Activity, Material, KeyflowInCasestudy,
-                                      CaseStudy)
+                                      CaseStudy, Process)
 from repair.apps.changes.models import (Solution, Strategy,
                                         ImplementationQuantity,
                                         SolutionInStrategy, Scheme,
@@ -105,45 +105,6 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
                 Polygon(((3, 51), (3, 54),
                         (7.5, 54), (7.5, 51), (3, 51)))),
         )
-    '''
-    def test_graph(self):
-        self.strategy = Strategy.objects.get(pk=88)
-
-        # test if peelpioneer has 26 fraction flows
-        assert len(FractionFlow.objects.all()) == self.fractionflows_count
-
-        self.graph = StrategyGraph(self.strategy, tag='test')
-        # delete stored graph file to test creation of data
-        self.graph.remove()
-        self.graph.build()
-
-        # assert graph using values
-        self.assert_graph_values()
-
-        # test again but now with loading the stored graph
-        #self.graph.build()
-
-        # assert graph using values
-        #self.assert_graph_values()
-
-    def assert_graph_values(self):
-        origin_actor = Actor.objects.get(BvDid=self.origin_actor_BvDid)
-        new_destination_actor = Actor.objects.get(
-            BvDid=self.new_destination_actor_BvDid)
-
-        # test assertions using values above
-        fractionflows = FractionFlow.objects.filter(
-            origin=origin_actor).annotate(
-            actual_amount=Coalesce('f_strategyfractionflow__amount', 'amount'))
-        assert len(fractionflows) == self.fractionflows_count_for_test_actor
-
-        # test new created flow
-        ff = fractionflows.get(destination=new_destination_actor)
-        assert ff.material.name == self.materialname
-        assert ff.destination == new_destination_actor
-        assert ff.amount == self.amount_before_shift
-        assert ff.actual_amount == self.amount_after_shift
-    '''
 
     def test_modify(self):
         scheme = Scheme.MODIFICATION
@@ -631,3 +592,240 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         assert app_sum == sq_sum * factor
 
         # ToDo: additional asserts (test origins/destinations), affected flows
+
+
+class PeelPioneerTest(LoginTestCase, APITestCase):
+    fixtures = ['peelpioneer_data']
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.casestudy = CaseStudy.objects.get(name='SandboxCity')
+        cls.keyflow = KeyflowInCasestudy.objects.get(
+            casestudy=cls.casestudy,
+            keyflow__name='Food Waste')
+        cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
+        cls.basegraph.build()
+
+        cls.restaurants = Activity.objects.get(nace='I-5610')
+        cls.retail = Activity.objects.get(nace='G-4711')
+        cls.treatment = Activity.objects.get(nace='E-3821')
+        cls.processing = Activity.objects.get(nace='C-1030')
+        cls.pharma_manufacture = Activity.objects.get(nace='C-2110')
+        cls.textile_manufacture = Activity.objects.get(nace='C-1399')
+
+        cls.food_waste = Material.objects.get(name='Food Waste')
+        cls.organic_waste = Material.objects.get(name='Organic Waste')
+        cls.orange_peel = Material.objects.get(name='Orange Peel')
+        cls.essential_oils = Material.objects.get(name='Essential Orange oils')
+        cls.fiber = Material.objects.get(name='Orange fibers')
+
+        cls.incineration = Process.objects.get(name='Incineration')
+
+    def setUp(self):
+        super().setUp()
+        self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
+
+    def test_solution(self):
+
+        # create the implementation along with the strategy
+        implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
+        question = ImplementationQuestionFactory(
+            question='How much orange peel waste will be used?',
+            min_value=0,
+            max_value=1,
+            is_absolute=False,
+            solution=self.solution
+        )
+
+        answer = ImplementationQuantityFactory(
+            question=question,
+            value=1,
+            implementation=implementation
+        )
+
+        priority = 0
+
+        ### shift food waste from treatment to processing ###
+        ### -> new orange peel flows ###
+
+        restaurants_to_treat = FlowReferenceFactory(
+            origin_activity=self.restaurants,
+            destination_activity=self.treatment,
+            material=self.food_waste,
+            process=self.incineration
+        )
+
+        retail_to_treat = FlowReferenceFactory(
+            origin_activity=self.retail,
+            destination_activity=self.treatment,
+            material=self.food_waste,
+            process=self.incineration
+        )
+
+        # ToDo: change process?
+        shift_to_processing = FlowReferenceFactory(
+            destination_activity=self.processing,
+            material=self.orange_peel
+        )
+
+        # part to shift flows from restaurants
+        SolutionPartFactory(
+            solution=self.solution,
+            question=question,
+            flow_reference=restaurants_to_treat,
+            flow_changes=shift_to_processing,
+            scheme=Scheme.SHIFTDESTINATION,
+            a=0.05,
+            b=0,
+            priority=priority
+        )
+        priority += 1
+
+        # part to shift flows from retail
+        SolutionPartFactory(
+            solution=self.solution,
+            question=question,
+            flow_reference=retail_to_treat,
+            flow_changes=shift_to_processing,
+            scheme=Scheme.SHIFTDESTINATION,
+            a=0.05,
+            b=0,
+            priority=priority
+        )
+        priority += 1
+
+        ### prepend flows to the orange peel flows ###
+
+        # Warning: if there would already be orange peel coming from restaurants
+        # or retail to processing it takes 50% of all of those
+        # (not only the new ones)
+
+        rest_to_proc = FlowReferenceFactory(
+            origin_activity=self.restaurants,
+            destination_activity=self.processing,
+            material=self.orange_peel
+        )
+
+        retail_to_proc = FlowReferenceFactory(
+            origin_activity=self.retail,
+            destination_activity=self.processing,
+            material=self.orange_peel
+        )
+
+        append_treatment = FlowReferenceFactory(
+            destination_activity=self.treatment,
+            material=self.organic_waste
+        )
+
+        # part to prepend to restaurant-processing flows going to treatment
+        SolutionPartFactory(
+            solution=self.solution,
+            flow_reference=rest_to_proc,
+            flow_changes=append_treatment,
+            scheme=Scheme.APPEND,
+            b=0.5,
+            priority=priority
+        )
+        priority += 1
+
+        # part to prepend flows to retail-processing flows going to treatment
+        SolutionPartFactory(
+            solution=self.solution,
+            flow_reference=retail_to_proc,
+            flow_changes=append_treatment,
+            scheme=Scheme.APPEND,
+            b=0.5,
+            priority=priority
+        )
+        priority += 1
+
+        append_textile = FlowReferenceFactory(
+            destination_activity=self.textile_manufacture,
+            material=self.fiber,
+            waste=0
+        )
+
+        # part to prepend to restaurant-processing flows going to textile manu.
+        SolutionPartFactory(
+            solution=self.solution,
+            flow_reference=rest_to_proc,
+            flow_changes=append_textile,
+            scheme=Scheme.APPEND,
+            b=0.03,
+            priority=priority
+        )
+        priority += 1
+
+        # part to prepend to retail-processing flows going to textile manu.
+        SolutionPartFactory(
+            solution=self.solution,
+            flow_reference=retail_to_proc,
+            flow_changes=append_textile,
+            scheme=Scheme.APPEND,
+            b=0.03,
+            priority=priority
+        )
+        priority += 1
+
+        append_pharma = FlowReferenceFactory(
+            destination_activity=self.pharma_manufacture,
+            material=self.essential_oils,
+            waste=0
+        )
+
+        # part to prepend to restaurant-processing flows going to pharma
+        SolutionPartFactory(
+            solution=self.solution,
+            flow_reference=rest_to_proc,
+            flow_changes=append_pharma,
+            scheme=Scheme.APPEND,
+            b=0.01,
+            priority=priority
+        )
+        priority += 1
+
+        # part to prepend to retail-processing flows going to pharma
+        SolutionPartFactory(
+            solution=self.solution,
+            flow_reference=retail_to_proc,
+            flow_changes=append_pharma,
+            scheme=Scheme.APPEND,
+            b=0.01,
+            priority=priority
+        )
+        priority += 1
+
+        sg = StrategyGraph(
+            implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        sq_flows = FractionFlow.objects.filter(
+            origin__activity__nace='G-4711',
+            destination__activity__nace='E-3821'
+        )
+        # was filtered by process
+        strat_flows = StrategyFractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            fractionflow__in=sq_flows)
+
+        for strat_flow in strat_flows:
+            sq_flow = strat_flow.fractionflow.amount
+
+        sq_flows = FractionFlow.objects.filter(
+            origin__activity__nace='I-5610',
+            destination__activity__nace='E-3821'
+        )
+        strat_flows = StrategyFractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            fractionflow__in=sq_flows)
+
+        print()
+

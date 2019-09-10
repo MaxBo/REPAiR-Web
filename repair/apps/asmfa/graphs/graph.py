@@ -360,10 +360,8 @@ class StrategyGraph(BaseGraph):
             # spatialite doesn't set the ids when bulk creating
             # when saving it does (weird)
             new_flow.save()
-            o_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], origin.id)[0]
-            d_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], destination.id)[0]
+            o_vertex = self._get_vertex(origin.id)
+            d_vertex = self._get_vertex(destination.id)
             new_edge = self.graph.add_edge(o_vertex, d_vertex)
             self.graph.ep.id[new_edge] = new_flow.id
             self.graph.ep.amount[new_edge] = 0
@@ -415,8 +413,7 @@ class StrategyGraph(BaseGraph):
             # get new target out of dictionary
             new_id = closest_dict[kept_id]
 
-            new_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], new_id)[0]
+            new_vertex = self._get_vertex(new_id)
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges
@@ -511,7 +508,7 @@ class StrategyGraph(BaseGraph):
         actors_kept = Actor.objects.filter(id__in=ids)
 
         closest_dict = self.find_closest_actor(actors_kept,
-                                             possible_new_targets)
+                                               possible_new_targets)
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
@@ -525,8 +522,7 @@ class StrategyGraph(BaseGraph):
             # get new target out of dictionary
             new_id = closest_dict[kept_id]
 
-            new_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], new_id)[0]
+            new_vertex = self._get_vertex(new_id)
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges
@@ -631,7 +627,6 @@ class StrategyGraph(BaseGraph):
                             administrative_location__geom__intersects=geom)
         return origins, destinations
 
-
     def _get_referenced_flows(self, flow_reference, implementation):
         '''
         return flows on actor level filtered by flow_reference attributes
@@ -646,7 +641,7 @@ class StrategyGraph(BaseGraph):
             'material': flow_reference.material
         }
         if flow_reference.process:
-            kwargs['process': flow_reference.process]
+            kwargs['process'] = flow_reference.process
         reference_flows = FractionFlow.objects.filter(**kwargs)
         return reference_flows
 
@@ -699,6 +694,22 @@ class StrategyGraph(BaseGraph):
                 # shouldn't happen if graph is up to date
                 raise Exception(f'graph is missing flow {flow.id}')
         return edges
+
+    def _get_vertex(self, id):
+        ''' return vertex with given id, creates vertex with corresponding
+        actor information if id is not in graph yet'''
+        vertices = util.find_vertex(
+            self.graph, self.graph.vp['id'], id)
+
+        if(len(vertices) > 0):
+            return vertices[0]
+
+        actor = Actor.objects.get(id=id)
+        vertex = self.graph.add_vertex()
+        self.graph.vp.id[vertex] = id
+        self.graph.vp.bvdid[vertex] = actor.BvDid
+        self.graph.vp.name[vertex] = actor.name
+        return vertex
 
     def build(self):
         #self.mock_changes()
@@ -788,24 +799,30 @@ class StrategyGraph(BaseGraph):
                 elif solution_part.scheme == Scheme.PREPEND:
                     possible_origins, d = self._get_actors(
                         changes, implementation)
-                    implementation_flows, deltas = self._chain_flows(
-                        implementation_flows, possible_origins,
-                        formula, prepend=True,
-                        new_material=changes.material,
-                        new_process=changes.process,
-                        new_waste=changes.waste,
-                        new_hazardous=changes.hazardous)
+                    if len(possible_origins) > 0:
+                        implementation_flows, deltas = self._chain_flows(
+                            implementation_flows, possible_origins,
+                            formula, prepend=True,
+                            new_material=changes.material,
+                            new_process=changes.process,
+                            new_waste=changes.waste,
+                            new_hazardous=changes.hazardous)
+                    else:
+                        print('Warning: no new targets found! Skipping prepend')
 
                 elif solution_part.scheme == Scheme.APPEND:
                     o, possible_destinations = self._get_actors(
                         changes, implementation)
-                    implementation_flows, deltas = self._chain_flows(
-                        implementation_flows, possible_destinations,
-                        formula, prepend=False,
-                        new_material=changes.material,
-                        new_process=changes.process,
-                        new_waste=changes.waste,
-                        new_hazardous=changes.hazardous)
+                    if len(possible_destinations) > 0:
+                        implementation_flows, deltas = self._chain_flows(
+                            implementation_flows, possible_destinations,
+                            formula, prepend=False,
+                            new_material=changes.material,
+                            new_process=changes.process,
+                            new_waste=changes.waste,
+                            new_hazardous=changes.hazardous)
+                    else:
+                        print('Warning: no new targets found! Skipping append')
 
                 else:
                     raise ValueError(
