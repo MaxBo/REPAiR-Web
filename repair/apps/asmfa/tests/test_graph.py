@@ -316,8 +316,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        msg = f'new_sum: {new_sum} should be factor: {factor} * old_sum: {old_sum}'
-        self.assertAlmostEqual(new_sum, old_sum*factor, msg=msg)
+        msg = f'new sum is {new_sum}, expected: {old_sum-old_sum*factor}'
+        self.assertAlmostEqual(new_sum, old_sum-old_sum*factor, msg=msg)
         msg = f'new_flow_sum: {new_flow_sum} should be the difference of old_sum: {old_sum} - new_sum: {new_sum}'
         self.assertAlmostEqual(new_flow_sum, old_sum - new_sum, msg=msg)
 
@@ -390,7 +390,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert new_sum == old_sum * factor
+        assert new_sum == old_sum - old * factor
         assert new_flow_sum == old_sum - new_sum
 
     def test_new_flows(self):
@@ -531,7 +531,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
     def test_append(self):
         scheme = Scheme.APPEND
 
-        factor = 0.5
+        factor = 0.8
 
         implementation_flow = FlowReferenceFactory(
             origin_activity=self.households,
@@ -661,14 +661,14 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             origin_activity=self.restaurants,
             destination_activity=self.treatment,
             material=self.food_waste,
-            process=self.incineration
+            #process=self.incineration
         )
 
         retail_to_treat = FlowReferenceFactory(
             origin_activity=self.retail,
             destination_activity=self.treatment,
             material=self.food_waste,
-            process=self.incineration
+            #process=self.incineration
         )
 
         # ToDo: change process?
@@ -814,13 +814,23 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             origin__activity__nace='G-4711',
             destination__activity__nace='E-3821'
         )
-        # was filtered by process
         strat_flows = StrategyFractionFlow.objects.filter(
             strategy=implementation.strategy,
-            fractionflow__in=sq_flows)
+            fractionflow__in=sq_flows
+        )
+        new_flows = FractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            origin__activity__nace='G-4711',
+            destination__activity__nace='C-1030'
+        )
 
         for strat_flow in strat_flows:
-            sq_flow = strat_flow.fractionflow.amount
+            old_amount = strat_flow.fractionflow.amount
+            origin = strat_flow.fractionflow.origin
+            process = strat_flow.fractionflow.process
+            new_flow = new_flows.get(origin=origin, process=process)
+            assert strat_flow.amount == old_amount - old_amount * 0.05
+            assert new_flow.amount == old_amount * 0.05
 
         sq_flows = FractionFlow.objects.filter(
             origin__activity__nace='I-5610',
@@ -828,7 +838,21 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         strat_flows = StrategyFractionFlow.objects.filter(
             strategy=implementation.strategy,
-            fractionflow__in=sq_flows)
+            fractionflow__in=sq_flows
+        )
+        new_flows = FractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            origin__activity__nace='I-5610',
+            destination__activity__nace='C-1030'
+        )
+
+        for strat_flow in strat_flows:
+            old_amount = strat_flow.fractionflow.amount
+            origin = strat_flow.fractionflow.origin
+            process = strat_flow.fractionflow.process
+            new_flow = new_flows.get(origin=origin, process=process)
+            assert strat_flow.amount == old_amount - old_amount * 0.05
+            assert new_flow.amount == old_amount * 0.05
 
 
 class StrategyGraphPerformanceTest(MultiplyTestDataMixin,

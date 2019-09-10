@@ -77,7 +77,7 @@ class MultiplyTestDataMixin:
     @classmethod
     def setUpTestData(cls):
         """multiply the test data for the peelpioneer_data"""
-        n_clones = 50
+        n_clones = 5
         activities = Activity.objects.all()
 
         # clone actors

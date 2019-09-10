@@ -421,6 +421,7 @@ class StrategyGraph(BaseGraph):
             if formula.is_absolute:
                 # equally
                 delta /= len(referenced_flows)
+            delta = flow.amount + delta
 
             # the edge corresponding to the referenced flow
             # (the one to be shifted)
@@ -476,12 +477,12 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            new_deltas.append(-delta)
+            new_deltas.append(delta)
 
             # reduce (resp. increase) the referenced flow by the same amount
             if reduce_reference:
                 changed_ref_flows.append(flow)
-                changed_ref_deltas.append(delta)
+                changed_ref_deltas.append(-delta)
 
         # new flows shall be created before modifying the existing ones
         return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
