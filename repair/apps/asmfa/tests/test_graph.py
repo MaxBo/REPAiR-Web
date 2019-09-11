@@ -104,8 +104,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             solution=self.solution,
             # should cover netherlands
             geom=MultiPolygon(
-                Polygon(((3, 51), (3, 54),
-                        (7.5, 54), (7.5, 51), (3, 51)))),
+                Polygon(((2.5, 50.5), (2.5, 54.5),
+                         (8, 54.5), (8, 50.5), (2.5, 50.5)))),
         )
 
     def test_modify(self):
@@ -161,8 +161,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         # skip the implementation area, possible impl. area is sufficient
         # for spatial filtering)
         implementation_area.geom = MultiPolygon(
-            Polygon(((3, 51), (3, 54),
-                     (7.5, 54), (7.5, 51), (3, 51))))
+            Polygon(((2.5, 50.5), (2.5, 54.5),
+                     (8, 54.5), (8, 50.5), (2.5, 50.5))))
         implementation_area.save()
 
         sg = StrategyGraph(
@@ -390,7 +390,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert new_sum == old_sum - old * factor
+        assert new_sum == old_sum - old_sum * factor
         assert new_flow_sum == old_sum - new_sum
 
     def test_new_flows(self):
@@ -441,11 +441,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
         new_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
-        assert new_sum == amount, (
-            f'new_flow should have the amount of {amount} of the strategy, '
-            f'but has an amount of {new_sum} '
-            f"and values of {new_flows.values_list('amount')}"
-        )
+        msg = (f'new_flow should have the amount of {amount} of the strategy, '
+               f'but has an amount of {new_sum} '
+               f"and values of {new_flows.values_list('amount', flat=True)}")
+        self.assertAlmostEqual(new_sum, amount, msg=msg)
 
         # ToDo: asserts, affected flows
 
@@ -512,8 +511,9 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             sum_amount=Sum('amount'))['sum_amount']
 
         assert len(status_quo_flows) == len(new_flows)
-        assert prep_sum == sq_sum * factor, (f'new flows sum up to {prep_sum}, '
-                                             f'expected: {sq_sum * factor}')
+        self.assertAlmostEqual(
+            prep_sum, sq_sum * factor,
+            msg=f'new flows sum up to {prep_sum}, expected: {sq_sum * factor}')
 
         materials = new_flows.values_list('material', flat=True).distinct()
         waste = new_flows.values_list('waste', flat=True).distinct()
