@@ -104,8 +104,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             solution=self.solution,
             # should cover netherlands
             geom=MultiPolygon(
-                Polygon(((2.5, 50.5), (2.5, 54.5),
-                         (8, 54.5), (8, 50.5), (2.5, 50.5)))),
+                Polygon(((2, 50), (2, 55),
+                         (9, 55), (9, 50), (2, 50)))),
         )
 
     def test_modify(self):
@@ -160,9 +160,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         # same as poss. impl. area, just for testing (you could also completely
         # skip the implementation area, possible impl. area is sufficient
         # for spatial filtering)
-        implementation_area.geom = MultiPolygon(
-            Polygon(((2.5, 50.5), (2.5, 54.5),
-                     (8, 54.5), (8, 50.5), (2.5, 50.5))))
+        implementation_area.geom = self.possible_impl_area.geom
+        #MultiPolygon(
+            #Polygon(((2.5, 50.5), (2.5, 54.5),
+                     #(8, 54.5), (8, 50.5), (2.5, 50.5))))
         implementation_area.save()
 
         sg = StrategyGraph(
@@ -218,8 +219,9 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         impl_new_sum = impl_changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert impl_new_sum == impl_old_sum * factor, (
-            f'new sum: {impl_new_sum}, old sum:{impl_old_sum}, factor: {factor}'
+        self.assertAlmostEqual(impl_new_sum, impl_old_sum * factor,
+            msg=(f'new sum: {impl_new_sum}, '
+                 f'old sum:{impl_old_sum}, factor: {factor}')
         )
 
         assert len(affected_flows) == len(aff_changes), (
@@ -232,7 +234,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         aff_new_sum = aff_changes.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert aff_new_sum == (impl_new_sum - impl_old_sum) + aff_old_sum
+        self.assertAlmostEqual(aff_new_sum,
+                               (impl_new_sum - impl_old_sum) + aff_old_sum)
 
 
     def test_shift_destination(self):
@@ -390,8 +393,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         new_flow_sum = new_flows.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert new_sum == old_sum - old_sum * factor
-        assert new_flow_sum == old_sum - new_sum
+        self.assertAlmostEqual(new_sum, old_sum - old_sum * factor)
+        self.assertAlmostEqual(new_flow_sum, old_sum - new_sum)
 
     def test_new_flows(self):
         scheme = Scheme.NEW
@@ -592,7 +595,7 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
             sum_amount=Sum('amount'))['sum_amount']
 
         assert len(status_quo_flows) == len(new_flows)
-        assert app_sum == sq_sum * factor
+        self.assertAlmostEqual(app_sum, sq_sum * factor)
 
         # ToDo: additional asserts (test origins/destinations), affected flows
 
@@ -842,16 +845,18 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         new_rest_to_proc_sum = new_rest_to_proc.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert strat_sum == sq_rest_to_treat_sum * 0.95
-        assert new_rest_to_proc_sum == sq_rest_to_treat_sum * 0.05
+        self.assertAlmostEqual(strat_sum, sq_rest_to_treat_sum * 0.95)
+        self.assertAlmostEqual(new_rest_to_proc_sum,
+                               sq_rest_to_treat_sum * 0.05)
 
         for strat_flow in strat_flows:
             sq_amount = strat_flow.fractionflow.amount
             origin = strat_flow.fractionflow.origin
             process = strat_flow.fractionflow.process
             new_flow = new_rest_to_proc.get(origin=origin, process=process)
-            assert strat_flow.amount == sq_amount - sq_amount * 0.05
-            assert new_flow.amount == sq_amount * 0.05
+            self.assertAlmostEqual(strat_flow.amount,
+                                   sq_amount - sq_amount * 0.05)
+            self.assertAlmostEqual(new_flow.amount, sq_amount * 0.05)
             assert new_flow.material == self.orange_peel
             assert new_flow.waste == True
 
@@ -880,16 +885,18 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         new_retail_to_proc_sum = new_retail_to_proc.aggregate(
             sum_amount=Sum('amount'))['sum_amount']
 
-        assert strat_sum == sq_retail_to_treat_sum * 0.95
-        assert new_retail_to_proc_sum == sq_retail_to_treat_sum * 0.05
+        self.assertAlmostEqual(strat_sum, sq_retail_to_treat_sum * 0.95)
+        self.assertAlmostEqual(new_retail_to_proc_sum,
+                               sq_retail_to_treat_sum * 0.05)
 
         for strat_flow in strat_flows:
             sq_amount = strat_flow.fractionflow.amount
             origin = strat_flow.fractionflow.origin
             process = strat_flow.fractionflow.process
             new_flow = new_retail_to_proc.get(origin=origin, process=process)
-            assert strat_flow.amount == sq_amount - sq_amount * 0.05
-            assert new_flow.amount == sq_amount * 0.05
+            self.assertAlmostEqual(strat_flow.amount,
+                                   sq_amount - sq_amount * 0.05)
+            self.assertAlmostEqual(new_flow.amount, sq_amount * 0.05)
             assert new_flow.material == self.orange_peel
             assert new_flow.waste == True
 
