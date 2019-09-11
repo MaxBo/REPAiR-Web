@@ -842,11 +842,13 @@ class StrategyGraph(BaseGraph):
                 gw = GraphWalker(self.graph)
                 self.graph = gw.calculate(impl_edges, deltas)
 
+                # save modifications and new flows into database
+                self.translate_to_db()
+                self.graph.ep.changed.a[:] = False
+
         # save the strategy graph to a file
         self.graph.save(self.filename)
 
-        # save modifications and new flows into database
-        self.translate_to_db()
         return self.graph
 
     def translate_to_db(self):
