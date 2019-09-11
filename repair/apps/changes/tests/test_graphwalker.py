@@ -52,8 +52,6 @@ class ClosestActorMixin:
                    f'is {pnt1.distance(pnt2)} > {max_distance} (max_distance)'
 
 
-
-
 class GraphWalkerTests(TestCase, ClosestActorMixin):
     """
     Testclass for the graph walker
@@ -102,6 +100,7 @@ class MultiplyTestDataMixin:
                         turnover=actor.turnover,
                         )
                     new_actors.append(new_actor)
+                    new_actor.save()
 
                     # add new stocks
                     try:
@@ -142,7 +141,6 @@ class MultiplyTestDataMixin:
                         # continue if no stock or fraction flow exists
                         pass
 
-
                     # add new locations
                     old_location = AdministrativeLocation.objects.filter(
                         actor=actor)
@@ -160,8 +158,7 @@ class MultiplyTestDataMixin:
                             geom=geom)
                         new_locations.append(new_location)
 
-
-        Actor.objects.bulk_create(new_actors)
+        #Actor.objects.bulk_create(new_actors)
         ActorStock.objects.bulk_create(new_stocks)
         AdministrativeLocation.objects.bulk_create(new_locations)
 
