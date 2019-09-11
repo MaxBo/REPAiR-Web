@@ -834,7 +834,8 @@ class StrategyGraph(BaseGraph):
                 self._reset_include(do_include=False)
                 # include affected flows
                 self._include(affected_flows)
-                # exclude implementation flows (ToDo: side effects?)
+                # exclude implementation flows in case they are also in affected
+                # flows (ToDo: side effects?)
                 self._include(implementation_flows, do_include=False)
 
                 impl_edges = self._get_edges(implementation_flows)

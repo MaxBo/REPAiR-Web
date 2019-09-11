@@ -666,15 +666,13 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         restaurants_to_treat = FlowReferenceFactory(
             origin_activity=self.restaurants,
             destination_activity=self.treatment,
-            material=self.food_waste,
-            #process=self.incineration
+            material=self.food_waste
         )
 
         retail_to_treat = FlowReferenceFactory(
             origin_activity=self.retail,
             destination_activity=self.treatment,
-            material=self.food_waste,
-            #process=self.incineration
+            material=self.food_waste
         )
 
         # ToDo: change process?
@@ -729,7 +727,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         append_treatment = FlowReferenceFactory(
             destination_activity=self.treatment,
-            material=self.organic_waste
+            material=self.organic_waste,
+            waste=1
         )
 
         # part to prepend to restaurant-processing flows going to treatment
@@ -853,6 +852,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             new_flow = new_rest_to_proc.get(origin=origin, process=process)
             assert strat_flow.amount == sq_amount - sq_amount * 0.05
             assert new_flow.amount == sq_amount * 0.05
+            assert new_flow.material == self.orange_peel
+            assert new_flow.waste == True
 
         ### check shift from retail to processing ###
 
@@ -889,6 +890,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             new_flow = new_retail_to_proc.get(origin=origin, process=process)
             assert strat_flow.amount == sq_amount - sq_amount * 0.05
             assert new_flow.amount == sq_amount * 0.05
+            assert new_flow.material == self.orange_peel
+            assert new_flow.waste == True
 
         ### check processing to treatment ###
 
@@ -906,6 +909,13 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             new_proc_to_treat_sum,
             (new_rest_to_proc_sum + new_retail_to_proc_sum) * 0.5)
 
+        materials = new_proc_to_treat.values_list(
+            'material', flat=True).distinct()
+        waste = new_proc_to_treat.values_list(
+            'waste', flat=True).distinct()
+        assert (len(materials) == 1 and materials[0] == self.organic_waste.id)
+        assert (len(waste) == 1 and waste[0] == True)
+
         ### check processing to textile manufacture ###
 
         new_proc_to_textile = FractionFlow.objects.filter(
@@ -922,6 +932,13 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             new_proc_to_textile_sum,
             (new_rest_to_proc_sum + new_retail_to_proc_sum) * 0.03)
 
+        materials = new_proc_to_textile.values_list(
+            'material', flat=True).distinct()
+        waste = new_proc_to_textile.values_list(
+            'waste', flat=True).distinct()
+        assert (len(materials) == 1 and materials[0] == self.fiber.id)
+        assert (len(waste) == 1 and waste[0] == False)
+
         ### check processing to pharma manufacture ###
 
         new_proc_to_pharma = FractionFlow.objects.filter(
@@ -937,6 +954,13 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         self.assertAlmostEqual(
             new_proc_to_pharma_sum,
             (new_rest_to_proc_sum + new_retail_to_proc_sum) * 0.01)
+
+        materials = new_proc_to_pharma.values_list(
+            'material', flat=True).distinct()
+        waste = new_proc_to_pharma.values_list(
+            'waste', flat=True).distinct()
+        assert (len(materials) == 1 and materials[0] == self.essential_oils.id)
+        assert (len(waste) == 1 and waste[0] == False)
 
         ### check that there are no other flows affected ###
 
