@@ -632,6 +632,12 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
     def test_solution(self):
 
+        original_flow_count = FractionFlow.objects.count()
+        original_strat_flow_count = StrategyFractionFlow.objects.count()
+
+        new_flow_count = 0
+        new_strat_flow_count = 0
+
         # create the implementation along with the strategy
         implementation = SolutionInStrategyFactory(
             strategy__keyflow=self.keyflow,
@@ -804,55 +810,141 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         priority += 1
 
+        # build graph and calculate strategy
+
         sg = StrategyGraph(
             implementation.strategy,
             self.basegraph.tag)
 
         sg.build()
 
-        sq_flows = FractionFlow.objects.filter(
-            origin__activity__nace='G-4711',
-            destination__activity__nace='E-3821'
+        ### check shift from restaurants to processing ###
+
+        sq_rest_to_treat = FractionFlow.objects.filter(
+            origin__activity=self.restaurants,
+            destination__activity=self.treatment
         )
         strat_flows = StrategyFractionFlow.objects.filter(
             strategy=implementation.strategy,
-            fractionflow__in=sq_flows
+            fractionflow__in=sq_rest_to_treat
         )
-        new_flows = FractionFlow.objects.filter(
+        new_strat_flow_count += strat_flows.count()
+        new_rest_to_proc = FractionFlow.objects.filter(
             strategy=implementation.strategy,
-            origin__activity__nace='G-4711',
-            destination__activity__nace='C-1030'
+            origin__activity=self.restaurants,
+            destination__activity=self.processing
         )
+        new_flow_count += new_rest_to_proc.count()
+
+        sq_rest_to_treat_sum = sq_rest_to_treat.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        strat_sum = strat_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_rest_to_proc_sum = new_rest_to_proc.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert strat_sum == sq_rest_to_treat_sum * 0.95
+        assert new_rest_to_proc_sum == sq_rest_to_treat_sum * 0.05
 
         for strat_flow in strat_flows:
-            old_amount = strat_flow.fractionflow.amount
+            sq_amount = strat_flow.fractionflow.amount
             origin = strat_flow.fractionflow.origin
             process = strat_flow.fractionflow.process
-            new_flow = new_flows.get(origin=origin, process=process)
-            assert strat_flow.amount == old_amount - old_amount * 0.05
-            assert new_flow.amount == old_amount * 0.05
+            new_flow = new_rest_to_proc.get(origin=origin, process=process)
+            assert strat_flow.amount == sq_amount - sq_amount * 0.05
+            assert new_flow.amount == sq_amount * 0.05
 
-        sq_flows = FractionFlow.objects.filter(
-            origin__activity__nace='I-5610',
-            destination__activity__nace='E-3821'
+        ### check shift from retail to processing ###
+
+        sq_retail_to_treat = FractionFlow.objects.filter(
+            origin__activity=self.retail,
+            destination__activity=self.treatment
         )
         strat_flows = StrategyFractionFlow.objects.filter(
             strategy=implementation.strategy,
-            fractionflow__in=sq_flows
+            fractionflow__in=sq_retail_to_treat
         )
-        new_flows = FractionFlow.objects.filter(
+        new_strat_flow_count += strat_flows.count()
+        new_retail_to_proc = FractionFlow.objects.filter(
             strategy=implementation.strategy,
-            origin__activity__nace='I-5610',
-            destination__activity__nace='C-1030'
+            origin__activity=self.retail,
+            destination__activity=self.processing
         )
+        new_flow_count += new_retail_to_proc.count()
+
+        sq_retail_to_treat_sum = sq_retail_to_treat.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        strat_sum = strat_flows.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+        new_retail_to_proc_sum = new_retail_to_proc.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        assert strat_sum == sq_retail_to_treat_sum * 0.95
+        assert new_retail_to_proc_sum == sq_retail_to_treat_sum * 0.05
 
         for strat_flow in strat_flows:
-            old_amount = strat_flow.fractionflow.amount
+            sq_amount = strat_flow.fractionflow.amount
             origin = strat_flow.fractionflow.origin
             process = strat_flow.fractionflow.process
-            new_flow = new_flows.get(origin=origin, process=process)
-            assert strat_flow.amount == old_amount - old_amount * 0.05
-            assert new_flow.amount == old_amount * 0.05
+            new_flow = new_retail_to_proc.get(origin=origin, process=process)
+            assert strat_flow.amount == sq_amount - sq_amount * 0.05
+            assert new_flow.amount == sq_amount * 0.05
+
+        ### check processing to treatment ###
+
+        new_proc_to_treat = FractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            origin__activity=self.processing,
+            destination__activity=self.treatment
+        )
+        new_flow_count += new_proc_to_treat.count()
+
+        new_proc_to_treat_sum = new_proc_to_treat.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        self.assertAlmostEqual(
+            new_proc_to_treat_sum,
+            (new_rest_to_proc_sum + new_retail_to_proc_sum) * 0.5)
+
+        ### check processing to textile manufacture ###
+
+        new_proc_to_textile = FractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            origin__activity=self.processing,
+            destination__activity=self.textile_manufacture
+        )
+        new_flow_count += new_proc_to_textile.count()
+
+        new_proc_to_textile_sum = new_proc_to_textile.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        self.assertAlmostEqual(
+            new_proc_to_textile_sum,
+            (new_rest_to_proc_sum + new_retail_to_proc_sum) * 0.03)
+
+        ### check processing to pharma manufacture ###
+
+        new_proc_to_pharma = FractionFlow.objects.filter(
+            strategy=implementation.strategy,
+            origin__activity=self.processing,
+            destination__activity=self.pharma_manufacture
+        )
+        new_flow_count += new_proc_to_pharma.count()
+
+        new_proc_to_pharma_sum = new_proc_to_pharma.aggregate(
+            sum_amount=Sum('amount'))['sum_amount']
+
+        self.assertAlmostEqual(
+            new_proc_to_pharma_sum,
+            (new_rest_to_proc_sum + new_retail_to_proc_sum) * 0.01)
+
+        ### check that there are no other flows affected ###
+
+        assert (FractionFlow.objects.count() ==
+                new_flow_count + original_flow_count)
+        assert (StrategyFractionFlow.objects.count() ==
+                sq_rest_to_treat.count() + sq_retail_to_treat.count())
+        assert StrategyFractionFlow.objects.count() == new_strat_flow_count
 
 
 class StrategyGraphPerformanceTest(MultiplyTestDataMixin,
