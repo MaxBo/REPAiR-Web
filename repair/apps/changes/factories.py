@@ -30,6 +30,7 @@ class SolutionFactory(DjangoModelFactory):
 class ImplementationQuestionFactory(DjangoModelFactory):
     class Meta:
         model = models.ImplementationQuestion
+    solution = factory.SubFactory(SolutionFactory)
     question = 'How many percent are going to be saved?'
     min_value = 0.1
     max_value = 0.5
@@ -117,6 +118,7 @@ class ImplementationQuantityFactory(DjangoModelFactory):
         model = models.ImplementationQuantity
     implementation = factory.SubFactory(SolutionInStrategyFactory)
     question = factory.SubFactory(ImplementationQuestionFactory)
+    value = 0
 
 
 class ImplementationAreaFactory(DjangoModelFactory):

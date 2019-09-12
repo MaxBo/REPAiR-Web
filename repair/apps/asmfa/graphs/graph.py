@@ -346,7 +346,7 @@ class StrategyGraph(BaseGraph):
         flow_count = len(origins) * len(destinations)
         # equal distribution
         amount = total / flow_count
-        deltas = [amount] * flow_count
+        deltas = np.full((flow_count), amount)
         new_flows = []
         for origin, destination in itertools.product(origins, destinations):
             new_flow = FractionFlow(
@@ -360,10 +360,8 @@ class StrategyGraph(BaseGraph):
             # spatialite doesn't set the ids when bulk creating
             # when saving it does (weird)
             new_flow.save()
-            o_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], origin.id)[0]
-            d_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], destination.id)[0]
+            o_vertex = self._get_vertex(origin.id)
+            d_vertex = self._get_vertex(destination.id)
             new_edge = self.graph.add_edge(o_vertex, d_vertex)
             self.graph.ep.id[new_edge] = new_flow.id
             self.graph.ep.amount[new_edge] = 0
@@ -415,8 +413,7 @@ class StrategyGraph(BaseGraph):
             # get new target out of dictionary
             new_id = closest_dict[kept_id]
 
-            new_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], new_id)[0]
+            new_vertex = self._get_vertex(new_id)
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges
@@ -424,6 +421,7 @@ class StrategyGraph(BaseGraph):
             if formula.is_absolute:
                 # equally
                 delta /= len(referenced_flows)
+            delta = flow.amount + delta
 
             # the edge corresponding to the referenced flow
             # (the one to be shifted)
@@ -479,12 +477,12 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            new_deltas.append(-delta)
+            new_deltas.append(delta)
 
             # reduce (resp. increase) the referenced flow by the same amount
             if reduce_reference:
                 changed_ref_flows.append(flow)
-                changed_ref_deltas.append(delta)
+                changed_ref_deltas.append(-delta)
 
         # new flows shall be created before modifying the existing ones
         return new_flows + changed_ref_flows, new_deltas + changed_ref_deltas
@@ -511,7 +509,7 @@ class StrategyGraph(BaseGraph):
         actors_kept = Actor.objects.filter(id__in=ids)
 
         closest_dict = self.find_closest_actor(actors_kept,
-                                             possible_new_targets)
+                                               possible_new_targets)
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
@@ -525,8 +523,7 @@ class StrategyGraph(BaseGraph):
             # get new target out of dictionary
             new_id = closest_dict[kept_id]
 
-            new_vertex = util.find_vertex(
-                self.graph, self.graph.vp['id'], new_id)[0]
+            new_vertex = self._get_vertex(new_id)
 
             delta = formula.calculate_delta(flow.amount)
             # ToDo: distribute total change to changes on edges
@@ -590,7 +587,7 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            deltas.append(-delta)
+            deltas.append(flow.amount + delta)
 
         return new_flows, deltas
 
@@ -631,7 +628,6 @@ class StrategyGraph(BaseGraph):
                             administrative_location__geom__intersects=geom)
         return origins, destinations
 
-
     def _get_referenced_flows(self, flow_reference, implementation):
         '''
         return flows on actor level filtered by flow_reference attributes
@@ -646,7 +642,7 @@ class StrategyGraph(BaseGraph):
             'material': flow_reference.material
         }
         if flow_reference.process:
-            kwargs['process': flow_reference.process]
+            kwargs['process'] = flow_reference.process
         reference_flows = FractionFlow.objects.filter(**kwargs)
         return reference_flows
 
@@ -699,6 +695,22 @@ class StrategyGraph(BaseGraph):
                 # shouldn't happen if graph is up to date
                 raise Exception(f'graph is missing flow {flow.id}')
         return edges
+
+    def _get_vertex(self, id):
+        ''' return vertex with given id, creates vertex with corresponding
+        actor information if id is not in graph yet'''
+        vertices = util.find_vertex(
+            self.graph, self.graph.vp['id'], id)
+
+        if(len(vertices) > 0):
+            return vertices[0]
+
+        actor = Actor.objects.get(id=id)
+        vertex = self.graph.add_vertex()
+        self.graph.vp.id[vertex] = id
+        self.graph.vp.bvdid[vertex] = actor.BvDid
+        self.graph.vp.name[vertex] = actor.name
+        return vertex
 
     def build(self):
         #self.mock_changes()
@@ -788,24 +800,30 @@ class StrategyGraph(BaseGraph):
                 elif solution_part.scheme == Scheme.PREPEND:
                     possible_origins, d = self._get_actors(
                         changes, implementation)
-                    implementation_flows, deltas = self._chain_flows(
-                        implementation_flows, possible_origins,
-                        formula, prepend=True,
-                        new_material=changes.material,
-                        new_process=changes.process,
-                        new_waste=changes.waste,
-                        new_hazardous=changes.hazardous)
+                    if len(possible_origins) > 0:
+                        implementation_flows, deltas = self._chain_flows(
+                            implementation_flows, possible_origins,
+                            formula, prepend=True,
+                            new_material=changes.material,
+                            new_process=changes.process,
+                            new_waste=changes.waste,
+                            new_hazardous=changes.hazardous)
+                    else:
+                        print('Warning: no new targets found! Skipping prepend')
 
                 elif solution_part.scheme == Scheme.APPEND:
                     o, possible_destinations = self._get_actors(
                         changes, implementation)
-                    implementation_flows, deltas = self._chain_flows(
-                        implementation_flows, possible_destinations,
-                        formula, prepend=False,
-                        new_material=changes.material,
-                        new_process=changes.process,
-                        new_waste=changes.waste,
-                        new_hazardous=changes.hazardous)
+                    if len(possible_destinations) > 0:
+                        implementation_flows, deltas = self._chain_flows(
+                            implementation_flows, possible_destinations,
+                            formula, prepend=False,
+                            new_material=changes.material,
+                            new_process=changes.process,
+                            new_waste=changes.waste,
+                            new_hazardous=changes.hazardous)
+                    else:
+                        print('Warning: no new targets found! Skipping append')
 
                 else:
                     raise ValueError(
@@ -816,7 +834,8 @@ class StrategyGraph(BaseGraph):
                 self._reset_include(do_include=False)
                 # include affected flows
                 self._include(affected_flows)
-                # exclude implementation flows (ToDo: side effects?)
+                # exclude implementation flows in case they are also in affected
+                # flows (ToDo: side effects?)
                 self._include(implementation_flows, do_include=False)
 
                 impl_edges = self._get_edges(implementation_flows)
@@ -824,11 +843,13 @@ class StrategyGraph(BaseGraph):
                 gw = GraphWalker(self.graph)
                 self.graph = gw.calculate(impl_edges, deltas)
 
+                # save modifications and new flows into database
+                self.translate_to_db()
+                self.graph.ep.changed.a[:] = False
+
         # save the strategy graph to a file
         self.graph.save(self.filename)
 
-        # save modifications and new flows into database
-        self.translate_to_db()
         return self.graph
 
     def translate_to_db(self):
@@ -869,7 +890,9 @@ class StrategyGraph(BaseGraph):
 
     @staticmethod
     def find_closest_actor(actors_in_solution,
-                           possible_target_actors):
+                           possible_target_actors,
+                           max_distance: int=500,
+                           absolute_max_distance: int=100000):
         # ToDo: for each actor pick a closest new one
         #     don't distribute amounts equally!
         #     (calc. amount based on the shifted flow for relative or distribute
@@ -884,14 +907,12 @@ class StrategyGraph(BaseGraph):
 
         # code for auto picking actor by distance
         # start with maximum distance of 500m
-        max_distance = 500
-        ABSOLUTE_MAX_DISTANCE = 100000
         target_actors = dict()
 
         actors_not_found_yet = actors_in_solution
 
         while (actors_not_found_yet
-               and max_distance <= ABSOLUTE_MAX_DISTANCE):
+               and max_distance < absolute_max_distance):
 
             query_actors_in_solution = actors_not_found_yet \
                 .annotate(pnt=F('administrative_location__geom')) \
@@ -904,12 +925,15 @@ class StrategyGraph(BaseGraph):
                 .query
 
             if backend == 'sqlite':
-                querytext_actors_in_solution,  params_actors_in_solution = query_actors_in_solution.sql_with_params()
-                querytext_actors_in_solution = querytext_actors_in_solution.replace(
-                    'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
-                    '"asmfa_administrativelocation"."geom"')
+                querytext_actors_in_solution,  params_actors_in_solution = \
+                    query_actors_in_solution.sql_with_params()
+                querytext_actors_in_solution = \
+                    querytext_actors_in_solution.replace(
+                        'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
+                        '"asmfa_administrativelocation"."geom"')
 
-                querytext_target_actors,  params_target_actors = query_target_actors.sql_with_params()
+                querytext_target_actors,  params_target_actors = \
+                    query_target_actors.sql_with_params()
                 querytext_target_actors = querytext_target_actors.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                     '"asmfa_administrativelocation"."geom"')
@@ -940,8 +964,8 @@ class StrategyGraph(BaseGraph):
                         ST_Transform(pta.pnt, 3035))) AS min_meter
                   FROM ais, pta
                   WHERE PtDistWithin(ais.pnt,
-                                   pta.pnt,
-                                   {max_distance})
+                                     pta.pnt,
+                                     {max_distance})
                   GROUP BY ais.id
                   ) b
                 WHERE a.actor_id = b.actor_id
@@ -951,7 +975,8 @@ class StrategyGraph(BaseGraph):
                 params = params_actors_in_solution + params_target_actors
 
             elif backend == 'postgresql':
-                query_actors_in_solution = str(query_actors_in_solution).replace(
+                query_actors_in_solution = str(
+                    query_actors_in_solution).replace(
                     '"asmfa_administrativelocation"."geom"::bytea',
                     '"asmfa_administrativelocation"."geom"')
 
@@ -992,12 +1017,14 @@ class StrategyGraph(BaseGraph):
             with connection.cursor() as cursor:
                 cursor.execute(query,  params)
                 rows = cursor.fetchall()
+
             target_actors.update(dict(rows))
 
             actors_not_found_yet = actors_in_solution.exclude(
                 id__in=target_actors.keys())
 
             max_distance *= 2
+            max_distance = min(max_distance, absolute_max_distance)
 
         return target_actors
 
