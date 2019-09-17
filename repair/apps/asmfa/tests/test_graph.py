@@ -620,17 +620,20 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         cls.basegraph.build()
 
         cls.restaurants = Activity.objects.get(nace='I-5610')
-        cls.retail = Activity.objects.get(nace='G-4711')
+        cls.retail_food = Activity.objects.get(nace='G-4711')
         cls.treatment = Activity.objects.get(nace='E-3821')
         cls.processing = Activity.objects.get(nace='C-1030')
         cls.pharma_manufacture = Activity.objects.get(nace='C-2110')
         cls.textile_manufacture = Activity.objects.get(nace='C-1399')
+        cls.retail_cosmetics = Activity.objects.get(nace='G-4775')
+        cls.petroleum_manufacture = Activity.objects.get(nace='C-1920')
 
         cls.food_waste = Material.objects.get(name='Food Waste')
         cls.organic_waste = Material.objects.get(name='Organic Waste')
         cls.orange_peel = Material.objects.get(name='Orange Peel')
         cls.essential_oils = Material.objects.get(name='Essential Orange oils')
         cls.fiber = Material.objects.get(name='Orange fibers')
+        cls.biofuel = Material.objects.get(name='Biofuel')
 
         cls.incineration = Process.objects.get(name='Incineration')
 
@@ -678,7 +681,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
 
         retail_to_treat = FlowReferenceFactory(
-            origin_activity=self.retail,
+            origin_activity=self.retail_food,
             destination_activity=self.treatment,
             material=self.food_waste
         )
@@ -690,7 +693,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
 
         # part to shift flows from restaurants
-        SolutionPartFactory(
+        part = SolutionPartFactory(
             solution=self.solution,
             question=question,
             flow_reference=restaurants_to_treat,
@@ -702,8 +705,15 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         priority += 1
 
+        AffectedFlowFactory(
+            origin_activity=self.treatment,
+            destination_activity=self.petroleum_manufacture,
+            solution_part=part,
+            material=self.biofuel
+        )
+
         # part to shift flows from retail
-        SolutionPartFactory(
+        part = SolutionPartFactory(
             solution=self.solution,
             question=question,
             flow_reference=retail_to_treat,
@@ -714,6 +724,14 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             priority=priority
         )
         priority += 1
+
+        AffectedFlowFactory(
+            origin_activity=self.treatment,
+            destination_activity=self.petroleum_manufacture,
+            solution_part=part,
+            material=self.biofuel
+        )
+
 
         ### prepend flows to the orange peel flows ###
 
@@ -728,7 +746,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
 
         retail_to_proc = FlowReferenceFactory(
-            origin_activity=self.retail,
+            origin_activity=self.retail_food,
             destination_activity=self.processing,
             material=self.orange_peel
         )
@@ -739,8 +757,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             waste=1
         )
 
-        # part to prepend to restaurant-processing flows going to treatment
-        SolutionPartFactory(
+        # part to append to restaurant-processing flows going to treatment
+        part = SolutionPartFactory(
             solution=self.solution,
             flow_reference=rest_to_proc,
             flow_changes=append_treatment,
@@ -750,8 +768,15 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         priority += 1
 
-        # part to prepend flows to retail-processing flows going to treatment
-        SolutionPartFactory(
+        AffectedFlowFactory(
+            origin_activity=self.treatment,
+            destination_activity=self.petroleum_manufacture,
+            solution_part=part,
+            material=self.biofuel
+        )
+
+        # part to append flows to retail-processing flows going to treatment
+        part = SolutionPartFactory(
             solution=self.solution,
             flow_reference=retail_to_proc,
             flow_changes=append_treatment,
@@ -761,13 +786,20 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         priority += 1
 
+        AffectedFlowFactory(
+            origin_activity=self.treatment,
+            destination_activity=self.petroleum_manufacture,
+            solution_part=part,
+            material=self.biofuel
+        )
+
         append_textile = FlowReferenceFactory(
             destination_activity=self.textile_manufacture,
             material=self.fiber,
             waste=0
         )
 
-        # part to prepend to restaurant-processing flows going to textile manu.
+        # part to append to restaurant-processing flows going to textile manu.
         SolutionPartFactory(
             solution=self.solution,
             flow_reference=rest_to_proc,
@@ -778,7 +810,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         priority += 1
 
-        # part to prepend to retail-processing flows going to textile manu.
+        # part to append to retail-processing flows going to textile manu.
         SolutionPartFactory(
             solution=self.solution,
             flow_reference=retail_to_proc,
@@ -795,8 +827,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             waste=0
         )
 
-        # part to prepend to restaurant-processing flows going to pharma
-        SolutionPartFactory(
+        # part to append to restaurant-processing flows going to pharma
+        part = SolutionPartFactory(
             solution=self.solution,
             flow_reference=rest_to_proc,
             flow_changes=append_pharma,
@@ -806,8 +838,15 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         )
         priority += 1
 
-        # part to prepend to retail-processing flows going to pharma
-        SolutionPartFactory(
+        AffectedFlowFactory(
+            origin_activity=self.pharma_manufacture,
+            destination_activity=self.retail_cosmetics,
+            solution_part=part,
+            material=self.essential_oils
+        )
+
+        # part to append to retail-processing flows going to pharma
+        part = SolutionPartFactory(
             solution=self.solution,
             flow_reference=retail_to_proc,
             flow_changes=append_pharma,
@@ -816,6 +855,13 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             priority=priority
         )
         priority += 1
+
+        AffectedFlowFactory(
+            origin_activity=self.pharma_manufacture,
+            destination_activity=self.retail_cosmetics,
+            solution_part=part,
+            material=self.essential_oils
+        )
 
         # build graph and calculate strategy
 
@@ -829,7 +875,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         sq_rest_to_treat = FractionFlow.objects.filter(
             origin__activity=self.restaurants,
-            destination__activity=self.treatment
+            destination__activity=self.treatment,
+            strategy__isnull=True
         )
         strat_flows = StrategyFractionFlow.objects.filter(
             strategy=implementation.strategy,
@@ -868,8 +915,9 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         ### check shift from retail to processing ###
 
         sq_retail_to_treat = FractionFlow.objects.filter(
-            origin__activity=self.retail,
-            destination__activity=self.treatment
+            origin__activity=self.retail_food,
+            destination__activity=self.treatment,
+            strategy__isnull=True
         )
         strat_flows = StrategyFractionFlow.objects.filter(
             strategy=implementation.strategy,
@@ -878,7 +926,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         new_strat_flow_count += strat_flows.count()
         new_retail_to_proc = FractionFlow.objects.filter(
             strategy=implementation.strategy,
-            origin__activity=self.retail,
+            origin__activity=self.retail_food,
             destination__activity=self.processing
         )
         new_flow_count += new_retail_to_proc.count()
@@ -974,13 +1022,80 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         assert (len(materials) == 1 and materials[0] == self.essential_oils.id)
         assert (len(waste) == 1 and waste[0] == False)
 
+        ### check affected flows ###
+
+        sq_petroleum_flows = FractionFlow.objects.filter(
+            origin__activity=self.treatment,
+            destination__activity=self.petroleum_manufacture,
+            material=self.biofuel,
+            strategy__isnull=True
+        )
+        affected_petroleum = StrategyFractionFlow.objects.filter(
+            fractionflow__in=sq_petroleum_flows)
+
+        biodigester = Actor.objects.get(BvDid='SBC0010')
+        sq_in_digester = FractionFlow.objects.filter(
+            destination=biodigester,
+            strategy__isnull=True)
+        sq_out_digester = FractionFlow.objects.filter(
+            origin=biodigester,
+            strategy__isnull=True)
+        strat_in_digester = FractionFlow.objects.filter(
+            destination=biodigester,
+            ).annotate(
+                s_amount=Coalesce('f_strategyfractionflow__amount', 'amount')
+            )
+        strat_out_digester = FractionFlow.objects.filter(
+            origin=biodigester,
+            ).annotate(
+                s_amount=Coalesce('f_strategyfractionflow__amount', 'amount')
+            )
+        sq_in_digester_sum = sq_in_digester.aggregate(
+            amount=Sum('amount'))['amount']
+        sq_out_digester_sum = sq_out_digester.aggregate(
+            amount=Sum('amount'))['amount']
+        strat_in_digester_sum = strat_in_digester.aggregate(
+            amount=Sum('s_amount'))['amount']
+        strat_out_digester_sum = strat_out_digester.aggregate(
+            amount=Sum('s_amount'))['amount']
+        assert sq_in_digester_sum > strat_in_digester_sum, (
+            'the input to treatment should be reduced in strategy')
+
+        sq_digest_factor = sq_out_digester_sum / sq_in_digester_sum
+        strat_digest_factor = strat_out_digester_sum / strat_in_digester_sum
+
+        self.assertAlmostEqual(sq_digest_factor, strat_digest_factor,
+                               msg=f'the factor at actor {biodigester} in '
+                               'strategy has to the stay same as in status quo')
+
+        ## all are affected (and not more than one per flow created)
+        #assert len(sq_petroleum_flows) == len(affected_petroleum)
+        #sq_petroleum_sum = sq_petroleum_flows.aggregate(
+            #amount=Sum('amount'))['amount']
+        #aff_petroleum_sum = affected_petroleum.aggregate(
+            #amount=Sum('amount'))['amount']
+        #assert sq_petroleum_sum > aff_petroleum_sum, (
+            #'the affected flows to petroleum manufacture should be reduced '
+            #'in strategy')
+
+        sq_cosmetic_flows = FractionFlow.objects.filter(
+            origin__activity=self.pharma_manufacture,
+            destination__activity=self.retail_cosmetics)
+        affected_cosmetics = StrategyFractionFlow.objects.filter(
+            fractionflow__in=sq_cosmetic_flows)
+
+        # ToDo: what do we expect here?
+        assert len(affected_cosmetics) == 0
+
         ### check that there are no other flows affected ###
 
-        assert (FractionFlow.objects.count() ==
+        assert FractionFlow.objects.count() == (
                 new_flow_count + original_flow_count)
-        assert (StrategyFractionFlow.objects.count() ==
-                sq_rest_to_treat.count() + sq_retail_to_treat.count())
-        assert StrategyFractionFlow.objects.count() == new_strat_flow_count
+        assert StrategyFractionFlow.objects.count() == (
+                sq_rest_to_treat.count() + sq_retail_to_treat.count() +
+                sq_petroleum_flows.count() + sq_cosmetic_flows.count())
+        assert StrategyFractionFlow.objects.count() == (
+            new_strat_flow_count + affected_petroleum.count())
 
 
 class StrategyGraphPerformanceTest(MultiplyTestDataMixin,

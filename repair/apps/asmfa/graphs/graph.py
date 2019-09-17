@@ -7,6 +7,7 @@ except ModuleNotFoundError:
     pass
 
 from django.db.models import Q, Sum, F
+from django.db.models.functions import Coalesce
 from django.db import connection
 import numpy as np
 import datetime
@@ -415,13 +416,13 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.amount)
+            delta = formula.calculate_delta(flow.s_amount)
             # ToDo: distribute total change to changes on edges
             # depending on share of total or distribute equally?
             if formula.is_absolute:
                 # equally
                 delta /= len(referenced_flows)
-            delta = flow.amount + delta
+            delta = flow.s_amount + delta
 
             # the edge corresponding to the referenced flow
             # (the one to be shifted)
@@ -525,7 +526,7 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.amount)
+            delta = formula.calculate_delta(flow.s_amount)
             # ToDo: distribute total change to changes on edges
             # depending on share of total or distribute equally?
             if formula.is_absolute:
@@ -587,7 +588,7 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            deltas.append(flow.amount + delta)
+            deltas.append(flow.s_amount + delta)
 
         return new_flows, deltas
 
@@ -636,14 +637,17 @@ class StrategyGraph(BaseGraph):
         #impl_materials = descend_materials(
             #[flow_reference.material])
         origins, destinations = self._get_actors(flow_reference, implementation)
+        flows = FractionFlow.objects.filter(
+            origin__in=origins,
+            destination__in=destinations
+        )
+        flows = self._annotate(flows)
         kwargs = {
-            'origin__in': origins,
-            'destination__in': destinations,
-            'material': flow_reference.material
+            's_material': flow_reference.material.id
         }
         if flow_reference.process:
-            kwargs['process'] = flow_reference.process
-        reference_flows = FractionFlow.objects.filter(**kwargs)
+            kwargs['s_process'] = flow_reference.process
+        reference_flows = flows.filter(**kwargs)
         return reference_flows
 
     def _get_affected_flows(self, solution_part):
@@ -655,18 +659,34 @@ class StrategyGraph(BaseGraph):
         affectedflows = AffectedFlow.objects.filter(
                         solution_part=solution_part)
         # get FractionFlows related to AffectedFlow
-        flows = FractionFlow.objects.none()
+        aff_flows = FractionFlow.objects.none()
         for af in affectedflows:
             #materials = descend_materials([af.material])
+            flows = FractionFlow.objects.filter(
+                origin__activity = af.origin_activity,
+                destination__activity = af.destination_activity
+            )
+            flows = self._annotate(flows)
             kwargs = {
-                'origin__activity': af.origin_activity,
-                'destination__activity': af.destination_activity,
-                'material': af.material
+                's_material': af.material.id
             }
             if af.process:
-                kwargs['process': af.process]
-            flows = flows | FractionFlow.objects.filter(**kwargs)
-        return flows
+                kwargs['s_process': af.process]
+            aff_flows = aff_flows | flows.filter(**kwargs)
+        return aff_flows
+
+    def _annotate(self, flows):
+        ''' annotate flows with strategy attributes (trailing "s_") '''
+        annotated = flows.annotate(
+            s_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
+            s_material=Coalesce('f_strategyfractionflow__material', 'material'),
+            s_waste=Coalesce('f_strategyfractionflow__waste', 'waste'),
+            s_hazardous=Coalesce('f_strategyfractionflow__hazardous',
+                                 'hazardous'),
+            s_process=Coalesce('f_strategyfractionflow__hazardous',
+                                 'hazardous')
+        )
+        return annotated
 
     def _include(self, flows, do_include=True):
         '''
@@ -836,7 +856,7 @@ class StrategyGraph(BaseGraph):
                 self._include(affected_flows)
                 # exclude implementation flows in case they are also in affected
                 # flows (ToDo: side effects?)
-                self._include(implementation_flows, do_include=False)
+                #self._include(implementation_flows, do_include=False)
 
                 impl_edges = self._get_edges(implementation_flows)
 
@@ -864,27 +884,46 @@ class StrategyGraph(BaseGraph):
             flow = FractionFlow.objects.get(id=self.graph.ep.id[edge])
             material = self.graph.ep.material[edge]
             process = self.graph.ep.process[edge]
+            if process == -1:
+                process = None
             waste = self.graph.ep.waste[edge]
             hazardous = self.graph.ep.hazardous[edge]
             # new flow is marked with strategy relation
             # (no seperate strategy fraction flow needed)
             if flow.strategy is not None:
                 flow.amount = new_amount
+                flow.hazardous = hazardous
+                flow.material_id = material
+                flow.waste = waste
+                flow.process_id = process
                 flow.save()
             # changed flow gets a related strategy fraction flow holding changes
             else:
-                strat_flow = StrategyFractionFlow(
-                    strategy=self.strategy, amount=new_amount,
-                    fractionflow=flow,
-                    material_id=material,
-                    waste=waste,
-                    hazardous=hazardous
-                )
-                if process == -1:
-                    strat_flow.process = None
-                else:
+                ex = StrategyFractionFlow.objects.filter(
+                    fractionflow=flow, strategy=self.strategy)
+                # if there already was a modification, overwrite it
+                if len(ex) == 1:
+                    strat_flow = ex[0]
+                    strat_flow.amount = new_amount
+                    strat_flow.material_id = material
+                    strat_flow.waste = waste
+                    strat_flow.hazardous = hazardous
                     strat_flow.process_id = process
-                strat_flows.append(strat_flow)
+                    strat_flow.save()
+                elif len(ex) > 1:
+                    raise Exception('more than StrategyFractionFlow '
+                                    'found per flow. This should not happen.')
+                else:
+                    strat_flow = StrategyFractionFlow(
+                        strategy=self.strategy,
+                        amount=new_amount,
+                        fractionflow=flow,
+                        material_id=material,
+                        waste=waste,
+                        hazardous=hazardous,
+                        process_id=process
+                    )
+                    strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
 
