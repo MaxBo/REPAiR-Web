@@ -4,7 +4,7 @@
 
 {% block content %}
 {% render_bundle 'Base' %}
-<h3>{% trans "Please select a Casestudy first!" %}</h3>
+<h3>{% trans "Please select a case study first!" %}</h3>
 <form id="casestuy-missing-select" action="/session/" method="post">
   {% csrf_token %}
   <input name="next" type="hidden" value="{{ request.path }}" />

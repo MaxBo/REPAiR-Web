@@ -12,7 +12,7 @@
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <div class="row">
       <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
-        <option selected value="-1">{% trans "General (no keyflow)" %}</option>
+        <option selected value="-1">{% trans "General (no key flow)" %}</option>
       {% for keyflow in keyflows %}
         <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
       {% endfor %}

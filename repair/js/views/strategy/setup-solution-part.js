@@ -102,6 +102,7 @@ var SolutionPartView = BaseView.extend(
         //this.sankeyWrapper.addEventListener('allDeselected', this.deselectAll);
 
         this.viewer = new Viewer.default(this.el.querySelector('#scheme-preview'));
+        new Viewer.default(this.el.querySelector('#affected-flows-tab'));
 
         this.nameInput = this.el.querySelector('input[name="part-name"]');
 
