@@ -114,7 +114,8 @@ class StockViewSet(RevisionMixin,
                all().defer(
                 "keyflow__note",
                 "keyflow__casestudy__geom",
-                "keyflow__casestudy__focusarea")
+                "keyflow__casestudy__focusarea").\
+               order_by('id')
 
 
 class GroupStockViewSet(StockViewSet):
