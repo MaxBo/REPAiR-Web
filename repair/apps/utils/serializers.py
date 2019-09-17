@@ -210,10 +210,15 @@ class Reference:
                                indicator=True,
                                suffixes=['', '_old'])
 
-        missing_rows = df_merged.loc[df_merged._merge=='left_only']
-        existing_rows = df_merged.loc[df_merged._merge=='both']
+        idx_missing = df_merged._merge=='left_only'
+        idx_existing = df_merged._merge=='both'
 
-        existing_rows[referencing_column] = existing_rows['_models']
+        df_merged.loc[idx_existing,
+                      referencing_column] = df_merged.loc[idx_existing,
+                                                          '_models']
+
+        existing_rows = df_merged.loc[idx_existing]
+        missing_rows = df_merged.loc[idx_missing]
 
         tmp_columns = ['_merge', 'id', '_models']
         if keyflow_added:
@@ -221,8 +226,8 @@ class Reference:
                 tmp_columns.append('keyflow_old')
             if 'keyflow' not in dataframe.columns:
                 tmp_columns.append('keyflow')
-        existing_rows.drop(columns=tmp_columns, inplace=True)
-        missing_rows.drop(columns=tmp_columns, inplace=True)
+        existing_rows = existing_rows.drop(columns=tmp_columns)
+        missing_rows = missing_rows.drop(columns=tmp_columns)
 
         # append the null rows again
         if self.allow_null:
@@ -459,7 +464,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
 
         if self.check_index:
             df_t = dataframe.set_index(self.index_columns)
-            duplicates = df_t.index.get_duplicates()
+            duplicates = df_t.index[df_t.index.duplicated()].unique()
             if len(duplicates) > 0:
                 if len(self.index_columns) == 1:
                     message = _('Index "{}" has to be unique!')\
@@ -602,7 +607,7 @@ class BulkSerializerMixin(metaclass=serializers.SerializerMetaclass):
                 # set the error message in the error matrix at these positions
                 self.error_mask.set_error(error_idx, column, error_msg)
                 # overwrite values in dataframe with parsed ones
-                dataframe[column].loc[not_na] = entries
+                dataframe.loc[not_na, column] = entries
         if error_occured:
             self.error_mask.add_message(error_occured)
         return dataframe

@@ -113,6 +113,8 @@ var SolutionsLogicView = BaseView.extend(
 
         this.schemeSelectModal = this.el.querySelector('#schemes-modal');
 
+        new Viewer.default(this.el.querySelector('#scheme-legend'));
+
         this.notesArea = this.el.querySelector('textarea[name="notes"]');
         this.notesArea.addEventListener('change', function(){
             _this.activeSolution.save({ documentation: this.value }, {

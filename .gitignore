@@ -21,3 +21,4 @@ ssh_pg_h2020.sh
 /package-lock.json
 /0.2.1&subdirectory
 /2.4.1
+.pytest_cache
