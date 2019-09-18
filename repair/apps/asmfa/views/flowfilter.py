@@ -216,7 +216,15 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         queryset = super()._filter(lookup_args, query_params=query_params,
                                    SerializerClass=SerializerClass)
         if not strategy:
-            queryset = queryset.filter(strategy__isnull=True)
+            queryset = queryset.filter(strategy__isnull=True).annotate(
+                c_amount=F('amount'),
+                c_material=F('material'),
+                c_material_name=F('material__name'),
+                c_material_level=F('material__level'),
+                c_waste=F('waste'),
+                c_hazardous=F('hazardous'),
+                c_process=F('process')
+            )
         else:
             queryset = queryset.filter(
                 (
@@ -224,23 +232,23 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                     Q(f_strategyfractionflow__strategy = strategy[0])
                 )
             )
-        queryset = queryset.annotate(
-            # strategy fraction flow overrides amounts
-            c_amount=Coalesce(
-                'f_strategyfractionflow__amount', 'amount'),
-            c_material=Coalesce(
-                'f_strategyfractionflow__material', 'material'),
-            c_material_name=Coalesce(
-                'f_strategyfractionflow__material__name', 'material__name'),
-            c_material_level=Coalesce(
-                'f_strategyfractionflow__material__level', 'material__level'),
-            c_waste=Coalesce(
-                'f_strategyfractionflow__waste', 'waste'),
-            c_hazardous=Coalesce(
-                'f_strategyfractionflow__hazardous', 'hazardous'),
-            c_process=Coalesce(
-                'f_strategyfractionflow__process', 'process')
-        )
+            queryset = queryset.annotate(
+                # strategy fraction flow overrides amounts
+                c_amount=Coalesce(
+                    'f_strategyfractionflow__amount', 'amount'),
+                c_material=Coalesce(
+                    'f_strategyfractionflow__material', 'material'),
+                c_material_name=Coalesce(
+                    'f_strategyfractionflow__material__name', 'material__name'),
+                c_material_level=Coalesce(
+                    'f_strategyfractionflow__material__level', 'material__level'),
+                c_waste=Coalesce(
+                    'f_strategyfractionflow__waste', 'waste'),
+                c_hazardous=Coalesce(
+                    'f_strategyfractionflow__hazardous', 'hazardous'),
+                c_process=Coalesce(
+                    'f_strategyfractionflow__process', 'process')
+            )
         return queryset
 
     def list(self, request, **kwargs):
@@ -384,8 +392,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 'name':  F('c_material_name'),
                 'level': F('c_material_level'),
                 'waste': F('c_waste'),
+                'delta': Sum('c_amount') - Sum(F('amount')),
                 'amount': Sum('c_amount'),
-                'delta': (F('c_amount') - F('amount'))
+                #'delta': (F('c_amount') - F('amount'))
             }
             grouped_mats = \
                 list(grouped.values('c_material').annotate(**annotation))
