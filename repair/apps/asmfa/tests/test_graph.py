@@ -641,6 +641,12 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         super().setUp()
         self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
 
+        # create the implementation along with the strategy
+        self.implementation = SolutionInStrategyFactory(
+            strategy__keyflow=self.keyflow,
+            solution=self.solution
+        )
+
     def test_solution(self):
 
         original_flow_count = FractionFlow.objects.count()
@@ -648,12 +654,6 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         new_flow_count = 0
         new_strat_flow_count = 0
-
-        # create the implementation along with the strategy
-        implementation = SolutionInStrategyFactory(
-            strategy__keyflow=self.keyflow,
-            solution=self.solution
-        )
 
         question = ImplementationQuestionFactory(
             question='How much orange peel waste will be used?',
@@ -666,7 +666,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         answer = ImplementationQuantityFactory(
             question=question,
             value=1,
-            implementation=implementation
+            implementation=self.implementation
         )
 
         priority = 0
@@ -694,6 +694,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to shift flows from restaurants
         part = SolutionPartFactory(
+            name='shift flows from restaurants',
             solution=self.solution,
             question=question,
             flow_reference=restaurants_to_treat,
@@ -714,6 +715,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to shift flows from retail
         part = SolutionPartFactory(
+            name='shift flows from retail',
             solution=self.solution,
             question=question,
             flow_reference=retail_to_treat,
@@ -759,6 +761,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to append to restaurant-processing flows going to treatment
         part = SolutionPartFactory(
+            name='append to restaurant->processing -> treatment',
             solution=self.solution,
             flow_reference=rest_to_proc,
             flow_changes=append_treatment,
@@ -777,6 +780,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to append flows to retail-processing flows going to treatment
         part = SolutionPartFactory(
+            name='append to retail->processing -> treatment',
             solution=self.solution,
             flow_reference=retail_to_proc,
             flow_changes=append_treatment,
@@ -801,6 +805,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to append to restaurant-processing flows going to textile manu.
         SolutionPartFactory(
+            name='append to restaurant->processing -> textile',
             solution=self.solution,
             flow_reference=rest_to_proc,
             flow_changes=append_textile,
@@ -812,6 +817,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to append to retail-processing flows going to textile manu.
         SolutionPartFactory(
+            name='append to retail->processing -> textile',
             solution=self.solution,
             flow_reference=retail_to_proc,
             flow_changes=append_textile,
@@ -829,6 +835,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to append to restaurant-processing flows going to pharma
         part = SolutionPartFactory(
+            name='append to restaurant->processing -> pharma',
             solution=self.solution,
             flow_reference=rest_to_proc,
             flow_changes=append_pharma,
@@ -847,6 +854,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
         # part to append to retail-processing flows going to pharma
         part = SolutionPartFactory(
+            name='append to retail->processing -> pharma',
             solution=self.solution,
             flow_reference=retail_to_proc,
             flow_changes=append_pharma,
@@ -866,7 +874,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         # build graph and calculate strategy
 
         sg = StrategyGraph(
-            implementation.strategy,
+            self.implementation.strategy,
             self.basegraph.tag)
 
         sg.build()
@@ -879,12 +887,12 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             strategy__isnull=True
         )
         strat_flows = StrategyFractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             fractionflow__in=sq_rest_to_treat
         )
         new_strat_flow_count += strat_flows.count()
         new_rest_to_proc = FractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             origin__activity=self.restaurants,
             destination__activity=self.processing
         )
@@ -920,12 +928,12 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             strategy__isnull=True
         )
         strat_flows = StrategyFractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             fractionflow__in=sq_retail_to_treat
         )
         new_strat_flow_count += strat_flows.count()
         new_retail_to_proc = FractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             origin__activity=self.retail_food,
             destination__activity=self.processing
         )
@@ -956,7 +964,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         ### check processing to treatment ###
 
         new_proc_to_treat = FractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             origin__activity=self.processing,
             destination__activity=self.treatment
         )
@@ -979,7 +987,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         ### check processing to textile manufacture ###
 
         new_proc_to_textile = FractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             origin__activity=self.processing,
             destination__activity=self.textile_manufacture
         )
@@ -1002,7 +1010,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         ### check processing to pharma manufacture ###
 
         new_proc_to_pharma = FractionFlow.objects.filter(
-            strategy=implementation.strategy,
+            strategy=self.implementation.strategy,
             origin__activity=self.processing,
             destination__activity=self.pharma_manufacture
         )
@@ -1096,6 +1104,94 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
                 sq_petroleum_flows.count() + sq_cosmetic_flows.count())
         assert StrategyFractionFlow.objects.count() == (
             new_strat_flow_count + affected_petroleum.count())
+
+    def test_first_part(self):
+
+        question = ImplementationQuestionFactory(
+            question='How much orange peel waste will be used?',
+            min_value=0,
+            max_value=1,
+            is_absolute=False,
+            solution=self.solution
+        )
+
+        answer = ImplementationQuantityFactory(
+            question=question,
+            value=1,
+            implementation=self.implementation
+        )
+
+        ### shift food waste from treatment to processing ###
+        ### -> new orange peel flows ###
+
+        restaurants_to_treat = FlowReferenceFactory(
+            origin_activity=self.restaurants,
+            destination_activity=self.treatment,
+            material=self.food_waste
+        )
+
+        retail_to_treat = FlowReferenceFactory(
+            origin_activity=self.retail_food,
+            destination_activity=self.treatment,
+            material=self.food_waste
+        )
+
+        # ToDo: change process?
+        shift_to_processing = FlowReferenceFactory(
+            destination_activity=self.processing,
+            material=self.orange_peel
+        )
+
+        # part to shift flows from restaurants
+        part = SolutionPartFactory(
+            name='shift flows from restaurants',
+            solution=self.solution,
+            question=question,
+            flow_reference=restaurants_to_treat,
+            flow_changes=shift_to_processing,
+            scheme=Scheme.SHIFTDESTINATION,
+            a=0.05,
+            b=0
+        )
+
+        AffectedFlowFactory(
+            origin_activity=self.treatment,
+            destination_activity=self.petroleum_manufacture,
+            solution_part=part,
+            material=self.biofuel
+        )
+
+        sg = StrategyGraph(
+            self.implementation.strategy,
+            self.basegraph.tag)
+
+        sg.build()
+
+        affected_flows =FractionFlow.objects.filter(
+            origin__activity=self.treatment,
+            destination__activity=self.petroleum_manufacture,
+        )
+
+        strat_in = FractionFlow.objects.filter(
+            destination__in=affected_flows.values('origin'),
+            ).annotate(
+                s_amount=Coalesce('f_strategyfractionflow__amount', 'amount')
+            )
+        strat_out = FractionFlow.objects.filter(
+            origin__in=affected_flows.values('origin'),
+            ).annotate(
+                s_amount=Coalesce('f_strategyfractionflow__amount', 'amount')
+            )
+
+        sq_in_amount = strat_in.aggregate(amount=Sum('amount'))
+        sq_out_amount = strat_out.aggregate(amount=Sum('amount'))
+        strat_in_amount = strat_in.aggregate(amount=Sum('s_amount'))
+        strat_out_amount = strat_out.aggregate(amount=Sum('s_amount'))
+
+        # this is what actually happens (not keeping factor but distributing
+        # delta)
+        delta = strat_in_amount - sq_in_amount
+        self.assertAlmostEqual(strat_out_amount, sq_out_amount + delta)
 
 
 class StrategyGraphPerformanceTest(MultiplyTestDataMixin,
