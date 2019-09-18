@@ -1183,10 +1183,10 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
                 s_amount=Coalesce('f_strategyfractionflow__amount', 'amount')
             )
 
-        sq_in_amount = strat_in.aggregate(amount=Sum('amount'))
-        sq_out_amount = strat_out.aggregate(amount=Sum('amount'))
-        strat_in_amount = strat_in.aggregate(amount=Sum('s_amount'))
-        strat_out_amount = strat_out.aggregate(amount=Sum('s_amount'))
+        sq_in_amount = strat_in.aggregate(amount=Sum('amount'))['amount']
+        sq_out_amount = strat_out.aggregate(amount=Sum('amount'))['amount']
+        strat_in_amount = strat_in.aggregate(amount=Sum('s_amount'))['amount']
+        strat_out_amount = strat_out.aggregate(amount=Sum('s_amount'))['amount']
 
         # this is what actually happens (not keeping factor but distributing
         # delta)
