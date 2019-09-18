@@ -75,7 +75,7 @@ class NodeVisitor(BFSVisitor):
             pass
 
 
-def traverse_graph(g, edge, solution, amount, upstream=True):
+def traverse_graph(g, edge, solution, upstream=True):
     """Traverse the graph in a breadth-first-search manner
 
     Parameters
@@ -83,7 +83,6 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     g : the graph to explore
     edge : the starting edge, normally this is the *solution edge*
     solution : absolute change of implementation flow (delta)
-    amount : PropertyMap
     upstream : The direction of traversal. When upstream is True, the graph
                is explored upstream first, otherwise downstream first.
 
@@ -107,7 +106,7 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     # print("\nTraversing in 1. direction")
-    node_visitor = NodeVisitor(g.vp["id"], solution, amount, visited, change)
+    node_visitor = NodeVisitor(g.vp["id"], solution, g.ep.amount, visited, change)
     search.bfs_search(g, node, node_visitor)
     if g.is_reversed():
         g.set_reversed(False)
@@ -128,6 +127,15 @@ class GraphWalker:
     def calculate(self, implementation_edges, deltas):
         """Calculate the changes on flows for a solution"""
         # ToDo: deepcopy might be expensive. Why do we clone here?
+        # NOTE BD: initially the idea was that the this 'calculate' function
+        # returns a copy of the graph with the updated amounts. Needed to return
+        # an updated copy in order to compare this updated copy with the original
+        # graph, so we can say what was changed by the solution.
+        # For this, we need a deepcopy, otherwise the original graph would be
+        # overwritten.
+        # If it is OK to overwrite the amounts on the input graph because we
+        # have this data in the database so we can compare the output (right?),
+        # then no need to deepcopy.
         g = copy.deepcopy(self.graph)
 
         # store the changes for each actor to sum total in the end
@@ -141,11 +149,8 @@ class GraphWalker:
             g.ep.include[edge] = True
             start = time.time()
             solution_delta = deltas[i]
-            # ToDo: why do we pass the property dict for amounts?
-            #       the graph is already passed linking to this dict
             changes = traverse_graph(g, edge=edge,
-                                     solution=solution_delta,
-                                     amount=g.ep.amount)
+                                     solution=solution_delta)
             end = time.time()
             print(i, end-start)
             if overall_changes is None:
