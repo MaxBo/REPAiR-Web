@@ -39,30 +39,33 @@ class NodeVisitor(BFSVisitor):
         """
         changes = {}
         if u.in_degree() > 0:
-            all_in = list(u.in_edges())
             # ToDo: np e.g. g.get_out_edges(node, eprops=[g.ep.amount])
-            for i, e in enumerate(all_in):
+            for i, e in enumerate(u.in_edges()):
                 if not self.visited[e]:
                     e_src = e.source()
-                    e_src_out = [e for e in e_src.out_edges()]
+                    e_src_out = list(e_src.out_edges())
                     if len(e_src_out) > 1:
                         # For the case when an inflow edge shares the
                         # source vertex
                         sum_out_f = sum(self.amount[out_f] for out_f in e_src_out)
                         if sum_out_f and self.amount[e]:
+                            # (self.amount[e] / sum_out_f) gives a fraction of
+                            # how much does the current flow share/contribute to
+                            # the total outflow from its source vertex. Thus if
+                            # there is only a single flow then this gives 1.
                             self.change[e] = (self.amount[e] / sum_out_f) * self.solution
                         else:
                             # If there are neighbour edges sharing the same source, but their sum is 0, then
                             # revert to compute the ratio from all inflows. However this case might mean that
                             # we are trying to compute something where we don't have enough information yet. Because
                             # the edges exist, but their amount is 0.
-                            sum_in_f = sum(self.amount[in_f] for in_f in all_in)
+                            sum_in_f = sum(self.amount[in_f] for in_f in u.in_edges())
                             if sum_in_f:
                                 self.change[e] = (self.amount[e] / sum_in_f) * self.solution
                             else:
                                 self.change[e] = self.solution
                     else:
-                        sum_in_f = sum(self.amount[in_f] for in_f in all_in)
+                        sum_in_f = sum(self.amount[in_f] for in_f in u.in_edges())
                         if sum_in_f:
                             self.change[e] = (self.amount[e] / sum_in_f) * self.solution
                         else:
@@ -75,15 +78,14 @@ class NodeVisitor(BFSVisitor):
             pass
 
 
-def traverse_graph(g, edge, solution, amount, upstream=True):
+def traverse_graph(g, edge, solution, upstream=True):
     """Traverse the graph in a breadth-first-search manner
 
     Parameters
     ----------
     g : the graph to explore
     edge : the starting edge, normally this is the *solution edge*
-    solution : absolute change of implementation flow (delta)
-    amount : PropertyMap
+    solution : signed change in absolute value (eg. tons) on the implementation flow (delta). For example -26.0 (tons)
     upstream : The direction of traversal. When upstream is True, the graph
                is explored upstream first, otherwise downstream first.
 
@@ -107,7 +109,7 @@ def traverse_graph(g, edge, solution, amount, upstream=True):
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     # print("\nTraversing in 1. direction")
-    node_visitor = NodeVisitor(g.vp["id"], solution, amount, visited, change)
+    node_visitor = NodeVisitor(g.vp["id"], solution, g.ep.amount, visited, change)
     search.bfs_search(g, node, node_visitor)
     if g.is_reversed():
         g.set_reversed(False)
@@ -128,6 +130,15 @@ class GraphWalker:
     def calculate(self, implementation_edges, deltas):
         """Calculate the changes on flows for a solution"""
         # ToDo: deepcopy might be expensive. Why do we clone here?
+        # NOTE BD: initially the idea was that the this 'calculate' function
+        # returns a copy of the graph with the updated amounts. Needed to return
+        # an updated copy in order to compare this updated copy with the original
+        # graph, so we can say what was changed by the solution.
+        # For this, we need a deepcopy, otherwise the original graph would be
+        # overwritten.
+        # If it is OK to overwrite the amounts on the input graph because we
+        # have this data in the database so we can compare the output (right?),
+        # then no need to deepcopy.
         g = copy.deepcopy(self.graph)
 
         # store the changes for each actor to sum total in the end
@@ -141,11 +152,8 @@ class GraphWalker:
             g.ep.include[edge] = True
             start = time.time()
             solution_delta = deltas[i]
-            # ToDo: why do we pass the property dict for amounts?
-            #       the graph is already passed linking to this dict
             changes = traverse_graph(g, edge=edge,
-                                     solution=solution_delta,
-                                     amount=g.ep.amount)
+                                     solution=solution_delta)
             end = time.time()
             print(i, end-start)
             if overall_changes is None:
