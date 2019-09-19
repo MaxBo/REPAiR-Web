@@ -39,6 +39,7 @@ class NodeVisitor(BFSVisitor):
         dict
             {edge : change}
         """
+        vertex_id = int(u)
         changes = {}
         if u.in_degree() > 0:
             all_in = list(u.in_edges())
@@ -57,7 +58,7 @@ class NodeVisitor(BFSVisitor):
                             # how much does the current flow share/contribute to
                             # the total outflow from its source vertex. Thus if
                             # there is only a single flow then this gives 1.
-                            self.change[e] = (self.amount[e] / sum_out_f) * self.solution * self.balance_factor[u]
+                            self.change[e] = (self.amount[e] / sum_out_f) * self.solution * self.balance_factor[vertex_id]
                         else:
                             # If there are neighbour edges sharing the same source, but their sum is 0, then
                             # revert to compute the ratio from all inflows. However this case might mean that
@@ -65,15 +66,15 @@ class NodeVisitor(BFSVisitor):
                             # the edges exist, but their amount is 0.
                             sum_in_f = sum(self.amount[in_f] for in_f in all_in)
                             if sum_in_f:
-                                self.change[e] = (self.amount[e] / sum_in_f) * self.solution * self.balance_factor[u]
+                                self.change[e] = (self.amount[e] / sum_in_f) * self.solution * self.balance_factor[vertex_id]
                             else:
-                                self.change[e] = self.solution * self.balance_factor[u]
+                                self.change[e] = self.solution * self.balance_factor[vertex_id]
                     else:
                         sum_in_f = sum(self.amount[in_f] for in_f in all_in)
                         if sum_in_f:
-                            self.change[e] = (self.amount[e] / sum_in_f) * self.solution * self.balance_factor[u]
+                            self.change[e] = (self.amount[e] / sum_in_f) * self.solution * self.balance_factor[vertex_id]
                         else:
-                            self.change[e] = self.solution * self.balance_factor[u]
+                            self.change[e] = self.solution * self.balance_factor[vertex_id]
                     # print(self.id[e.source()], '-->',
                     # self.id[e.target()], self.change[e])
                     self.visited[e] = True
