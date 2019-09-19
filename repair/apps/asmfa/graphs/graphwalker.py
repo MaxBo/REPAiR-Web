@@ -16,12 +16,14 @@ from repair.apps.asmfa.models import Actor
 
 class NodeVisitor(BFSVisitor):
 
-    def __init__(self, name, solution, amount, visited, change):
+    def __init__(self, name, solution, amount, visited, change,
+                 balance_factor):
         self.id = name
         self.solution = solution
         self.amount = amount
         self.visited = visited
         self.change = change
+        self.balance_factor = balance_factor
 
     def discover_vertex(self, u):
         """This is invoked when a vertex is encountered for the first time."""
@@ -39,8 +41,10 @@ class NodeVisitor(BFSVisitor):
         """
         changes = {}
         if u.in_degree() > 0:
+            all_in = list(u.in_edges())
+            # ToDo: if all out_edges = 0, distribute equally
             # ToDo: np e.g. g.get_out_edges(node, eprops=[g.ep.amount])
-            for i, e in enumerate(u.in_edges()):
+            for i, e in enumerate(all_in):
                 if not self.visited[e]:
                     e_src = e.source()
                     e_src_out = list(e_src.out_edges())
@@ -53,23 +57,23 @@ class NodeVisitor(BFSVisitor):
                             # how much does the current flow share/contribute to
                             # the total outflow from its source vertex. Thus if
                             # there is only a single flow then this gives 1.
-                            self.change[e] = (self.amount[e] / sum_out_f) * self.solution
+                            self.change[e] = (self.amount[e] / sum_out_f) * self.solution * self.balance_factor[u]
                         else:
                             # If there are neighbour edges sharing the same source, but their sum is 0, then
                             # revert to compute the ratio from all inflows. However this case might mean that
                             # we are trying to compute something where we don't have enough information yet. Because
                             # the edges exist, but their amount is 0.
-                            sum_in_f = sum(self.amount[in_f] for in_f in u.in_edges())
+                            sum_in_f = sum(self.amount[in_f] for in_f in all_in)
                             if sum_in_f:
-                                self.change[e] = (self.amount[e] / sum_in_f) * self.solution
+                                self.change[e] = (self.amount[e] / sum_in_f) * self.solution * self.balance_factor[u]
                             else:
-                                self.change[e] = self.solution
+                                self.change[e] = self.solution * self.balance_factor[u]
                     else:
-                        sum_in_f = sum(self.amount[in_f] for in_f in u.in_edges())
+                        sum_in_f = sum(self.amount[in_f] for in_f in all_in)
                         if sum_in_f:
-                            self.change[e] = (self.amount[e] / sum_in_f) * self.solution
+                            self.change[e] = (self.amount[e] / sum_in_f) * self.solution * self.balance_factor[u]
                         else:
-                            self.change[e] = self.solution
+                            self.change[e] = self.solution * self.balance_factor[u]
                     # print(self.id[e.source()], '-->',
                     # self.id[e.target()], self.change[e])
                     self.visited[e] = True
@@ -97,24 +101,30 @@ def traverse_graph(g, edge, solution, upstream=True):
     # Property map for keeping track of the visited edge. Once an edge has
     # been visited it won't be processed anymore.
     r = (False for x in g.get_edges())
+    amount = g.ep.amount
     visited = g.new_edge_property("bool", vals=r)
     change = g.new_edge_property("float", val=0.0)
     # G.edge_properties["change"] = change
     # By default we go upstream first, because 'demand dictates supply'
     if upstream:
         g.set_reversed(True)
+        balance_factor = 1 / g.vp.downstream_balance_factor.a
     else:
         g.set_reversed(False)
+        balance_factor = g.vp.downstream_balance_factor.a
     node = edge.target()
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     # print("\nTraversing in 1. direction")
-    node_visitor = NodeVisitor(g.vp["id"], solution, g.ep.amount, visited, change)
+    node_visitor = NodeVisitor(g.vp["id"], solution, amount, visited, change,
+                               balance_factor)
     search.bfs_search(g, node, node_visitor)
     if g.is_reversed():
         g.set_reversed(False)
     else:
         g.set_reversed(True)
+    # reverse the balancing factors
+    node_visitor.balance_factor = 1 / node_visitor.balance_factor
     # print("\nTraversing in 2. direction")
     search.bfs_search(g, node, node_visitor)
     del visited

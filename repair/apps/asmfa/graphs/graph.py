@@ -10,6 +10,7 @@ from django.db.models import Q, Sum, F
 from django.db.models.functions import Coalesce
 from django.db import connection
 import numpy as np
+import pandas as pd
 import datetime
 from io import StringIO
 from django.conf import settings
@@ -205,6 +206,8 @@ class BaseGraph:
             self.graph.new_vertex_property("string")
         self.graph.vertex_properties["name"] = \
             self.graph.new_vertex_property("string")
+        self.graph.vertex_properties["downstream_balance_factor"] = \
+            self.graph.new_vertex_property("double", val=1)
 
         actorids = {}
         for i in range(len(actors)):
@@ -244,6 +247,41 @@ class BaseGraph:
                 self.graph.ep.process[e] = \
                     flow.process_id if flow.process_id is not None else - 1
                 self.graph.ep.amount[e] = flow.amount
+
+        #  get the original order of the vertices and edges in the graph
+        edge_index = np.fromiter(self.graph.edge_index,  dtype=int)
+        vertex_index = np.fromiter(self.graph.vertex_index,  dtype=int)
+        # get an array with the source and target ids of all edges
+        edges = self.graph.get_edges()
+        # get the amounts, sorted by the edge_index
+        amount = self.graph.ep.amount.a[edge_index]
+
+        #  put them in a Dataframe
+        df = pd.DataFrame(data={'amount': amount,
+                                'fromnode': edges[:, 0],
+                                'tonode': edges[: ,1],})
+
+        # sum up the in- and outflows for each node
+        sum_fromnode = df.groupby('fromnode').sum()
+        sum_fromnode.index.name = 'nodeid'
+        sum_fromnode.rename(columns={'amount': 'sum_outflows',}, inplace=True)
+        sum_tonode = df.groupby('tonode').sum()
+        sum_tonode.index.name = 'nodeid'
+        sum_tonode.rename(columns={'amount': 'sum_inflows',}, inplace=True)
+
+        # merge in- and outflows
+        merged = sum_tonode.merge(sum_fromnode, how='outer',  on='nodeid')
+        # calculate the balance_factor
+        merged['balance_factor'] = merged['sum_outflows'] / merged['sum_inflows']
+        #  set balance_factor to 1.0, if inflow or outflow is NAN
+        balance_factor = merged['balance_factor'].fillna(value=1).sort_index()
+
+        #  set balance_factor also to 1.0 if it is 0 or infinitive
+        balance_factor.loc[balance_factor==0] = 1
+        balance_factor.loc[np.isinf(balance_factor)] = 1
+
+        #  write the results to the property-map downstream_balance_factor
+        self.graph.vp.downstream_balance_factor.a[vertex_index] = balance_factor
 
         self.save()
         # save graph image
