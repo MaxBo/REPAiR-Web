@@ -188,7 +188,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
             mats = descend_materials(list(materials) +
                                      list(unaltered_materials))
-            queryset = queryset.filter(c_material__id__in=mats)
+            queryset = queryset.filter(
+                c_material__in=Material.objects.filter(id__in=mats))
 
         agg_map = None
         try:
