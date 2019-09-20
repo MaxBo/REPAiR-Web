@@ -713,8 +713,8 @@ class StrategyGraph(BaseGraph):
         return vertex
 
     def build(self):
-        #self.mock_changes()
-        #return
+        self.mock_changes()
+        return
         base_graph = BaseGraph(self.keyflow, tag=self.tag)
         # if the base graph is not built yet, it shouldn't be done automatically
         # there are permissions controlling who is allowed to build it and
