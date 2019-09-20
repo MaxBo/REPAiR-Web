@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
 from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
-                              Case, When, Value)
+                              Case, When, Value, QuerySet)
 import time
 import numpy as np
 import copy
@@ -30,6 +30,37 @@ from repair.apps.studyarea.models import Area
 from repair.apps.asmfa.serializers import (
     FractionFlowSerializer
 )
+
+class UnionQuerySet(QuerySet):
+    def __init__(self, model=None, query=None, using=None, hints=None):
+        super().__init__(model, query, using, hints)
+        self._querysets = []
+
+    def _get_union(self):
+        if not self._querysets:
+            return self
+        qs = self._querysets[0]
+        for i in range(1, len(self._querysets)):
+            qs = qs.union(self._querysets[i])
+        return qs
+
+    def values(self, *fields, **expressions):
+        qs = self._get_union()
+        return qs.values(*fields, **expressions)
+
+    def values_list(self, *fields, flat=False, named=False):
+        qs = self._get_union()
+        return qs.values_list(*fields, flat=flat, named=named)
+
+    def filter(self, *args, **kwargs):
+        new_union_qs = UnionQuerySet(self.model, self.query,
+                                     self._db, self._hints)
+        for qs in self._querysets:
+            filtered_qs = qs.filter(*args, **kwargs)
+            new_union_qs.append(filtered_qs)
+        return new_union_qs
+
+
 
 # structure of serialized components of a flow as the serializer
 # will return it
@@ -99,12 +130,11 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 c_waste=F('waste'),
                 c_hazardous=F('hazardous'),
                 c_process=F('process'),
-                c_delta=F('c_amount') - F('amount')
+                c_delta=F('c_amount') - F('amount'),
             )
         else:
             queryset = FractionFlow.objects
             qs1 = queryset.filter(
-
                 Q(keyflow__id = keyflow_pk) &
                 (Q(strategy__isnull = True) |
                 Q(strategy_id = strategy))
@@ -115,14 +145,19 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 Q(keyflow__id = keyflow_pk) &
                 Q(f_strategyfractionflow__strategy = strategy))
 
-            #qs1 = queryset.filter(
-                    #Q(keyflow__id = keyflow_pk &
-                    #(Q(strategy__isnull = True) |
-                    #Q(strategy_id = strategy)) &
-                    #(Q(f_strategyfractionflow__strategy = strategy) |
-                     #Q(f_strategyfractionflow__isnull = True))
-                #)
-            #)
+            columns = ('id',
+                       'origin',
+                       'destination',
+                       'to_stock',
+                       'c_amount',
+                       'c_material',
+                       'c_material_name',
+                       'c_material_level',
+                       'c_waste',
+                       'c_hazardous',
+                       'c_process',
+                       'c_delta',)
+
             unchanged_and_new_flows = qs1.annotate(
                 c_amount=F('amount'),
                 c_material=F('material'),
@@ -134,20 +169,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 c_delta=Case(
                     # the flow is new
                     When(strategy__isnull=False, then=F('c_amount')),
-                    default=F('amount') - F('amount')),
-                ).\
-                values('id',
-                       'origin',
-                       'destination',
-                       'c_amount',
-                       'c_material',
-                       'c_material_name',
-                       'c_material_level',
-                       'c_waste',
-                       'c_hazardous',
-                       'c_process',
-                       'c_delta',
-                       )
+                    default=F('c_amount') - F('amount')),
+                ).values(*columns)
+
             changed_flows = qs2.annotate(
                 # strategy fraction flow overrides amounts
                 c_amount=Coalesce(
@@ -165,22 +189,11 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 c_process=Coalesce(
                     'f_strategyfractionflow__process', 'process'),
                 c_delta=F('c_amount') - F('amount')
-                ).\
-                values('id',
-                       'origin',
-                       'destination',
-                       'c_amount',
-                       'c_material',
-                       'c_material_name',
-                       'c_material_level',
-                       'c_waste',
-                       'c_hazardous',
-                       'c_process',
-                       'c_delta',
-                       )
+                )
+
             queryset = unchanged_and_new_flows.union(changed_flows)
 
-        return queryset.order_by('origin', 'destination')
+        return queryset # .order_by('origin', 'destination')
 
     # POST is used to send filter parameters not to create
     def post_get(self, request, **kwargs):
@@ -416,9 +429,9 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         destination_level = LEVEL_KEYWORD[destination_model]
         data = []
         origins = origin_model.objects.filter(
-            id__in=queryset.values(origin_filter))
+            id__in=list(queryset.values_list(origin_filter, flat=True)))
         destinations = destination_model.objects.filter(
-            id__in=queryset.values(destination_filter))
+            id__in=list(queryset.values_list(destination_filter, flat=True)))
         # workaround Django ORM bug
         queryset = queryset.order_by()
 
