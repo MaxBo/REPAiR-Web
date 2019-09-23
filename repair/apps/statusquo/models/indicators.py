@@ -56,9 +56,9 @@ class IndicatorFlow(GDSEModel):
         validators=[validate_comma_separated_integer_list],
         blank=True, null=True)
     materials = models.ManyToManyField(Material, blank=True)
-    process_ids = models.CharField(
+    process_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
-        blank=True, null=True, max_length=100)
+        blank=True, null=True)
     hazardous = EnumIntegerField(
         enum=TriState, default=TriState.BOTH)
     avoidable = EnumIntegerField(
