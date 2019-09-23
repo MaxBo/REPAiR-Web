@@ -106,6 +106,60 @@ def build_area_filter(function_name, values, keyflow_id):
         else 'destination__id__in'
     return rest_func, actors.values_list('id')
 
+def get_fractionflows(keyflow_pk, strategy=None):
+    '''
+    returns fraction flows in given keyflow
+
+    annotates fraction flow queryset flows with values of fields
+    of strategy fraction flows ('c_' as prefix to original field)
+
+    strategy fraction flows override fields of fraction flow (prefix 'c_') if
+    changed in strategy
+    '''
+
+    queryset = FractionFlow.objects
+    if not strategy:
+        queryset = queryset.filter(
+            keyflow__id=keyflow_pk,
+            strategy__isnull=True).\
+            annotate(
+                c_amount=F('amount'),
+                c_material=F('material'),
+                c_material_name=F('material__name'),
+                c_material_level=F('material__level'),
+                c_waste=F('waste'),
+                c_hazardous=F('hazardous'),
+                c_process=F('process'),
+                # just setting Value(0) doesn't seem to work
+                c_delta=F('c_amount') - F('amount')
+        )
+    else:
+        qs1 = queryset.filter(
+            Q(keyflow__id=keyflow_pk) &
+            (Q(strategy__isnull=True) |
+             Q(strategy_id=strategy))
+        )
+        qsfiltered = qs1.annotate(sf=FilteredRelation(
+            'f_strategyfractionflow',
+            condition=Q(f_strategyfractionflow__strategy=strategy)))
+        queryset = qsfiltered.annotate(
+            # strategy fraction flow overrides amounts
+            c_amount=Coalesce('sf__amount', 'amount'),
+            c_material=Coalesce('sf__material', 'material'),
+            c_material_name=Coalesce(
+                'sf__material__name', 'material__name'),
+            c_material_level=Coalesce(
+                'sf__material__level', 'material__level'),
+            c_waste=Coalesce('sf__waste', 'waste'),
+            c_hazardous=Coalesce('sf__hazardous', 'hazardous'),
+            c_process=Coalesce('sf__process', 'process'),
+            c_delta=Case(When(strategy=strategy,
+                              then=F('c_amount')),
+                         default=F('c_amount') - F('amount'))
+        )
+
+    return queryset.order_by('origin', 'destination')
+
 
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
@@ -120,63 +174,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
         strategy = self.request.query_params.get('strategy', None)
-        queryset = FractionFlow.objects
-
-        if not strategy:
-            queryset = queryset.filter(
-                keyflow__id=keyflow_pk,
-                strategy__isnull=True).\
-                annotate(
-                    c_amount=F('amount'),
-                    c_material=F('material'),
-                    c_material_name=F('material__name'),
-                    c_material_level=F('material__level'),
-                    c_waste=F('waste'),
-                    c_hazardous=F('hazardous'),
-                    c_process=F('process'),
-                    # just setting Value(0) doesn't seem to work
-                    c_delta=F('c_amount') - F('amount')
-            )
-        else:
-            qs1 = queryset.filter(
-                Q(keyflow__id=keyflow_pk) &
-                (Q(strategy__isnull=True) |
-                 Q(strategy_id=strategy))
-            )
-            qsfiltered = qs1.annotate(sf=FilteredRelation(
-                'f_strategyfractionflow',
-                condition=Q(f_strategyfractionflow__strategy=strategy)))
-            queryset = qsfiltered.annotate(
-                # strategy fraction flow overrides amounts
-                c_amount=Coalesce('sf__amount', 'amount'),
-                c_material=Coalesce('sf__material', 'material'),
-                c_material_name=Coalesce(
-                    'sf__material__name', 'material__name'),
-                c_material_level=Coalesce(
-                    'sf__material__level', 'material__level'),
-                c_waste=Coalesce('sf__waste', 'waste'),
-                c_hazardous=Coalesce('sf__hazardous', 'hazardous'),
-                c_process=Coalesce('sf__process', 'process'),
-                c_delta=Case(When(strategy=strategy,
-                                  then=F('c_amount')),
-                             default=F('c_amount') - F('amount'))
-            )
-
-            #sf = StrategyFractionFlow.objects.filter(
-                #strategy=strategy, fractionflow=OuterRef('pk'))
-            #queryset = qs1.annotate(
-                #c_amount=Coalesce(Subquery(sf.values('amount')[:1]), 'amount'),
-                #c_material=Coalesce(Subquery(sf.values('material')[:1]), 'material'),
-                #c_material_name=Coalesce(Subquery(sf.values('material__name')[:1]), 'material__name'),
-                #c_material_level=Coalesce(Subquery(sf.values('material__level')[:1]), 'material__level'),
-                #c_waste=Coalesce(Subquery(sf.values('waste')[:1]), 'waste'),
-                #c_hazardous=Coalesce(Subquery(sf.values('hazardous')[:1]), 'hazardous'),
-                #c_process=Coalesce(Subquery(sf.values('process')[:1]), 'process'),
-                #c_delta=Case(When(strategy=strategy,
-                                  #then=F('c_amount')),
-                             #default=F('c_amount') - F('amount')),
-
-        return queryset # .order_by('origin', 'destination')
+        return get_fractionflows(keyflow_pk, strategy=strategy)
 
     # POST is used to send filter parameters not to create
     def post_get(self, request, **kwargs):
