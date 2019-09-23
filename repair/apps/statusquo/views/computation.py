@@ -55,19 +55,19 @@ class ComputeIndicator(metaclass=ABCMeta):
         # filter flows by type (waste/product/both)
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
-            flows = flows.filter(c_waste=is_waste)
+            flows = flows.filter(strategy_waste=is_waste)
         if hazardous != 'BOTH':
             is_hazardous = True if hazardous == 'YES' else False
-            flows = flows.filter(c_hazardous=is_hazardous)
+            flows = flows.filter(strategy_hazardous=is_hazardous)
         if avoidable != 'BOTH':
             is_avoidable = True if avoidable == 'YES' else False
-            flows = flows.filter(c_avoidable=is_avoidable)
+            flows = flows.filter(strategy_avoidable=is_avoidable)
 
         # filter flows by processes
         process_ids = indicator_flow.process_ids
         if (process_ids):
             process_ids = process_ids.split(',')
-            flows = flows.filter(c_process__id__in=process_ids)
+            flows = flows.filter(strategy_process__id__in=process_ids)
 
         if materials:
             mats = descend_materials(list(materials))
@@ -183,7 +183,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         if (not areas or len(areas)) == 0 and not geom:
             flows = self.get_queryset(indicator_flow, geom=geom)
             amount = agg_func(flows, field='amount')
-            strategy_amount = agg_func(flows, field='c_amount')
+            strategy_amount = agg_func(flows, field='strategy_amount')
             return {-1: (amount, strategy_amount)}
         amounts = {}
         geometries = []
@@ -195,7 +195,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         for g_id, geometry in geometries:
             flows = self.get_queryset(indicator_flow, geom=geometry)
             amount = agg_func(flows, field='amount')
-            strategy_amount = agg_func(flows, field='c_amount')
+            strategy_amount = agg_func(flows, field='strategy_amount')
             amounts[g_id] = (amount, strategy_amount)
         if aggregate:
             total_sum = 0
