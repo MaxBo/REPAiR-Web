@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
 from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
-                              Case, When, Value, QuerySet)
+                              Case, When, Value, QuerySet, Count,
+                              FilteredRelation)
 import time
 import numpy as np
 import copy
@@ -119,79 +120,61 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
         strategy = self.request.query_params.get('strategy', None)
-        if not strategy:
-            queryset = FractionFlow.objects.filter(keyflow__id=keyflow_pk)
+        queryset = FractionFlow.objects
 
-            queryset = queryset.filter(strategy__isnull=True).annotate(
-                c_amount=F('amount'),
-                c_material=F('material'),
-                c_material_name=F('material__name'),
-                c_material_level=F('material__level'),
-                c_waste=F('waste'),
-                c_hazardous=F('hazardous'),
-                c_process=F('process'),
-                c_delta=F('c_amount') - F('amount'),
+        if not strategy:
+            queryset = queryset.filter(
+                keyflow__id=keyflow_pk,
+                strategy__isnull=True).\
+                annotate(
+                    c_amount=F('amount'),
+                    c_material=F('material'),
+                    c_material_name=F('material__name'),
+                    c_material_level=F('material__level'),
+                    c_waste=F('waste'),
+                    c_hazardous=F('hazardous'),
+                    c_process=F('process'),
+                    # just setting Value(0) doesn't seem to work
+                    c_delta=F('c_amount') - F('amount')
             )
         else:
-            queryset = FractionFlow.objects
             qs1 = queryset.filter(
-                Q(keyflow__id = keyflow_pk) &
-                (Q(strategy__isnull = True) |
-                Q(strategy_id = strategy))
-                & ~Q(f_strategyfractionflow__strategy = strategy)
+                Q(keyflow__id=keyflow_pk) &
+                (Q(strategy__isnull=True) |
+                 Q(strategy_id=strategy))
+            )
+            qsfiltered = qs1.annotate(sf=FilteredRelation(
+                'f_strategyfractionflow',
+                condition=Q(f_strategyfractionflow__strategy=strategy)))
+            queryset = qsfiltered.annotate(
+                # strategy fraction flow overrides amounts
+                c_amount=Coalesce('sf__amount', 'amount'),
+                c_material=Coalesce('sf__material', 'material'),
+                c_material_name=Coalesce(
+                    'sf__material__name', 'material__name'),
+                c_material_level=Coalesce(
+                    'sf__material__level', 'material__level'),
+                c_waste=Coalesce('sf__waste', 'waste'),
+                c_hazardous=Coalesce('sf__hazardous', 'hazardous'),
+                c_process=Coalesce('sf__process', 'process'),
+                c_delta=Case(When(strategy=strategy,
+                                  then=F('c_amount')),
+                             default=F('c_amount') - F('amount'))
             )
 
-            qs2 = queryset.filter(
-                Q(keyflow__id = keyflow_pk) &
-                Q(f_strategyfractionflow__strategy = strategy))
-
-            columns = ('id',
-                       'origin',
-                       'destination',
-                       'to_stock',
-                       'c_amount',
-                       'c_material',
-                       'c_material_name',
-                       'c_material_level',
-                       'c_waste',
-                       'c_hazardous',
-                       'c_process',
-                       'c_delta',)
-
-            unchanged_and_new_flows = qs1.annotate(
-                c_amount=F('amount'),
-                c_material=F('material'),
-                c_material_name=F('material__name'),
-                c_material_level=F('material__level'),
-                c_waste=F('waste'),
-                c_hazardous=F('hazardous'),
-                c_process=F('process'),
-                c_delta=Case(
-                    # the flow is new
-                    When(strategy__isnull=False, then=F('c_amount')),
-                    default=F('c_amount') - F('amount')),
-                ).values(*columns)
-
-            changed_flows = qs2.annotate(
-                # strategy fraction flow overrides amounts
-                c_amount=Coalesce(
-                    'f_strategyfractionflow__amount', 'amount'),
-                c_material=Coalesce(
-                    'f_strategyfractionflow__material', 'material'),
-                c_material_name=Coalesce(
-                    'f_strategyfractionflow__material__name', 'material__name'),
-                c_material_level=Coalesce(
-                    'f_strategyfractionflow__material__level', 'material__level'),
-                c_waste=Coalesce(
-                    'f_strategyfractionflow__waste', 'waste'),
-                c_hazardous=Coalesce(
-                    'f_strategyfractionflow__hazardous', 'hazardous'),
-                c_process=Coalesce(
-                    'f_strategyfractionflow__process', 'process'),
-                c_delta=F('c_amount') - F('amount')
-                )
-
-            queryset = unchanged_and_new_flows.union(changed_flows)
+            #sf = StrategyFractionFlow.objects.filter(
+                #strategy=strategy, fractionflow=OuterRef('pk'))
+            #queryset = qs1.annotate(
+                #c_amount=Coalesce(Subquery(sf.values('amount')[:1]), 'amount'),
+                #c_material=Coalesce(Subquery(sf.values('material')[:1]), 'material'),
+                #c_material_name=Coalesce(Subquery(sf.values('material__name')[:1]), 'material__name'),
+                #c_material_level=Coalesce(Subquery(sf.values('material__level')[:1]), 'material__level'),
+                #c_waste=Coalesce(Subquery(sf.values('waste')[:1]), 'waste'),
+                #c_hazardous=Coalesce(Subquery(sf.values('hazardous')[:1]), 'hazardous'),
+                #c_process=Coalesce(Subquery(sf.values('process')[:1]), 'process'),
+                #c_delta=Case(When(strategy=strategy,
+                                  #then=F('c_amount')),
+                             #default=F('c_amount') - F('amount')),
 
         return queryset # .order_by('origin', 'destination')
 
@@ -489,7 +472,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                             'name': mapped.name,
                             'level': mapped.level,
                             'amount': amount,
-                            'delta': grouped_mat['c_delta']
+                            'delta': grouped_mat['delta']
                         }
                         aggregated[mapped.id] = agg_mat_ser
                     # just sum amounts up if dict is already there
