@@ -284,15 +284,6 @@ class BaseGraph:
         self.graph.vp.downstream_balance_factor.a[vertex_index] = balance_factor
 
         self.save()
-        # save graph image
-        #fn = "keyflow-{}-base.png".format(self.keyflow.id)
-        #fn = os.path.join(self.path, fn)
-        #pos = gt.draw.fruchterman_reingold_layout(self.graph, n_iter=1000)
-        #gt.draw.graph_draw(self.graph, pos, vertex_size=20,
-        # vertex_text=self.graph.vp.name,
-        #                       vprops={"text_position":0,
-        # "font_weight": cairo.FONT_WEIGHT_BOLD, "font_size":14},
-        #                       output_size=(700,600), output=fn)
         return self.graph
 
     def validate(self):
@@ -763,8 +754,12 @@ class StrategyGraph(BaseGraph):
         if(len(vertices) > 0):
             return vertices[0]
 
+        # add actor to graph
         actor = Actor.objects.get(id=id)
         vertex = self.graph.add_vertex()
+        # not existing in basegraph -> no flows in or out in status quo ->
+        # balance factor of 1
+        self.graph.vp.downstream_balance_factor[vertex] = 1
         self.graph.vp.id[vertex] = id
         self.graph.vp.bvdid[vertex] = actor.BvDid
         self.graph.vp.name[vertex] = actor.name
