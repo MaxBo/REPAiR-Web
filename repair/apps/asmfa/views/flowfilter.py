@@ -122,9 +122,9 @@ def get_fractionflows(keyflow_pk, strategy=None):
             strategy_waste=Coalesce('sf__waste', 'waste'),
             strategy_hazardous=Coalesce('sf__hazardous', 'hazardous'),
             strategy_process=Coalesce('sf__process', 'process'),
-            strategy_delta=Case(When(strategy=strategy,
-                                     then=F('strategy_amount')),
-                                default=F('strategy_amount') - F('amount'))
+            #strategy_delta=Case(When(strategy=strategy,
+                                     #then=F('strategy_amount')),
+                                #default=F('strategy_amount') - F('amount'))
         )
 
     return queryset.order_by('origin', 'destination')
@@ -387,7 +387,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         groups = queryset.values(
             origin_filter, destination_filter,
-            'strategy_waste', 'strategy_process', 'to_stock').distinct()
+            'strategy_waste', 'strategy_process', 'to_stock',
+            'strategy_hazardous').distinct()
 
         def get_code_field(model):
             if model == Actor:
@@ -419,7 +420,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 'name':  F('strategy_material_name'),
                 'level': F('strategy_material_level'),
                 'waste': F('strategy_waste'),
-                'delta': Sum('strategy_delta'),
+                'hazardous': F('strategy_hazardous'),
+                #'delta': Sum('strategy_delta'),
                 'amount': Sum('strategy_amount')
             }
             grouped_mats = \
@@ -440,7 +442,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                             'name': mapped.name,
                             'level': mapped.level,
                             'amount': amount,
-                            'delta': grouped_mat['delta']
+                            #'delta': grouped_mat['delta']
                         }
                         aggregated[mapped.id] = agg_mat_ser
                     # just sum amounts up if dict is already there
@@ -455,17 +457,18 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
             strat_total_amount = list(
                 grouped.aggregate(Sum('strategy_amount')).values())[0]
-            deltas = list(grouped.aggregate(Sum('strategy_delta')).values())[0]
+            #deltas = list(grouped.aggregate(Sum('strategy_delta')).values())[0]
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
                 ('waste', group['strategy_waste']),
+                ('hazardous', group['strategy_hazardous']),
                 ('stock', group['to_stock']),
                 ('process', process.name if process else ''),
                 ('process_id', process.id if process else None),
                 ('amount', sq_total_amount),
                 ('materials', grouped_mats),
-                ('delta', deltas)
+                #('delta', deltas)
             ))
             data.append(flow_item)
         return data

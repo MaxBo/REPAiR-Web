@@ -1,8 +1,9 @@
 define(['views/common/baseview', 'underscore', 'views/common/flowsankeymap',
-        'collections/gdsecollection', 'views/common/flowsankey', 'utils/utils'],
+        'collections/gdsecollection', 'models/gdsemodel',
+        'views/common/flowsankey', 'utils/utils', 'backbone'],
 
-function(BaseView, _, FlowMapView, GDSECollection,
-         FlowSankeyView, utils){
+function(BaseView, _, FlowMapView, GDSECollection, GDSEModel,
+         FlowSankeyView, utils, Backbone){
 /**
 *
 * @author Christoph Franke
@@ -176,8 +177,40 @@ var FlowsView = BaseView.extend(
     },
 
     redraw: function(){
+        var showDelta = this.modDisplaySelect.value === 'delta',
+            dblCheck = this.el.querySelector('#sankey-dblclick'),
+            mapWrapper = this.flowMapView.el.parentElement;
+        if (dblCheck) dblCheck.parentElement.style.display = (showDelta) ? 'None': 'block';
+        if (showDelta)
+            mapWrapper.classList.add('disabled');
+        else
+            mapWrapper.classList.remove('disabled');
         if (!this.displayLevel) return;
-        this.draw(this.displayLevel)
+        this.draw(this.displayLevel);
+    },
+
+    postprocess: function(flows){
+        var idx = 0;
+        flows.forEach(function(flow){
+            var origin = flow.get('origin'),
+                destination = flow.get('destination');
+            // api aggregates flows and doesn't return an id
+            // generate an internal one to assign interactions
+            flow.set('id', idx);
+            idx++;
+
+            // remember original amounts to be able to swap amount with delta and back
+            flow._amount = flow.get('amount');
+            var materials = flow.get('materials');
+            flow.get('materials').forEach(function(material){
+                material._amount =  material.amount;
+            })
+            flow.set('materials', materials);
+
+            origin.color = utils.colorByName(origin.name);
+            if (!flow.get('stock'))
+                destination.color = utils.colorByName(destination.name);
+        })
     },
 
     // fetch flows and calls options.success(flows) on success
@@ -206,27 +239,7 @@ var FlowsView = BaseView.extend(
             data: data,
             body: filterParams,
             success: function(response){
-                var idx = 0;
-                flows.forEach(function(flow){
-                    var origin = flow.get('origin'),
-                        destination = flow.get('destination');
-                    // api aggregates flows and doesn't return an id
-                    // generate an internal one to assign interactions
-                    flow.set('id', idx);
-                    idx++;
-
-                    // remember original amounts to be able to swap amount with delta and back
-                    flow._amount = flow.get('amount');
-                    var materials = flow.get('materials');
-                    flow.get('materials').forEach(function(material){
-                        material._amount =  material.amount;
-                    })
-                    flow.set('materials', materials);
-
-                    origin.color = utils.colorByName(origin.name);
-                    if (!flow.get('stock'))
-                        destination.color = utils.colorByName(destination.name);
-                })
+                _this.postprocess(flows);
                 _this.loader.deactivate();
                 if (options.success)
                     options.success(flows);
@@ -236,6 +249,79 @@ var FlowsView = BaseView.extend(
                 _this.onError(error);
             }
         })
+    },
+
+    calculateDelta: function(statusQuoFlows, strategyFlows){
+        var deltaFlows = new Backbone.Collection(null, { model: GDSEModel });
+
+        function find(flow, collection){
+            var originId = flow.get('origin').id,
+                destination = flow.get('destination'),
+                destinationId = (destination) ? destination.id: null,
+                waste = flow.get('waste'),
+                process_id = flow.get('process_id'),
+                hazardous = flow.get('hazardous');
+            var found = statusQuoFlows.filter(function(model){
+                var sqDest = model.get('destination'),
+                    sqDestId = (sqDest) ? sqDest.id: null;
+                return ((model.get('origin').id == originId) &&
+                        (destinationId == sqDestId) &&
+                        (model.get('waste') == waste) &&
+                        (model.get('process_id') == process_id) &&
+                        (model.get('hazardous') == hazardous));
+            });
+            return found;
+        }
+
+        function mergeMaterials(statusQuoMaterials, strategyMaterials){
+            return strategyMaterials;
+        }
+
+        function hash(collection){
+            var hashed = {};
+            collection.forEach(function(model){
+                var originId = model.get('origin').id,
+                    destination = model.get('destination'),
+                    destinationId = (destination) ? destination.id: null,
+                    waste = model.get('waste'),
+                    processId = model.get('process_id'),
+                    hazardous = model.get('hazardous');
+                var key = originId + '-' + destinationId + '-' + waste + '-' + processId + '-' + hazardous;
+                hashed[key] = model;
+            })
+            return hashed;
+        }
+
+        var sf_hashed = hash(strategyFlows);
+            sq_hashed = hash(statusQuoFlows);
+        console.log(sf_hashed);
+        console.log(sq_hashed)
+        for (let [key, strategyFlow] of Object.entries(sf_hashed)) {
+            var statusQuoFlow = sq_hashed[key],
+                deltaFlow = strategyFlow.clone();
+
+            // strategy flow already existed in status quo
+            if (statusQuoFlow){
+                //var mergedMaterials = mergeMaterials(statusQuoFlow.get('materials'), statusQuoFlow.get('materials'));
+                deltaFlow.set('amount', strategyFlow.get('amount') - statusQuoFlow.get('amount'));
+            }
+            // strategy flow is completely new
+            else {
+                deltaFlow.set('amount', strategyFlow.get('amount'));
+            }
+            deltaFlows.add(deltaFlow);
+        }
+        for (let [key, statusQuoFlow] of Object.entries(sq_hashed)) {
+            var strategyFlow = sf_hashed[key];
+
+            // status quo flow does not exist in strategy anymore
+            if (!strategyFlow){
+                //var mergedMaterials = mergeMaterials(sqFlow.get('materials'), sFlow.get('materials'));
+                deltaFlow.set('amount', -statusQuoFlow.get('amount'));
+            }
+            deltaFlows.add(deltaFlow);
+        }
+        return deltaFlows;
     },
 
     draw: function(displayLevel){
@@ -251,15 +337,17 @@ var FlowsView = BaseView.extend(
             _this = this;
 
         function drawSankey(){
-            var flows = (_this.strategy && _this.modDisplaySelect.value != 'statusquo') ? _this.strategyFlows : _this.flows;
+            var modDisplay = _this.modDisplaySelect.value,
+                flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
+            console.log(flows)
             // override value and color
             flows.forEach(function(flow){
-                var amount = (showDelta) ? flow.get('delta') : flow._amount;
-                flow.color = (!showDelta) ? null: (amount >= 0) ? '#23FE01': 'red';
+                var amount = flow._amount;
+                flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
                 flow.set('amount', amount)
                 var materials = flow.get('materials');
                 flow.get('materials').forEach(function(material){
-                    material.amount = (showDelta) ? material.delta : material._amount;
+                    material.amount = material._amount;
                 })
                 flow.set('materials', materials);
             });
@@ -272,8 +360,7 @@ var FlowsView = BaseView.extend(
                 destinationLevel: displayLevel,
                 anonymize: _this.filter.get('anonymize'),
                 showRelativeComposition: !showDelta,
-                forceSignum: showDelta,
-                selectOnDoubleClick: true
+                forceSignum: showDelta
             })
         }
         // no need to fetch flows if display level didn't change from last time
@@ -288,6 +375,8 @@ var FlowsView = BaseView.extend(
                             displayLevel: displayLevel,
                             success: function(strategyFlows){
                                 _this.strategyFlows = strategyFlows;
+                                _this.deltaFlows = _this.calculateDelta(_this.flows, strategyFlows);
+                                _this.postprocess(_this.deltaFlows);
                                 drawSankey();
                             }
                         })
@@ -354,12 +443,12 @@ var FlowsView = BaseView.extend(
         function addFlows(flows){
             // override value and color
             flows.forEach(function(flow){
-                var amount = (showDelta) ? flow.get('delta') : flow._amount;
+                var amount = flow._amount;
                 flow.color = (!showDelta) ? null: (amount > 0) ? '#23FE01': 'red';
                 flow.set('amount', amount)
                 var materials = flow.get('materials');
                 flow.get('materials').forEach(function(material){
-                    material.amount = (showDelta) ? material.delta : material._amount;
+                    material.amount = material._amount;
                 })
                 flow.set('materials', materials);
             });
@@ -415,7 +504,10 @@ var FlowsView = BaseView.extend(
     linkSelected: function(e){
         // only actors atm
         var data = e.detail,
-            _this = this;
+            _this = this,
+            showDelta = this.modDisplaySelect.value === 'delta';
+
+        if (showDelta) return;
 
         if (!Array.isArray(data)) data = [data];
         var promises = [];
