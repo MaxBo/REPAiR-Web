@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
+import graph_tool as gt
+import graph_tool.draw
 import numpy as np
 from django.test import TestCase
 
@@ -20,8 +22,136 @@ from repair.apps.publications.factories import PublicationInCasestudyFactory
 
 from repair.apps.asmfa.models import Actor, Material, Actor2Actor
 
-class GenerateBreadToBeerData(TestCase):
 
+def _split_flows(G):
+    """Split the flows based on material composition
+
+    If a flow is composed of different materials, it is split into individual flows per material
+    with the corresponding mass.
+    If the flow is composed of a single material, the composition property is removed and replaced with material.
+    """
+    g = G.copy()
+    g.clear_edges()
+    del g.edge_properties['flow']
+    eprops = G.edge_properties.keys()
+    mass_list = []
+    material_list = []
+    assert 'flow' in eprops, "The graph must have 'flow' edge property"
+    e_list = []
+    for e in G.edges():
+        prop = G.ep.flow[e]
+        assert isinstance(prop,
+                          dict), "Edge property flow must be a dictionary in edge {}".format(
+            e)
+        for material, percent in prop['composition'].items():
+            e_list.append(np.array([e.source(), e.target()], dtype=int))
+            mass_list.append(float(prop['amount']) * float(percent))
+            material_list.append(material)
+    e_array = np.vstack(e_list)
+    g.add_edge_list(e_array)
+    eprop_mass = g.new_edge_property("float", vals=mass_list)
+    eprop_material = g.new_edge_property("string", vals=material_list)
+    g.edge_properties['amount'] = eprop_mass
+    g.edge_properties['material'] = eprop_material
+    return g
+
+def bread_to_beer_graph():
+    """Returns a graph-tool Graph for the BreadtoBeer case"""
+    G = gt.Graph(directed=True)
+    G.add_vertex(6)
+    vid = G.new_vertex_property("string")
+    G.vertex_properties["id"] = vid
+    G.vp.id[0] = 'Households'
+    G.vp.id[1] = 'Incineration'
+    G.vp.id[2] = 'Digester'
+    G.vp.id[3] = 'Brewery'
+    G.vp.id[4] = 'Supermarkets'
+    G.vp.id[5] = 'Farm'
+    flow = G.new_edge_property("object")
+    G.edge_properties["flow"] = flow
+    e = G.add_edge(G.vertex(0), G.vertex(1))
+    G.ep.flow[e] = {'amount': 20,
+                    'composition': {'bread': 0.25, 'other waste': 0.75}}
+    e = G.add_edge(G.vertex(0), G.vertex(2))
+    G.ep.flow[e] = {'amount': 10, 'composition': {'bread': 1.0}}
+    e = G.add_edge(G.vertex(3), G.vertex(2))
+    G.ep.flow[e] = {'amount': 20, 'composition': {'sludge': 1.0}}
+    e = G.add_edge(G.vertex(3), G.vertex(4))
+    G.ep.flow[e] = {'amount': 40, 'composition': {'beer': 1.0}}
+    e = G.add_edge(G.vertex(5), G.vertex(3))
+    G.ep.flow[e] = {'amount': 9, 'composition': {'barley': 1.0}}
+    split = _split_flows(G)
+    return split
+
+
+def plastic_package_graph():
+    """Returns a graph-tool Graph for the plastic packaging case"""
+    G = gt.Graph(directed=True)
+    G.add_vertex(12)
+    vid = G.new_vertex_property("string")
+    G.vertex_properties["id"] = vid
+    G.vp.id[0] = 'Farm'
+    G.vp.id[1] = 'Packaging'
+    G.vp.id[2] = 'Oil rig'
+    G.vp.id[3] = 'Oil refinery'
+    G.vp.id[4] = 'Stock 1'
+    G.vp.id[5] = 'Production'
+    G.vp.id[6] = 'Consumption'
+    G.vp.id[7] = 'Waste'
+    G.vp.id[8] = 'Burn'
+    G.vp.id[9] = 'Recycling'
+    G.vp.id[10] = 'Stock 2'
+    G.vp.id[11] = 'Waste 2'
+    flow = G.new_edge_property("object")
+    eid = G.new_edge_property(
+        "int")  # need a persistent edge id, because graph-tool can reindex the edges
+    G.edge_properties["flow"] = flow
+    G.edge_properties["eid"] = eid
+    e = G.add_edge(G.vertex(0), G.vertex(1))
+    G.ep.flow[e] = {'amount': 95,
+                    'composition': {'cucumber': 0.3158, 'milk': 0.6842}}
+    G.ep.eid[e] = 0
+    e = G.add_edge(G.vertex(2), G.vertex(3))
+    G.ep.flow[e] = {'amount': 20, 'composition': {'crude oil': 1.0}}
+    G.ep.eid[e] = 1
+    e = G.add_edge(G.vertex(3), G.vertex(4))
+    G.ep.flow[e] = {'amount': 16, 'composition': {'petrol': 1.0}}
+    G.ep.eid[e] = 2
+    e = G.add_edge(G.vertex(3), G.vertex(5))
+    G.ep.flow[e] = {'amount': 4, 'composition': {'plastic': 1.0}}
+    G.ep.eid[e] = 3
+    e = G.add_edge(G.vertex(5), G.vertex(1))
+    G.ep.flow[e] = {'amount': 5, 'composition': {'plastic': 1.0}}
+    G.ep.eid[e] = 4
+    e = G.add_edge(G.vertex(1), G.vertex(6))
+    G.ep.flow[e] = {'amount': 100,
+                         'composition': {'plastic': 0.05, 'cucumber': 0.3,
+                                         'milk': 0.65}}
+    G.ep.eid[e] = 5
+    e = G.add_edge(G.vertex(6), G.vertex(7))
+    G.ep.flow[e] = {'amount': 75, 'composition': {'human waste': 1.0}}
+    G.ep.eid[e] = 6
+    e = G.add_edge(G.vertex(6), G.vertex(8))
+    G.ep.flow[e] = {'amount': 3, 'composition': {'plastic': 1.0}}
+    G.ep.eid[e] = 7
+    e = G.add_edge(G.vertex(6), G.vertex(9))
+    G.ep.flow[e] = {'amount': 2, 'composition': {'plastic': 1.0}}
+    G.ep.eid[e] = 8
+    e = G.add_edge(G.vertex(9), G.vertex(10))
+    G.ep.flow[e] = {'amount': 1, 'composition': {'waste': 1.0}}
+    G.ep.eid[e] = 9
+    e = G.add_edge(G.vertex(9), G.vertex(5))
+    G.ep.flow[e] = {'amount': 1, 'composition': {'plastic': 1.0}}
+    G.ep.eid[e] = 10
+    e = G.add_edge(G.vertex(6), G.vertex(11))
+    G.ep.flow[e] = {'amount': 20, 'composition': {'other waste': 1.0}}
+    G.ep.eid[e] = 11
+    split = _split_flows(G)
+    return split
+
+
+class GenerateBreadToBeerData(TestCase):
+    """Uses models and factories to set up the test case"""
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -144,10 +274,10 @@ class GenerateBreadToBeerData(TestCase):
                                 keyflow=cls.keyflow)
 
 
-class GenerateTestDataMixin:
-    """
-    Generate Testdata
-    """
+class GeneratePlasticPackagingData:
+    '''
+    Generate test data for the cucumber-plastic packaging case.
+    '''
 
     def create_keyflow(self):
         """Create the keyflow"""
@@ -307,7 +437,7 @@ class GenerateTestDataMixin:
         ]
         
 
-class GenerateBigTestDataMixin(GenerateTestDataMixin):
+class GenerateBigTestDataMixin(GeneratePlasticPackagingData):
     """Big amount of Test Data"""
     def create_actors(self, n_actors=10000):
         activity_names = [
