@@ -419,8 +419,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 'material': F('strategy_material'),
                 'name':  F('strategy_material_name'),
                 'level': F('strategy_material_level'),
-                'waste': F('strategy_waste'),
-                'hazardous': F('strategy_hazardous'),
                 #'delta': Sum('strategy_delta'),
                 'amount': Sum('strategy_amount')
             }

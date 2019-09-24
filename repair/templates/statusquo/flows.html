@@ -136,8 +136,10 @@
           <button class="deselect-all fas fa-ban btn btn-primary d3-overlay inverted" style="position: relative; height: 30px;">&nbsp;{% trans "None" %}</button>
         </div>
         <div style="position: absolute; bottom: 15px; right: 10px;">
-          <label>{% trans "Select on double click" %}</label>
-          <input id='sankey-dblclick' type="checkbox" style="transform: scale(2); margin-left: 10px;">
+          <div>
+            <label>{% trans "Select on double click" %}</label>
+            <input id='sankey-dblclick' type="checkbox" style="transform: scale(2); margin-left: 10px;">
+          </div>
           <br>
           <label>{% trans "Scale" %}</label>
           <select id="sankey-scale" style="float: right;">

@@ -274,7 +274,32 @@ var FlowsView = BaseView.extend(
         }
 
         function mergeMaterials(statusQuoMaterials, strategyMaterials){
-            return strategyMaterials;
+            var sfMats = {},
+                sqMats = {},
+                materials = [];
+            if (strategyMaterials)
+                strategyMaterials.forEach(function(material){
+                    var key = material.material;
+                    sfMats[key] = material;
+                })
+            statusQuoMaterials.forEach(function(material){
+                var key = material.material;
+                sqMats[key] = material;
+            })
+            for (let [key, sfMaterial] of Object.entries(strategyMaterials)){
+                var sqMaterial = sqMats[key];
+                if (sqMaterial)
+                    sfMaterial.amount -= sqMaterial.amount;
+                materials.push(sfMaterial);
+            }
+            for (let [key, sqMaterial] of Object.entries(statusQuoMaterials)){
+                var sfMaterial = sfMats[key];
+                if (!sfMaterial){
+                    sqMaterial.amount = -sqMaterial.amount;
+                    materials.push(sqMaterial);
+                }
+            }
+            return materials;
         }
 
         function hash(collection){
@@ -292,17 +317,17 @@ var FlowsView = BaseView.extend(
             return hashed;
         }
 
-        var sf_hashed = hash(strategyFlows);
-            sq_hashed = hash(statusQuoFlows);
-        console.log(sf_hashed);
-        console.log(sq_hashed)
-        for (let [key, strategyFlow] of Object.entries(sf_hashed)) {
-            var statusQuoFlow = sq_hashed[key],
+        var sfHashed = hash(strategyFlows);
+            sqHashed = hash(statusQuoFlows);
+
+        for (let [key, strategyFlow] of Object.entries(sfHashed)) {
+            var statusQuoFlow = sqHashed[key],
                 deltaFlow = strategyFlow.clone();
 
             // strategy flow already existed in status quo
             if (statusQuoFlow){
-                //var mergedMaterials = mergeMaterials(statusQuoFlow.get('materials'), statusQuoFlow.get('materials'));
+                var mergedMaterials = mergeMaterials(statusQuoFlow.get('materials'), strategyFlow.get('materials'));
+                deltaFlow.set('materials', mergedMaterials);
                 deltaFlow.set('amount', strategyFlow.get('amount') - statusQuoFlow.get('amount'));
             }
             // strategy flow is completely new
@@ -311,15 +336,20 @@ var FlowsView = BaseView.extend(
             }
             deltaFlows.add(deltaFlow);
         }
-        for (let [key, statusQuoFlow] of Object.entries(sq_hashed)) {
-            var strategyFlow = sf_hashed[key];
+
+        for (let [key, statusQuoFlow] of Object.entries(sqHashed)) {
+            var strategyFlow = sfHashed[key];
 
             // status quo flow does not exist in strategy anymore
             if (!strategyFlow){
-                //var mergedMaterials = mergeMaterials(sqFlow.get('materials'), sFlow.get('materials'));
+                deltaFlow = statusQuoFlow.clone();
                 deltaFlow.set('amount', -statusQuoFlow.get('amount'));
+                var mergedMaterials = mergeMaterials(statusQuoFlow.get('materials'), null);
+                deltaFlow.set('materials', mergedMaterials);
+                var materials = statusQuoFlow.get('materials');
+                console.log(materials)
+                deltaFlows.add(deltaFlow);
             }
-            deltaFlows.add(deltaFlow);
         }
         return deltaFlows;
     },
@@ -339,7 +369,6 @@ var FlowsView = BaseView.extend(
         function drawSankey(){
             var modDisplay = _this.modDisplaySelect.value,
                 flows = (modDisplay == 'statusquo') ? _this.flows : (modDisplay == 'strategy') ? _this.strategyFlows : _this.deltaFlows;
-            console.log(flows)
             // override value and color
             flows.forEach(function(flow){
                 var amount = flow._amount;
