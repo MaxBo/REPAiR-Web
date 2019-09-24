@@ -11,7 +11,7 @@
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <div class="row">
       <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
-        <option selected disabled>{% trans "Select keyflow" %} </option>
+        <option selected disabled>{% trans "Select key flow" %} </option>
       {% for keyflow in keyflows %}
         <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
       {% endfor %}
@@ -35,7 +35,7 @@
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/sankey.css" />
 <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}css/drag.css" />
 <div class="tab-content">
-  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+  <h3 id="keyflow-warning" style="display: none;"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of key flow inside the side-menu." %}</h3>
   <div class="tab-pane fade in active" id="solutions" style="min-height: 600px;">
   </div>
   {% if request.session.mode == 1 %}

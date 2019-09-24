@@ -55,7 +55,8 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
             if strategy.status == 1:
                 return HttpResponseBadRequest(
                     _('calculation is still in process'))
-        compute = compute_class(strategy=strategy)
+        keyflow_pk = self.kwargs.get('keyflow_pk')
+        compute = compute_class(keyflow_pk=keyflow_pk, strategy=strategy)
         if aggregate is not None:
             aggregate = aggregate.lower() == 'true'
         if areas:

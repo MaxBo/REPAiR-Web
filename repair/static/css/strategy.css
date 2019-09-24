@@ -63,7 +63,7 @@
    border-bottom: none;
 }
 
-#scheme-preview img{
+#scheme-preview img, #affected-flows-tab img{
     max-width: 100%;
     cursor: pointer;
     border: 1px solid darkgrey;

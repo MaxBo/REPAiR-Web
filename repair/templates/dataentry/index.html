@@ -12,11 +12,11 @@
     <ul class="nav nav-pills nav-stacked" id="sidebar">
       <div class="row">
         <select disabled id="keyflow-select" name="keyflow" class="form-control" style="width: 70%; float: left; margin-top: 10px;">
-          <option selected disabled>{% trans "Select keyflow" %} </option>
+          <option selected disabled>{% trans "Select key flow" %} </option>
         {% for keyflow in keyflows_in_casestudy %}
           <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
         {% endfor %}
-          <option value="new"> <i>{% trans "+ Add keyflow" %}</i></option>
+          <option value="new"> <i>{% trans "+ Add key flow" %}</i></option>
         </select>
         <span class="sub-icon fa fa-cogs" style="right: -5px;"></span>
       </div>
@@ -35,7 +35,7 @@
     <h3>{% trans "You do not have the permission to enter data for casestudies." %}</h3>
     {% render_bundle 'Base' %}
   {% else %}
-    <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of keyflow inside the side-menu." %}</h3>
+    <h3 id="keyflow-warning"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Please select a type of key flow inside the side-menu." %}</h3>
     <div class="tab-content">
       <!-- Bulk upload -->
       <div class="tab-pane fade in active" id="bulk-upload">
@@ -61,7 +61,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title"><span class="glyphicon glyphicon-question-sign"></span> {% trans "Create new keyflow" %} </h4>
+            <h4 class="modal-title"><span class="glyphicon glyphicon-question-sign"></span> {% trans "Create new key flow" %} </h4>
           </div>
           <div class="modal-body">
             <select id="create-keyflow-select">

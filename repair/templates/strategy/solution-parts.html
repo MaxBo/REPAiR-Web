@@ -28,12 +28,17 @@
           <br>
           <label>{% trans "Example" %} </label>
         </div>
+        <div class="row">
+          <img style="max-height: 150px;" src="{{STATIC_URL}}img/schemes/legend.png">
+          <br>
+          <label>{% trans "Legend" %} </label>
+        </div>
       </div>
     </div>
   </div>
   <div class="tab-pane fade in" id="affected-flows-tab">
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-5">
         <div class="row">
           {% trans "Material (Sankey)" %}
           <div name="affected-material"></div>
@@ -60,6 +65,23 @@
         <button class="btn btn-primary add square">
           <span class="glyphicon glyphicon-plus"></span> {% trans "Add affected flow" %}
         </button>
+      </div>
+      <div class="col-md-1" id="scheme-preview" style="border: 1px solid lightgrey; padding-bottom: 20px;">
+        <div class="row">
+          <img src="{{STATIC_URL}}img/schemes/affected.png">
+          <br>
+          <label>{% trans "Scheme" %} </label>
+        </div>
+        <div class="row">
+          <img src="{{STATIC_URL}}img/schemes/affected-example.png">
+          <br>
+          <label>{% trans "Example" %} </label>
+        </div>
+        <div class="row">
+          <img style="max-height: 150px;" src="{{STATIC_URL}}img/schemes/legend.png">
+          <br>
+          <label>{% trans "Legend" %} </label>
+        </div>
       </div>
     </div>
   </div>

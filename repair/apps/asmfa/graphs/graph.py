@@ -766,8 +766,6 @@ class StrategyGraph(BaseGraph):
         return vertex
 
     def build(self):
-        #self.mock_changes()
-        #return
         base_graph = BaseGraph(self.keyflow, tag=self.tag)
         # if the base graph is not built yet, it shouldn't be done automatically
         # there are permissions controlling who is allowed to build it and
@@ -777,6 +775,8 @@ class StrategyGraph(BaseGraph):
         self.graph = base_graph.load()
         gw = GraphWalker(self.graph)
         self.clean_db()
+        #self.mock_changes()
+        #return
 
         # add change attribute, it defaults to 0.0
         self.graph.ep.change = self.graph.new_edge_property("float")
