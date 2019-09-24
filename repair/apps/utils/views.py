@@ -143,7 +143,8 @@ class CasestudyReadOnlyViewSetMixin(ABC):
                         for row in data]
         return data
 
-    def _filter(self, lookup_args, query_params=None, SerializerClass=None):
+    def _filter(self, lookup_args, query_params=None, SerializerClass=None,
+                annotations=None):
         """
         return a queryset filtered by lookup arguments and query parameters
         return None if query parameters are malformed

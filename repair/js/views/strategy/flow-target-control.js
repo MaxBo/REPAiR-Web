@@ -109,6 +109,11 @@ var FlowTargetControlView = BaseView.extend(
             var panel = _this.renderObjective(objective);
             objectivesPanel.appendChild(panel);
         });
+        var li = this.el.querySelector('a[href="#modified-indicators"]');
+        $(li).on('shown.bs.tab', function () {
+            var map = _this.assessmentView.map;
+            if (map) map.map.updateSize();
+        });
     },
 
     renderObjective: function(objective){
