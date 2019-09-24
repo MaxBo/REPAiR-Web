@@ -4,6 +4,7 @@ from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 from django.db.models.functions import Coalesce
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.db.models import Sum
+from django.test import TestCase
 
 from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
 from repair.tests.test import LoginTestCase, AdminAreaTest
@@ -39,6 +40,26 @@ from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 
 from repair.apps.changes.tests.test_graphwalker import MultiplyTestDataMixin
+from repair.apps.asmfa.tests import flowmodeltestdata
+
+
+class GraphWalkerTest(TestCase):
+
+    def test_data_creation(self):
+        b2b = flowmodeltestdata.bread_to_beer_graph()
+        assert b2b.num_vertices() == 6
+        assert b2b.num_edges() == 6
+        plastic = flowmodeltestdata.plastic_package_graph()
+        assert plastic.num_vertices() == 12
+        assert plastic.num_edges() == 15
+
+    def test_plot(self):
+        b2b = flowmodeltestdata.bread_to_beer_graph()
+        flowmodeltestdata.plot_amounts(b2b, 'breadtobeer_amounts.png')
+        flowmodeltestdata.plot_materials(b2b, 'breadtobeer_materials.png')
+        plastic = flowmodeltestdata.plastic_package_graph()
+        flowmodeltestdata.plot_amounts(plastic, 'plastic_amounts.png')
+        flowmodeltestdata.plot_materials(plastic, 'plastic_materials.png')
 
 
 class GraphTest(LoginTestCase, APITestCase):
