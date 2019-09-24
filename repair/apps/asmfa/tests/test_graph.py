@@ -4,8 +4,10 @@ from django.contrib.gis.geos import Polygon, Point, GeometryCollection
 from django.db.models.functions import Coalesce
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.db.models import Sum
+from django.test import TestCase
 
 from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
+from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 from repair.tests.test import LoginTestCase, AdminAreaTest
 from repair.apps.asmfa.factories import (ActorFactory,
                                          ActivityFactory,
@@ -39,6 +41,57 @@ from repair.apps.studyarea.factories import StakeholderFactory
 from repair.apps.login.factories import UserInCasestudyFactory
 
 from repair.apps.changes.tests.test_graphwalker import MultiplyTestDataMixin
+from repair.apps.asmfa.tests import flowmodeltestdata
+
+
+class GraphWalkerTest(TestCase):
+
+    def test_data_creation(self):
+        b2b = flowmodeltestdata.bread_to_beer_graph()
+        assert b2b.num_vertices() == 6
+        assert b2b.num_edges() == 6
+        plastic = flowmodeltestdata.plastic_package_graph()
+        assert plastic.num_vertices() == 12
+        assert plastic.num_edges() == 15
+
+    def test_plot(self):
+        b2b = flowmodeltestdata.bread_to_beer_graph()
+        flowmodeltestdata.plot_amounts(b2b, 'breadtobeer_amounts.png')
+        flowmodeltestdata.plot_materials(b2b, 'breadtobeer_materials.png')
+        plastic = flowmodeltestdata.plastic_package_graph()
+        flowmodeltestdata.plot_amounts(plastic, 'plastic_amounts.png')
+        flowmodeltestdata.plot_materials(plastic, 'plastic_materials.png')
+
+    def test_plastic_packaging(self):
+        plastic = flowmodeltestdata.plastic_package_graph()
+        gw = GraphWalker(plastic)
+        change = gw.graph.new_edge_property('float')
+        gw.graph.edge_properties['change'] = change
+        changed = gw.graph.new_edge_property('bool',
+                                             vals=[False for e in range(gw.graph.num_edges())])
+        gw.graph.edge_properties['changed'] = changed
+        include = gw.graph.new_edge_property('bool')
+        gw.graph.edge_properties['include'] = include
+        bf = gw.graph.new_vertex_property('float',
+                                          vals=[1.0 for v in range(gw.graph.num_vertices())])
+        gw.graph.vertex_properties['downstream_balance_factor'] = bf
+        pe = gw.graph.edge(gw.graph.vertex(1), gw.graph.vertex(6),
+                           all_edges=True)  # the 3 edges between Packaging and Cosumption
+        implementation_edges = [e for e in pe
+                                if gw.graph.ep.material[e] == 'plastic']
+        # reduce the Plastic by 0.3 tons on the implementation_edge
+        deltas = [-0.3]
+        # select affected flows
+        for i, e in enumerate(gw.graph.edges()):
+            # flows of 'plastic' or 'crude oil' are affected by the solution
+            if gw.graph.ep.material[e] in ['plastic', 'crude oil']:
+                gw.graph.ep.include[e] = True
+            else:
+                gw.graph.ep.include[e] = False
+        result = gw.calculate(implementation_edges, deltas)
+        for i, e in enumerate(result.edges()):
+            print(gw.graph.vp.id[e.source()], '-->',
+                  gw.graph.vp.id[e.target()], gw.graph.ep.amount[e])
 
 
 class GraphTest(LoginTestCase, APITestCase):
