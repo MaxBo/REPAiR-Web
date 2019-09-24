@@ -34,9 +34,9 @@ class FlowFilter(GDSEModel):
         enum=Direction, default=Direction.BOTH)
     flow_type = EnumIntegerField(
         enum=FlowType, default=FlowType.BOTH)
-    process_ids = models.CharField(
+    process_ids = models.TextField(
         validators=[validate_comma_separated_integer_list],
-        blank=True, null=True, max_length=100)
+        blank=True, null=True)
     hazardous = EnumIntegerField(
         enum=TriState, default=TriState.BOTH)
     avoidable = EnumIntegerField(

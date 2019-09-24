@@ -17,6 +17,7 @@ from repair.apps.studyarea.factories import (AreaFactory,
                                              )
 from repair.apps.statusquo.views.computation import ComputeIndicator
 
+
 class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
@@ -123,5 +124,5 @@ class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
         pass
 
     def test_ComputeIndicator(self):
-        ci = ComputeIndicator()
+        ci = ComputeIndicator(self.keyflow_id1)
         ci.calculate_indicator_flow(self.flow_a)

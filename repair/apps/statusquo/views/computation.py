@@ -7,8 +7,10 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.db.models.functions import Coalesce
 
 from repair.apps.utils.utils import descend_materials
-from repair.apps.asmfa.models import Actor, FractionFlow, AdministrativeLocation
+from repair.apps.asmfa.models import (Actor, FractionFlow,
+                                      AdministrativeLocation, Material)
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
+from repair.apps.asmfa.views import get_fractionflows
 
 
 def filter_actors_by_area(actors, geom):
@@ -30,66 +32,46 @@ class ComputeIndicator(metaclass=ABCMeta):
     default_unit = ''
     is_absolute = True
 
-    def __init__(self, strategy=None):
+    def __init__(self, keyflow_pk, strategy=None):
+        self.keyflow_pk = keyflow_pk
         self.strategy = strategy
 
     def get_queryset(self, indicator_flow, geom=None):
         '''filter all flows by IndicatorFlow attributes,
         optionally filter for geometry'''
+
         # there might be unset indicators -> return empty queryset
         # (calculation will return zero)
         if not indicator_flow:
             return FractionFlow.objects.none()
-        materials = indicator_flow.materials.all()
 
+        materials = indicator_flow.materials.all()
         flow_type = indicator_flow.flow_type.name
         hazardous = indicator_flow.hazardous.name
         avoidable = indicator_flow.avoidable.name
 
-        # filter flows by type (waste/product/both)
-        flows = FractionFlow.objects.all()
+        flows = get_fractionflows(self.keyflow_pk, strategy=self.strategy)
 
-        if self.strategy:
-            # ToDo: material
-            flows = flows.filter(
-                (
-                    Q(f_strategyfractionflow__isnull = True) |
-                    Q(f_strategyfractionflow__strategy = self.strategy)
-                )
-            ).annotate(
-                # strategy fraction flow overrides amounts
-                strategy_amount=Coalesce(
-                    'f_strategyfractionflow__amount', 'amount'),
-                # set new flow amounts to zero for status quo
-                statusquo_amount=Case(
-                    When(strategy__isnull=True, then=F('amount')),
-                    default=Value(0),
-                )
-            )
-        else:
-            # flows without filters for status quo
-            flows = flows.filter(strategy__isnull=True)
-            # just for convenience, use field statusquo_amount
-            flows = flows.annotate(statusquo_amount=F('amount'))
+        # filter flows by type (waste/product/both)
         if flow_type != 'BOTH':
             is_waste = True if flow_type == 'WASTE' else False
-            flows = flows.filter(waste=is_waste)
+            flows = flows.filter(strategy_waste=is_waste)
         if hazardous != 'BOTH':
             is_hazardous = True if hazardous == 'YES' else False
-            flows = flows.filter(hazardous=is_hazardous)
+            flows = flows.filter(strategy_hazardous=is_hazardous)
         if avoidable != 'BOTH':
             is_avoidable = True if avoidable == 'YES' else False
-            flows = flows.filter(avoidable=is_avoidable)
+            flows = flows.filter(strategy_avoidable=is_avoidable)
 
         # filter flows by processes
         process_ids = indicator_flow.process_ids
         if (process_ids):
             process_ids = process_ids.split(',')
-            flows = flows.filter(process__id__in=process_ids)
+            flows = flows.filter(strategy_process__id__in=process_ids)
 
         if materials:
             mats = descend_materials(list(materials))
-            flows = flows.filter(material__id__in=mats)
+
 
         # ToDo: implement new filter attribute sinks and sources only
         #destinations_to_exclude = flows.exclude(destination__isnull=True).values('destination__id').distinct()
@@ -119,7 +101,7 @@ class ComputeIndicator(metaclass=ABCMeta):
                 Q(origin__in=origins) & Q(destination__in=destinations))
         return flows
 
-    def sum(self, flows, field='statusquo_amount'):
+    def sum(self, flows, field='amount'):
         '''sum up flow amounts'''
         # sum up amounts to single value
         if len(flows) == 0:
@@ -200,9 +182,8 @@ class ComputeIndicator(metaclass=ABCMeta):
         # single value (nothing to iterate)
         if (not areas or len(areas)) == 0 and not geom:
             flows = self.get_queryset(indicator_flow, geom=geom)
-            amount = agg_func(flows)
-            strategy_amount = agg_func(flows, field='strategy_amount') \
-                if self.strategy else 0
+            amount = agg_func(flows, field='amount')
+            strategy_amount = agg_func(flows, field='strategy_amount')
             return {-1: (amount, strategy_amount)}
         amounts = {}
         geometries = []
@@ -213,9 +194,8 @@ class ComputeIndicator(metaclass=ABCMeta):
             geometries.append((area.id, geom))
         for g_id, geometry in geometries:
             flows = self.get_queryset(indicator_flow, geom=geometry)
-            amount = agg_func(flows)
-            strategy_amount = agg_func(flows, field='strategy_amount') \
-                if self.strategy else 0
+            amount = agg_func(flows, field='amount')
+            strategy_amount = agg_func(flows, field='strategy_amount')
             amounts[g_id] = (amount, strategy_amount)
         if aggregate:
             total_sum = 0
