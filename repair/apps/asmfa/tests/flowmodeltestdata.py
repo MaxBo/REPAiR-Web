@@ -150,6 +150,28 @@ def plastic_package_graph():
     return split
 
 
+def plot_amounts(g, file=None):
+    """Plots the graph with the 'amount' property on the edges into a file"""
+    mass_text = g.new_edge_property("string",
+                                    vals=[str(round(i, 2))for i in g.ep.amount])
+    gt.draw.graph_draw(g, vertex_size=20, vertex_text=g.vp.id,
+                       vprops={"text_position": 1,
+                               "font_size": 14},
+                       edge_text=mass_text,
+                       output_size=(700, 600), inline=True,
+                       output=file)
+
+
+def plot_materials(g, file=None):
+    """Plots the graph with the 'material' property on the edges into a file"""
+    gt.draw.graph_draw(g, vertex_size=20, vertex_text=g.vp.id,
+                       vprops={"text_position": 0,
+                               "font_size": 14},
+                       edge_text=g.ep.material,
+                       output_size=(700, 600), inline=True,
+                       output=file)
+
+
 class GenerateBreadToBeerData(TestCase):
     """Uses models and factories to set up the test case"""
     @classmethod
