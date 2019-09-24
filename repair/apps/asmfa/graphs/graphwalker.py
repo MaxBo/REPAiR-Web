@@ -131,7 +131,7 @@ def traverse_graph(g, edge, solution, upstream=True):
     del visited
     g.set_reversed(False)
     g.clear_filters()
-    return change
+    return node_visitor.change
 
 
 class GraphWalker:
