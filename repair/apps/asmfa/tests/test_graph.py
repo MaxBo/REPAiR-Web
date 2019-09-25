@@ -1183,6 +1183,30 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         assert_balance_factor(self.other_transport)
         assert_balance_factor(self.treatment_hazardous)
 
+        treat_non_out = FractionFlow.objects.filter(
+            origin__activity=self.treatment_nonhazardous).annotate(
+                strategy_amount=Coalesce('f_strategyfractionflow__amount',
+                                         'amount'))
+        treat_haz_in = FractionFlow.objects.filter(
+            destination__activity=self.treatment_hazardous).annotate(
+                strategy_amount=Coalesce('f_strategyfractionflow__amount',
+                                         'amount'))
+        treat_non_out_sum = treat_non_out.aggregate(
+            sq_amount=Sum('amount'), strat_amount=Sum('strategy_amount'))
+        treat_non_out_delta = (treat_non_out_sum['strat_amount'] -
+                               treat_non_out_sum['sq_amount'])
+        treat_haz_in_sum = treat_haz_in.aggregate(
+            sq_amount=Sum('amount'), strat_amount=Sum('strategy_amount'))
+        treat_haz_in_delta = (treat_haz_in_sum['strat_amount'] -
+                              treat_haz_in_sum['sq_amount'])
+
+        self.assertAlmostEqual(
+            treat_non_out_delta * 0.2, treat_haz_in_delta,
+            msg=f'change of out-flow sum {treat_non_out_delta} '
+            'of non hazardous waste treatment should be 5 '
+            f'times of the change of in-flow sum {treat_haz_in_delta}'
+            'hazardous waste treatment')
+
         ## all are affected (and not more than one per flow created)
         #assert len(sq_petroleum_flows) == len(affected_petroleum)
         #sq_petroleum_sum = sq_petroleum_flows.aggregate(

@@ -1,6 +1,13 @@
 [
     {
         "fields": {
+            "name": "Repair"
+        },
+        "model": "auth.group",
+        "pk": 1
+    },
+    {
+        "fields": {
             "date_joined": "2017-11-01T18:11:08Z",
             "email": "bohnet@ggr-planung.de",
             "first_name": "Max",
