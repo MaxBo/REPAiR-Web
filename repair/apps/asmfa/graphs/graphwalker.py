@@ -45,7 +45,7 @@ class NodeVisitor(BFSVisitor):
         sum_out_f = sum(self.amount[out_f] for out_f in edges_out)
         if sum_out_f:
             amount_factor = balanced_delta / sum_out_f
-        else:
+        elif edges_out:
             amount_factor = balanced_delta / len(edges_out)
         for e in edges_out:
             if not self.visited[e]:
@@ -109,7 +109,7 @@ def traverse_graph(g, edge, delta, upstream=True):
     del visited
     g.set_reversed(False)
     g.clear_filters()
-    return change
+    return node_visitor.change
 
 
 class GraphWalker:
