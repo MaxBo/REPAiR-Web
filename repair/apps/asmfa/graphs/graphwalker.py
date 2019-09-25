@@ -24,10 +24,6 @@ class NodeVisitor(BFSVisitor):
         self.change = change
         self.balance_factor = balance_factor
 
-    def discover_vertex(self, u):
-        """This is invoked when a vertex is encountered for the first time."""
-        pass
-
     def examine_edge(self, e):
         """Compute the amount change on each inflow for the vertex
 

@@ -353,7 +353,7 @@ class StrategyGraph(BaseGraph):
         for i, flow in enumerate(flows):
             delta = formula.calculate_delta(flow.amount)
             if formula.is_absolute:
-                # equal distribution or distribution depending on
+                # ToDo: equal distribution or distribution depending on
                 # previous share on total amount?
                 delta /= len(flows)
                 # alternatively sth like that: delta *= flow.amount / total
