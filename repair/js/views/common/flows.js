@@ -286,14 +286,17 @@ var FlowsView = BaseView.extend(
                 var key = material.material;
                 sqMats[key] = material;
             })
-            for (let [key, sfMaterial] of Object.entries(strategyMaterials)){
+            for (let [key, sfMaterial] of Object.entries(sfMats)){
                 var sqMaterial = sqMats[key];
+                // material is in both: delta
                 if (sqMaterial)
                     sfMaterial.amount -= sqMaterial.amount;
+                // material only in strategy: keep as is
                 materials.push(sfMaterial);
             }
-            for (let [key, sqMaterial] of Object.entries(statusQuoMaterials)){
+            for (let [key, sqMaterial] of Object.entries(sqMats)){
                 var sfMaterial = sfMats[key];
+                // material not in strategy
                 if (!sfMaterial){
                     sqMaterial.amount = -sqMaterial.amount;
                     materials.push(sqMaterial);
@@ -347,7 +350,6 @@ var FlowsView = BaseView.extend(
                 var mergedMaterials = mergeMaterials(statusQuoFlow.get('materials'), null);
                 deltaFlow.set('materials', mergedMaterials);
                 var materials = statusQuoFlow.get('materials');
-                console.log(materials)
                 deltaFlows.add(deltaFlow);
             }
         }

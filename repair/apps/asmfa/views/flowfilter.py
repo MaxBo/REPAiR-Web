@@ -446,8 +446,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                     # just sum amounts up if dict is already there
                     else:
                         agg_mat_ser['amount'] += amount
-                        if strategy is not None:
-                            agg_mat_ser['delta'] += grouped_mat['delta']
+                        #if strategy is not None:
+                            #agg_mat_ser['delta'] += grouped_mat['delta']
                 grouped_mats = aggregated.values()
             process = Process.objects.get(id=group['strategy_process']) \
                 if group['strategy_process'] else None
