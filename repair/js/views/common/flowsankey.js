@@ -50,7 +50,6 @@ var FlowSankeyView = BaseView.extend(
         this.originLevel = options.originLevel;
         this.destinationLevel = options.destinationLevel;
         this.flows = options.flows;
-        this.selectOnDoubleClick = options.selectOnDoubleClick || false;
         this.renderStocks = (options.renderStocks == null) ? true: options.renderStocks;
         this.showRelativeComposition = (options.showRelativeComposition == null) ? true : options.showRelativeComposition;
         this.forceSignum = options.forceSignum || false;
@@ -98,6 +97,8 @@ var FlowSankeyView = BaseView.extend(
         }
         this.el.classList.remove('disabled');
         this.sankeyDiv = div;
+
+        var dblclkCheck = this.el.querySelector('#sankey-dblclick');
         this.sankey = new Sankey({
             height: height,
             width: width,
@@ -107,10 +108,8 @@ var FlowSankeyView = BaseView.extend(
             selectable: true,
             gradient: false,
             stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1,
-            selectOnDoubleClick: this.selectOnDoubleClick
+            selectOnDoubleClick: dblclkCheck.checked
         })
-        var dblclkCheck = this.el.querySelector('#sankey-dblclick');
-        if (dblclkCheck) dblclkCheck.checked = this.selectOnDoubleClick;
 
         // redirect the event with same properties
         function redirectEvent(e){
