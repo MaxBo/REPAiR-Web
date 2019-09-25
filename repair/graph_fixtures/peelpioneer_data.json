@@ -17,7 +17,7 @@
             "is_active": true,
             "is_staff": true,
             "is_superuser": true,
-            "last_login": "2019-09-04T08:44:52.592Z",
+            "last_login": "2019-09-25T07:30:45.116Z",
             "last_name": "Bohnet",
             "password": "pbkdf2_sha256$150000$vGSXfuI2pos9$MHeDpWJG4EzO2QucnHGt9+vEmFLDGw1o7mLZxbUaa/I=",
             "user_permissions": [],
@@ -30,7 +30,7 @@
         "fields": {
             "can_change_password": true,
             "organization": "",
-            "session": "{\"casestudy\": \"6\", \"mode\": 1, \"checkedMapLayers\": [5, 6, 7, 4], \"layerTransparencies\": {\"service-layer-98\": 69, \"service-layer-112\": 55, \"service-layer-127\": 0, \"service-layer-128\": 0, \"service-layer-129\": 25}, \"keyflow\": \"1\", \"wastescapescheckedMapLayers\": [207], \"type\": \"basic\", \"url\": \"https://gdse.h2020repair.bk.tudelft.nl/session\", \"redirected\": false, \"status\": 200, \"ok\": true, \"statusText\": \"OK\", \"headers\": {}, \"body\": {}, \"bodyUsed\": false, \"areaSelects\": [{\"id\": \"1\", \"name\": \"Zaandam Zuid + 15\", \"areas\": [1090, 1089, 1133, 1085, 1166, 1170, 1162, 1073, 1071, 1079, 1083, 1087, 1088, 1082, 1080, 1077], \"level\": \"5\", \"color\": \"#1f77b4\", \"fontSize\": \"30px\"}, {\"id\": \"2\", \"name\": \"Waterland + 4\", \"areas\": [948, 936, 937, 957, 955], \"level\": \"5\", \"color\": \"#aec7e8\", \"fontSize\": \"30px\"}, {\"id\": \"3\", \"name\": \"Vijfhuizen + 2\", \"areas\": [1184, 1200, 1202], \"level\": \"5\", \"color\": \"#ff7f0e\", \"fontSize\": \"30px\"}]}",
+            "session": "{\"casestudy\": \"2\", \"mode\": 1, \"checkedMapLayers\": [5, 6, 7, 4], \"layerTransparencies\": {\"service-layer-98\": 69, \"service-layer-112\": 55, \"service-layer-127\": 0, \"service-layer-128\": 0, \"service-layer-129\": 25}, \"keyflow\": \"1\", \"wastescapescheckedMapLayers\": [207], \"type\": \"basic\", \"url\": \"https://gdse.h2020repair.bk.tudelft.nl/session\", \"redirected\": false, \"status\": 200, \"ok\": true, \"statusText\": \"OK\", \"headers\": {}, \"body\": {}, \"bodyUsed\": false, \"areaSelects\": [{\"id\": \"1\", \"name\": \"Zaandam Zuid + 15\", \"areas\": [1090, 1089, 1133, 1085, 1166, 1170, 1162, 1073, 1071, 1079, 1083, 1087, 1088, 1082, 1080, 1077], \"level\": \"5\", \"color\": \"#1f77b4\", \"fontSize\": \"30px\"}, {\"id\": \"2\", \"name\": \"Waterland + 4\", \"areas\": [948, 936, 937, 957, 955], \"level\": \"5\", \"color\": \"#aec7e8\", \"fontSize\": \"30px\"}, {\"id\": \"3\", \"name\": \"Vijfhuizen + 2\", \"areas\": [1184, 1200, 1202], \"level\": \"5\", \"color\": \"#ff7f0e\", \"fontSize\": \"30px\"}]}",
             "user": 1
         },
         "model": "login.profile",
@@ -139,10 +139,10 @@
     },
     {
         "fields": {
-            "name": "Fermentation"
+            "name": "Use as fuel"
         },
         "model": "asmfa.process",
-        "pk": 87
+        "pk": 76
     },
     {
         "fields": {
@@ -153,12 +153,10 @@
     },
     {
         "fields": {
-            "keyflow": 32,
-            "nace": "V-0000",
-            "name": "Food Waste"
+            "name": "Fermentation"
         },
-        "model": "asmfa.composition",
-        "pk": 54725
+        "model": "asmfa.process",
+        "pk": 87
     },
     {
         "fields": {
@@ -177,6 +175,15 @@
         },
         "model": "asmfa.composition",
         "pk": 60067
+    },
+    {
+        "fields": {
+            "keyflow": 32,
+            "nace": "V-0000",
+            "name": "Food Waste"
+        },
+        "model": "asmfa.composition",
+        "pk": 54725
     },
     {
         "fields": {
@@ -211,6 +218,16 @@
     {
         "fields": {
             "keyflow": 32,
+            "level": 2,
+            "name": "Food Waste",
+            "parent": 4198
+        },
+        "model": "asmfa.material",
+        "pk": 4199
+    },
+    {
+        "fields": {
+            "keyflow": 32,
             "level": 1,
             "name": "Organic Waste",
             "parent": null
@@ -231,22 +248,12 @@
     {
         "fields": {
             "keyflow": 32,
-            "level": 3,
+            "level": 4,
             "name": "Orange Peel",
             "parent": 4201
         },
         "model": "asmfa.material",
         "pk": 4203
-    },
-    {
-        "fields": {
-            "keyflow": 32,
-            "level": 2,
-            "name": "Food Waste",
-            "parent": 4198
-        },
-        "model": "asmfa.material",
-        "pk": 4199
     },
     {
         "fields": {
@@ -322,6 +329,16 @@
     },
     {
         "fields": {
+            "code": "E",
+            "done": false,
+            "keyflow": 32,
+            "name": "E WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES"
+        },
+        "model": "asmfa.activitygroup",
+        "pk": 244
+    },
+    {
+        "fields": {
             "code": "I",
             "done": false,
             "keyflow": 32,
@@ -342,16 +359,6 @@
     },
     {
         "fields": {
-            "code": "E",
-            "done": false,
-            "keyflow": 32,
-            "name": "E WATER SUPPLY; SEWERAGE, WASTE MANAGEMENT AND REMEDIATION ACTIVITIES"
-        },
-        "model": "asmfa.activitygroup",
-        "pk": 244
-    },
-    {
-        "fields": {
             "code": "G",
             "done": false,
             "keyflow": 32,
@@ -359,6 +366,16 @@
         },
         "model": "asmfa.activitygroup",
         "pk": 245
+    },
+    {
+        "fields": {
+            "code": "H",
+            "done": false,
+            "keyflow": 32,
+            "name": "TRANSPORTATION AND STORAGE"
+        },
+        "model": "asmfa.activitygroup",
+        "pk": 301
     },
     {
         "fields": {
@@ -379,6 +396,16 @@
         },
         "model": "asmfa.activity",
         "pk": 1842
+    },
+    {
+        "fields": {
+            "activitygroup": 244,
+            "done": false,
+            "nace": "E-3821",
+            "name": "E-3821 Treatment and disposal of non-hazardous waste"
+        },
+        "model": "asmfa.activity",
+        "pk": 1844
     },
     {
         "fields": {
@@ -412,16 +439,6 @@
     },
     {
         "fields": {
-            "activitygroup": 244,
-            "done": false,
-            "nace": "E-3821",
-            "name": "E-3821 Treatment and disposal of non-hazardous waste"
-        },
-        "model": "asmfa.activity",
-        "pk": 1844
-    },
-    {
-        "fields": {
             "activitygroup": 245,
             "done": false,
             "nace": "G-4711",
@@ -429,36 +446,6 @@
         },
         "model": "asmfa.activity",
         "pk": 1845
-    },
-    {
-        "fields": {
-            "activitygroup": 247,
-            "done": false,
-            "nace": "V-0000",
-            "name": "V-0000 Consumption in households"
-        },
-        "model": "asmfa.activity",
-        "pk": 1848
-    },
-    {
-        "fields": {
-            "activitygroup": 245,
-            "done": false,
-            "nace": "G-4725",
-            "name": "G-4725 Retail sale of beverages in specialised stores"
-        },
-        "model": "asmfa.activity",
-        "pk": 1846
-    },
-    {
-        "fields": {
-            "activitygroup": 244,
-            "done": false,
-            "nace": "E-3811",
-            "name": "E-3811 Collection of non-hazardous waste"
-        },
-        "model": "asmfa.activity",
-        "pk": 1843
     },
     {
         "fields": {
@@ -482,142 +469,76 @@
     },
     {
         "fields": {
-            "BvDid": "SBC0023",
-            "BvDii": "LS",
-            "activity": 1848,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
+            "activitygroup": 245,
             "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Neighbourhood A",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
+            "nace": "G-4725",
+            "name": "G-4725 Retail sale of beverages in specialised stores"
         },
-        "model": "asmfa.actor",
-        "pk": 234477
+        "model": "asmfa.activity",
+        "pk": 1846
     },
     {
         "fields": {
-            "BvDid": "SBC0024",
-            "BvDii": "LS",
-            "activity": 1848,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
+            "activitygroup": 244,
             "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Neighbourhood B",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
+            "nace": "E-3811",
+            "name": "E-3811 Collection of non-hazardous waste"
         },
-        "model": "asmfa.actor",
-        "pk": 234478
+        "model": "asmfa.activity",
+        "pk": 1843
     },
     {
         "fields": {
-            "BvDid": "SBC0025",
-            "BvDii": "LS",
-            "activity": 1848,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
+            "activitygroup": 244,
             "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Neighbourhood C",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
+            "nace": "E-3822",
+            "name": "E-3822 Treatment and disposal of hazardous waste"
         },
-        "model": "asmfa.actor",
-        "pk": 234479
+        "model": "asmfa.activity",
+        "pk": 2419
     },
     {
         "fields": {
-            "BvDid": "SBC0026",
-            "BvDii": "LS",
-            "activity": 1848,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
+            "activitygroup": 301,
             "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Neighbourhood D",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
+            "nace": "H-5229",
+            "name": "H-5229 Other transportation support services"
         },
-        "model": "asmfa.actor",
-        "pk": 234480
+        "model": "asmfa.activity",
+        "pk": 2418
     },
     {
         "fields": {
-            "BvDid": "SBC0027",
-            "BvDii": "LS",
-            "activity": 1848,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
+            "activitygroup": 301,
             "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Neighbourhood E",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
+            "nace": "H-4941",
+            "name": "H-4941 Freight transport by road"
         },
-        "model": "asmfa.actor",
-        "pk": 234481
+        "model": "asmfa.activity",
+        "pk": 2417
     },
     {
         "fields": {
-            "BvDid": "SBC0028",
-            "BvDii": "LS",
-            "activity": 1848,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
+            "activitygroup": 247,
             "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Neighbourhood F",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
+            "nace": "V-0000",
+            "name": "V-0000 Consumption in households"
         },
-        "model": "asmfa.actor",
-        "pk": 234482
+        "model": "asmfa.activity",
+        "pk": 1848
     },
     {
         "fields": {
-            "BvDid": "SBC0029",
-            "BvDii": "LS",
-            "activity": 1848,
+            "BvDid": "SBC0032",
+            "BvDii": "LC",
+            "activity": 2401,
             "consCode": "U",
             "description": "-",
             "description_eng": "-",
             "done": false,
             "employees": 5,
             "included": true,
-            "name": "Neighbourhood G",
+            "name": "Pharmacy",
             "reason": null,
             "turnover": "1000.00",
             "turnover_currency": "EUR",
@@ -625,20 +546,20 @@
             "year": 2016
         },
         "model": "asmfa.actor",
-        "pk": 234483
+        "pk": 292340
     },
     {
         "fields": {
-            "BvDid": "SBC0019",
+            "BvDid": "SBC0030",
             "BvDii": "LS",
-            "activity": 1847,
+            "activity": 2400,
             "consCode": "U",
             "description": "-",
             "description_eng": "-",
             "done": false,
             "employees": 5,
             "included": true,
-            "name": "Restaurant A",
+            "name": "Petroleum A",
             "reason": null,
             "turnover": "1000.00",
             "turnover_currency": "EUR",
@@ -646,20 +567,20 @@
             "year": 2016
         },
         "model": "asmfa.actor",
-        "pk": 234473
+        "pk": 292338
     },
     {
         "fields": {
-            "BvDid": "SBC0020",
+            "BvDid": "SBC0031",
             "BvDii": "LS",
-            "activity": 1847,
+            "activity": 2400,
             "consCode": "U",
             "description": "-",
             "description_eng": "-",
             "done": false,
             "employees": 5,
             "included": true,
-            "name": "Restaurant B",
+            "name": "Petroleum B",
             "reason": null,
             "turnover": "1000.00",
             "turnover_currency": "EUR",
@@ -667,49 +588,7 @@
             "year": 2016
         },
         "model": "asmfa.actor",
-        "pk": 234474
-    },
-    {
-        "fields": {
-            "BvDid": "SBC0021",
-            "BvDii": "LS",
-            "activity": 1847,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
-            "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Restaurant C",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
-        },
-        "model": "asmfa.actor",
-        "pk": 234475
-    },
-    {
-        "fields": {
-            "BvDid": "SBC0022",
-            "BvDii": "LS",
-            "activity": 1847,
-            "consCode": "U",
-            "description": "-",
-            "description_eng": "-",
-            "done": false,
-            "employees": 5,
-            "included": true,
-            "name": "Restaurant D",
-            "reason": null,
-            "turnover": "1000.00",
-            "turnover_currency": "EUR",
-            "website": "www.website.com",
-            "year": 2016
-        },
-        "model": "asmfa.actor",
-        "pk": 234476
+        "pk": 292339
     },
     {
         "fields": {
@@ -1091,16 +970,16 @@
     },
     {
         "fields": {
-            "BvDid": "SBC0032",
+            "BvDid": "SBC0037",
             "BvDii": "LC",
-            "activity": 2401,
+            "activity": 2419,
             "consCode": "U",
             "description": "-",
             "description_eng": "-",
             "done": false,
             "employees": 5,
             "included": true,
-            "name": "Pharmacy",
+            "name": "Hazardous A",
             "reason": null,
             "turnover": "1000.00",
             "turnover_currency": "EUR",
@@ -1108,20 +987,20 @@
             "year": 2016
         },
         "model": "asmfa.actor",
-        "pk": 292340
+        "pk": 292347
     },
     {
         "fields": {
-            "BvDid": "SBC0030",
-            "BvDii": "LS",
-            "activity": 2400,
+            "BvDid": "SBC0038",
+            "BvDii": "LC",
+            "activity": 2419,
             "consCode": "U",
             "description": "-",
             "description_eng": "-",
             "done": false,
             "employees": 5,
             "included": true,
-            "name": "Petroleum A",
+            "name": "Hazardous B",
             "reason": null,
             "turnover": "1000.00",
             "turnover_currency": "EUR",
@@ -1129,20 +1008,20 @@
             "year": 2016
         },
         "model": "asmfa.actor",
-        "pk": 292338
+        "pk": 292348
     },
     {
         "fields": {
-            "BvDid": "SBC0031",
-            "BvDii": "LS",
-            "activity": 2400,
+            "BvDid": "SBC0035",
+            "BvDii": "LC",
+            "activity": 2418,
             "consCode": "U",
             "description": "-",
             "description_eng": "-",
             "done": false,
             "employees": 5,
             "included": true,
-            "name": "Petroleum B",
+            "name": "Railway A",
             "reason": null,
             "turnover": "1000.00",
             "turnover_currency": "EUR",
@@ -1150,7 +1029,301 @@
             "year": 2016
         },
         "model": "asmfa.actor",
-        "pk": 292339
+        "pk": 292345
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0036",
+            "BvDii": "LC",
+            "activity": 2418,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Railway B",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 292346
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0033",
+            "BvDii": "LC",
+            "activity": 2417,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Freight A",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 292343
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0034",
+            "BvDii": "LC",
+            "activity": 2417,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Freight B",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 292344
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0023",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood A",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234477
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0024",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood B",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234478
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0025",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood C",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234479
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0026",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood D",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234480
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0027",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood E",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234481
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0028",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood F",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234482
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0029",
+            "BvDii": "LS",
+            "activity": 1848,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Neighbourhood G",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234483
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0019",
+            "BvDii": "LS",
+            "activity": 1847,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Restaurant A",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234473
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0020",
+            "BvDii": "LS",
+            "activity": 1847,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Restaurant B",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234474
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0021",
+            "BvDii": "LS",
+            "activity": 1847,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Restaurant C",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234475
+    },
+    {
+        "fields": {
+            "BvDid": "SBC0022",
+            "BvDii": "LS",
+            "activity": 1847,
+            "consCode": "U",
+            "description": "-",
+            "description_eng": "-",
+            "done": false,
+            "employees": 5,
+            "included": true,
+            "name": "Restaurant D",
+            "reason": null,
+            "turnover": "1000.00",
+            "turnover_currency": "EUR",
+            "website": "www.website.com",
+            "year": 2016
+        },
+        "model": "asmfa.actor",
+        "pk": 234476
     },
     {
         "fields": {
@@ -1250,67 +1423,35 @@
     },
     {
         "fields": {
-            "amount": 45,
-            "composition": 54725,
+            "amount": 75,
+            "composition": 60067,
             "description": null,
-            "destination": 234463,
+            "destination": 292338,
             "keyflow": 32,
-            "origin": 234473,
-            "process": 7,
+            "origin": 234464,
+            "process": 76,
             "publication": 60,
-            "waste": true,
+            "waste": false,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
-        "pk": 30816
+        "pk": 46286
     },
     {
         "fields": {
-            "amount": 50,
-            "composition": 54725,
+            "amount": 200,
+            "composition": 60067,
             "description": null,
-            "destination": 234463,
+            "destination": 292339,
             "keyflow": 32,
-            "origin": 234475,
-            "process": 7,
+            "origin": 234464,
+            "process": 76,
             "publication": 60,
-            "waste": true,
+            "waste": false,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
-        "pk": 30818
-    },
-    {
-        "fields": {
-            "amount": 50,
-            "composition": 54725,
-            "description": null,
-            "destination": 234463,
-            "keyflow": 32,
-            "origin": 234477,
-            "process": 7,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30820
-    },
-    {
-        "fields": {
-            "amount": 70,
-            "composition": 54725,
-            "description": null,
-            "destination": 234463,
-            "keyflow": 32,
-            "origin": 234483,
-            "process": 7,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30826
+        "pk": 46287
     },
     {
         "fields": {
@@ -1343,54 +1484,6 @@
         },
         "model": "asmfa.actor2actor",
         "pk": 30815
-    },
-    {
-        "fields": {
-            "amount": 50,
-            "composition": 54725,
-            "description": null,
-            "destination": 234464,
-            "keyflow": 32,
-            "origin": 234474,
-            "process": 87,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30817
-    },
-    {
-        "fields": {
-            "amount": 50,
-            "composition": 54725,
-            "description": null,
-            "destination": 234464,
-            "keyflow": 32,
-            "origin": 234476,
-            "process": 87,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30819
-    },
-    {
-        "fields": {
-            "amount": 70,
-            "composition": 54725,
-            "description": null,
-            "destination": 234464,
-            "keyflow": 32,
-            "origin": 234482,
-            "process": 87,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30825
     },
     {
         "fields": {
@@ -1490,38 +1583,6 @@
     },
     {
         "fields": {
-            "amount": 70,
-            "composition": 54725,
-            "description": null,
-            "destination": 234461,
-            "keyflow": 32,
-            "origin": 234478,
-            "process": 87,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30821
-    },
-    {
-        "fields": {
-            "amount": 70,
-            "composition": 54725,
-            "description": null,
-            "destination": 234461,
-            "keyflow": 32,
-            "origin": 234480,
-            "process": 87,
-            "publication": 60,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.actor2actor",
-        "pk": 30823
-    },
-    {
-        "fields": {
             "amount": 120,
             "composition": 54725,
             "description": null,
@@ -1535,6 +1596,214 @@
         },
         "model": "asmfa.actor2actor",
         "pk": 30828
+    },
+    {
+        "fields": {
+            "amount": 30,
+            "composition": 60068,
+            "description": null,
+            "destination": 234469,
+            "keyflow": 32,
+            "origin": 234460,
+            "process": 76,
+            "publication": 60,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47659
+    },
+    {
+        "fields": {
+            "amount": 30,
+            "composition": 60068,
+            "description": null,
+            "destination": 292340,
+            "keyflow": 32,
+            "origin": 234457,
+            "process": null,
+            "publication": 60,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 46288
+    },
+    {
+        "fields": {
+            "amount": 15,
+            "composition": 60067,
+            "description": null,
+            "destination": 292347,
+            "keyflow": 32,
+            "origin": 292338,
+            "process": 76,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47662
+    },
+    {
+        "fields": {
+            "amount": 14,
+            "composition": 60067,
+            "description": null,
+            "destination": 292348,
+            "keyflow": 32,
+            "origin": 292345,
+            "process": 76,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47667
+    },
+    {
+        "fields": {
+            "amount": 70,
+            "composition": 60067,
+            "description": null,
+            "destination": 292345,
+            "keyflow": 32,
+            "origin": 292339,
+            "process": 76,
+            "publication": 60,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47663
+    },
+    {
+        "fields": {
+            "amount": 6,
+            "composition": 60067,
+            "description": null,
+            "destination": 292348,
+            "keyflow": 32,
+            "origin": 292346,
+            "process": 76,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47668
+    },
+    {
+        "fields": {
+            "amount": 30,
+            "composition": 60067,
+            "description": null,
+            "destination": 292346,
+            "keyflow": 32,
+            "origin": 292339,
+            "process": 76,
+            "publication": 60,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47664
+    },
+    {
+        "fields": {
+            "amount": 12,
+            "composition": 60067,
+            "description": null,
+            "destination": 292347,
+            "keyflow": 32,
+            "origin": 292343,
+            "process": 76,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47665
+    },
+    {
+        "fields": {
+            "amount": 60,
+            "composition": 60067,
+            "description": null,
+            "destination": 292343,
+            "keyflow": 32,
+            "origin": 292338,
+            "process": 76,
+            "publication": 60,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47660
+    },
+    {
+        "fields": {
+            "amount": 20,
+            "composition": 60067,
+            "description": null,
+            "destination": 292347,
+            "keyflow": 32,
+            "origin": 292344,
+            "process": 76,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47666
+    },
+    {
+        "fields": {
+            "amount": 100,
+            "composition": 60067,
+            "description": null,
+            "destination": 292344,
+            "keyflow": 32,
+            "origin": 292339,
+            "process": 76,
+            "publication": 60,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 47661
+    },
+    {
+        "fields": {
+            "amount": 50,
+            "composition": 54725,
+            "description": null,
+            "destination": 234463,
+            "keyflow": 32,
+            "origin": 234477,
+            "process": 7,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 30820
+    },
+    {
+        "fields": {
+            "amount": 70,
+            "composition": 54725,
+            "description": null,
+            "destination": 234461,
+            "keyflow": 32,
+            "origin": 234478,
+            "process": 87,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 30821
     },
     {
         "fields": {
@@ -1557,6 +1826,22 @@
             "amount": 70,
             "composition": 54725,
             "description": null,
+            "destination": 234461,
+            "keyflow": 32,
+            "origin": 234480,
+            "process": 87,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 30823
+    },
+    {
+        "fields": {
+            "amount": 70,
+            "composition": 54725,
+            "description": null,
             "destination": 234462,
             "keyflow": 32,
             "origin": 234481,
@@ -1570,51 +1855,99 @@
     },
     {
         "fields": {
-            "amount": 30,
-            "composition": 60068,
+            "amount": 70,
+            "composition": 54725,
             "description": null,
-            "destination": 292340,
+            "destination": 234464,
             "keyflow": 32,
-            "origin": 234457,
-            "process": null,
+            "origin": 234482,
+            "process": 87,
             "publication": 60,
-            "waste": false,
+            "waste": true,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
-        "pk": 46288
+        "pk": 30825
     },
     {
         "fields": {
-            "amount": 200,
-            "composition": 60067,
+            "amount": 70,
+            "composition": 54725,
             "description": null,
-            "destination": 292338,
+            "destination": 234463,
             "keyflow": 32,
-            "origin": 234464,
-            "process": null,
+            "origin": 234483,
+            "process": 7,
             "publication": 60,
-            "waste": false,
+            "waste": true,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
-        "pk": 46286
+        "pk": 30826
     },
     {
         "fields": {
-            "amount": 25,
-            "composition": 60067,
+            "amount": 45,
+            "composition": 54725,
             "description": null,
-            "destination": 292339,
+            "destination": 234463,
             "keyflow": 32,
-            "origin": 234464,
-            "process": null,
+            "origin": 234473,
+            "process": 7,
             "publication": 60,
-            "waste": false,
+            "waste": true,
             "year": 2016
         },
         "model": "asmfa.actor2actor",
-        "pk": 46287
+        "pk": 30816
+    },
+    {
+        "fields": {
+            "amount": 50,
+            "composition": 54725,
+            "description": null,
+            "destination": 234464,
+            "keyflow": 32,
+            "origin": 234474,
+            "process": 87,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 30817
+    },
+    {
+        "fields": {
+            "amount": 50,
+            "composition": 54725,
+            "description": null,
+            "destination": 234463,
+            "keyflow": 32,
+            "origin": 234475,
+            "process": 7,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 30818
+    },
+    {
+        "fields": {
+            "amount": 50,
+            "composition": 54725,
+            "description": null,
+            "destination": 234464,
+            "keyflow": 32,
+            "origin": 234476,
+            "process": 87,
+            "publication": 60,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.actor2actor",
+        "pk": 30819
     },
     {
         "fields": {
@@ -1638,7 +1971,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678052
+        "pk": 679627
     },
     {
         "fields": {
@@ -1662,7 +1995,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678053
+        "pk": 679628
     },
     {
         "fields": {
@@ -1686,7 +2019,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678054
+        "pk": 679629
     },
     {
         "fields": {
@@ -1710,7 +2043,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678055
+        "pk": 679630
     },
     {
         "fields": {
@@ -1734,7 +2067,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678056
+        "pk": 679631
     },
     {
         "fields": {
@@ -1758,103 +2091,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678058
-    },
-    {
-        "fields": {
-            "amount": 45.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234463,
-            "flow": 30816,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234473,
-            "process": 7,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678060
-    },
-    {
-        "fields": {
-            "amount": 50.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234463,
-            "flow": 30818,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234475,
-            "process": 7,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678062
-    },
-    {
-        "fields": {
-            "amount": 50.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234463,
-            "flow": 30820,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234477,
-            "process": 7,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678064
-    },
-    {
-        "fields": {
-            "amount": 70.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234463,
-            "flow": 30826,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234483,
-            "process": 7,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678070
+        "pk": 679633
     },
     {
         "fields": {
@@ -1878,7 +2115,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678057
+        "pk": 679632
     },
     {
         "fields": {
@@ -1902,79 +2139,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678059
-    },
-    {
-        "fields": {
-            "amount": 50.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234464,
-            "flow": 30817,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234474,
-            "process": 87,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678061
-    },
-    {
-        "fields": {
-            "amount": 50.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234464,
-            "flow": 30819,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234476,
-            "process": 87,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678063
-    },
-    {
-        "fields": {
-            "amount": 70.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234464,
-            "flow": 30825,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234482,
-            "process": 87,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678069
+        "pk": 679634
     },
     {
         "fields": {
@@ -1998,7 +2163,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678073
+        "pk": 679648
     },
     {
         "fields": {
@@ -2022,7 +2187,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678074
+        "pk": 679649
     },
     {
         "fields": {
@@ -2046,7 +2211,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678075
+        "pk": 679650
     },
     {
         "fields": {
@@ -2070,7 +2235,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678076
+        "pk": 679651
     },
     {
         "fields": {
@@ -2094,55 +2259,55 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678077
+        "pk": 679652
     },
     {
         "fields": {
-            "amount": 70.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
+            "amount": 200.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
             "description": null,
-            "destination": 234461,
-            "flow": 30821,
+            "destination": 292339,
+            "flow": 46287,
             "hazardous": false,
             "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234478,
-            "process": 87,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 234464,
+            "process": 76,
             "publication": 60,
             "stock": null,
             "strategy": null,
             "to_stock": false,
-            "waste": true,
+            "waste": false,
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678065
+        "pk": 679654
     },
     {
         "fields": {
-            "amount": 70.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
+            "amount": 75.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
             "description": null,
-            "destination": 234461,
-            "flow": 30823,
+            "destination": 292338,
+            "flow": 46286,
             "hazardous": false,
             "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234480,
-            "process": 87,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 234464,
+            "process": 76,
             "publication": 60,
             "stock": null,
             "strategy": null,
             "to_stock": false,
-            "waste": true,
+            "waste": false,
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678067
+        "pk": 679653
     },
     {
         "fields": {
@@ -2166,55 +2331,7 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678071
-    },
-    {
-        "fields": {
-            "amount": 70.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234462,
-            "flow": 30822,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234479,
-            "process": 7,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678066
-    },
-    {
-        "fields": {
-            "amount": 70.0,
-            "avoidable": true,
-            "composition_name": "Food Waste",
-            "description": null,
-            "destination": 234462,
-            "flow": 30824,
-            "hazardous": false,
-            "keyflow": 32,
-            "material": 4199,
-            "nace": "V-0000",
-            "origin": 234481,
-            "process": 7,
-            "publication": 60,
-            "stock": null,
-            "strategy": null,
-            "to_stock": false,
-            "waste": true,
-            "year": 2016
-        },
-        "model": "asmfa.fractionflow",
-        "pk": 678068
+        "pk": 679646
     },
     {
         "fields": {
@@ -2238,7 +2355,31 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678072
+        "pk": 679647
+    },
+    {
+        "fields": {
+            "amount": 30.0,
+            "avoidable": false,
+            "composition_name": "Essential oil",
+            "description": null,
+            "destination": 234469,
+            "flow": 47659,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4214,
+            "nace": "C-2110",
+            "origin": 234460,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679617
     },
     {
         "fields": {
@@ -2266,42 +2407,42 @@
     },
     {
         "fields": {
-            "amount": 200.0,
+            "amount": 15.0,
             "avoidable": false,
             "composition_name": "Biofuel from organic waste",
             "description": null,
-            "destination": 292338,
-            "flow": 46286,
+            "destination": 292347,
+            "flow": 47662,
             "hazardous": false,
             "keyflow": 32,
             "material": 4213,
             "nace": "E-3821",
-            "origin": 234464,
-            "process": null,
+            "origin": 292338,
+            "process": 76,
             "publication": 60,
             "stock": null,
             "strategy": null,
             "to_stock": false,
-            "waste": false,
+            "waste": true,
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678049
+        "pk": 679620
     },
     {
         "fields": {
-            "amount": 25.0,
+            "amount": 70.0,
             "avoidable": false,
             "composition_name": "Biofuel from organic waste",
             "description": null,
-            "destination": 292339,
-            "flow": 46287,
+            "destination": 292345,
+            "flow": 47663,
             "hazardous": false,
             "keyflow": 32,
             "material": 4213,
             "nace": "E-3821",
-            "origin": 234464,
-            "process": null,
+            "origin": 292339,
+            "process": 76,
             "publication": 60,
             "stock": null,
             "strategy": null,
@@ -2310,7 +2451,439 @@
             "year": 2016
         },
         "model": "asmfa.fractionflow",
-        "pk": 678050
+        "pk": 679621
+    },
+    {
+        "fields": {
+            "amount": 14.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292348,
+            "flow": 47667,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292345,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679625
+    },
+    {
+        "fields": {
+            "amount": 30.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292346,
+            "flow": 47664,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292339,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679622
+    },
+    {
+        "fields": {
+            "amount": 6.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292348,
+            "flow": 47668,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292346,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679626
+    },
+    {
+        "fields": {
+            "amount": 60.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292343,
+            "flow": 47660,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292338,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679618
+    },
+    {
+        "fields": {
+            "amount": 12.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292347,
+            "flow": 47665,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292343,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679623
+    },
+    {
+        "fields": {
+            "amount": 100.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292344,
+            "flow": 47661,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292339,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": false,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679619
+    },
+    {
+        "fields": {
+            "amount": 20.0,
+            "avoidable": false,
+            "composition_name": "Biofuel from organic waste",
+            "description": null,
+            "destination": 292347,
+            "flow": 47666,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4213,
+            "nace": "E-3821",
+            "origin": 292344,
+            "process": 76,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679624
+    },
+    {
+        "fields": {
+            "amount": 50.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234463,
+            "flow": 30820,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234477,
+            "process": 7,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679639
+    },
+    {
+        "fields": {
+            "amount": 70.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234461,
+            "flow": 30821,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234478,
+            "process": 87,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679640
+    },
+    {
+        "fields": {
+            "amount": 70.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234462,
+            "flow": 30822,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234479,
+            "process": 7,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679641
+    },
+    {
+        "fields": {
+            "amount": 70.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234461,
+            "flow": 30823,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234480,
+            "process": 87,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679642
+    },
+    {
+        "fields": {
+            "amount": 70.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234462,
+            "flow": 30824,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234481,
+            "process": 7,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679643
+    },
+    {
+        "fields": {
+            "amount": 70.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234464,
+            "flow": 30825,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234482,
+            "process": 87,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679644
+    },
+    {
+        "fields": {
+            "amount": 70.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234463,
+            "flow": 30826,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234483,
+            "process": 7,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679645
+    },
+    {
+        "fields": {
+            "amount": 45.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234463,
+            "flow": 30816,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234473,
+            "process": 7,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679635
+    },
+    {
+        "fields": {
+            "amount": 50.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234464,
+            "flow": 30817,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234474,
+            "process": 87,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679636
+    },
+    {
+        "fields": {
+            "amount": 50.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234463,
+            "flow": 30818,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234475,
+            "process": 7,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679637
+    },
+    {
+        "fields": {
+            "amount": 50.0,
+            "avoidable": true,
+            "composition_name": "Food Waste",
+            "description": null,
+            "destination": 234464,
+            "flow": 30819,
+            "hazardous": false,
+            "keyflow": 32,
+            "material": 4199,
+            "nace": "V-0000",
+            "origin": 234476,
+            "process": 87,
+            "publication": 60,
+            "stock": null,
+            "strategy": null,
+            "to_stock": false,
+            "waste": true,
+            "year": 2016
+        },
+        "model": "asmfa.fractionflow",
+        "pk": 679638
     },
     {
         "fields": {
@@ -2336,78 +2909,10 @@
     {
         "fields": {
             "a": 0.0,
-            "b": 0.47,
-            "documentation": "",
-            "flow_changes": 236,
-            "flow_reference": 235,
-            "is_absolute": false,
-            "name": "from Restaurants to Treatment and disposal",
-            "priority": 4,
-            "question": null,
-            "scheme": 5,
-            "solution": 89
-        },
-        "model": "changes.solutionpart",
-        "pk": 64
-    },
-    {
-        "fields": {
-            "a": 0.0,
-            "b": 0.02,
-            "documentation": "",
-            "flow_changes": 250,
-            "flow_reference": 249,
-            "is_absolute": false,
-            "name": "from Retail sale to Manufacture of basic pharmaceutical products",
-            "priority": 3,
-            "question": null,
-            "scheme": 5,
-            "solution": 89
-        },
-        "model": "changes.solutionpart",
-        "pk": 62
-    },
-    {
-        "fields": {
-            "a": 0.0,
-            "b": 0.01,
-            "documentation": "",
-            "flow_changes": 244,
-            "flow_reference": 243,
-            "is_absolute": false,
-            "name": "from Restaurants to Manufacture of textile",
-            "priority": 6,
-            "question": null,
-            "scheme": 5,
-            "solution": 89
-        },
-        "model": "changes.solutionpart",
-        "pk": 65
-    },
-    {
-        "fields": {
-            "a": 0.0,
-            "b": 0.02,
-            "documentation": "",
-            "flow_changes": 248,
-            "flow_reference": 247,
-            "is_absolute": false,
-            "name": "from Restaurants to Manufacture of basic pharmaceutical products",
-            "priority": 2,
-            "question": null,
-            "scheme": 5,
-            "solution": 89
-        },
-        "model": "changes.solutionpart",
-        "pk": 61
-    },
-    {
-        "fields": {
-            "a": 0.0,
             "b": 0.05,
             "documentation": "",
-            "flow_changes": 10,
-            "flow_reference": 9,
+            "flow_changes": 262,
+            "flow_reference": 261,
             "is_absolute": false,
             "name": "From Restaurants to Other processing and preserving of fruits",
             "priority": 0,
@@ -2421,13 +2926,47 @@
     {
         "fields": {
             "a": 0.0,
+            "b": 0.02,
+            "documentation": "",
+            "flow_changes": 276,
+            "flow_reference": 275,
+            "is_absolute": false,
+            "name": "from Restaurants to Manufacture of basic pharmaceutical products",
+            "priority": 6,
+            "question": null,
+            "scheme": 5,
+            "solution": 89
+        },
+        "model": "changes.solutionpart",
+        "pk": 61
+    },
+    {
+        "fields": {
+            "a": 0.0,
+            "b": 0.02,
+            "documentation": "",
+            "flow_changes": 274,
+            "flow_reference": 273,
+            "is_absolute": false,
+            "name": "from Retail sale to Manufacture of basic pharmaceutical products",
+            "priority": 7,
+            "question": null,
+            "scheme": 5,
+            "solution": 89
+        },
+        "model": "changes.solutionpart",
+        "pk": 62
+    },
+    {
+        "fields": {
+            "a": 0.0,
             "b": 0.47,
             "documentation": "",
-            "flow_changes": 238,
-            "flow_reference": 237,
+            "flow_changes": 268,
+            "flow_reference": 267,
             "is_absolute": false,
             "name": "from Retail sale to Treatment and disposal",
-            "priority": 5,
+            "priority": 3,
             "question": null,
             "scheme": 5,
             "solution": 89
@@ -2440,25 +2979,25 @@
             "a": 0.0,
             "b": 0.01,
             "documentation": "",
-            "flow_changes": 246,
-            "flow_reference": 245,
+            "flow_changes": 244,
+            "flow_reference": 243,
             "is_absolute": false,
-            "name": "from Retail sale to Manufacture of textile",
-            "priority": 7,
+            "name": "from Restaurants to Manufacture of textile",
+            "priority": 4,
             "question": null,
             "scheme": 5,
             "solution": 89
         },
         "model": "changes.solutionpart",
-        "pk": 66
+        "pk": 65
     },
     {
         "fields": {
             "a": 0.0,
             "b": 0.05,
             "documentation": "",
-            "flow_changes": 14,
-            "flow_reference": 13,
+            "flow_changes": 264,
+            "flow_reference": 263,
             "is_absolute": false,
             "name": "From Retail sale to Other processing and preserving of fruits",
             "priority": 1,
@@ -2468,6 +3007,40 @@
         },
         "model": "changes.solutionpart",
         "pk": 60
+    },
+    {
+        "fields": {
+            "a": 0.0,
+            "b": 0.47,
+            "documentation": "",
+            "flow_changes": 266,
+            "flow_reference": 265,
+            "is_absolute": false,
+            "name": "from Restaurants to Treatment and disposal",
+            "priority": 2,
+            "question": null,
+            "scheme": 5,
+            "solution": 89
+        },
+        "model": "changes.solutionpart",
+        "pk": 64
+    },
+    {
+        "fields": {
+            "a": 0.0,
+            "b": 0.01,
+            "documentation": "",
+            "flow_changes": 246,
+            "flow_reference": 245,
+            "is_absolute": false,
+            "name": "from Retail sale to Manufacture of textile",
+            "priority": 5,
+            "question": null,
+            "scheme": 5,
+            "solution": 89
+        },
+        "model": "changes.solutionpart",
+        "pk": 66
     },
     {
         "fields": {
@@ -2520,14 +3093,47 @@
     },
     {
         "fields": {
-            "destination_activity": 2400,
+            "destination_activity": 2419,
             "material": 4213,
-            "origin_activity": 1844,
+            "origin_activity": 2418,
             "process": null,
-            "solution_part": 64
+            "solution_part": 63
         },
         "model": "changes.affectedflow",
-        "pk": 88
+        "pk": 120
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2417,
+            "process": null,
+            "solution_part": 63
+        },
+        "model": "changes.affectedflow",
+        "pk": 119
+    },
+    {
+        "fields": {
+            "destination_activity": 2417,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 63
+        },
+        "model": "changes.affectedflow",
+        "pk": 118
+    },
+    {
+        "fields": {
+            "destination_activity": 2418,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 63
+        },
+        "model": "changes.affectedflow",
+        "pk": 117
     },
     {
         "fields": {
@@ -2538,7 +3144,326 @@
             "solution_part": 63
         },
         "model": "changes.affectedflow",
-        "pk": 89
+        "pk": 116
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2418,
+            "process": null,
+            "solution_part": 64
+        },
+        "model": "changes.affectedflow",
+        "pk": 115
+    },
+    {
+        "fields": {
+            "destination_activity": 2418,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 64
+        },
+        "model": "changes.affectedflow",
+        "pk": 114
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2417,
+            "process": null,
+            "solution_part": 64
+        },
+        "model": "changes.affectedflow",
+        "pk": 113
+    },
+    {
+        "fields": {
+            "destination_activity": 2417,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 64
+        },
+        "model": "changes.affectedflow",
+        "pk": 112
+    },
+    {
+        "fields": {
+            "destination_activity": 2400,
+            "material": 4213,
+            "origin_activity": 1844,
+            "process": null,
+            "solution_part": 64
+        },
+        "model": "changes.affectedflow",
+        "pk": 111
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2418,
+            "process": null,
+            "solution_part": 60
+        },
+        "model": "changes.affectedflow",
+        "pk": 110
+    },
+    {
+        "fields": {
+            "destination_activity": 2418,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 60
+        },
+        "model": "changes.affectedflow",
+        "pk": 109
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2417,
+            "process": null,
+            "solution_part": 60
+        },
+        "model": "changes.affectedflow",
+        "pk": 108
+    },
+    {
+        "fields": {
+            "destination_activity": 2417,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 60
+        },
+        "model": "changes.affectedflow",
+        "pk": 107
+    },
+    {
+        "fields": {
+            "destination_activity": 2400,
+            "material": 4213,
+            "origin_activity": 1844,
+            "process": null,
+            "solution_part": 60
+        },
+        "model": "changes.affectedflow",
+        "pk": 106
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2418,
+            "process": null,
+            "solution_part": 59
+        },
+        "model": "changes.affectedflow",
+        "pk": 105
+    },
+    {
+        "fields": {
+            "destination_activity": 2418,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 59
+        },
+        "model": "changes.affectedflow",
+        "pk": 104
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2417,
+            "process": null,
+            "solution_part": 59
+        },
+        "model": "changes.affectedflow",
+        "pk": 103
+    },
+    {
+        "fields": {
+            "destination_activity": 2417,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 59
+        },
+        "model": "changes.affectedflow",
+        "pk": 102
+    },
+    {
+        "fields": {
+            "destination_activity": 2400,
+            "material": 4213,
+            "origin_activity": 1844,
+            "process": null,
+            "solution_part": 59
+        },
+        "model": "changes.affectedflow",
+        "pk": 101
+    },
+    {
+        "fields": {
+            "destination_activity": 1844,
+            "material": 4199,
+            "origin_activity": 1845,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 142
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2417,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 141
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2418,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 140
+    },
+    {
+        "fields": {
+            "destination_activity": 2418,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 139
+    },
+    {
+        "fields": {
+            "destination_activity": 2417,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 138
+    },
+    {
+        "fields": {
+            "destination_activity": 2400,
+            "material": 4213,
+            "origin_activity": 1844,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 137
+    },
+    {
+        "fields": {
+            "destination_activity": 1845,
+            "material": 4214,
+            "origin_activity": 1842,
+            "process": null,
+            "solution_part": 61
+        },
+        "model": "changes.affectedflow",
+        "pk": 136
+    },
+    {
+        "fields": {
+            "destination_activity": 1844,
+            "material": 4199,
+            "origin_activity": 1845,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 135
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2417,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 134
+    },
+    {
+        "fields": {
+            "destination_activity": 2419,
+            "material": 4213,
+            "origin_activity": 2418,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 133
+    },
+    {
+        "fields": {
+            "destination_activity": 2418,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 132
+    },
+    {
+        "fields": {
+            "destination_activity": 2417,
+            "material": 4213,
+            "origin_activity": 2400,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 131
+    },
+    {
+        "fields": {
+            "destination_activity": 2400,
+            "material": 4213,
+            "origin_activity": 1844,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 130
+    },
+    {
+        "fields": {
+            "destination_activity": 1845,
+            "material": 4214,
+            "origin_activity": 1842,
+            "process": null,
+            "solution_part": 62
+        },
+        "model": "changes.affectedflow",
+        "pk": 129
     },
     {
         "fields": {
@@ -2549,32 +3474,7 @@
             "solution_part": 62
         },
         "model": "changes.affectedflow",
-        "pk": 93
-    },
-    {
-        "fields": {
-            "destination_activity": 2401,
-            "material": 4214,
-            "origin_activity": 1841,
-            "process": null,
-            "solution_part": 61
-        },
-        "model": "changes.affectedflow",
-        "pk": 92
-    },
-    {
-        "fields": {
-            "destination_activity": 1844,
-            "destination_area": null,
-            "hazardous": -1,
-            "material": 4198,
-            "origin_activity": null,
-            "origin_area": null,
-            "process": null,
-            "waste": -1
-        },
-        "model": "changes.flowreference",
-        "pk": 236
+        "pk": 128
     },
     {
         "fields": {
@@ -2582,13 +3482,27 @@
             "destination_area": null,
             "hazardous": -1,
             "material": 4203,
+            "origin_activity": null,
+            "origin_area": null,
+            "process": null,
+            "waste": -1
+        },
+        "model": "changes.flowreference",
+        "pk": 262
+    },
+    {
+        "fields": {
+            "destination_activity": 1844,
+            "destination_area": null,
+            "hazardous": -1,
+            "material": 4199,
             "origin_activity": 1847,
             "origin_area": null,
             "process": null,
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 235
+        "pk": 261
     },
     {
         "fields": {
@@ -2602,7 +3516,35 @@
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 250
+        "pk": 276
+    },
+    {
+        "fields": {
+            "destination_activity": 1840,
+            "destination_area": null,
+            "hazardous": -1,
+            "material": 4203,
+            "origin_activity": 1847,
+            "origin_area": null,
+            "process": null,
+            "waste": -1
+        },
+        "model": "changes.flowreference",
+        "pk": 275
+    },
+    {
+        "fields": {
+            "destination_activity": 1842,
+            "destination_area": null,
+            "hazardous": -1,
+            "material": 4208,
+            "origin_activity": null,
+            "origin_area": null,
+            "process": null,
+            "waste": -1
+        },
+        "model": "changes.flowreference",
+        "pk": 274
     },
     {
         "fields": {
@@ -2616,7 +3558,35 @@
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 249
+        "pk": 273
+    },
+    {
+        "fields": {
+            "destination_activity": 1844,
+            "destination_area": null,
+            "hazardous": -1,
+            "material": 4198,
+            "origin_activity": null,
+            "origin_area": null,
+            "process": null,
+            "waste": -1
+        },
+        "model": "changes.flowreference",
+        "pk": 268
+    },
+    {
+        "fields": {
+            "destination_activity": 1840,
+            "destination_area": null,
+            "hazardous": -1,
+            "material": 4203,
+            "origin_activity": 1845,
+            "origin_area": null,
+            "process": null,
+            "waste": -1
+        },
+        "model": "changes.flowreference",
+        "pk": 267
     },
     {
         "fields": {
@@ -2648,45 +3618,17 @@
     },
     {
         "fields": {
-            "destination_activity": 1842,
-            "destination_area": null,
-            "hazardous": -1,
-            "material": 4208,
-            "origin_activity": null,
-            "origin_area": null,
-            "process": null,
-            "waste": -1
-        },
-        "model": "changes.flowreference",
-        "pk": 248
-    },
-    {
-        "fields": {
             "destination_activity": 1840,
             "destination_area": null,
             "hazardous": -1,
             "material": 4203,
-            "origin_activity": 1847,
-            "origin_area": null,
-            "process": null,
-            "waste": -1
-        },
-        "model": "changes.flowreference",
-        "pk": 247
-    },
-    {
-        "fields": {
-            "destination_activity": null,
-            "destination_area": null,
-            "hazardous": -1,
-            "material": 4203,
             "origin_activity": null,
             "origin_area": null,
             "process": null,
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 10
+        "pk": 264
     },
     {
         "fields": {
@@ -2694,13 +3636,13 @@
             "destination_area": null,
             "hazardous": -1,
             "material": 4199,
-            "origin_activity": 1847,
+            "origin_activity": 1845,
             "origin_area": null,
             "process": null,
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 9
+        "pk": 263
     },
     {
         "fields": {
@@ -2714,7 +3656,7 @@
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 238
+        "pk": 266
     },
     {
         "fields": {
@@ -2722,13 +3664,13 @@
             "destination_area": null,
             "hazardous": -1,
             "material": 4203,
-            "origin_activity": 1845,
+            "origin_activity": 1847,
             "origin_area": null,
             "process": null,
             "waste": -1
         },
         "model": "changes.flowreference",
-        "pk": 237
+        "pk": 265
     },
     {
         "fields": {
@@ -2760,185 +3702,45 @@
     },
     {
         "fields": {
-            "destination_activity": null,
-            "destination_area": null,
-            "hazardous": -1,
-            "material": 4203,
-            "origin_activity": null,
-            "origin_area": null,
-            "process": null,
-            "waste": -1
-        },
-        "model": "changes.flowreference",
-        "pk": 14
-    },
-    {
-        "fields": {
-            "destination_activity": 1844,
-            "destination_area": null,
-            "hazardous": -1,
-            "material": 4199,
-            "origin_activity": 1845,
-            "origin_area": null,
-            "process": null,
-            "waste": -1
-        },
-        "model": "changes.flowreference",
-        "pk": 13
-    },
-    {
-        "fields": {
-            "actor": 234477,
-            "address": "STRAAT 23",
+            "actor": 292340,
+            "address": "STRAAT 32",
             "area": null,
             "city": "SandboxCity",
             "country": "",
-            "geom": "SRID=4326;POINT (4.75695742362102 52.3116351701466)",
+            "geom": "SRID=4326;POINT (4.745145098405945 52.36544884405141)",
             "name": null,
             "postcode": "1234XX"
         },
         "model": "asmfa.administrativelocation",
-        "pk": 419155
+        "pk": 488553
     },
     {
         "fields": {
-            "actor": 234478,
-            "address": "STRAAT 24",
+            "actor": 292338,
+            "address": "STRAAT 30",
             "area": null,
             "city": "SandboxCity",
             "country": "",
-            "geom": "SRID=4326;POINT (4.67590833349171 52.3119639823403)",
+            "geom": "SRID=4326;POINT (4.717809940085802 52.2572652369623)",
             "name": null,
             "postcode": "1234XX"
         },
         "model": "asmfa.administrativelocation",
-        "pk": 419156
+        "pk": 488551
     },
     {
         "fields": {
-            "actor": 234479,
-            "address": "STRAAT 25",
+            "actor": 292339,
+            "address": "STRAAT 31",
             "area": null,
             "city": "SandboxCity",
             "country": "",
-            "geom": "SRID=4326;POINT (4.77072396135794 52.3393032285153)",
+            "geom": "SRID=4326;POINT (4.71369395999681 52.41165085140589)",
             "name": null,
             "postcode": "1234XX"
         },
         "model": "asmfa.administrativelocation",
-        "pk": 419157
-    },
-    {
-        "fields": {
-            "actor": 234480,
-            "address": "STRAAT 26",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.7250637912072 52.3800554634915)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419158
-    },
-    {
-        "fields": {
-            "actor": 234481,
-            "address": "STRAAT 27",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.6801877566294 52.3663924975175)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419159
-    },
-    {
-        "fields": {
-            "actor": 234482,
-            "address": "STRAAT 28",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.76420679183267 52.3726436064146)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419160
-    },
-    {
-        "fields": {
-            "actor": 234483,
-            "address": "STRAAT 29",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.80538317497446 52.3465746569047)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419161
-    },
-    {
-        "fields": {
-            "actor": 234473,
-            "address": "STRAAT 19",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.90676775384251 52.3762015265235)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419151
-    },
-    {
-        "fields": {
-            "actor": 234474,
-            "address": "STRAAT 20",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.89703190406538 52.3724495885783)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419152
-    },
-    {
-        "fields": {
-            "actor": 234475,
-            "address": "STRAAT 21",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.69160973055883 52.2838494366829)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419153
-    },
-    {
-        "fields": {
-            "actor": 234476,
-            "address": "STRAAT 22",
-            "area": null,
-            "city": "SandboxCity",
-            "country": "",
-            "geom": "SRID=4326;POINT (4.73098014631714 52.4155679416213)",
-            "name": null,
-            "postcode": "1234XX"
-        },
-        "model": "asmfa.administrativelocation",
-        "pk": 419154
+        "pk": 488552
     },
     {
         "fields": {
@@ -3194,44 +3996,240 @@
     },
     {
         "fields": {
-            "actor": 292340,
-            "address": "STRAAT 32",
+            "actor": 292347,
+            "address": "STRAAT 37",
             "area": null,
             "city": "SandboxCity",
             "country": "",
-            "geom": "SRID=4326;POINT (4.745145098405945 52.36544884405141)",
+            "geom": "SRID=4326;POINT (4.84256116057744 52.33551025328303)",
             "name": null,
             "postcode": "1234XX"
         },
         "model": "asmfa.administrativelocation",
-        "pk": 488553
+        "pk": 488558
     },
     {
         "fields": {
-            "actor": 292338,
-            "address": "STRAAT 30",
+            "actor": 292348,
+            "address": "STRAAT 38",
             "area": null,
             "city": "SandboxCity",
             "country": "",
-            "geom": "SRID=4326;POINT (4.717809940085802 52.2572652369623)",
+            "geom": "SRID=4326;POINT (4.642871831309185 52.30414224689984)",
             "name": null,
             "postcode": "1234XX"
         },
         "model": "asmfa.administrativelocation",
-        "pk": 488551
+        "pk": 488559
     },
     {
         "fields": {
-            "actor": 292339,
-            "address": "STRAAT 31",
+            "actor": 292345,
+            "address": "STRAAT 35",
             "area": null,
             "city": "SandboxCity",
             "country": "",
-            "geom": "SRID=4326;POINT (4.71369395999681 52.41165085140589)",
+            "geom": "SRID=4326;POINT (4.660093179079105 52.36786322474181)",
             "name": null,
             "postcode": "1234XX"
         },
         "model": "asmfa.administrativelocation",
-        "pk": 488552
+        "pk": 488556
+    },
+    {
+        "fields": {
+            "actor": 292346,
+            "address": "STRAAT 36",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.808826768390798 52.31041380609149)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 488557
+    },
+    {
+        "fields": {
+            "actor": 292343,
+            "address": "STRAAT 33",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.63645591484536 52.26700127121217)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 488554
+    },
+    {
+        "fields": {
+            "actor": 292344,
+            "address": "STRAAT 34",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.746995471654104 52.42383523795303)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 488555
+    },
+    {
+        "fields": {
+            "actor": 234477,
+            "address": "STRAAT 23",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.75695742362102 52.3116351701466)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419155
+    },
+    {
+        "fields": {
+            "actor": 234478,
+            "address": "STRAAT 24",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.67590833349171 52.3119639823403)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419156
+    },
+    {
+        "fields": {
+            "actor": 234479,
+            "address": "STRAAT 25",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.77072396135794 52.3393032285153)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419157
+    },
+    {
+        "fields": {
+            "actor": 234480,
+            "address": "STRAAT 26",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.7250637912072 52.3800554634915)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419158
+    },
+    {
+        "fields": {
+            "actor": 234481,
+            "address": "STRAAT 27",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.6801877566294 52.3663924975175)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419159
+    },
+    {
+        "fields": {
+            "actor": 234482,
+            "address": "STRAAT 28",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.76420679183267 52.3726436064146)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419160
+    },
+    {
+        "fields": {
+            "actor": 234483,
+            "address": "STRAAT 29",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.80538317497446 52.3465746569047)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419161
+    },
+    {
+        "fields": {
+            "actor": 234473,
+            "address": "STRAAT 19",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.90676775384251 52.3762015265235)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419151
+    },
+    {
+        "fields": {
+            "actor": 234474,
+            "address": "STRAAT 20",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.89703190406538 52.3724495885783)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419152
+    },
+    {
+        "fields": {
+            "actor": 234475,
+            "address": "STRAAT 21",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.69160973055883 52.2838494366829)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419153
+    },
+    {
+        "fields": {
+            "actor": 234476,
+            "address": "STRAAT 22",
+            "area": null,
+            "city": "SandboxCity",
+            "country": "",
+            "geom": "SRID=4326;POINT (4.73098014631714 52.4155679416213)",
+            "name": null,
+            "postcode": "1234XX"
+        },
+        "model": "asmfa.administrativelocation",
+        "pk": 419154
     }
 ]
