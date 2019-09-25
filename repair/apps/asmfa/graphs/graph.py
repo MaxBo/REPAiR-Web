@@ -778,8 +778,6 @@ class StrategyGraph(BaseGraph):
         #self.mock_changes()
         #return
 
-        # add change attribute, it defaults to 0.0
-        self.graph.ep.change = self.graph.new_edge_property("float")
         # attribute marks edges to be ignored or not (defaults to False)
         self.graph.ep.include = self.graph.new_edge_property("bool")
         # attribute marks changed edges (defaults to False)
