@@ -353,7 +353,7 @@ class StrategyGraph(BaseGraph):
         for i, flow in enumerate(flows):
             delta = formula.calculate_delta(flow.amount)
             if formula.is_absolute:
-                # equal distribution or distribution depending on
+                # ToDo: equal distribution or distribution depending on
                 # previous share on total amount?
                 delta /= len(flows)
                 # alternatively sth like that: delta *= flow.amount / total
@@ -778,8 +778,6 @@ class StrategyGraph(BaseGraph):
         #self.mock_changes()
         #return
 
-        # add change attribute, it defaults to 0.0
-        self.graph.ep.change = self.graph.new_edge_property("float")
         # attribute marks edges to be ignored or not (defaults to False)
         self.graph.ep.include = self.graph.new_edge_property("bool")
         # attribute marks changed edges (defaults to False)
