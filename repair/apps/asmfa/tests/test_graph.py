@@ -64,6 +64,17 @@ class GraphWalkerTest(TestCase):
         flowmodeltestdata.plot_materials(plastic, 'plastic_materials.png')
 
     def test_plastic_packaging(self):
+        """Reduce plastic between Packaging->Consumption
+
+        Results (change in tons):
+            Packaging --> Consumption -0.6017
+            Oil rig --> Oil refinery -0.6017
+            Oil refinery --> Production -0.48136
+            Production --> Packaging -0.6017
+            Consumption --> Burn -0.36102
+            Consumption --> Recycling -0.24068
+            Recycling --> Production -0.12034
+        """
         plastic = flowmodeltestdata.plastic_package_graph()
         gw = GraphWalker(plastic)
         change = gw.graph.new_edge_property('float')
@@ -86,6 +97,46 @@ class GraphWalkerTest(TestCase):
         for i, e in enumerate(gw.graph.edges()):
             # flows of 'plastic' or 'crude oil' are affected by the solution
             if gw.graph.ep.material[e] in ['plastic', 'crude oil']:
+                gw.graph.ep.include[e] = True
+            else:
+                gw.graph.ep.include[e] = False
+        result = gw.calculate(implementation_edges, deltas)
+        for i, e in enumerate(result.edges()):
+            print(gw.graph.vp.id[e.source()], '-->',
+                  gw.graph.vp.id[e.target()], gw.graph.ep.amount[e])
+
+
+    def test_milk_production(self):
+        """Reduce milk production between Farm->Packaging
+
+        Results (change in tons):
+            Farm --> Packaging -26.0
+            Packaging --> Consumption -26.0
+            Consumption --> Waste -20.526315789473685
+            Consumption --> Waste 2 -5.473684210526315
+        """
+        plastic = flowmodeltestdata.plastic_package_graph()
+        gw = GraphWalker(plastic)
+        change = gw.graph.new_edge_property('float')
+        gw.graph.edge_properties['change'] = change
+        changed = gw.graph.new_edge_property('bool',
+                                             vals=[False for e in range(gw.graph.num_edges())])
+        gw.graph.edge_properties['changed'] = changed
+        include = gw.graph.new_edge_property('bool')
+        gw.graph.edge_properties['include'] = include
+        bf = gw.graph.new_vertex_property('float',
+                                          vals=[1.0 for v in range(gw.graph.num_vertices())])
+        gw.graph.vertex_properties['downstream_balance_factor'] = bf
+        pe = gw.graph.edge(gw.graph.vertex(0), gw.graph.vertex(1),
+                           all_edges=True)  # the 2 edges between Farm and Packaging
+        implementation_edges = [e for e in pe
+                                if gw.graph.ep.material[e] == 'milk']
+        # reduce the milk production by 26.0 tons on the implementation_edge
+        deltas = [-26.0]
+        # select affected flows
+        for i, e in enumerate(gw.graph.edges()):
+            # these material flows are affected by the solution
+            if gw.graph.ep.material[e] in ['milk', 'human waste', 'other waste']:
                 gw.graph.ep.include[e] = True
             else:
                 gw.graph.ep.include[e] = False
