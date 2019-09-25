@@ -107,39 +107,40 @@ class GraphWalkerTest(TestCase):
                     and result.vp.id[e.target()] == 'Consumption' \
                     and result.ep.material[e] == 'plastic':
                 expected = 5.0 - 0.6017
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             elif result.vp.id[e.source()] == 'Oil rig' \
                     and result.vp.id[e.target()] == 'Oil refinery' \
                     and result.ep.material[e] == 'crude oil':
                 expected = 20.0 - 0.6017
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             elif result.vp.id[e.source()] == 'Oil refinery' \
                     and result.vp.id[e.target()] == 'Production' \
                     and result.ep.material[e] == 'plastic':
                 expected = 4.0 - 0.48136
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             elif result.vp.id[e.source()] == 'Production' \
                     and result.vp.id[e.target()] == 'Packaging' \
                     and result.ep.material[e] == 'plastic':
                 expected = 5.0 - 0.6017
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             elif result.vp.id[e.source()] == 'Consumption' \
                     and result.vp.id[e.target()] == 'Burn' \
                     and result.ep.material[e] == 'plastic':
                 expected = 3.0 - 0.36102
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             elif result.vp.id[e.source()] == 'Consumption' \
                     and result.vp.id[e.target()] == 'Recycling' \
                     and result.ep.material[e] == 'plastic':
                 expected = 2.0 - 0.24068
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             elif result.vp.id[e.source()] == 'Recycling' \
                     and result.vp.id[e.target()] == 'Production' \
                     and result.ep.material[e] == 'plastic':
                 expected = 1.0 - 0.12034
-                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
             else:
-                assert result.ep.amount[e] == gw.graph.ep.amount[e]
+                self.assertAlmostEqual(result.ep.amount[e],
+                                       gw.graph.ep.amount[e], places=2)
 
 
     def test_milk_production(self):
@@ -183,25 +184,26 @@ class GraphWalkerTest(TestCase):
                     and result.vp.id[e.target()] == 'Packaging' \
                     and result.ep.material[e] == 'milk':
                 expected = 65.0 - 26.0
-                assert self.assertAlmostEqual(1.0, 1.0) # check if assertAlmostEqual works
-                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
             elif result.vp.id[e.source()] == 'Packaging' \
                     and result.vp.id[e.target()] == 'Consumption' \
                     and result.ep.material[e] == 'milk':
                 expected = 65.0 - 26.0
-                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
             elif result.vp.id[e.source()] == 'Consumption' \
                     and result.vp.id[e.target()] == 'Waste' \
                     and result.ep.material[e] == 'human waste':
                 expected = 75.0 - 20.526315789473685
-                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
             elif result.vp.id[e.source()] == 'Consumption' \
                     and result.vp.id[e.target()] == 'Waste 2' \
                     and result.ep.material[e] == 'other waste':
                 expected = 20.0 - 5.473684210526315
-                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
             else:
-                assert result.ep.amount[e] == gw.graph.ep.amount[e]
+                self.assertAlmostEqual(result.ep.amount[e],
+                                       gw.graph.ep.amount[e], places=2)
+
 
 class GraphTest(LoginTestCase, APITestCase):
     @classmethod
