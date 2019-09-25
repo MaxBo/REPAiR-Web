@@ -92,7 +92,7 @@ class GraphWalkerTest(TestCase):
         implementation_edges = [e for e in pe
                                 if gw.graph.ep.material[e] == 'plastic']
         # reduce the Plastic by 0.3 tons on the implementation_edge
-        deltas = [-0.3]
+        deltas = [-0.6017]
         # select affected flows
         for i, e in enumerate(gw.graph.edges()):
             # flows of 'plastic' or 'crude oil' are affected by the solution
@@ -102,8 +102,44 @@ class GraphWalkerTest(TestCase):
                 gw.graph.ep.include[e] = False
         result = gw.calculate(implementation_edges, deltas)
         for i, e in enumerate(result.edges()):
-            print(gw.graph.vp.id[e.source()], '-->',
-                  gw.graph.vp.id[e.target()], gw.graph.ep.amount[e])
+            print(f"{result.vp.id[e.source()]} --> {result.vp.id[e.target()]} / {result.ep.material[e]}: {result.ep.amount[e]}")
+            if result.vp.id[e.source()] == 'Packaging' \
+                    and result.vp.id[e.target()] == 'Consumption' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 5.0 - 0.6017
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            elif result.vp.id[e.source()] == 'Oil rig' \
+                    and result.vp.id[e.target()] == 'Oil refinery' \
+                    and result.ep.material[e] == 'crude oil':
+                expected = 20.0 - 0.6017
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            elif result.vp.id[e.source()] == 'Oil refinery' \
+                    and result.vp.id[e.target()] == 'Production' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 4.0 - 0.48136
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            elif result.vp.id[e.source()] == 'Production' \
+                    and result.vp.id[e.target()] == 'Packaging' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 5.0 - 0.6017
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Burn' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 3.0 - 0.36102
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Recycling' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 2.0 - 0.24068
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            elif result.vp.id[e.source()] == 'Recycling' \
+                    and result.vp.id[e.target()] == 'Production' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 1.0 - 0.12034
+                assert self.assertAlmostEqual(result.ep.amount[e], expected, 4)
+            else:
+                assert result.ep.amount[e] == gw.graph.ep.amount[e]
 
 
     def test_milk_production(self):
@@ -142,9 +178,30 @@ class GraphWalkerTest(TestCase):
                 gw.graph.ep.include[e] = False
         result = gw.calculate(implementation_edges, deltas)
         for i, e in enumerate(result.edges()):
-            print(gw.graph.vp.id[e.source()], '-->',
-                  gw.graph.vp.id[e.target()], gw.graph.ep.amount[e])
-
+            print(f"{result.vp.id[e.source()]} --> {result.vp.id[e.target()]} / {result.ep.material[e]}: {result.ep.amount[e]}")
+            if result.vp.id[e.source()] == 'Farm' \
+                    and result.vp.id[e.target()] == 'Packaging' \
+                    and result.ep.material[e] == 'milk':
+                expected = 65.0 - 26.0
+                assert self.assertAlmostEqual(1.0, 1.0) # check if assertAlmostEqual works
+                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+            elif result.vp.id[e.source()] == 'Packaging' \
+                    and result.vp.id[e.target()] == 'Consumption' \
+                    and result.ep.material[e] == 'milk':
+                expected = 65.0 - 26.0
+                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Waste' \
+                    and result.ep.material[e] == 'human waste':
+                expected = 75.0 - 20.526315789473685
+                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Waste 2' \
+                    and result.ep.material[e] == 'other waste':
+                expected = 20.0 - 5.473684210526315
+                assert self.assertAlmostEqual(result.ep.amount[e], expected)
+            else:
+                assert result.ep.amount[e] == gw.graph.ep.amount[e]
 
 class GraphTest(LoginTestCase, APITestCase):
     @classmethod
