@@ -64,6 +64,17 @@ class GraphWalkerTest(TestCase):
         flowmodeltestdata.plot_materials(plastic, 'plastic_materials.png')
 
     def test_plastic_packaging(self):
+        """Reduce plastic between Packaging->Consumption
+
+        Results (change in tons):
+            Packaging --> Consumption -0.6017
+            Oil rig --> Oil refinery -0.6017
+            Oil refinery --> Production -0.48136
+            Production --> Packaging -0.6017
+            Consumption --> Burn -0.36102
+            Consumption --> Recycling -0.24068
+            Recycling --> Production -0.12034
+        """
         plastic = flowmodeltestdata.plastic_package_graph()
         gw = GraphWalker(plastic)
         change = gw.graph.new_edge_property('float')
@@ -81,7 +92,7 @@ class GraphWalkerTest(TestCase):
         implementation_edges = [e for e in pe
                                 if gw.graph.ep.material[e] == 'plastic']
         # reduce the Plastic by 0.3 tons on the implementation_edge
-        deltas = [-0.3]
+        deltas = [-0.6017]
         # select affected flows
         for i, e in enumerate(gw.graph.edges()):
             # flows of 'plastic' or 'crude oil' are affected by the solution
@@ -91,8 +102,107 @@ class GraphWalkerTest(TestCase):
                 gw.graph.ep.include[e] = False
         result = gw.calculate(implementation_edges, deltas)
         for i, e in enumerate(result.edges()):
-            print(gw.graph.vp.id[e.source()], '-->',
-                  gw.graph.vp.id[e.target()], gw.graph.ep.amount[e])
+            print(f"{result.vp.id[e.source()]} --> {result.vp.id[e.target()]} / {result.ep.material[e]}: {result.ep.amount[e]}")
+            if result.vp.id[e.source()] == 'Packaging' \
+                    and result.vp.id[e.target()] == 'Consumption' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 5.0 - 0.6017
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            elif result.vp.id[e.source()] == 'Oil rig' \
+                    and result.vp.id[e.target()] == 'Oil refinery' \
+                    and result.ep.material[e] == 'crude oil':
+                expected = 20.0 - 0.6017
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            elif result.vp.id[e.source()] == 'Oil refinery' \
+                    and result.vp.id[e.target()] == 'Production' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 4.0 - 0.48136
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            elif result.vp.id[e.source()] == 'Production' \
+                    and result.vp.id[e.target()] == 'Packaging' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 5.0 - 0.6017
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Burn' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 3.0 - 0.36102
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Recycling' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 2.0 - 0.24068
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            elif result.vp.id[e.source()] == 'Recycling' \
+                    and result.vp.id[e.target()] == 'Production' \
+                    and result.ep.material[e] == 'plastic':
+                expected = 1.0 - 0.12034
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+            else:
+                self.assertAlmostEqual(result.ep.amount[e],
+                                       gw.graph.ep.amount[e], places=2)
+
+
+    def test_milk_production(self):
+        """Reduce milk production between Farm->Packaging
+
+        Results (change in tons):
+            Farm --> Packaging -26.0
+            Packaging --> Consumption -26.0
+            Consumption --> Waste -20.526315789473685
+            Consumption --> Waste 2 -5.473684210526315
+        """
+        plastic = flowmodeltestdata.plastic_package_graph()
+        gw = GraphWalker(plastic)
+        change = gw.graph.new_edge_property('float')
+        gw.graph.edge_properties['change'] = change
+        changed = gw.graph.new_edge_property('bool',
+                                             vals=[False for e in range(gw.graph.num_edges())])
+        gw.graph.edge_properties['changed'] = changed
+        include = gw.graph.new_edge_property('bool')
+        gw.graph.edge_properties['include'] = include
+        bf = gw.graph.new_vertex_property('float',
+                                          vals=[1.0 for v in range(gw.graph.num_vertices())])
+        gw.graph.vertex_properties['downstream_balance_factor'] = bf
+        pe = gw.graph.edge(gw.graph.vertex(0), gw.graph.vertex(1),
+                           all_edges=True)  # the 2 edges between Farm and Packaging
+        implementation_edges = [e for e in pe
+                                if gw.graph.ep.material[e] == 'milk']
+        # reduce the milk production by 26.0 tons on the implementation_edge
+        deltas = [-26.0]
+        # select affected flows
+        for i, e in enumerate(gw.graph.edges()):
+            # these material flows are affected by the solution
+            if gw.graph.ep.material[e] in ['milk', 'human waste', 'other waste']:
+                gw.graph.ep.include[e] = True
+            else:
+                gw.graph.ep.include[e] = False
+        result = gw.calculate(implementation_edges, deltas)
+        for i, e in enumerate(result.edges()):
+            print(f"{result.vp.id[e.source()]} --> {result.vp.id[e.target()]} / {result.ep.material[e]}: {result.ep.amount[e]}")
+            if result.vp.id[e.source()] == 'Farm' \
+                    and result.vp.id[e.target()] == 'Packaging' \
+                    and result.ep.material[e] == 'milk':
+                expected = 65.0 - 26.0
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
+            elif result.vp.id[e.source()] == 'Packaging' \
+                    and result.vp.id[e.target()] == 'Consumption' \
+                    and result.ep.material[e] == 'milk':
+                expected = 65.0 - 26.0
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Waste' \
+                    and result.ep.material[e] == 'human waste':
+                expected = 75.0 - 20.526315789473685
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
+            elif result.vp.id[e.source()] == 'Consumption' \
+                    and result.vp.id[e.target()] == 'Waste 2' \
+                    and result.ep.material[e] == 'other waste':
+                expected = 20.0 - 5.473684210526315
+                self.assertAlmostEqual(result.ep.amount[e], expected, places=2)
+            else:
+                self.assertAlmostEqual(result.ep.amount[e],
+                                       gw.graph.ep.amount[e], places=2)
 
 
 class GraphTest(LoginTestCase, APITestCase):
@@ -1204,7 +1314,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             treat_non_out_delta * 0.2, treat_haz_in_delta,
             msg=f'change of out-flow sum {treat_non_out_delta} '
             'of non hazardous waste treatment should be 5 '
-            f'times of the change of in-flow sum {treat_haz_in_delta}'
+            f'times the change of in-flow sum {treat_haz_in_delta}'
             'hazardous waste treatment')
 
         ## all are affected (and not more than one per flow created)

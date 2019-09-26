@@ -7,7 +7,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.db.models.functions import Coalesce
 
 from repair.apps.utils.utils import descend_materials
-from repair.apps.asmfa.models import (Actor, FractionFlow,
+from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
                                       AdministrativeLocation, Material)
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.asmfa.views import get_fractionflows
@@ -67,11 +67,13 @@ class ComputeIndicator(metaclass=ABCMeta):
         process_ids = indicator_flow.process_ids
         if (process_ids):
             process_ids = process_ids.split(',')
-            flows = flows.filter(strategy_process__id__in=process_ids)
+            processes = Process.objects.filter(id__in=process_ids)
+            flows = flows.filter(strategy_process__in=processes)
 
         if materials:
             mats = descend_materials(list(materials))
-
+            mats = Material.objects.filter(id__in=mats)
+            flows = flows.filter(strategy_process__in=mats)
 
         # ToDo: implement new filter attribute sinks and sources only
         #destinations_to_exclude = flows.exclude(destination__isnull=True).values('destination__id').distinct()
