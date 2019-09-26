@@ -353,7 +353,7 @@ class StrategyGraph(BaseGraph):
         for i, flow in enumerate(flows):
             delta = formula.calculate_delta(flow.amount)
             if formula.is_absolute:
-                # equal distribution or distribution depending on
+                # ToDo: equal distribution or distribution depending on
                 # previous share on total amount?
                 delta /= len(flows)
                 # alternatively sth like that: delta *= flow.amount / total
@@ -374,10 +374,15 @@ class StrategyGraph(BaseGraph):
         '''
         total = formula.calculate_delta()
         flow_count = len(origins) * len(destinations)
+
+        new_flows = []
+        if not flow_count:
+            print('WARNING: No orgins and/or destinations found '
+                  'while creating new flows')
+            return new_flows, np.empty((0, ))
         # equal distribution
         amount = total / flow_count
         deltas = np.full((flow_count), amount)
-        new_flows = []
         for origin, destination in itertools.product(origins, destinations):
             new_flow = FractionFlow(
                 origin=origin, destination=destination,
@@ -675,7 +680,7 @@ class StrategyGraph(BaseGraph):
             's_material': flow_reference.material.id
         }
         if flow_reference.process:
-            kwargs['s_process'] = flow_reference.process
+            kwargs['s_process'] = flow_reference.process.id
         reference_flows = flows.filter(**kwargs)
         return reference_flows
 
@@ -712,8 +717,8 @@ class StrategyGraph(BaseGraph):
             s_waste=Coalesce('f_strategyfractionflow__waste', 'waste'),
             s_hazardous=Coalesce('f_strategyfractionflow__hazardous',
                                  'hazardous'),
-            s_process=Coalesce('f_strategyfractionflow__hazardous',
-                                 'hazardous')
+            s_process=Coalesce('f_strategyfractionflow__process',
+                               'process')
         )
         return annotated
 
@@ -778,8 +783,6 @@ class StrategyGraph(BaseGraph):
         #self.mock_changes()
         #return
 
-        # add change attribute, it defaults to 0.0
-        self.graph.ep.change = self.graph.new_edge_property("float")
         # attribute marks edges to be ignored or not (defaults to False)
         self.graph.ep.include = self.graph.new_edge_property("bool")
         # attribute marks changed edges (defaults to False)

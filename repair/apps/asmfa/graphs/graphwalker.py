@@ -16,40 +16,32 @@ from repair.apps.asmfa.models import Actor
 
 class NodeVisitor(BFSVisitor):
 
-    def __init__(self, name, delta, amount, visited, change,
+    def __init__(self, name, amount, visited, change,
                  balance_factor):
         self.id = name
-        self.delta = delta
         self.amount = amount
         self.visited = visited
         self.change = change
         self.balance_factor = balance_factor
 
-    def discover_vertex(self, u):
-        """This is invoked when a vertex is encountered for the first time."""
-        pass
-
-    def examine_vertex(self, u):
+    def examine_edge(self, e):
         """Compute the amount change on each inflow for the vertex
 
-        This function is invoked on a vertex as it is popped from the queue.
-
-        Returns
-        -------
-        dict
-            {edge : change}
+        This function is invoked on a edge as it is popped from the queue.
         """
+        u = e.target()
         vertex_id = int(u)
-        balanced_delta = self.delta * self.balance_factor[vertex_id]
+
+        balanced_delta = self.change[e] * self.balance_factor[vertex_id]
         edges_out = list(u.out_edges())
         sum_out_f = sum(self.amount[out_f] for out_f in edges_out)
         if sum_out_f:
             amount_factor = balanced_delta / sum_out_f
         elif edges_out:
             amount_factor = balanced_delta / len(edges_out)
-        for e in edges_out:
-            if not self.visited[e]:
-                    self.change[e] = self.amount[e] * amount_factor
+        for e_out in edges_out:
+            if not (self.visited[e_out] and self.visited[e]):
+                self.change[e_out] += self.amount[e_out] * amount_factor
             self.visited[e] = True
 
 
@@ -85,13 +77,13 @@ def traverse_graph(g, edge, delta, upstream=True):
     if upstream:
         g.set_reversed(True)
         balance_factor = 1 / g.vp.downstream_balance_factor.a
-        node = edge.source()
+        node = edge.target()
     else:
         g.set_reversed(False)
         balance_factor = g.vp.downstream_balance_factor.a
-        node = edge.target()
+        node = edge.source()
 
-    node_visitor = NodeVisitor(g.vp["id"], delta, amount, visited, change,
+    node_visitor = NodeVisitor(g.vp["id"], amount, visited, change,
                                balance_factor)
     search.bfs_search(g, node, node_visitor)
 
@@ -99,7 +91,7 @@ def traverse_graph(g, edge, delta, upstream=True):
     # (or upstream, if we started downstream)
 
     g.set_reversed(not g.is_reversed())
-    node = edge.source() if g.is_reversed() else edge.target()
+    node = edge.target() if g.is_reversed() else edge.source()
     # reverse the balancing factors
     node_visitor.balance_factor = 1 / node_visitor.balance_factor
     # print("\nTraversing in 2. direction")
@@ -133,9 +125,6 @@ class GraphWalker:
         # store the changes for each actor to sum total in the end
         overall_changes = None
 
-        # set all changes to zero
-        g.ep.change.a[:] = 0
-
         for i, edge in enumerate(implementation_edges):
 
             g.ep.include[edge] = True
@@ -151,7 +140,7 @@ class GraphWalker:
         if overall_changes is not None:
             g.ep.amount.a += overall_changes
 
-        has_changed = overall_changes != 0
-        g.ep.changed.a[has_changed] = True
+            has_changed = overall_changes != 0
+            g.ep.changed.a[has_changed] = True
 
         return g
