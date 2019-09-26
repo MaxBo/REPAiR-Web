@@ -123,11 +123,11 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                 actors = actors.filter(
                     administrative_location__geom__intersects=poly)
 
-        actors = actors.annotate(
-            flow_count=Count('outputs') + Count('inputs'))
+        #actors = actors.annotate(
+            #flow_count=Count('outputs') + Count('inputs'))
         return actors.order_by('id')
 
-    @action(methods=['get'], detail=False)
+    @action(methods=['get', 'post'], detail=False)
     def count(self, request, **kwargs):
         queryset = self._filter(kwargs, query_params=request.query_params)
         json = {'count': queryset.count()}
