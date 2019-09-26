@@ -3,6 +3,8 @@ from reversion.views import RevisionMixin
 from django.contrib.gis.geos import GEOSGeometry
 from django.db.models import CharField, Value
 from django.db.models import Q, Count
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from repair.apps.asmfa.models import (
     ActivityGroup,
@@ -124,3 +126,9 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
         actors = actors.annotate(
             flow_count=Count('outputs') + Count('inputs'))
         return actors.order_by('id')
+
+    @action(methods=['get'], detail=False)
+    def count(self, request, **kwargs):
+        queryset = self._filter(kwargs, query_params=request.query_params)
+        json = {'count': queryset.count()}
+        return Response(json)
