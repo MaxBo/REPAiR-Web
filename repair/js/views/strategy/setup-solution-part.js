@@ -275,32 +275,51 @@ var SolutionPartView = BaseView.extend(
             destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value: null,
             material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null;
 
+        if (material == 'null') material = null;
+
         if (!elFlowCount) return;
 
-        var data = {
+        var queryData = {
             'origin__activity': origin_activity,
-            'destination__activity': destination_activity,
-            'material': material
+            'destination__activity': destination_activity
         }
 
-        if (origin_activity == null || destination_activity == null || material == null){
-            elFlowCount.innerHTML = gettext('Origin, Destination and Material have to be set.')
+        if (origin_activity == null || destination_activity == null){
+            elFlowCount.innerHTML = gettext('Origin and Destination have to be set.')
             return;
         }
+        if (material != null) queryData['material'] = material;
+
         elFlowCount.innerHTML = '?';
         var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
         process = (process === '-1') ? null: process;
+
+        var data = {};
         var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;
         origin_area = (area === '-1') ? null: area;
+
+        if (origin_area){
+            var area = this.areas.get(origin_area),
+                geom = area.get('geom');
+            data['origin_area'] = JSON.stringify(geom);
+        }
+
         area = (this.referenceDestinationAreaSelect) ? this.referenceDestinationAreaSelect.value: null;
         destination_area = (area === '-1') ? null: area;
 
+        if (destination_area){
+            var area = this.areas.get(destination_area),
+                geom = area.get('geom');
+            data['destination_area'] = JSON.stringify(geom);
+        }
+
         var url = config.api['flows'].format(this.caseStudy.id, this.keyflowId) + 'count/';
 
-        if (process != null) data['process'] = process;
+        if (process != null) queryData['process'] = process;
+
         Backbone.ajax({
-            url: url,
-            method: 'GET',
+            url: url + '?' + $.param(queryData),
+            method: 'POST',
             data: data,
             success: function(res){
                 elFlowCount.innerHTML = res.count;
@@ -420,7 +439,9 @@ var SolutionPartView = BaseView.extend(
 
         refFlow.origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null;
         refFlow.destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value : null;
-        refFlow.material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null;
+        var material = (this.referenceMaterialSelect) ? parseInt(this.referenceMaterialSelect.dataset.selected): null;
+        if (material == 'null') material = null;
+        refFlow.material = material;
         var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
         refFlow.process = (process === '-1') ? null: process;
         var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;

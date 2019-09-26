@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
-import graph_tool as gt
-import graph_tool.draw
+try:
+    import graph_tool as gt
+    import graph_tool.draw
+except ModuleNotFoundError:
+    pass
 import numpy as np
 from django.test import TestCase
 
@@ -325,15 +328,15 @@ class GeneratePlasticPackagingData:
             Mat('Human Waste', is_waste=True),
             Mat('Other Waste', is_waste=True)
         ]
-        
+
         Frac = namedtuple('Fraction', ['composition', 'material', 'fraction'])
-        Frac.__new__.__defaults__ = (None, None, 0.0)        
+        Frac.__new__.__defaults__ = (None, None, 0.0)
         fractions = [Frac('Packaged Milk', 'Milk', 0.25),
                      Frac('Packaged Milk', 'Plastic', 0.75),
                      Frac('Packaged Cucumber', 'Plastic', 0.15),
                      Frac('Packaged Cucumber', 'Cucumber', 0.85)
                      ]
-        
+
         for mat in material_names:
             material = MaterialFactory(
                 name=mat.name,
@@ -342,7 +345,7 @@ class GeneratePlasticPackagingData:
             Factory = WasteFactory if mat.is_waste else ProductFactory
             composition = Factory(name=mat.name)
             self.compositions[mat.name] = composition
-            
+
         for frac in fractions:
             fraction = ProductFractionFactory(
                 fraction=frac.fraction,
@@ -457,7 +460,7 @@ class GeneratePlasticPackagingData:
             Solution([(1, "Crude Oil"), (2, "Crude Oil")],[],3),
             Solution([],[],4)
         ]
-        
+
 
 class GenerateBigTestDataMixin(GeneratePlasticPackagingData):
     """Big amount of Test Data"""
