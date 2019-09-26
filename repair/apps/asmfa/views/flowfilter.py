@@ -1,6 +1,7 @@
 from collections import defaultdict, OrderedDict
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
+from django.contrib.gis.geos import GEOSGeometry
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
 from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
@@ -140,9 +141,19 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     #additional_filters = {'origin__included': True,
                           #'destination__included': True}
 
-    @action(methods=['get'], detail=False)
+    @action(methods=['get', 'post'], detail=False)
     def count(self, request, **kwargs):
         queryset = self._filter(kwargs, query_params=request.query_params)
+        if ('origin_area' in request.data):
+            geojson = self.request.data['origin_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                origin__administrative_location__geom__intersects=poly)
+        if ('destination_area' in request.data):
+            geojson = self.request.data['destination_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                destination__administrative_location__geom__intersects=poly)
         json = {'count': queryset.count()}
         return Response(json)
 
