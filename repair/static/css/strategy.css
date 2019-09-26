@@ -74,7 +74,8 @@
     background-color: white;
 }
 
-#flow-count {
+.count-label {
     float: left;
-    padding: 8px;
+    padding: 3px;
+    margin-right: 20px;
 }

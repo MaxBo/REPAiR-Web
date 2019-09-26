@@ -35,6 +35,8 @@ var SolutionPartView = BaseView.extend(
         _.bindAll(this, 'drawSankey');
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
+        _.bindAll(this, 'checkFlowCount');
+        _.bindAll(this, 'checkNodeCount');
 
         this.template = 'solution-part-template';
 
@@ -58,7 +60,7 @@ var SolutionPartView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'click #check-flow-count': 'checkFlowCount'
+        'click button[name="check-flow-count"]': 'checkFlowCount'
     },
 
     /*
@@ -180,6 +182,32 @@ var SolutionPartView = BaseView.extend(
         this.toggleHasQuestion();
         this.toggleAbsolute();
 
+        // the first table is
+        var tables = this.el.querySelectorAll('table.part-table'),
+            changeTable = (scheme != 'new') ? tables[1] : tables[0];
+
+        if (scheme != 'new') {
+            refTable = tables[0];
+            this.addCount(gettext('Actor count'), refTable, function(label){
+                _this.checkNodeCount(label, _this.referenceOriginSelect);
+            }, 1)
+            this.addCount(gettext('Actor count'), refTable, function(label){
+                _this.checkNodeCount(label, _this.referenceDestinationSelect);
+            }, 3)
+            this.addCount(gettext('Flow count'), refTable, function(label){
+                _this.checkFlowCount(label);
+            })
+        }
+
+        if (_this.newOriginSelect)
+            this.addCount(gettext('Actor count'), changeTable, function(label){
+                _this.checkNodeCount(label, _this.newOriginSelect);
+            }, 1)
+        if (_this.newDestinationSelect)
+            this.addCount(gettext('Actor count'), changeTable, function(label){
+                _this.checkNodeCount(label, _this.newDestinationSelect);
+            }, (scheme != 'new') ? 1 : 3)
+
         //this.materialChangeSelect.addEventListener('change', this.toggleNewMaterial);
 
         // forbid html escape codes in name
@@ -190,12 +218,56 @@ var SolutionPartView = BaseView.extend(
         this.el.querySelector('#affected-flows-tab button.add').addEventListener('click', this.addAffectedFlow);
     },
 
-    checkFlowCount: function(){
+    addCount: function(title, table, onClick, position){
+        var row = table.insertRow((position != null) ? position : -1),
+            cell1 = row.insertCell(0),
+            cell2 = row.insertCell(1),
+            _this = this;
 
+        var label = document.createElement('div');
+        label.innerHTML = title;
+        cell1.appendChild(label);
+
+        var countLabel = document.createElement('label'),
+            countButton = document.createElement('button');
+
+        countLabel.classList.add('count-label');
+        countLabel.innerHTML = '?';
+        countButton.classList.add('btn', 'btn-secondary', 'square');
+        countButton.innerHTML = gettext('Check');
+
+        countButton.addEventListener('click', function(){
+            onClick(countLabel);
+        })
+
+        cell2.appendChild(countLabel);
+        cell2.appendChild(countButton);
+    },
+
+    checkNodeCount: function(elFlowCount, input){
+        if (!elFlowCount || !input) return;
+
+        var data = { 'activity': input.value };
+
+        elFlowCount.innerHTML = '?';
+
+        var url = config.api['actors'].format(this.caseStudy.id, this.keyflowId) + 'count/';
+
+        Backbone.ajax({
+            url: url,
+            method: 'GET',
+            data: data,
+            success: function(res){
+                elFlowCount.innerHTML = res.count;
+            },
+            error: this.onError
+        });
+    },
+
+    checkFlowCount: function(elFlowCount){
         var origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null,
             destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value: null,
-            material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null,
-            elFlowCount = this.el.querySelector('#flow-count');
+            material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null;
 
         if (!elFlowCount) return;
 

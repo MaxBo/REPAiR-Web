@@ -1,13 +1,11 @@
 from collections import defaultdict, OrderedDict
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
-from rest_framework.response import Response
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
 from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
                               Case, When, Value, QuerySet, Count,
                               FilteredRelation)
-import time
 import numpy as np
 import copy
 import json
