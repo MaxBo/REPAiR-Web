@@ -1314,7 +1314,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
             treat_non_out_delta * 0.2, treat_haz_in_delta,
             msg=f'change of out-flow sum {treat_non_out_delta} '
             'of non hazardous waste treatment should be 5 '
-            f'times of the change of in-flow sum {treat_haz_in_delta}'
+            f'times the change of in-flow sum {treat_haz_in_delta}'
             'hazardous waste treatment')
 
         ## all are affected (and not more than one per flow created)

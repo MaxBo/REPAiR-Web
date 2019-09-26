@@ -140,7 +140,7 @@ class GraphWalker:
         if overall_changes is not None:
             g.ep.amount.a += overall_changes
 
-        has_changed = overall_changes != 0
-        g.ep.changed.a[has_changed] = True
+            has_changed = overall_changes != 0
+            g.ep.changed.a[has_changed] = True
 
         return g
