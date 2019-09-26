@@ -108,7 +108,7 @@ var FlowSankeyView = BaseView.extend(
             selectable: true,
             gradient: false,
             stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1,
-            selectOnDoubleClick: dblclkCheck.checked
+            selectOnDoubleClick: (dblclkCheck) ? dblclkCheck.checked : false
         })
 
         // redirect the event with same properties
