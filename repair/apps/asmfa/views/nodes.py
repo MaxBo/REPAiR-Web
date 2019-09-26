@@ -123,8 +123,8 @@ class ActorViewSet(PostGetViewMixin, RevisionMixin, CasestudyViewSetMixin,
                 actors = actors.filter(
                     administrative_location__geom__intersects=poly)
 
-        #actors = actors.annotate(
-            #flow_count=Count('outputs') + Count('inputs'))
+        actors = actors.annotate(
+            flow_count=Count('outputs') + Count('inputs'))
         return actors.order_by('id')
 
     @action(methods=['get', 'post'], detail=False)
