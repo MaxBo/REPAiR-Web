@@ -153,9 +153,9 @@ var SolutionPartView = BaseView.extend(
         this.populateQuestionSelect();
         this.affectedDiv = this.el.querySelector('#affected-flows');
 
-        this.renderMatFilter(this.referenceMaterialSelect);
+        this.renderMatFilter(this.referenceMaterialSelect, {showCount: true});
         this.renderMatFilter(this.newMaterialSelect, {defaultOption: defaultText});
-        this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey});
+        this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey, showCount: true, countChildren: true});
 
         this.setInputs();
 
@@ -439,6 +439,15 @@ var SolutionPartView = BaseView.extend(
         var matSelect = document.createElement('div');
         matSelect.classList.add('materialSelect');
         var select = this.el.querySelector('.hierarchy-select');
+        var flowsInChildren = {};
+        if (options.countChildren) {
+            // count materials in parent, descending level (leafs first)
+            this.materials.models.reverse().forEach(function(material){
+                var parent = material.get('parent'),
+                    count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
+                flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+            })
+        }
 
         var hierarchicalSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
@@ -449,7 +458,14 @@ var SolutionPartView = BaseView.extend(
             defaultOption: options.defaultOption || gettext('Select'),
             label: function(model, option){
                 var compCount = model.get('flow_count'),
-                    label = model.get('name') + ' (' + gettext('total of') + ' ' + compCount + ')';
+                    label = model.get('name');
+
+                if (options.showCount && options.countChildren) {
+                    var childCount = flowsInChildren[model.id] || 0;
+                    label += ' (' + compCount + ' / ' + childCount + ')';
+                } else if (options.showCount){
+                    label += ' (' + gettext('total of') + ' ' + compCount + ')';
+                }
                 return label;
             }
         });
