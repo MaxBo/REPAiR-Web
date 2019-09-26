@@ -175,9 +175,8 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         for k, v in query_params.items():
             key_cmp = k.split('__')
             key = key_cmp[0]
-            is_attr = hasattr(queryset.model, key)
-            if not is_attr and len(queryset) > 0:
-                is_attr = hasattr(queryset.first(), key)
+            is_attr = (hasattr(queryset.model, key) or
+                       key in queryset.query.annotations)
             if is_attr:
                 if len(key_cmp) > 1:
                     cmp = key_cmp[-1]

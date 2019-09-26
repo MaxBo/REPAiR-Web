@@ -189,10 +189,10 @@ var SolutionPartView = BaseView.extend(
         if (scheme != 'new') {
             refTable = tables[0];
             this.addCount(gettext('Actor count'), refTable, function(label){
-                _this.checkNodeCount(label, _this.referenceOriginSelect);
+                _this.checkNodeCount(label, _this.referenceOriginSelect, _this.referenceOriginAreaSelect);
             }, 1)
             this.addCount(gettext('Actor count'), refTable, function(label){
-                _this.checkNodeCount(label, _this.referenceDestinationSelect);
+                _this.checkNodeCount(label, _this.referenceDestinationSelect, _this.referenceDestinationAreaSelect);
             }, 3)
             this.addCount(gettext('Flow count'), refTable, function(label){
                 _this.checkFlowCount(label);
@@ -201,11 +201,11 @@ var SolutionPartView = BaseView.extend(
 
         if (_this.newOriginSelect)
             this.addCount(gettext('Actor count'), changeTable, function(label){
-                _this.checkNodeCount(label, _this.newOriginSelect);
+                _this.checkNodeCount(label, _this.newOriginSelect, _this.newOriginAreaSelect);
             }, 1)
         if (_this.newDestinationSelect)
             this.addCount(gettext('Actor count'), changeTable, function(label){
-                _this.checkNodeCount(label, _this.newDestinationSelect);
+                _this.checkNodeCount(label, _this.newDestinationSelect, _this.newDestinationAreaSelect);
             }, (scheme != 'new') ? 1 : 3)
 
         //this.materialChangeSelect.addEventListener('change', this.toggleNewMaterial);
@@ -244,24 +244,30 @@ var SolutionPartView = BaseView.extend(
         cell2.appendChild(countButton);
     },
 
-    checkNodeCount: function(elFlowCount, input){
+    checkNodeCount: function(elFlowCount, input, areainput){
         if (!elFlowCount || !input) return;
 
-        var data = { 'activity': input.value };
+        var data = {};
 
         elFlowCount.innerHTML = '?';
-
         var url = config.api['actors'].format(this.caseStudy.id, this.keyflowId) + 'count/';
 
+        if (areainput && areainput.value != -1){
+            var area = this.areas.get(areainput.value),
+                geom = area.get('geom');
+            data['area'] = JSON.stringify(geom);
+        }
+
         Backbone.ajax({
-            url: url,
-            method: 'GET',
+            url: url + '?GET=true&activity=' + input.value,
+            method: 'POST',
             data: data,
             success: function(res){
                 elFlowCount.innerHTML = res.count;
             },
             error: this.onError
         });
+
     },
 
     checkFlowCount: function(elFlowCount){
@@ -297,7 +303,6 @@ var SolutionPartView = BaseView.extend(
             method: 'GET',
             data: data,
             success: function(res){
-            console.log(res)
                 elFlowCount.innerHTML = res.count;
             },
             error: this.onError
