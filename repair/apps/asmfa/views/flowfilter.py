@@ -14,6 +14,8 @@ import json
 from collections import defaultdict, OrderedDict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.db.models import Union
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
@@ -139,6 +141,12 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     queryset = FractionFlow.objects.all()
     #additional_filters = {'origin__included': True,
                           #'destination__included': True}
+
+    @action(methods=['get'], detail=False)
+    def count(self, request, **kwargs):
+        queryset = self._filter(kwargs, query_params=request.query_params)
+        json = {'count': queryset.count()}
+        return Response(json)
 
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
@@ -270,7 +278,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                     key.startswith('hazardous') or
                     key.startswith('process') or
                     key.startswith('amount')):
-                    query_params['strategy_'+key] = query_params.pop(key)
+                    query_params['strategy_'+key] = query_params.pop(key)[0]
             # rename filter for stock, as this relates to field with stock pk
             # but serializer returns boolean in this field (if it is stock)
             stock_filter = query_params.pop('stock', None)

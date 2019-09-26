@@ -73,3 +73,8 @@
 .viewer-backdrop img {
     background-color: white;
 }
+
+#flow-count {
+    float: left;
+    padding: 8px;
+}

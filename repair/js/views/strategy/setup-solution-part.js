@@ -1,9 +1,10 @@
 
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'models/gdsemodel', 'app-config', 'viewerjs', 'views/common/flowsankey',
-        'utils/utils', 'bootstrap', 'bootstrap-select', 'viewerjs/dist/viewer.css'],
+        'utils/utils', 'backbone', 'bootstrap', 'bootstrap-select',
+        'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, FlowSankeyView, utils){
+function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, FlowSankeyView, utils, Backbone){
 /**
 *
 * @author Christoph Franke
@@ -57,6 +58,7 @@ var SolutionPartView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'click #check-flow-count': 'checkFlowCount'
     },
 
     /*
@@ -145,7 +147,7 @@ var SolutionPartView = BaseView.extend(
         this.populateAreaSelect(this.newOriginAreaSelect);
         this.populateAreaSelect(this.newDestinationAreaSelect);
 
-        var defaultText = (scheme == 'new') ? gettext('Select') : gettext('No change');
+        var defaultText = (scheme == 'new') ? gettext('no specific process') : gettext('No change');
 
         this.populateProcessSelect(this.referenceProcessSelect, {defaultOption: gettext('no specific process')});
         this.populateProcessSelect(this.newProcessSelect, {defaultOption: defaultText});
@@ -168,7 +170,7 @@ var SolutionPartView = BaseView.extend(
             });
         })
 
-        if (this.isAbsolute == null) this.isAbsolute = true;
+        if (this.isAbsolute == null) this.isAbsolute = false;
         this.isAbsoluteRadios.forEach(function(radio){
             radio.addEventListener('change', function(){
                 _this.isAbsolute = this.value == 'true';
@@ -186,6 +188,48 @@ var SolutionPartView = BaseView.extend(
         })
         // for some reasons jquery doesn't find this element when declared in 'events' attribute
         this.el.querySelector('#affected-flows-tab button.add').addEventListener('click', this.addAffectedFlow);
+    },
+
+    checkFlowCount: function(){
+
+        var origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null,
+            destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value: null,
+            material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null,
+            elFlowCount = this.el.querySelector('#flow-count');
+
+        if (!elFlowCount) return;
+
+        var data = {
+            'origin__activity': origin_activity,
+            'destination__activity': destination_activity,
+            'material': material
+        }
+
+        if (origin_activity == null || destination_activity == null || material == null){
+            elFlowCount.innerHTML = gettext('Origin, Destination and Material have to be set.')
+            return;
+        }
+        elFlowCount.innerHTML = '?';
+        var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
+        process = (process === '-1') ? null: process;
+        var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;
+        origin_area = (area === '-1') ? null: area;
+        area = (this.referenceDestinationAreaSelect) ? this.referenceDestinationAreaSelect.value: null;
+        destination_area = (area === '-1') ? null: area;
+
+        var url = config.api['flows'].format(this.caseStudy.id, this.keyflowId) + 'count/';
+
+        if (process != null) data['process'] = process;
+        Backbone.ajax({
+            url: url,
+            method: 'GET',
+            data: data,
+            success: function(res){
+            console.log(res)
+                elFlowCount.innerHTML = res.count;
+            },
+            error: this.onError
+        });
     },
 
     toggleHasQuestion: function(){
