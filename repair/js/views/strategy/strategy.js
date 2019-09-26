@@ -291,6 +291,7 @@ var StrategyView = BaseView.extend(
         this.areaSelect = this.solutionModal.querySelector('select[name="implementation-areas"]');
         this.areaSelect.addEventListener('change', function(){
             _this.setupArea(solutionImpl);
+            _this.mapEl.classList.remove('disabled');
         });
 
         var stakeholderSelect = this.solutionModal.querySelector('#strategy-stakeholders'),
@@ -301,14 +302,16 @@ var StrategyView = BaseView.extend(
             }
         }
         $(stakeholderSelect).selectpicker();
-
+        this.mapEl = document.getElementById('editor-map');
         if (this.editorMapView) this.editorMapView.close();
         this.editorMapView = new BaseMapView({
             template: 'base-maps-template',
-            el: document.getElementById('editor-map'),
+            el: this.mapEl,
             caseStudy: this.caseStudy,
             onReady: function(){
                 _this.setupEditor(solutionImpl);
+                _this.areaSelect.classList.remove('disabled');
+                _this.mapEl.classList.add('disabled');
             }
         });
 
@@ -520,8 +523,6 @@ var StrategyView = BaseView.extend(
                 });
                 _this.editorMap.enableDragBox('drawing');
             }
-            // seperate dragbox tool disabled, doesn't work with touch
-            //if (type === 'DragBox') useDragBox = true;
             _this.editorMap.enableSelect('drawing', selectable);
             _this.editorMap.enableDragBox('drawing', useDragBox);
             removeBtn.style.display = (removeActive) ? 'block' : 'none';
