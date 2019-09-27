@@ -593,12 +593,12 @@ var StrategyView = BaseView.extend(
         var promises = [];
         if (actorIds.length > 0){
             this.loader.activate();
-            promises.push(actors.fetch({
-                data: {id__in: actorIds.join(',')},
+            promises.push(actors.postfetch({
+                body: {id: actorIds.join(',')},
                 error: _this.onError
             }));
-            promises.push(locations.fetch({
-                data: {actor__id__in: actorIds.join(',')},
+            promises.push(locations.postfetch({
+                body: {actor__in: actorIds.join(',')},
                 error: _this.onError
             }));
         }
