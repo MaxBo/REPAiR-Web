@@ -79,13 +79,11 @@ class GraphWalkerTest(TestCase):
         gw = GraphWalker(plastic)
         change = gw.graph.new_edge_property('float')
         gw.graph.edge_properties['change'] = change
-        changed = gw.graph.new_edge_property('bool',
-                                             vals=[False for e in range(gw.graph.num_edges())])
+        changed = gw.graph.new_edge_property('bool', val=False)
         gw.graph.edge_properties['changed'] = changed
         include = gw.graph.new_edge_property('bool')
         gw.graph.edge_properties['include'] = include
-        bf = gw.graph.new_vertex_property('float',
-                                          vals=[1.0 for v in range(gw.graph.num_vertices())])
+        bf = gw.graph.new_vertex_property('float', val=1.0)
         gw.graph.vertex_properties['downstream_balance_factor'] = bf
         pe = gw.graph.edge(gw.graph.vertex(1), gw.graph.vertex(6),
                            all_edges=True)  # the 3 edges between Packaging and Cosumption
