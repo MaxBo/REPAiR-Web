@@ -482,7 +482,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             process = Process.objects.get(id=group['strategy_process']) \
                 if group['strategy_process'] else None
             # sum over all rows in group
-            sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            #sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
             strat_total_amount = list(
                 grouped.aggregate(Sum('strategy_amount')).values())[0]
             #deltas = list(grouped.aggregate(Sum('strategy_delta')).values())[0]
@@ -494,7 +494,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 ('stock', group['to_stock']),
                 ('process', process.name if process else ''),
                 ('process_id', process.id if process else None),
-                ('amount', sq_total_amount),
+                ('amount', strat_total_amount),
                 ('materials', grouped_mats),
                 #('delta', deltas)
             ))
