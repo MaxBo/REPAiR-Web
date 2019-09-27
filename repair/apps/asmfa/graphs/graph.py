@@ -436,7 +436,7 @@ class StrategyGraph(BaseGraph):
 
         # actors in possible new targets that are closest
         closest_dict = self.find_closest_actor(actors_kept,
-                                             possible_new_targets)
+                                               possible_new_targets)
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
@@ -1014,7 +1014,7 @@ class StrategyGraph(BaseGraph):
                         'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                         '"asmfa_administrativelocation"."geom"')
 
-                querytext_target_actors,  params_target_actors = \
+                querytext_target_actors, params_target_actors = \
                     query_target_actors.sql_with_params()
                 querytext_target_actors = querytext_target_actors.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
@@ -1090,14 +1090,14 @@ class StrategyGraph(BaseGraph):
                 WHERE a.rn = 1
                 '''
 
-                params = ()
+                params = None
 
             else:
                 raise ConnectionError(f'unknown backend: {backend}')
 
 
             with connection.cursor() as cursor:
-                cursor.execute(query,  params)
+                cursor.execute(query, params)
                 rows = cursor.fetchall()
 
             target_actors.update(dict(rows))

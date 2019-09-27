@@ -304,6 +304,8 @@ var StrategyView = BaseView.extend(
         $(stakeholderSelect).selectpicker();
         this.mapEl = document.getElementById('editor-map');
         if (this.editorMapView) this.editorMapView.close();
+        var loader = new utils.Loader(this.areaSelect.parentElement, {disable: true});
+        loader.activate();
         this.editorMapView = new BaseMapView({
             template: 'base-maps-template',
             el: this.mapEl,
@@ -311,7 +313,8 @@ var StrategyView = BaseView.extend(
             onReady: function(){
                 _this.setupEditor(solutionImpl);
                 _this.areaSelect.parentElement.classList.remove('disabled');
-                _this.mapEl.classList.add('disabled');
+                loader.deactivate();
+                _this.editorMapView.map.labelZoom = 13;
             }
         });
 
