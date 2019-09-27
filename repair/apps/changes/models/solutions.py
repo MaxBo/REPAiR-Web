@@ -101,6 +101,7 @@ class FlowReference(GDSEModel):
         related_name='reference_destination', null=True)
     material = models.ForeignKey(
         Material, on_delete=PROTECT_CASCADE, null=True)
+    include_child_materials = models.BooleanField(default=False)
     process = models.ForeignKey(
         Process, on_delete=PROTECT_CASCADE, null=True)
     waste = models.IntegerField(default=-1)
