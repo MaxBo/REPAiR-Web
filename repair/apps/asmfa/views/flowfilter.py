@@ -143,7 +143,20 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
     @action(methods=['get', 'post'], detail=False)
     def count(self, request, **kwargs):
-        queryset = self._filter(kwargs, query_params=request.query_params)
+        query_params = request.query_params.copy()
+        material = query_params.pop('material', None)
+        include_children = query_params.pop('include_child_materials', None)
+        queryset = self._filter(kwargs, query_params=query_params)
+
+        if (material is not None):
+            mat_id = material[0]
+            if include_children:
+                mats = Material.objects.filter(
+                    id__in=descend_materials([Material.objects.get(id=mat_id)]))
+                queryset = queryset.filter(strategy_material__in=mats)
+            else:
+                queryset = queryset.filter(strategy_material=mat_id)
+
         if ('origin_area' in request.data):
             geojson = self.request.data['origin_area']
             poly = GEOSGeometry(geojson)
