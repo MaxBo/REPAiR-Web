@@ -287,19 +287,21 @@ var FlowsView = BaseView.extend(
                 sqMats[key] = material;
             })
             for (let [key, sfMaterial] of Object.entries(sfMats)){
-                var sqMaterial = sqMats[key];
+                var sqMaterial = sqMats[key],
+                    sfClone = Object.assign({}, sfMaterial);
                 // material is in both: delta
                 if (sqMaterial)
-                    sfMaterial.amount -= sqMaterial.amount;
+                    sfClone.amount -= sqMaterial.amount;
                 // material only in strategy: keep as is
-                materials.push(sfMaterial);
+                materials.push(sfClone);
             }
             for (let [key, sqMaterial] of Object.entries(sqMats)){
                 var sfMaterial = sfMats[key];
                 // material not in strategy
                 if (!sfMaterial){
-                    sqMaterial.amount = -sqMaterial.amount;
-                    materials.push(sqMaterial);
+                    var sqClone = Object.assign({}, sfMaterial);
+                    sqClone.amount = -sqClone.amount;
+                    materials.push(sqClone);
                 }
             }
             return materials;
