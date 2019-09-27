@@ -572,7 +572,10 @@ var StrategyView = BaseView.extend(
             });
         this.editorMap.centerOnPolygon(area, { projection: this.projection });
 
-        if (implArea && implArea.geom){
+        if (this.drawings[areaId]){
+            this.editorMap.addFeatures('drawing', this.drawings[areaId])
+        }
+        else if (implArea && implArea.geom){
             _this.editorMap.addGeometry(implArea.geom.coordinates, {
                 projection: _this.projection, layername: 'drawing',
                 type: implArea.geom.type
