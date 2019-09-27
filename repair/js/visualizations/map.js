@@ -429,6 +429,14 @@ define([
             return layer.getSource().getFeatures();
         }
 
+        addFeatures(layername, features){
+            var layer = this.layers[layername],
+                source = layer.getSource();
+            features.forEach(function(feature){
+                source.addFeature(feature);
+            })
+        }
+
         getFeature(layername, id){
             var features = this.getFeatures(layername);
             for (var i = 0; i < features.length; i++){

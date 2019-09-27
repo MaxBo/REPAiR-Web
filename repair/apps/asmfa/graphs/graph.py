@@ -244,6 +244,8 @@ class BaseGraph:
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[e] = flow.id
                 self.graph.ep.material[e] = flow.material_id
+                self.graph.ep.waste[e] = flow.waste
+                self.graph.ep.hazardous[e] = flow.hazardous
                 self.graph.ep.process[e] = \
                     flow.process_id if flow.process_id is not None else - 1
                 self.graph.ep.amount[e] = flow.amount

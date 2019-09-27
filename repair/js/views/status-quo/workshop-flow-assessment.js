@@ -256,7 +256,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
         data.forEach(function(d){
             //continue if no data
             if (d.value == null) return;
-            var value = Math.round(d.value);
+            var value = Math.round(d.value * 100) / 100;
             if (_this.strategy && _this.modDisplaySelect.value == 'delta')
                 value = d.delta
             values[d.area] = value;
@@ -290,7 +290,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
             square.style.float = 'left';
             square.style.backgroundColor = color;
             square.style.marginRight = '5px';
-            var entryLabel = _this.format(Math.round(entry)) + ' ' + unit;
+            var entryLabel = _this.format(Math.round(entry * 100) / 100) + ' ' + unit;
             if (showDelta && entry > 0)
                 entryLabel = '+' + entryLabel;
             label.innerHTML = entryLabel;
@@ -464,10 +464,9 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                         color = (value >= 0) ? '#23FE01': 'red';
                     }
 
-                    Math.round(data[0].value)
                     _this.chartData[indicator.id][id] = {
                         name: id,
-                        value: Math.round(value),
+                        value: Math.round(value * 100) / 100,
                         color: color
                     };
                 },
@@ -508,7 +507,7 @@ var FlowAssessmentWorkshopView = BaseView.extend(
                 method: "POST",
                 data: { geom: JSON.stringify(geom) },
                 success: function(data){
-                    value = (data[0]) ? Math.round(data[0].value) : 0;
+                    value = (data[0]) ? Math.round(data[0].value * 100) / 100 : 0;
                     // always prepend focus area
                     _this.chartData[indicatorId][0] = {
                         name: text,
