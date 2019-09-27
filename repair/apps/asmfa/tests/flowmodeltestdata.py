@@ -152,11 +152,13 @@ def plastic_package_graph():
 
 def plot_amounts(g, file=None):
     """Plots the graph with the 'amount' property on the edges into a file"""
+    vertex_ids = [f'{int(v)}' for v in g.vertices()]
+    vertex_text = g.new_vertex_property("string", vals=vertex_ids)
     mass_text = g.new_edge_property("string",
                                     vals=[str(round(i, 2))for i in g.ep.amount])
-    gt.draw.graph_draw(g, vertex_size=20, vertex_text=g.vp.id,
-                       vprops={"text_position": 1,
-                               "font_size": 14},
+    gt.draw.graph_draw(g, vertex_size=20, vertex_text=vertex_text,
+                       vprops={"text_position": -1,
+                               "font_size": 10},
                        edge_text=mass_text,
                        output_size=(700, 600), inline=True,
                        output=file)
@@ -164,9 +166,11 @@ def plot_amounts(g, file=None):
 
 def plot_materials(g, file=None):
     """Plots the graph with the 'material' property on the edges into a file"""
-    gt.draw.graph_draw(g, vertex_size=20, vertex_text=g.vp.id,
-                       vprops={"text_position": 0,
-                               "font_size": 14},
+    vertex_ids = [f'{int(v)}' for v in g.vertices()]
+    vertex_text = g.new_vertex_property("string", vals=vertex_ids)
+    gt.draw.graph_draw(g, vertex_size=20, vertex_text=vertex_text,
+                       vprops={"text_position": -1,
+                               "font_size": 10},
                        edge_text=g.ep.material,
                        output_size=(700, 600), inline=True,
                        output=file)
@@ -325,15 +329,15 @@ class GeneratePlasticPackagingData:
             Mat('Human Waste', is_waste=True),
             Mat('Other Waste', is_waste=True)
         ]
-        
+
         Frac = namedtuple('Fraction', ['composition', 'material', 'fraction'])
-        Frac.__new__.__defaults__ = (None, None, 0.0)        
+        Frac.__new__.__defaults__ = (None, None, 0.0)
         fractions = [Frac('Packaged Milk', 'Milk', 0.25),
                      Frac('Packaged Milk', 'Plastic', 0.75),
                      Frac('Packaged Cucumber', 'Plastic', 0.15),
                      Frac('Packaged Cucumber', 'Cucumber', 0.85)
                      ]
-        
+
         for mat in material_names:
             material = MaterialFactory(
                 name=mat.name,
@@ -342,7 +346,7 @@ class GeneratePlasticPackagingData:
             Factory = WasteFactory if mat.is_waste else ProductFactory
             composition = Factory(name=mat.name)
             self.compositions[mat.name] = composition
-            
+
         for frac in fractions:
             fraction = ProductFractionFactory(
                 fraction=frac.fraction,
@@ -457,7 +461,7 @@ class GeneratePlasticPackagingData:
             Solution([(1, "Crude Oil"), (2, "Crude Oil")],[],3),
             Solution([],[],4)
         ]
-        
+
 
 class GenerateBigTestDataMixin(GeneratePlasticPackagingData):
     """Big amount of Test Data"""
