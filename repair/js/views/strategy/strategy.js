@@ -310,7 +310,7 @@ var StrategyView = BaseView.extend(
             caseStudy: this.caseStudy,
             onReady: function(){
                 _this.setupEditor(solutionImpl);
-                _this.areaSelect.classList.remove('disabled');
+                _this.areaSelect.parentElement.classList.remove('disabled');
                 _this.mapEl.classList.add('disabled');
             }
         });
@@ -345,7 +345,6 @@ var StrategyView = BaseView.extend(
                     var multi = new ol.geom.MultiPolygon();
                     features.forEach(function(feature) {
                         var geom = feature.getGeometry().transform(_this.editorMap.mapProjection, _this.projection);
-                        console.log(geom.getType())
                         if (geom.getType() == 'MultiPolygon'){
                             geom.getPolygons().forEach(function(poly){
                                 multi.appendPolygon(poly);
@@ -573,7 +572,7 @@ var StrategyView = BaseView.extend(
             });
         this.editorMap.centerOnPolygon(area, { projection: this.projection });
 
-        if (implArea.geom){
+        if (implArea && implArea.geom){
             _this.editorMap.addGeometry(implArea.geom.coordinates, {
                 projection: _this.projection, layername: 'drawing',
                 type: implArea.geom.type
