@@ -668,17 +668,22 @@ class StrategyGraph(BaseGraph):
         return flows on actor level filtered by flow_reference attributes
         and implementation areas
         '''
-        #impl_materials = descend_materials(
-            #[flow_reference.material])
         origins, destinations = self._get_actors(flow_reference, implementation)
         flows = FractionFlow.objects.filter(
             origin__in=origins,
             destination__in=destinations
         )
         flows = self._annotate(flows)
-        kwargs = {
-            's_material': flow_reference.material.id
-        }
+        if flow_reference.include_child_materials:
+            impl_materials = Material.objects.filter(id__in=descend_materials(
+                [flow_reference.material]))
+            kwargs = {
+                's_material__in': impl_materials
+            }
+        else:
+            kwargs = {
+                's_material': flow_reference.material.id
+            }
         if flow_reference.process:
             kwargs['s_process'] = flow_reference.process.id
         reference_flows = flows.filter(**kwargs)

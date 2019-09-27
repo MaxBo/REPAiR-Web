@@ -113,6 +113,7 @@ var SolutionPartView = BaseView.extend(
         this.referenceOriginSelect = this.el.querySelector('select[name="reference-origin"]');
         this.referenceDestinationSelect = this.el.querySelector('select[name="reference-destination"]');
         this.referenceMaterialSelect = this.el.querySelector('div[name="reference-material"]');
+        this.referenceIncludeChildrenSelect = this.el.querySelector('input[name="include-child-materials"]')
         this.referenceProcessSelect = this.el.querySelector('select[name="reference-process"]');
         this.referenceOriginAreaSelect = this.el.querySelector('select[name="reference-origin-area"]');
         this.referenceDestinationAreaSelect = this.el.querySelector('select[name="reference-destination-area"]');
@@ -157,7 +158,7 @@ var SolutionPartView = BaseView.extend(
         this.populateQuestionSelect();
         this.affectedDiv = this.el.querySelector('#affected-flows');
 
-        this.renderMatFilter(this.referenceMaterialSelect, {showCount: true});
+        this.renderMatFilter(this.referenceMaterialSelect, {showCount: true, countChildren: true});
         this.renderMatFilter(this.newMaterialSelect, {defaultOption: defaultText});
         this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey, showCount: true, countChildren: true});
 
@@ -273,7 +274,8 @@ var SolutionPartView = BaseView.extend(
     checkFlowCount: function(elFlowCount){
         var origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null,
             destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value: null,
-            material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null;
+            material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null,
+            includeChildren = this.referenceIncludeChildrenSelect.checked;
 
         if (material == 'null') material = null;
 
@@ -289,6 +291,8 @@ var SolutionPartView = BaseView.extend(
             return;
         }
         if (material != null) queryData['material'] = material;
+
+        if (includeChildren) queryData['include_child_materials'] = true;
 
         elFlowCount.innerHTML = '?';
         var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
@@ -384,6 +388,7 @@ var SolutionPartView = BaseView.extend(
             if (this.referenceProcessSelect) this.referenceProcessSelect.value = refFlow.process || -1;
             if (this.referenceOriginAreaSelect) this.referenceOriginAreaSelect.value = refFlow.origin_area || -1;
             if (this.referenceDestinationAreaSelect) this.referenceDestinationAreaSelect.value = refFlow.destination_area || -1;
+            if (this.referenceIncludeChildrenSelect) this.referenceIncludeChildrenSelect.checked = refFlow.include_child_materials || false;
         }
 
         if (changeFlow){
@@ -442,6 +447,8 @@ var SolutionPartView = BaseView.extend(
         var material = (this.referenceMaterialSelect) ? parseInt(this.referenceMaterialSelect.dataset.selected): null;
         if (material == 'null') material = null;
         refFlow.material = material;
+        refFlow.include_child_materials = this.referenceIncludeChildrenSelect.checked;
+
         var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
         refFlow.process = (process === '-1') ? null: process;
         var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;
@@ -604,7 +611,7 @@ var SolutionPartView = BaseView.extend(
 
                 if (options.showCount && options.countChildren) {
                     var childCount = flowsInChildren[model.id] || 0;
-                    label += ' (' + compCount + ' / ' + childCount + ')';
+                    label += ' (' + gettext('used ') + ' ' + compCount + 'x / ' + gettext('children used ') + ' ' + childCount + 'x)';
                 } else if (options.showCount){
                     label += ' (' + gettext('total of') + ' ' + compCount + ')';
                 }
