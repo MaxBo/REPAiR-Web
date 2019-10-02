@@ -143,7 +143,8 @@ class CasestudyReadOnlyViewSetMixin(ABC):
                         for row in data]
         return data
 
-    def _filter(self, lookup_args, query_params=None, SerializerClass=None):
+    def _filter(self, lookup_args, query_params=None, SerializerClass=None,
+                annotations=None):
         """
         return a queryset filtered by lookup arguments and query parameters
         return None if query parameters are malformed
@@ -174,7 +175,9 @@ class CasestudyReadOnlyViewSetMixin(ABC):
         for k, v in query_params.items():
             key_cmp = k.split('__')
             key = key_cmp[0]
-            if hasattr(queryset.model, key):
+            is_attr = (hasattr(queryset.model, key) or
+                       key in queryset.query.annotations)
+            if is_attr:
                 if len(key_cmp) > 1:
                     cmp = key_cmp[-1]
                     if cmp == 'in':

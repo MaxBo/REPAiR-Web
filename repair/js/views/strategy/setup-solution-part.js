@@ -1,9 +1,10 @@
 
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
         'models/gdsemodel', 'app-config', 'viewerjs', 'views/common/flowsankey',
-        'utils/utils', 'bootstrap', 'bootstrap-select', 'viewerjs/dist/viewer.css'],
+        'utils/utils', 'backbone', 'bootstrap', 'bootstrap-select',
+        'viewerjs/dist/viewer.css'],
 
-function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, FlowSankeyView, utils){
+function(BaseView, _, GDSECollection, GDSEModel, config, Viewer, FlowSankeyView, utils, Backbone){
 /**
 *
 * @author Christoph Franke
@@ -34,6 +35,8 @@ var SolutionPartView = BaseView.extend(
         _.bindAll(this, 'drawSankey');
         _.bindAll(this, 'linkSelected');
         _.bindAll(this, 'linkDeselected');
+        _.bindAll(this, 'checkFlowCount');
+        _.bindAll(this, 'checkNodeCount');
 
         this.template = 'solution-part-template';
 
@@ -57,6 +60,7 @@ var SolutionPartView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'click button[name="check-flow-count"]': 'checkFlowCount'
     },
 
     /*
@@ -109,6 +113,7 @@ var SolutionPartView = BaseView.extend(
         this.referenceOriginSelect = this.el.querySelector('select[name="reference-origin"]');
         this.referenceDestinationSelect = this.el.querySelector('select[name="reference-destination"]');
         this.referenceMaterialSelect = this.el.querySelector('div[name="reference-material"]');
+        this.referenceIncludeChildrenSelect = this.el.querySelector('input[name="include-child-materials"]')
         this.referenceProcessSelect = this.el.querySelector('select[name="reference-process"]');
         this.referenceOriginAreaSelect = this.el.querySelector('select[name="reference-origin-area"]');
         this.referenceDestinationAreaSelect = this.el.querySelector('select[name="reference-destination-area"]');
@@ -145,7 +150,7 @@ var SolutionPartView = BaseView.extend(
         this.populateAreaSelect(this.newOriginAreaSelect);
         this.populateAreaSelect(this.newDestinationAreaSelect);
 
-        var defaultText = (scheme == 'new') ? gettext('Select') : gettext('No change');
+        var defaultText = (scheme == 'new') ? gettext('no specific process') : gettext('No change');
 
         this.populateProcessSelect(this.referenceProcessSelect, {defaultOption: gettext('no specific process')});
         this.populateProcessSelect(this.newProcessSelect, {defaultOption: defaultText});
@@ -153,9 +158,9 @@ var SolutionPartView = BaseView.extend(
         this.populateQuestionSelect();
         this.affectedDiv = this.el.querySelector('#affected-flows');
 
-        this.renderMatFilter(this.referenceMaterialSelect);
+        this.renderMatFilter(this.referenceMaterialSelect, {showCount: true, countChildren: true});
         this.renderMatFilter(this.newMaterialSelect, {defaultOption: defaultText});
-        this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey});
+        this.renderMatFilter(this.affectedMaterialSelect, {onSelect: this.drawSankey, showCount: true, countChildren: true});
 
         this.setInputs();
 
@@ -168,7 +173,7 @@ var SolutionPartView = BaseView.extend(
             });
         })
 
-        if (this.isAbsolute == null) this.isAbsolute = true;
+        if (this.isAbsolute == null) this.isAbsolute = false;
         this.isAbsoluteRadios.forEach(function(radio){
             radio.addEventListener('change', function(){
                 _this.isAbsolute = this.value == 'true';
@@ -178,6 +183,32 @@ var SolutionPartView = BaseView.extend(
         this.toggleHasQuestion();
         this.toggleAbsolute();
 
+        // the first table is
+        var tables = this.el.querySelectorAll('table.part-table'),
+            changeTable = (scheme != 'new') ? tables[1] : tables[0];
+
+        if (scheme != 'new') {
+            refTable = tables[0];
+            this.addCount(gettext('Actor count'), refTable, function(label){
+                _this.checkNodeCount(label, _this.referenceOriginSelect, _this.referenceOriginAreaSelect);
+            }, 1)
+            this.addCount(gettext('Actor count'), refTable, function(label){
+                _this.checkNodeCount(label, _this.referenceDestinationSelect, _this.referenceDestinationAreaSelect);
+            }, 3)
+            this.addCount(gettext('Flow count'), refTable, function(label){
+                _this.checkFlowCount(label);
+            })
+        }
+
+        if (_this.newOriginSelect)
+            this.addCount(gettext('Actor count'), changeTable, function(label){
+                _this.checkNodeCount(label, _this.newOriginSelect, _this.newOriginAreaSelect);
+            }, 1)
+        if (_this.newDestinationSelect)
+            this.addCount(gettext('Actor count'), changeTable, function(label){
+                _this.checkNodeCount(label, _this.newDestinationSelect, _this.newDestinationAreaSelect);
+            }, (scheme != 'new') ? 1 : 3)
+
         //this.materialChangeSelect.addEventListener('change', this.toggleNewMaterial);
 
         // forbid html escape codes in name
@@ -186,6 +217,119 @@ var SolutionPartView = BaseView.extend(
         })
         // for some reasons jquery doesn't find this element when declared in 'events' attribute
         this.el.querySelector('#affected-flows-tab button.add').addEventListener('click', this.addAffectedFlow);
+    },
+
+    addCount: function(title, table, onClick, position){
+        var row = table.insertRow((position != null) ? position : -1),
+            cell1 = row.insertCell(0),
+            cell2 = row.insertCell(1),
+            _this = this;
+
+        var label = document.createElement('div');
+        label.innerHTML = title;
+        cell1.appendChild(label);
+
+        var countLabel = document.createElement('label'),
+            countButton = document.createElement('button');
+
+        countLabel.classList.add('count-label');
+        countLabel.innerHTML = '?';
+        countButton.classList.add('btn', 'btn-secondary', 'square');
+        countButton.innerHTML = gettext('Check');
+
+        countButton.addEventListener('click', function(){
+            onClick(countLabel);
+        })
+
+        cell2.appendChild(countLabel);
+        cell2.appendChild(countButton);
+    },
+
+    checkNodeCount: function(elFlowCount, input, areainput){
+        if (!elFlowCount || !input) return;
+
+        var data = {};
+
+        elFlowCount.innerHTML = '?';
+        var url = config.api['actors'].format(this.caseStudy.id, this.keyflowId) + 'count/';
+
+        if (areainput && areainput.value != -1){
+            var area = this.areas.get(areainput.value),
+                geom = area.get('geom');
+            data['area'] = JSON.stringify(geom);
+        }
+
+        Backbone.ajax({
+            url: url + '?GET=true&activity=' + input.value,
+            method: 'POST',
+            data: data,
+            success: function(res){
+                elFlowCount.innerHTML = res.count;
+            },
+            error: this.onError
+        });
+
+    },
+
+    checkFlowCount: function(elFlowCount){
+        var origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null,
+            destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value: null,
+            material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null,
+            includeChildren = this.referenceIncludeChildrenSelect.checked;
+
+        if (material == 'null') material = null;
+
+        if (!elFlowCount) return;
+
+        var queryData = {
+            'origin__activity': origin_activity,
+            'destination__activity': destination_activity
+        }
+
+        if (origin_activity == null || destination_activity == null){
+            elFlowCount.innerHTML = gettext('Origin and Destination have to be set.')
+            return;
+        }
+        if (material != null) queryData['material'] = material;
+
+        if (includeChildren) queryData['include_child_materials'] = true;
+
+        elFlowCount.innerHTML = '?';
+        var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
+        process = (process === '-1') ? null: process;
+
+        var data = {};
+        var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;
+        origin_area = (area === '-1') ? null: area;
+
+        if (origin_area){
+            var area = this.areas.get(origin_area),
+                geom = area.get('geom');
+            data['origin_area'] = JSON.stringify(geom);
+        }
+
+        area = (this.referenceDestinationAreaSelect) ? this.referenceDestinationAreaSelect.value: null;
+        destination_area = (area === '-1') ? null: area;
+
+        if (destination_area){
+            var area = this.areas.get(destination_area),
+                geom = area.get('geom');
+            data['destination_area'] = JSON.stringify(geom);
+        }
+
+        var url = config.api['flows'].format(this.caseStudy.id, this.keyflowId) + 'count/';
+
+        if (process != null) queryData['process'] = process;
+
+        Backbone.ajax({
+            url: url + '?' + $.param(queryData),
+            method: 'POST',
+            data: data,
+            success: function(res){
+                elFlowCount.innerHTML = res.count;
+            },
+            error: this.onError
+        });
     },
 
     toggleHasQuestion: function(){
@@ -244,6 +388,7 @@ var SolutionPartView = BaseView.extend(
             if (this.referenceProcessSelect) this.referenceProcessSelect.value = refFlow.process || -1;
             if (this.referenceOriginAreaSelect) this.referenceOriginAreaSelect.value = refFlow.origin_area || -1;
             if (this.referenceDestinationAreaSelect) this.referenceDestinationAreaSelect.value = refFlow.destination_area || -1;
+            if (this.referenceIncludeChildrenSelect) this.referenceIncludeChildrenSelect.checked = refFlow.include_child_materials || false;
         }
 
         if (changeFlow){
@@ -299,7 +444,11 @@ var SolutionPartView = BaseView.extend(
 
         refFlow.origin_activity = (this.referenceOriginSelect) ? this.referenceOriginSelect.value: null;
         refFlow.destination_activity = (this.referenceDestinationSelect) ? this.referenceDestinationSelect.value : null;
-        refFlow.material = (this.referenceMaterialSelect) ? this.referenceMaterialSelect.dataset.selected: null;
+        var material = (this.referenceMaterialSelect) ? parseInt(this.referenceMaterialSelect.dataset.selected): null;
+        if (material == 'null') material = null;
+        refFlow.material = material;
+        refFlow.include_child_materials = this.referenceIncludeChildrenSelect.checked;
+
         var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
         refFlow.process = (process === '-1') ? null: process;
         var area = (this.referenceOriginAreaSelect) ? this.referenceOriginAreaSelect.value: null;
@@ -440,12 +589,14 @@ var SolutionPartView = BaseView.extend(
         matSelect.classList.add('materialSelect');
         var select = this.el.querySelector('.hierarchy-select');
         var flowsInChildren = {};
-        // count materials in parent, descending level (leafs first)
-        this.materials.models.reverse().forEach(function(material){
-            var parent = material.get('parent'),
-                count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
-            flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
-        })
+        if (options.countChildren) {
+            // count materials in parent, descending level (leafs first)
+            this.materials.models.reverse().forEach(function(material){
+                var parent = material.get('parent'),
+                    count = material.get('flow_count') + (flowsInChildren[material.id] || 0);
+                flowsInChildren[parent] = (!flowsInChildren[parent]) ? count: flowsInChildren[parent] + count;
+            })
+        }
 
         var hierarchicalSelect = this.hierarchicalSelect(this.materials, matSelect, {
             onSelect: function(model){
@@ -456,8 +607,14 @@ var SolutionPartView = BaseView.extend(
             defaultOption: options.defaultOption || gettext('Select'),
             label: function(model, option){
                 var compCount = model.get('flow_count'),
-                    childCount = flowsInChildren[model.id] || 0,
-                    label = model.get('name') + '(' + compCount + ' / ' + childCount + ')';
+                    label = model.get('name');
+
+                if (options.showCount && options.countChildren) {
+                    var childCount = flowsInChildren[model.id] || 0;
+                    label += ' (' + gettext('used ') + ' ' + compCount + 'x / ' + gettext('children used ') + ' ' + childCount + 'x)';
+                } else if (options.showCount){
+                    label += ' (' + gettext('total of') + ' ' + compCount + ')';
+                }
                 return label;
             }
         });
@@ -468,9 +625,8 @@ var SolutionPartView = BaseView.extend(
         matFlowless.forEach(function(material){
             var li = hierarchicalSelect.querySelector('li[data-value="' + material.id + '"]');
             if (!li) return;
-            var a = li.querySelector('a'),
-                cls = (flowsInChildren[material.id] > 0) ? 'half': 'empty';
-            a.classList.add(cls);
+            var a = li.querySelector('a');
+            a.classList.add('empty');
         })
         el.appendChild(hierarchicalSelect);
         el.select = hierarchicalSelect.select;

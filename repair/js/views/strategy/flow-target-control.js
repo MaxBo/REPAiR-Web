@@ -90,6 +90,7 @@ var FlowTargetControlView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
+        'click #reload-flow-target-control': 'renderTargetControl'
     },
 
     render: function(){
@@ -104,7 +105,18 @@ var FlowTargetControlView = BaseView.extend(
             keyflowId: this.keyflowId,
             strategy: this.strategy
         })
-        var objectivesPanel = this.el.querySelector('#target-control');
+        var li = this.el.querySelector('a[href="#modified-indicators"]');
+        $(li).on('shown.bs.tab', function () {
+            var map = _this.assessmentView.map;
+            if (map) map.map.updateSize();
+        });
+        this.renderTargetControl();
+    },
+
+    renderTargetControl: function(){
+        var objectivesPanel = this.el.querySelector('#target-control'),
+            _this = this;
+        objectivesPanel.innerHTML = '';
         this.userObjectives.forEach(function(objective){
             var panel = _this.renderObjective(objective);
             objectivesPanel.appendChild(panel);

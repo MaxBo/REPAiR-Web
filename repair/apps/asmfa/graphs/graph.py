@@ -7,8 +7,10 @@ except ModuleNotFoundError:
     pass
 
 from django.db.models import Q, Sum, F
+from django.db.models.functions import Coalesce
 from django.db import connection
 import numpy as np
+import pandas as pd
 import datetime
 from io import StringIO
 from django.conf import settings
@@ -204,6 +206,8 @@ class BaseGraph:
             self.graph.new_vertex_property("string")
         self.graph.vertex_properties["name"] = \
             self.graph.new_vertex_property("string")
+        self.graph.vertex_properties["downstream_balance_factor"] = \
+            self.graph.new_vertex_property("double", val=1)
 
         actorids = {}
         for i in range(len(actors)):
@@ -240,20 +244,48 @@ class BaseGraph:
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[e] = flow.id
                 self.graph.ep.material[e] = flow.material_id
+                self.graph.ep.waste[e] = flow.waste
+                self.graph.ep.hazardous[e] = flow.hazardous
                 self.graph.ep.process[e] = \
                     flow.process_id if flow.process_id is not None else - 1
                 self.graph.ep.amount[e] = flow.amount
 
+        #  get the original order of the vertices and edges in the graph
+        edge_index = np.fromiter(self.graph.edge_index,  dtype=int)
+        vertex_index = np.fromiter(self.graph.vertex_index,  dtype=int)
+        # get an array with the source and target ids of all edges
+        edges = self.graph.get_edges()
+        # get the amounts, sorted by the edge_index
+        amount = self.graph.ep.amount.a[edge_index]
+
+        #  put them in a Dataframe
+        df = pd.DataFrame(data={'amount': amount,
+                                'fromnode': edges[:, 0],
+                                'tonode': edges[: ,1],})
+
+        # sum up the in- and outflows for each node
+        sum_fromnode = df.groupby('fromnode').sum()
+        sum_fromnode.index.name = 'nodeid'
+        sum_fromnode.rename(columns={'amount': 'sum_outflows',}, inplace=True)
+        sum_tonode = df.groupby('tonode').sum()
+        sum_tonode.index.name = 'nodeid'
+        sum_tonode.rename(columns={'amount': 'sum_inflows',}, inplace=True)
+
+        # merge in- and outflows
+        merged = sum_tonode.merge(sum_fromnode, how='outer',  on='nodeid')
+        # calculate the balance_factor
+        merged['balance_factor'] = merged['sum_outflows'] / merged['sum_inflows']
+        #  set balance_factor to 1.0, if inflow or outflow is NAN
+        balance_factor = merged['balance_factor'].fillna(value=1).sort_index()
+
+        #  set balance_factor also to 1.0 if it is 0 or infinitive
+        balance_factor.loc[balance_factor==0] = 1
+        balance_factor.loc[np.isinf(balance_factor)] = 1
+
+        #  write the results to the property-map downstream_balance_factor
+        self.graph.vp.downstream_balance_factor.a[vertex_index] = balance_factor
+
         self.save()
-        # save graph image
-        #fn = "keyflow-{}-base.png".format(self.keyflow.id)
-        #fn = os.path.join(self.path, fn)
-        #pos = gt.draw.fruchterman_reingold_layout(self.graph, n_iter=1000)
-        #gt.draw.graph_draw(self.graph, pos, vertex_size=20,
-        # vertex_text=self.graph.vp.name,
-        #                       vprops={"text_position":0,
-        # "font_weight": cairo.FONT_WEIGHT_BOLD, "font_size":14},
-        #                       output_size=(700,600), output=fn)
         return self.graph
 
     def validate(self):
@@ -323,7 +355,7 @@ class StrategyGraph(BaseGraph):
         for i, flow in enumerate(flows):
             delta = formula.calculate_delta(flow.amount)
             if formula.is_absolute:
-                # equal distribution or distribution depending on
+                # ToDo: equal distribution or distribution depending on
                 # previous share on total amount?
                 delta /= len(flows)
                 # alternatively sth like that: delta *= flow.amount / total
@@ -344,10 +376,15 @@ class StrategyGraph(BaseGraph):
         '''
         total = formula.calculate_delta()
         flow_count = len(origins) * len(destinations)
+
+        new_flows = []
+        if not flow_count:
+            print('WARNING: No orgins and/or destinations found '
+                  'while creating new flows')
+            return new_flows, np.empty((0, ))
         # equal distribution
         amount = total / flow_count
         deltas = np.full((flow_count), amount)
-        new_flows = []
         for origin, destination in itertools.product(origins, destinations):
             new_flow = FractionFlow(
                 origin=origin, destination=destination,
@@ -399,7 +436,7 @@ class StrategyGraph(BaseGraph):
 
         # actors in possible new targets that are closest
         closest_dict = self.find_closest_actor(actors_kept,
-                                             possible_new_targets)
+                                               possible_new_targets)
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
@@ -415,13 +452,13 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.amount)
+            delta = formula.calculate_delta(flow.s_amount)
             # ToDo: distribute total change to changes on edges
             # depending on share of total or distribute equally?
             if formula.is_absolute:
                 # equally
                 delta /= len(referenced_flows)
-            delta = flow.amount + delta
+            delta = flow.s_amount + delta
 
             # the edge corresponding to the referenced flow
             # (the one to be shifted)
@@ -525,7 +562,7 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.amount)
+            delta = formula.calculate_delta(flow.s_amount)
             # ToDo: distribute total change to changes on edges
             # depending on share of total or distribute equally?
             if formula.is_absolute:
@@ -587,7 +624,7 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            deltas.append(flow.amount + delta)
+            deltas.append(flow.s_amount + delta)
 
         return new_flows, deltas
 
@@ -633,17 +670,25 @@ class StrategyGraph(BaseGraph):
         return flows on actor level filtered by flow_reference attributes
         and implementation areas
         '''
-        #impl_materials = descend_materials(
-            #[flow_reference.material])
         origins, destinations = self._get_actors(flow_reference, implementation)
-        kwargs = {
-            'origin__in': origins,
-            'destination__in': destinations,
-            'material': flow_reference.material
-        }
+        flows = FractionFlow.objects.filter(
+            origin__in=origins,
+            destination__in=destinations
+        )
+        flows = self._annotate(flows)
+        if flow_reference.include_child_materials:
+            impl_materials = Material.objects.filter(id__in=descend_materials(
+                [flow_reference.material]))
+            kwargs = {
+                's_material__in': impl_materials
+            }
+        else:
+            kwargs = {
+                's_material': flow_reference.material.id
+            }
         if flow_reference.process:
-            kwargs['process'] = flow_reference.process
-        reference_flows = FractionFlow.objects.filter(**kwargs)
+            kwargs['s_process'] = flow_reference.process.id
+        reference_flows = flows.filter(**kwargs)
         return reference_flows
 
     def _get_affected_flows(self, solution_part):
@@ -655,18 +700,34 @@ class StrategyGraph(BaseGraph):
         affectedflows = AffectedFlow.objects.filter(
                         solution_part=solution_part)
         # get FractionFlows related to AffectedFlow
-        flows = FractionFlow.objects.none()
+        aff_flows = FractionFlow.objects.none()
         for af in affectedflows:
             #materials = descend_materials([af.material])
+            flows = FractionFlow.objects.filter(
+                origin__activity = af.origin_activity,
+                destination__activity = af.destination_activity
+            )
+            flows = self._annotate(flows)
             kwargs = {
-                'origin__activity': af.origin_activity,
-                'destination__activity': af.destination_activity,
-                'material': af.material
+                's_material': af.material.id
             }
             if af.process:
-                kwargs['process': af.process]
-            flows = flows | FractionFlow.objects.filter(**kwargs)
-        return flows
+                kwargs['s_process': af.process]
+            aff_flows = aff_flows | flows.filter(**kwargs)
+        return aff_flows
+
+    def _annotate(self, flows):
+        ''' annotate flows with strategy attributes (trailing "s_") '''
+        annotated = flows.annotate(
+            s_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
+            s_material=Coalesce('f_strategyfractionflow__material', 'material'),
+            s_waste=Coalesce('f_strategyfractionflow__waste', 'waste'),
+            s_hazardous=Coalesce('f_strategyfractionflow__hazardous',
+                                 'hazardous'),
+            s_process=Coalesce('f_strategyfractionflow__process',
+                               'process')
+        )
+        return annotated
 
     def _include(self, flows, do_include=True):
         '''
@@ -705,16 +766,18 @@ class StrategyGraph(BaseGraph):
         if(len(vertices) > 0):
             return vertices[0]
 
+        # add actor to graph
         actor = Actor.objects.get(id=id)
         vertex = self.graph.add_vertex()
+        # not existing in basegraph -> no flows in or out in status quo ->
+        # balance factor of 1
+        self.graph.vp.downstream_balance_factor[vertex] = 1
         self.graph.vp.id[vertex] = id
         self.graph.vp.bvdid[vertex] = actor.BvDid
         self.graph.vp.name[vertex] = actor.name
         return vertex
 
     def build(self):
-        #self.mock_changes()
-        #return
         base_graph = BaseGraph(self.keyflow, tag=self.tag)
         # if the base graph is not built yet, it shouldn't be done automatically
         # there are permissions controlling who is allowed to build it and
@@ -724,9 +787,9 @@ class StrategyGraph(BaseGraph):
         self.graph = base_graph.load()
         gw = GraphWalker(self.graph)
         self.clean_db()
+        #self.mock_changes()
+        #return
 
-        # add change attribute, it defaults to 0.0
-        self.graph.ep.change = self.graph.new_edge_property("float")
         # attribute marks edges to be ignored or not (defaults to False)
         self.graph.ep.include = self.graph.new_edge_property("bool")
         # attribute marks changed edges (defaults to False)
@@ -836,7 +899,7 @@ class StrategyGraph(BaseGraph):
                 self._include(affected_flows)
                 # exclude implementation flows in case they are also in affected
                 # flows (ToDo: side effects?)
-                self._include(implementation_flows, do_include=False)
+                #self._include(implementation_flows, do_include=False)
 
                 impl_edges = self._get_edges(implementation_flows)
 
@@ -864,27 +927,46 @@ class StrategyGraph(BaseGraph):
             flow = FractionFlow.objects.get(id=self.graph.ep.id[edge])
             material = self.graph.ep.material[edge]
             process = self.graph.ep.process[edge]
+            if process == -1:
+                process = None
             waste = self.graph.ep.waste[edge]
             hazardous = self.graph.ep.hazardous[edge]
             # new flow is marked with strategy relation
             # (no seperate strategy fraction flow needed)
             if flow.strategy is not None:
                 flow.amount = new_amount
+                flow.hazardous = hazardous
+                flow.material_id = material
+                flow.waste = waste
+                flow.process_id = process
                 flow.save()
             # changed flow gets a related strategy fraction flow holding changes
             else:
-                strat_flow = StrategyFractionFlow(
-                    strategy=self.strategy, amount=new_amount,
-                    fractionflow=flow,
-                    material_id=material,
-                    waste=waste,
-                    hazardous=hazardous
-                )
-                if process == -1:
-                    strat_flow.process = None
-                else:
+                ex = StrategyFractionFlow.objects.filter(
+                    fractionflow=flow, strategy=self.strategy)
+                # if there already was a modification, overwrite it
+                if len(ex) == 1:
+                    strat_flow = ex[0]
+                    strat_flow.amount = new_amount
+                    strat_flow.material_id = material
+                    strat_flow.waste = waste
+                    strat_flow.hazardous = hazardous
                     strat_flow.process_id = process
-                strat_flows.append(strat_flow)
+                    strat_flow.save()
+                elif len(ex) > 1:
+                    raise Exception('more than StrategyFractionFlow '
+                                    'found per flow. This should not happen.')
+                else:
+                    strat_flow = StrategyFractionFlow(
+                        strategy=self.strategy,
+                        amount=new_amount,
+                        fractionflow=flow,
+                        material_id=material,
+                        waste=waste,
+                        hazardous=hazardous,
+                        process_id=process
+                    )
+                    strat_flows.append(strat_flow)
 
         StrategyFractionFlow.objects.bulk_create(strat_flows)
 
@@ -932,7 +1014,7 @@ class StrategyGraph(BaseGraph):
                         'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                         '"asmfa_administrativelocation"."geom"')
 
-                querytext_target_actors,  params_target_actors = \
+                querytext_target_actors, params_target_actors = \
                     query_target_actors.sql_with_params()
                 querytext_target_actors = querytext_target_actors.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
@@ -1008,14 +1090,14 @@ class StrategyGraph(BaseGraph):
                 WHERE a.rn = 1
                 '''
 
-                params = ()
+                params = None
 
             else:
                 raise ConnectionError(f'unknown backend: {backend}')
 
 
             with connection.cursor() as cursor:
-                cursor.execute(query,  params)
+                cursor.execute(query, params)
                 rows = cursor.fetchall()
 
             target_actors.update(dict(rows))

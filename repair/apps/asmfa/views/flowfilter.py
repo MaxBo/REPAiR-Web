@@ -1,18 +1,20 @@
 from collections import defaultdict, OrderedDict
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
-from rest_framework.response import Response
+from django.contrib.gis.geos import GEOSGeometry
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
 from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
-                              Case, When, Value)
-import time
+                              Case, When, Value, QuerySet, Count,
+                              FilteredRelation)
 import numpy as np
 import copy
 import json
 from collections import defaultdict, OrderedDict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.db.models import Union
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
@@ -22,7 +24,7 @@ from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (
     Flow, AdministrativeLocation, Actor2Actor, Group2Group,
     Material, FractionFlow, Actor, ActivityGroup, Activity,
-    AdministrativeLocation, Process
+    AdministrativeLocation, Process, StrategyFractionFlow
 )
 from repair.apps.changes.models import Strategy
 from repair.apps.studyarea.models import Area
@@ -74,6 +76,60 @@ def build_area_filter(function_name, values, keyflow_id):
         else 'destination__id__in'
     return rest_func, actors.values_list('id')
 
+def get_fractionflows(keyflow_pk, strategy=None):
+    '''
+    returns fraction flows in given keyflow
+
+    annotates fraction flow queryset flows with values of fields
+    of strategy fraction flows ('strategy_' as prefix to original field)
+
+    strategy fraction flows override fields of fraction flow (prefix 'strategy_') if
+    changed in strategy
+    '''
+
+    queryset = FractionFlow.objects
+    if not strategy:
+        queryset = queryset.filter(
+            keyflow__id=keyflow_pk,
+            strategy__isnull=True).\
+            annotate(
+                strategy_amount=F('amount'),
+                strategy_material=F('material'),
+                strategy_material_name=F('material__name'),
+                strategy_material_level=F('material__level'),
+                strategy_waste=F('waste'),
+                strategy_hazardous=F('hazardous'),
+                strategy_process=F('process'),
+                # just setting Value(0) doesn't seem to work
+                strategy_delta=F('strategy_amount') - F('amount')
+        )
+    else:
+        qs1 = queryset.filter(
+            Q(keyflow__id=keyflow_pk) &
+            (Q(strategy__isnull=True) |
+             Q(strategy_id=strategy))
+        )
+        qsfiltered = qs1.annotate(sf=FilteredRelation(
+            'f_strategyfractionflow',
+            condition=Q(f_strategyfractionflow__strategy=strategy)))
+        queryset = qsfiltered.annotate(
+            # strategy fraction flow overrides amounts
+            strategy_amount=Coalesce('sf__amount', 'amount'),
+            strategy_material=Coalesce('sf__material', 'material'),
+            strategy_material_name=Coalesce(
+                'sf__material__name', 'material__name'),
+            strategy_material_level=Coalesce(
+                'sf__material__level', 'material__level'),
+            strategy_waste=Coalesce('sf__waste', 'waste'),
+            strategy_hazardous=Coalesce('sf__hazardous', 'hazardous'),
+            strategy_process=Coalesce('sf__process', 'process'),
+            #strategy_delta=Case(When(strategy=strategy,
+                                     #then=F('strategy_amount')),
+                                #default=F('strategy_amount') - F('amount'))
+        )
+
+    return queryset.order_by('origin', 'destination')
+
 
 class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                         CasestudyViewSetMixin,
@@ -85,10 +141,39 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     #additional_filters = {'origin__included': True,
                           #'destination__included': True}
 
+    @action(methods=['get', 'post'], detail=False)
+    def count(self, request, **kwargs):
+        query_params = request.query_params.copy()
+        material = query_params.pop('material', None)
+        include_children = query_params.pop('include_child_materials', None)
+        queryset = self._filter(kwargs, query_params=query_params)
+
+        if (material is not None):
+            mat_id = material[0]
+            if include_children:
+                mats = Material.objects.filter(
+                    id__in=descend_materials([Material.objects.get(id=mat_id)]))
+                queryset = queryset.filter(strategy_material__in=mats)
+            else:
+                queryset = queryset.filter(strategy_material=mat_id)
+
+        if ('origin_area' in request.data):
+            geojson = self.request.data['origin_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                origin__administrative_location__geom__intersects=poly)
+        if ('destination_area' in request.data):
+            geojson = self.request.data['destination_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                destination__administrative_location__geom__intersects=poly)
+        json = {'count': queryset.count()}
+        return Response(json)
+
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
-        flows = FractionFlow.objects.filter(keyflow__id=keyflow_pk)
-        return flows.order_by('origin', 'destination')
+        strategy = self.request.query_params.get('strategy', None)
+        return get_fractionflows(keyflow_pk, strategy=strategy)
 
     # POST is used to send filter parameters not to create
     def post_get(self, request, **kwargs):
@@ -188,7 +273,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
             mats = descend_materials(list(materials) +
                                      list(unaltered_materials))
-            queryset = queryset.filter(material__id__in=mats)
+            queryset = queryset.filter(
+                strategy_material__in=Material.objects.filter(id__in=mats))
 
         agg_map = None
         try:
@@ -208,6 +294,13 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         if query_params:
             query_params = query_params.copy()
             strategy = query_params.pop('strategy', None)
+            for key in query_params:
+                if (key.startswith('material') or
+                    key.startswith('waste') or
+                    key.startswith('hazardous') or
+                    key.startswith('process') or
+                    key.startswith('amount')):
+                    query_params['strategy_'+key] = query_params.pop(key)[0]
             # rename filter for stock, as this relates to field with stock pk
             # but serializer returns boolean in this field (if it is stock)
             stock_filter = query_params.pop('stock', None)
@@ -215,28 +308,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 query_params['to_stock'] = stock_filter[0]
         queryset = super()._filter(lookup_args, query_params=query_params,
                                    SerializerClass=SerializerClass)
-        if strategy:
-            # ToDo: material
-            queryset = queryset.filter(
-                (
-                    Q(f_strategyfractionflow__isnull = True) |
-                    Q(f_strategyfractionflow__strategy = strategy[0])
-                )
-            ).annotate(
-                # strategy fraction flow overrides amounts
-                strategy_amount=Coalesce(
-                    'f_strategyfractionflow__amount', 'amount'),
-                # set new flow amounts to zero for status quo
-                statusquo_amount=Case(
-                    When(strategy__isnull=True, then=F('amount')),
-                    default=Value(0),
-                )
-            )
-        else:
-            # flows without filters for status quo
-            queryset = queryset.filter(strategy__isnull=True)
-            # just for convenience, use field statusquo_amount
-            queryset = queryset.annotate(statusquo_amount=F('amount'))
         return queryset
 
     def list(self, request, **kwargs):
@@ -263,7 +334,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         # workaround: reset order to avoid Django ORM bug with determining
         # distinct values in ordered querysets
         queryset = queryset.order_by()
-        materials_used = queryset.values('material').distinct()
+        materials_used = queryset.values('strategy_material').distinct()
         materials_used = Material.objects.filter(id__in=materials_used)
         #  no materials given -> aggregate to top level
         if not materials:
@@ -297,8 +368,8 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
                 if not found:
                     exclusion.append(flow.id)
-            # exclude flows not in material hierarchy, shouldn't happen if correctly
-            # filtered before, but doesn't hurt
+            # exclude flows not in material hierarchy, shouldn't happen if
+            # correctly filtered before, but doesn't hurt
             filtered = queryset.exclude(id__in=exclusion)
         return agg_map
 
@@ -338,14 +409,16 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         destination_level = LEVEL_KEYWORD[destination_model]
         data = []
         origins = origin_model.objects.filter(
-            id__in=queryset.values(origin_filter))
+            id__in=list(queryset.values_list(origin_filter, flat=True)))
         destinations = destination_model.objects.filter(
-            id__in=queryset.values(destination_filter))
+            id__in=list(queryset.values_list(destination_filter, flat=True)))
         # workaround Django ORM bug
         queryset = queryset.order_by()
 
-        groups = queryset.values(origin_filter, destination_filter,
-                                 'waste', 'process', 'to_stock').distinct()
+        groups = queryset.values(
+            origin_filter, destination_filter,
+            'strategy_waste', 'strategy_process', 'to_stock',
+            'strategy_hazardous').distinct()
 
         def get_code_field(model):
             if model == Actor:
@@ -366,8 +439,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
 
         for group in groups:
             grouped = queryset.filter(**group)
-            # sum over all rows in group
-            total_amount = list(grouped.aggregate(Sum('statusquo_amount')).values())[0]
             origin_item = origin_dict[group[origin_filter]]
             origin_item['level'] = origin_level
             dest_item = destination_dict[group[destination_filter]]
@@ -375,26 +446,20 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 dest_item['level'] = destination_level
             # sum up same materials
             annotation = {
-                'name':  F('material__name'),
-                'level': F('material__level'),
-                'statusquo_amount': Sum('statusquo_amount')
+                'material': F('strategy_material'),
+                'name':  F('strategy_material_name'),
+                'level': F('strategy_material_level'),
+                #'delta': Sum('strategy_delta'),
+                'amount': Sum('strategy_amount')
             }
-            if strategy is not None:
-                total_strategy_amount = \
-                    list(grouped.aggregate(Sum('strategy_amount')).values())[0]
-                annotation['strategy_amount'] = F('strategy_amount')
-                # F('amount') takes Sum annotation instead of real field
-                annotation['delta'] = (F('strategy_amount') -
-                                       F('statusquo_amount'))
             grouped_mats = \
-                list(grouped.values('material').annotate(**annotation))
+                list(grouped.values('strategy_material').annotate(**annotation))
             # aggregate materials according to mapping aggregation_map
             if aggregation_map:
                 aggregated = {}
                 for grouped_mat in grouped_mats:
-                    mat_id = grouped_mat['material']
-                    amount = grouped_mat['statusquo_amount'] if not strategy \
-                        else grouped_mat['strategy_amount']
+                    mat_id = grouped_mat['strategy_material']
+                    amount = grouped_mat['amount']
                     mapped = aggregation_map[mat_id]
 
                     agg_mat_ser = aggregated.get(mapped.id, None)
@@ -404,39 +469,35 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                             'material': mapped.id,
                             'name': mapped.name,
                             'level': mapped.level,
-                            'amount': amount
+                            'amount': amount,
+                            #'delta': grouped_mat['delta']
                         }
-                        # take the amount in strategy if strategy was passed
-                        if strategy is not None:
-                            agg_mat_ser['delta'] = grouped_mat['delta']
                         aggregated[mapped.id] = agg_mat_ser
                     # just sum amounts up if dict is already there
                     else:
                         agg_mat_ser['amount'] += amount
-                        if strategy is not None:
-                            agg_mat_ser['delta'] += grouped_mat['delta']
+                        #if strategy is not None:
+                            #agg_mat_ser['delta'] += grouped_mat['delta']
                 grouped_mats = aggregated.values()
-            else:
-                # for some reason the groups forget their field 'amount'
-                for grouped_mat in grouped_mats:
-                    if 'amount' not in grouped_mat:
-                        grouped_mat['amount'] = grouped_mat['statusquo_amount']
-            process = Process.objects.get(id=group['process']) \
-                if group['process'] else None
+            process = Process.objects.get(id=group['strategy_process']) \
+                if group['strategy_process'] else None
+            # sum over all rows in group
+            #sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            strat_total_amount = list(
+                grouped.aggregate(Sum('strategy_amount')).values())[0]
+            #deltas = list(grouped.aggregate(Sum('strategy_delta')).values())[0]
             flow_item = OrderedDict((
                 ('origin', origin_item),
                 ('destination', dest_item),
-                ('waste', group['waste']),
+                ('waste', group['strategy_waste']),
+                ('hazardous', group['strategy_hazardous']),
                 ('stock', group['to_stock']),
                 ('process', process.name if process else ''),
                 ('process_id', process.id if process else None),
-                ('amount', total_amount),
-                ('materials', grouped_mats)
+                ('amount', strat_total_amount),
+                ('materials', grouped_mats),
+                #('delta', deltas)
             ))
-            if strategy is not None:
-                flow_item['amount'] = total_strategy_amount
-                flow_item['delta'] = total_strategy_amount - total_amount
-
             data.append(flow_item)
         return data
 

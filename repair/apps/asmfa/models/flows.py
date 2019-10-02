@@ -261,3 +261,6 @@ class StrategyFractionFlow(GDSEModel):
         related_name='f_strategyfractionflowprocesses')
     waste = models.BooleanField(default=False)
     hazardous = models.BooleanField(default=False)
+
+    class Meta(GDSEModel.Meta):
+        unique_together = ('strategy', 'fractionflow')
