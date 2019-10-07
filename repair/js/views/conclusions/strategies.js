@@ -406,8 +406,9 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                         if (!_this.quantities[user.id]) return;
                         var values = _this.quantities[user.id][question.id],
                             isAbsolute = question.get('is_absolute');
+                        if (!values) return;
                         values.forEach(function(value){
-                            var v = (isAbsolute) ? value + ' ' + gettext('t/year') : parseFloat(value) * 100 + '%',
+                            var v = (isAbsolute) ? value + ' ' + gettext('t/year') : parseFloat(value) + '%',
                                 t = '<b>' + (user.get('alias') || user.get('name')) + '</b><br><i>' + question.get('question') + '</i>:<br>' + v,
                                 panelItem = _this.panelItem(v, { popoverText: t });
                             panelItem.style.float = 'left';
