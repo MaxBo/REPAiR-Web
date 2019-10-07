@@ -72,7 +72,7 @@ function(_, BaseView, GDSECollection, BarChart){
                                 // ToDo: what if no status quo?
                                 if (!statusquoValue) return;
                                 _this.indicatorValues[indicator.id][user.id] = data;
-                                data.deltaPerc = (isAbs) ? deltaValue / statusquoValue * 100 : deltaValue;
+                                data.deltaPerc = (isAbs) ? deltaValue: deltaValue / statusquoValue * 100;
                             },
                             error: _this.onError
                         })
@@ -191,7 +191,6 @@ function(_, BaseView, GDSECollection, BarChart){
                         targetText = (targetValue) ? targetValue.get('text') : null,
                         deltaPerc = (data) ? data.deltaPerc : 0,
                         dt = (deltaPerc > 0) ? '+' + _this.format(deltaPerc) : _this.format(deltaPerc);
-
                     chartData.push({
                         group:  user.get('alias') || user.get('name'),
                         values: [
