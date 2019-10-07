@@ -102,8 +102,6 @@ def traverse_graph(g, edge, delta, upstream=True):
 
         #total_change.a[:] += change.a
         #change.a[:] = 0
-        sum_f = sum(change[out_f] for out_f in node.out_edges())
-        new_delta = delta - sum_f
         #change[edge] = new_delta
 
         # now go downstream, if we started upstream
@@ -118,24 +116,27 @@ def traverse_graph(g, edge, delta, upstream=True):
         visited.a[:] = False
         visited[edge] = True
         total_change.a[:] += change.a
-        change.a[:] = 0
-        change[edge] = new_delta
         g.ep.change.a[:] = total_change.a
         flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+        sum_f = sum(change[out_f] for out_f in node.out_edges())
+        new_delta = delta - sum_f
+        change.a[:] = 0
+        change[edge] = new_delta
 
         # print("\nTraversing in 2. direction")
         search.bfs_search(g, node, node_visitor)
 
-        sum_f = sum(change[out_f] for out_f in target_node.out_edges())
+        sum_f = sum(total_change[out_f] for out_f in node.in_edges())
         new_delta = delta - sum_f
 
+        total_change.a[:] += change.a
         g.ep.change.a[:] = total_change.a
         flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
-        total_change.a[:] += change.a
         change.a[:] = 0
         change[edge] = new_delta
         visited.a[:] = False
+        visited[edge] = True
 
         g.set_reversed(False)
         i += 1
