@@ -114,6 +114,9 @@ def traverse_graph(g, edge, delta, upstream=True):
     else:
         node = edge.source()
 
+
+    # todo:
+    # start at the target of the implementation edge, mark
     node_visitor.forward = True
     total_change.a[:] = 0
     while i < MAX_ITERATIONS and abs(new_delta) > 0.00001:
@@ -162,13 +165,13 @@ def traverse_graph(g, edge, delta, upstream=True):
             new_delta = delta - sum_f
         else:
             new_delta = 0
+        ## Plot total changes
+        #g.ep.change.a[:] = total_change.a
+        #flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
 
         node = reverse_graph(g, node_visitor, edge)
         i += 1
 
-        ## Plot total changes
-        #g.ep.change.a[:] = total_change.a
-        #flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
 
 
     # finally clean up
