@@ -167,8 +167,8 @@ def traverse_graph(g, edge, delta, upstream=True):
         i += 1
 
         ## Plot total changes
-        g.ep.change.a[:] = total_change.a
-        flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
+        #g.ep.change.a[:] = total_change.a
+        #flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
 
 
     # finally clean up
