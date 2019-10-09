@@ -6,68 +6,74 @@ except ModuleNotFoundError:
     class BFSVisitor:
         pass
 import copy
-import numpy as np
-from django.db.models import Q
-import time
 
 
 class NodeVisitor(BFSVisitor):
 
-    def __init__(self, name, amount, visited, change,
-                 balance_factor, fixed, forward=True):
+    def __init__(self, name, amount, change,
+                 balance_factor, forward=True):
         self.id = name
         self.amount = amount
-        self.visited = visited
         self.change = change
         self.balance_factor = balance_factor
-        self.fixed = fixed
         self.forward = forward
 
-    def examine_edge(self, e):
-        """Compute the amount change on each inflow for the vertex
-
-        This function is invoked on a edge as it is popped from the queue.
-        """
-        u = e.target()
+    def examine_vertex(self, u):
         vertex_id = int(u)
+        out_degree = u.out_degree()
+        if not out_degree:
+            return
 
-        balanced_delta = self.change[e] * self.balance_factor[vertex_id]
-        edges_out = list(u.out_edges())
-        sum_out_f = sum(self.amount[out_f] for out_f in edges_out)
+        bf = self.balance_factor[vertex_id]
+        sum_in_deltas = u.in_degree(weight=self.change)
+        balanced_delta = sum_in_deltas * bf
+        sum_out_f = u.out_degree(weight=self.amount)
         if sum_out_f:
             amount_factor = balanced_delta / sum_out_f
-        elif edges_out:
-            amount_factor = balanced_delta / len(edges_out)
-        for e_out in edges_out:
+        else:
+            amount_factor = balanced_delta / out_degree
+
+        for e_out in u.out_edges():
             amount_delta = self.amount[e_out] * amount_factor
-            if not (self.visited[e_out] and self.visited[e]):
+            if self.forward:
                 self.change[e_out] += amount_delta
-            elif (abs(self.change[e_out]) < abs(amount_delta)) \
-                 and not self.fixed[e_out]:
-                self.change[e_out] = amount_delta
-            self.visited[e_out] = True
+            else:
+                if abs(self.change[e_out]) < abs(amount_delta):
+                    self.change[e_out] = amount_delta
+                else:
+                    self.change[e_out] += amount_delta
+
+
+class NodeVisitorBalanceDeltas(BFSVisitor):
+
+    def __init__(self, name, amount, change,
+                 balance_factor):
+        self.id = name
+        self.amount = amount
+        self.change = change
+        self.balance_factor = balance_factor
 
     def examine_vertex(self, u):
-        if self.forward:
-            return
         vertex_id = int(u)
-        edges_in = list(u.in_edges())
-        edges_out = list(u.out_edges())
-        sum_in_deltas = sum(self.change[in_f] for in_f in edges_in)
-        sum_out_deltas = sum(self.change[out_f] for out_f in edges_out)
+        out_degree = u.out_degree()
+        if not out_degree:
+            return
+
+        sum_in_deltas = u.in_degree(self.change)
+        sum_out_deltas = u.out_degree(self.change)
         delta = sum_in_deltas - sum_out_deltas
         if not delta:
             return
-        balanced_delta = delta * self.balance_factor[vertex_id]
-        sum_out_f = sum(self.amount[out_f] for out_f in edges_out)
+        bf = self.balance_factor[vertex_id]
+        balanced_delta = delta * bf
+        sum_out_f = u.out_degree(weight=self.amount)
         if sum_out_f:
             amount_factor = balanced_delta / sum_out_f
-        elif edges_out:
-            amount_factor = balanced_delta / len(edges_out)
-        for e_out in edges_out:
+        else:
+            amount_factor = balanced_delta / out_degree
+        for e_out in u.out_edges():
             amount_delta = self.amount[e_out] * amount_factor
-            if not self.fixed[e_out]:
-                self.change[e_out] += amount_delta
+            self.change[e_out] += amount_delta
 
 
 def traverse_graph(g, edge, delta, upstream=True):
@@ -86,106 +92,158 @@ def traverse_graph(g, edge, delta, upstream=True):
     Edge ProperyMap (float)
         The signed change on the edges
     """
-    # Property map for keeping track of the visited edge. Once an edge has
-    # been visited it won't be processed anymore.
 
     amount = g.ep.amount
-    #  do we need the "visited"?
-    visited = g.new_edge_property("bool", val=False)
-    fixed = g.new_edge_property("bool", val=False)
     change = g.new_edge_property("float", val=0.0)
     total_change = g.new_edge_property("float", val=0.0)
-    visited[edge] = True
-    fixed[edge] = True
+
 
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     MAX_ITERATIONS = 20
     balance_factor = g.vp.downstream_balance_factor.a
     from repair.apps.asmfa.tests import flowmodeltestdata
-    new_delta = delta
-    i = 0
-    node_visitor = NodeVisitor(g.vp["id"], amount, visited, change,
-                               balance_factor, fixed)
+    node_visitor = NodeVisitor(g.vp["id"], amount, change,
+                               balance_factor)
+    node_visitor2 = NodeVisitorBalanceDeltas(g.vp["id"], amount, change,
+                               balance_factor)
+
+    # make a first run with the given changes to the implementation edge
 
     # By default we go upstream first, because 'demand dictates supply'
     if upstream:
-        node = reverse_graph(g, node_visitor, edge)
-    else:
         node = edge.source()
+        g.set_reversed(True)
+    else:
+        node = edge.target()
+        g.set_reversed(False)
 
-
-    # todo:
-    # start at the target of the implementation edge, mark
     node_visitor.forward = True
     total_change.a[:] = 0
+    new_delta = delta
+    i = 0
+    change[edge] = new_delta
+    # start in one direction
+    search.bfs_search(g, node, node_visitor)
+    change[edge] = new_delta
+
+    ## Plot changes after forward run
+    g.ep.change.a[:] = change.a
+    flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+
+    node = reverse_graph(g, node_visitor, node_visitor2, edge)
+    search.bfs_search(g, node, node_visitor)
+    change[edge] = new_delta
+
+    ## Plot changes after backward run
+    g.ep.change.a[:] = change.a
+    flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+
+    # balance out the changes
+    search.bfs_search(g, node, node_visitor2)
+    change[edge] = new_delta
+
+    # add up the total changes
+    total_change.a += change.a
+
+    ## Plot total changes
+    g.ep.change.a[:] = total_change.a
+    flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
+
+    node = reverse_graph(g, node_visitor, node_visitor2, edge)
+
+    if upstream:
+        if node.in_degree():
+            sum_f = node.in_degree(weight=total_change)
+            new_delta = delta - sum_f
+        else:
+            new_delta = 0
+    else:
+        if node.out_degree():
+            sum_f = node.out_degree(weight=total_change)
+            new_delta = delta - sum_f
+        else:
+            new_delta = 0
+    i += 1
+
+
     while i < MAX_ITERATIONS and abs(new_delta) > 0.00001:
         change.a[:] = 0
         change[edge] = new_delta
-        visited.a[:] = False
-        visited[edge] = True
 
         # start in one direction
 
         search.bfs_search(g, node, node_visitor)
-
-        if i > 0:
-            #sum_f = sum(total_change[out_f]+change[out_f]
-                        #for out_f in node.out_edges())
-            sum_f = node.out_degree(weight=total_change) + \
-                node.out_degree(weight=change)
-            new_delta = delta - sum_f
-
-        change[edge] = new_delta
+        change[edge] = 0
 
         ## Plot changes after forward run
-        #g.ep.change.a[:] = change.a
-        #flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+        g.ep.change.a[:] = change.a
+        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
 
         # now go downstream, if we started upstream
         # (or upstream, if we started downstream)
-        node = reverse_graph(g, node_visitor, edge)
+        node = reverse_graph(g, node_visitor, node_visitor2, edge)
+        if upstream:
+            sum_f = node.out_degree(weight=total_change) + \
+                node.out_degree(weight=change)
+        else:
+            sum_f = node.in_degree(weight=total_change) + \
+                node.in_degree(weight=change)
+        new_delta = delta - sum_f
+        change[edge] = new_delta
+
         search.bfs_search(g, node, node_visitor)
+        #change[edge] = 0
 
         ## Plot changes after backward run
-        #g.ep.change.a[:] = change.a
-        #flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+        g.ep.change.a[:] = change.a
+        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
-        # modify the implementation edge only in the first iteration
-        if i > 0:
-            change[edge] = 0
+        # balance out the changes
+        #change[edge] = new_delta
+        search.bfs_search(g, node, node_visitor2)
+        change[edge] = 0
+
+        ## Plot changes after balancing
+        g.ep.change.a[:] = change.a
+        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
         # add up the total changes
         total_change.a += change.a
 
-        if node.in_degree():
-            sum_f = node.in_degree(weight=total_change)
-            #sum_f = sum(total_change[out_f] for out_f in node.in_edges())
-            new_delta = delta - sum_f
-        else:
-            new_delta = 0
+        node = reverse_graph(g, node_visitor, node_visitor2, edge)
+
         ## Plot total changes
-        #g.ep.change.a[:] = total_change.a
-        #flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
+        g.ep.change.a[:] = total_change.a
+        flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
 
-        node = reverse_graph(g, node_visitor, edge)
+        if upstream:
+            if node.in_degree():
+                sum_f = node.in_degree(weight=total_change)
+                new_delta = delta - sum_f
+            else:
+                new_delta = 0
+        else:
+            if node.out_degree():
+                sum_f = node.out_degree(weight=total_change)
+                new_delta = delta - sum_f
+            else:
+                new_delta = 0
         i += 1
-
-
 
     # finally clean up
     g.set_reversed(False)
-    del visited
     g.clear_filters()
     return total_change
 
 
-def reverse_graph(g, node_visitor: NodeVisitor, edge):
+def reverse_graph(g, node_visitor: NodeVisitor, node_visitor2, edge):
     g.set_reversed(not g.is_reversed())
     node_visitor.balance_factor = 1 / node_visitor.balance_factor
-    node = edge.target() if g.is_reversed() else edge.source()
+    node = edge.target() if not g.is_reversed() else edge.source()
     node_visitor.forward = not node_visitor.forward
+    node_visitor2.balance_factor = 1 / node_visitor2.balance_factor
     return node
 
 
