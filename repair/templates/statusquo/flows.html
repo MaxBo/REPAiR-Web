@@ -162,7 +162,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-6 bordered">
+  <div class="col-md-4 bordered">
     <a class="help-icon glyphicon glyphicon-question-sign" data-toggle="popover" title="Sankey Map" style="margin: 15px; position: absolute; z-index:1000;" data-html="true" tabindex="0"
       data-content="{% blocktrans %}
           This map displays the selected flows of the sankey diagram to the left on a spatial actor level.
@@ -186,6 +186,10 @@
       {% endblocktrans %}">
     </a>
     <div id="flow-map" style="width: 100%; height: 600px;"></div>
+  </div>
+  <div class="col-md-2 bordered">
+    <div id="flow_table" class="row bordered"><strong>FLOW MATERIALS</strong></div>
+    <div id="flow_list" class="row bordered"><strong>FLOW INDICATORS</strong></div>
   </div>
 </div>
 </script>
