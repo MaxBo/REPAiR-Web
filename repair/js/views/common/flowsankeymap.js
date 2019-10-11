@@ -246,7 +246,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             });
             whiteDiv.addEventListener("click", function(){
                 _this.whiteCheck.checked = !_this.whiteCheck.checked;
-                _this.toggleWhite(_this.whiteCheck.checked);
+                _this.rerender();
             });
             aniCheckWrap.addEventListener("click", function(){
                 _this.animationCheck.checked = !_this.animationCheck.checked;
@@ -288,11 +288,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             L.DomEvent.disableScrollPropagation(this.legend);
         },
 
-        toggleWhite(checked) {
+        toggleWhite() {
             var _this = this;
             var darkBack = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{attribution: '© OpenStreetMap contributors, © CartoDB'});
             var lightBack = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',{attribution: '© OpenStreetMap contributors, © CartoDB'});
             this.leafletMap.removeLayer(this.backgroundLayer);
+            var checked = _this.whiteCheck.checked;
             if (checked) {
                 this.leafletMap.addLayer(lightBack);
             } else {
@@ -461,6 +462,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             _this.resetMapData(data, zoomToFit);
             _this.toggleClusters();
             _this.toggleMaterials();
+            _this.toggleWhite();
         },
 
         /*
