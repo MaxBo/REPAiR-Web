@@ -58,7 +58,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
         */
         render: function(){
             //this.backgroundLayer = new L.TileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
-            this.backgroundLayer = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{
+            this.backgroundLayer = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',{
                 attribution: '© OpenStreetMap contributors, © CartoDB'
             });
             var focusarea = this.caseStudy.get('properties').focusarea,
@@ -117,8 +117,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             this.actorCheck = document.createElement('input');
             this.stockCheck = document.createElement('input');
             this.flowCheck = document.createElement('input');
+            this.whiteCheck = document.createElement('input');
             this.flowCheck.checked = true;
             this.stockCheck.checked = true;
+            this.whiteCheck.checked = true;
 
             var div = document.createElement('div'),
                 matLabel = document.createElement('label'),
@@ -127,6 +129,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 stockLabel = document.createElement('label'),
                 flowLabel = document.createElement('label'),
                 clusterLabel = document.createElement('label'),
+                whiteLabel = document.createElement('label'),
                 _this = this;
 
             matLabel.innerHTML = gettext('Display materials');
@@ -135,11 +138,12 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             actorLabel.innerHTML = gettext('Show actors');
             flowLabel.innerHTML = gettext('Show flows');
             stockLabel.innerHTML = gettext('Show stocks');
+            whiteLabel.innerHTML = gettext('White map');
 
             [
                 this.materialCheck, this.clusterCheck,
                 this.animationCheck, this.actorCheck,
-                this.flowCheck, this.stockCheck
+                this.flowCheck, this.stockCheck, this.whiteCheck
             ].forEach(function(checkbox){
                 checkbox.type = "checkbox";
                 checkbox.style.transform = "scale(2)";
@@ -158,7 +162,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 aniDiv = document.createElement('div'),
                 aniCheckWrap = document.createElement('div'),
                 aniToggleDiv = document.createElement('div'),
-                clusterDiv = document.createElement('div');
+                clusterDiv = document.createElement('div'),
+                whiteDiv = document.createElement('div');
 
             matDiv.appendChild(this.materialCheck);
             matDiv.appendChild(matLabel);
@@ -176,6 +181,9 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             clusterDiv.appendChild(this.clusterCheck);
             clusterDiv.appendChild(clusterLabel);
             clusterDiv.style.cursor = 'pointer';
+            whiteDiv.appendChild(this.whiteCheck);
+            whiteDiv.appendChild(whiteLabel);
+            whiteDiv.style.cursor = 'pointer';
             aniCheckWrap.appendChild(this.animationCheck);
             aniCheckWrap.appendChild(aniLabel);
             aniDiv.appendChild(aniCheckWrap);
@@ -236,6 +244,10 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this.clusterCheck.checked = !_this.clusterCheck.checked;
                 _this.rerender();
             });
+            whiteDiv.addEventListener("click", function(){
+                _this.whiteCheck.checked = !_this.whiteCheck.checked;
+                _this.toggleWhite(_this.whiteCheck.checked);
+            });
             aniCheckWrap.addEventListener("click", function(){
                 _this.animationCheck.checked = !_this.animationCheck.checked;
                 _this.flowMap.toggleAnimation(_this.animationCheck.checked);
@@ -258,6 +270,8 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             div.appendChild(document.createElement('br'));
             div.appendChild(clusterDiv);
             div.appendChild(document.createElement('br'));
+            div.appendChild(whiteDiv);
+            div.appendChild(document.createElement('br'));
             div.appendChild(aniDiv);
             div.appendChild(document.createElement('br'));
             div.appendChild(aniToggleDiv);
@@ -274,6 +288,18 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
             L.DomEvent.disableScrollPropagation(this.legend);
         },
 
+        toggleWhite(checked) {
+            var _this = this;
+            var darkBack = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png',{attribution: '© OpenStreetMap contributors, © CartoDB'});
+            var lightBack = new L.TileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png',{attribution: '© OpenStreetMap contributors, © CartoDB'});
+            this.leafletMap.removeLayer(this.backgroundLayer);
+            if (checked) {
+                this.leafletMap.addLayer(lightBack);
+            } else {
+                this.leafletMap.addLayer(darkBack);
+            }
+        },
+
         toggleMaterials(){
             var show = this.materialCheck.checked,
                 visibility = (show) ? 'visible': 'hidden';
@@ -285,7 +311,7 @@ function(_, BaseView, GDSECollection, GeoLocations, Flows, FlowMap, ol, utils, L
                 _this = this;
             this.legend.innerHTML = '';
             var materials = data.materials;
-            // ToDo: inefficient, done too often for just toggling visibility
+            // ToDo_this.whiteCheck.checked: inefficient, done too often for just toggling visibility
             Object.keys(materials).forEach(function(matId){
                 var material = materials[matId],
                     color = material.color,
