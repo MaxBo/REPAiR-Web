@@ -61,7 +61,7 @@ class ComputeIndicator(metaclass=ABCMeta):
             flows = flows.filter(strategy_hazardous=is_hazardous)
         if avoidable != 'BOTH':
             is_avoidable = True if avoidable == 'YES' else False
-            flows = flows.filter(strategy_avoidable=is_avoidable)
+            flows = flows.filter(avoidable=is_avoidable)
 
         # filter flows by processes
         process_ids = indicator_flow.process_ids
