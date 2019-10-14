@@ -447,7 +447,8 @@ var SolutionPartView = BaseView.extend(
         var material = (this.referenceMaterialSelect) ? parseInt(this.referenceMaterialSelect.dataset.selected): null;
         if (material == 'null') material = null;
         refFlow.material = material;
-        refFlow.include_child_materials = this.referenceIncludeChildrenSelect.checked;
+        if (this.referenceIncludeChildrenSelect)
+            refFlow.include_child_materials = this.referenceIncludeChildrenSelect.checked;
 
         var process = (this.referenceProcessSelect) ? this.referenceProcessSelect.value: null;
         refFlow.process = (process === '-1') ? null: process;
