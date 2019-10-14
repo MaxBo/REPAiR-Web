@@ -12,7 +12,6 @@ from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.asmfa.views import get_fractionflows
 
-
 def filter_actors_by_area(actors, geom):
     '''
     get actors in a polygon (by administrative location)
