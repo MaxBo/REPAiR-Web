@@ -116,6 +116,8 @@ var RankingObjectivesView = BaseView.extend(
         itemContent.innerHTML = template({ name: aim.get('text') });
         panelItem.appendChild(itemContent);
         this.grid.add(panelItem);
+        var label = itemContent.querySelector('label[name="name"]');
+        label.style.maxWidth = 'calc(100% - 50px)';
 
         if (priority < 1)
             panelItem.style.background = '#d1d1d1';
