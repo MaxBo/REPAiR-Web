@@ -461,7 +461,9 @@ var SolutionPartView = BaseView.extend(
 
         changeFlow.origin_activity = (this.newOriginSelect) ? this.newOriginSelect.value: null;
         changeFlow.destination_activity = (this.newDestinationSelect) ? this.newDestinationSelect.value : null;
-        changeFlow.material = (this.newMaterialSelect) ? this.newMaterialSelect.dataset.selected: null;
+        material = (this.newMaterialSelect) ? parseInt(this.newMaterialSelect.dataset.selected): null;
+        if (material == 'null') material = null;
+        changeFlow.material = material;
         process = (this.newProcessSelect) ? this.newProcessSelect.value: null;
         changeFlow.process = (process === '-1') ? null: process;
         area = (this.newOriginAreaSelect) ? this.newOriginAreaSelect.value: null;
