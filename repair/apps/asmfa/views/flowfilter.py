@@ -1,19 +1,20 @@
 from collections import defaultdict, OrderedDict
 from rest_framework.viewsets import ModelViewSet
 from reversion.views import RevisionMixin
-from rest_framework.response import Response
+from django.contrib.gis.geos import GEOSGeometry
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.db.models.functions import Coalesce
 from django.db.models import (Q, Subquery, Min, IntegerField, OuterRef, Sum, F,
                               Case, When, Value, QuerySet, Count,
                               FilteredRelation)
-import time
 import numpy as np
 import copy
 import json
 from collections import defaultdict, OrderedDict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.gis.db.models import Union
+from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet,
@@ -139,6 +140,35 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
     queryset = FractionFlow.objects.all()
     #additional_filters = {'origin__included': True,
                           #'destination__included': True}
+
+    @action(methods=['get', 'post'], detail=False)
+    def count(self, request, **kwargs):
+        query_params = request.query_params.copy()
+        material = query_params.pop('material', None)
+        include_children = query_params.pop('include_child_materials', None)
+        queryset = self._filter(kwargs, query_params=query_params)
+
+        if (material is not None):
+            mat_id = material[0]
+            if include_children:
+                mats = Material.objects.filter(
+                    id__in=descend_materials([Material.objects.get(id=mat_id)]))
+                queryset = queryset.filter(strategy_material__in=mats)
+            else:
+                queryset = queryset.filter(strategy_material=mat_id)
+
+        if ('origin_area' in request.data):
+            geojson = self.request.data['origin_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                origin__administrative_location__geom__intersects=poly)
+        if ('destination_area' in request.data):
+            geojson = self.request.data['destination_area']
+            poly = GEOSGeometry(geojson)
+            queryset = queryset.filter(
+                destination__administrative_location__geom__intersects=poly)
+        json = {'count': queryset.count()}
+        return Response(json)
 
     def get_queryset(self):
         keyflow_pk = self.kwargs.get('keyflow_pk')
@@ -270,7 +300,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                     key.startswith('hazardous') or
                     key.startswith('process') or
                     key.startswith('amount')):
-                    query_params['strategy_'+key] = query_params.pop(key)
+                    query_params['strategy_'+key] = query_params.pop(key)[0]
             # rename filter for stock, as this relates to field with stock pk
             # but serializer returns boolean in this field (if it is stock)
             stock_filter = query_params.pop('stock', None)
@@ -452,7 +482,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
             process = Process.objects.get(id=group['strategy_process']) \
                 if group['strategy_process'] else None
             # sum over all rows in group
-            sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
+            #sq_total_amount = list(grouped.aggregate(Sum('amount')).values())[0]
             strat_total_amount = list(
                 grouped.aggregate(Sum('strategy_amount')).values())[0]
             #deltas = list(grouped.aggregate(Sum('strategy_delta')).values())[0]
@@ -464,7 +494,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 ('stock', group['to_stock']),
                 ('process', process.name if process else ''),
                 ('process_id', process.id if process else None),
-                ('amount', sq_total_amount),
+                ('amount', strat_total_amount),
                 ('materials', grouped_mats),
                 #('delta', deltas)
             ))

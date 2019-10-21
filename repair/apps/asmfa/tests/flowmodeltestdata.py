@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
-import graph_tool as gt
-import graph_tool.draw
+try:
+    import graph_tool as gt
+    import graph_tool.draw
+except ModuleNotFoundError:
+    pass
 import numpy as np
 from django.test import TestCase
 

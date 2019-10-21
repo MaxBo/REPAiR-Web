@@ -114,7 +114,8 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
                                  referenced_model=Composition),
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
-                            referenced_model=PublicationInCasestudy),
+                            referenced_model=PublicationInCasestudy,
+                            filter_args={'casestudy': '@casestudy'}),
         'process': Reference(name='process', referenced_field='name',
                              referenced_model=Process,
                              allow_null=True),
@@ -168,7 +169,8 @@ class ActorStockCreateSerializer(BulkSerializerMixin,
                                  referenced_model=Composition),
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
-                            referenced_model=PublicationInCasestudy),
+                            referenced_model=PublicationInCasestudy,
+                            filter_args={'casestudy': '@casestudy'}),
         'amount': 'amount',
         'year': 'year',
         'waste': 'waste'
@@ -243,7 +245,8 @@ class FractionCreateSerializer(BulkSerializerMixin, ProductFractionSerializer):
         'hazardous': 'hazardous',
         'source': Reference(name='publication',
                             referenced_field='publication__citekey',
-                            referenced_model=PublicationInCasestudy)
+                            referenced_model=PublicationInCasestudy,
+                            filter_args={'casestudy': '@casestudy'})
         }
 
     def get_queryset(self):

@@ -1,9 +1,9 @@
 define(['views/common/baseview', 'underscore', 'visualizations/sankey',
         'collections/gdsecollection', 'd3', 'app-config', 'save-svg-as-png',
-        'file-saver', 'utils/utils'],
+        'file-saver', 'openlayers', 'utils/utils'],
 
 function(BaseView, _, Sankey, GDSECollection, d3, config, saveSvgAsPng,
-         FileSaver, utils, Slider){
+         FileSaver, ol, utils){
 
 /**
 *
@@ -108,7 +108,7 @@ var FlowSankeyView = BaseView.extend(
             selectable: true,
             gradient: false,
             stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1,
-            selectOnDoubleClick: dblclkCheck.checked
+            selectOnDoubleClick: (dblclkCheck) ? dblclkCheck.checked : false
         })
 
         // redirect the event with same properties
@@ -183,7 +183,8 @@ var FlowSankeyView = BaseView.extend(
             var id = node.id,
                 name = node.name,
                 level = node.level,
-                code = node.code || node.nace || node.activity__nace;
+                code = node.code || node.nace || node.activity__nace,
+                geom = node.geom,
                 key = level + id;
             if ((_this.anonymize) && (level === 'actor'))
                 name = gettext('Actor');
@@ -192,7 +193,7 @@ var FlowSankeyView = BaseView.extend(
                 return indices[key];
             idx += 1;
             var color = node.color || utils.colorByName(name);
-            nodes.push({ id: id, name: name + ' (' + code + ')', color: color, code: code });
+            nodes.push({ id: id, name: name + ' (' + code + ')', color: color, code: code, geom: geom });
             indices[key] = idx;
             return idx;
         }
@@ -242,7 +243,6 @@ var FlowSankeyView = BaseView.extend(
             maxAmount = Math.max(...amounts),
             max = 10000,
             normFactor = max / maxAmount;
-
         flows.forEach(function(flow){
             var value = flow.get('amount');
             // skip flows with zero amount
@@ -321,12 +321,20 @@ var FlowSankeyView = BaseView.extend(
     exportCSV: function(){
         if (!this.transformedData) return;
 
-        var header = [gettext('origin'), gettext('origin_code'),
-                      gettext('destination'), gettext('destination_code'),
+        var header = [gettext('origin'), gettext('origin') + '_code', gettext('origin') + '_wkt',
+                      gettext('destination'), gettext('destination') + '_code', gettext('destination') + '_wkt',
                       gettext('amount'), gettext('composition')],
             rows = [],
             _this = this;
         rows.push(header.join('\t'));
+        var geoJSON = new ol.format.GeoJSON(),
+            wkt = new ol.format.WKT();
+
+        function geomToWkt(geom){
+            var geometry = geoJSON.readGeometry(geom);
+            return wkt.writeGeometry(geometry)
+        }
+
         this.transformedData.links.forEach(function(link){
             var origin = link.source,
                 destination = link.target,
@@ -338,9 +346,14 @@ var FlowSankeyView = BaseView.extend(
             if (_this.forceSignum && amount >= 0)
                 amount = '-' + amount;
             var originCode = origin.code,
-                destinationCode = (destination) ? destination.code: '';
+                destinationCode = (destination) ? destination.code: '',
+                originWkt = '',
+                destinationWkt = '';
 
-            var row = [originName, originCode, destinationName, destinationCode, amount, composition];
+            var originWkt = (origin.geom) ? geomToWkt(origin.geom) : '',
+                destinationWkt = (destination.geom) ? geomToWkt(destination.geom) : '';
+
+            var row = [originName, originCode, originWkt, destinationName, destinationCode, destinationWkt, amount, composition];
             rows.push(row.join('\t'));
         });
         var text = rows.join('\r\n');
