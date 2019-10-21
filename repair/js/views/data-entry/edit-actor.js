@@ -315,6 +315,7 @@ var EditActorView = BaseView.extend(
                     coordDiv.innerHTML = '(' + utils.formatCoords(coords) + ')';
                     _this.triggerChange();
                 },
+                draggable: true,
                 layername: layername
             });
         };
@@ -642,6 +643,7 @@ var EditActorView = BaseView.extend(
                     _this.tempCoords = coords;
                     elGeom.innerHTML = utils.formatCoords(coords);
                 },
+                draggable: true,
                 onRemove: removeMarkerCallback,
                 removable: true,
                 layername: _this.activeType

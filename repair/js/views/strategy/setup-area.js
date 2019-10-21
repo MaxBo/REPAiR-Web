@@ -114,6 +114,9 @@ var PossibleImplementationAreaView = BaseView.extend(
             this.alert(err);
             return;
         }
+        if (geoJSON.type.toLowerCase() == 'featurecollection'){
+            geoJSON = geoJSON.features[0].geometry;
+        }
         if (!geoJSON.coordinates && !geoJSON.type) {
             this.alert(gettext('GeoJSON needs attributes "type" and "coordinates"'));
         }
