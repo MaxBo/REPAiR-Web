@@ -10,7 +10,7 @@ from repair.apps.utils.utils import descend_materials
 from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
                                       AdministrativeLocation, Material)
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
-from repair.apps.asmfa.views import get_fractionflows
+from repair.apps.utils.utils import get_annotated_fractionflows
 
 def filter_actors_by_area(actors, geom):
     '''
@@ -49,7 +49,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         hazardous = indicator_flow.hazardous.name
         avoidable = indicator_flow.avoidable.name
 
-        flows = get_fractionflows(self.keyflow_pk, strategy=self.strategy)
+        flows = get_annotated_fractionflows(self.keyflow_pk, strategy=self.strategy)
 
         # filter flows by type (waste/product/both)
         if flow_type != 'BOTH':

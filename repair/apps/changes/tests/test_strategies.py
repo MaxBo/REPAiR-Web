@@ -128,8 +128,8 @@ class BreadToBeerSolution(GenerateBreadToBeerData):
         ## Solution Parts ##
         brewing_activity = Activity.objects.filter(name='Brewery', nace='A-0000')
         household_activity = Activity.objects.filter(name='Household', nace='A-0001')
-        incinerator_activity = Activity.objects.filter(name='Incineration', nace='C-0001')
-        farming_activity = Activity.objects.filter(name='Farming', nace='C-0000')
+        incinerator_activity = Activity.objects.filter(name='Incineration', nace='C-0011')
+        farming_activity = Activity.objects.filter(name='Farming', nace='C-0010')
         bread = Material.objects.filter(name='bread', keyflow=cls.keyflow)
         barley = Material.objects.filter(name='barley', keyflow=cls.keyflow)
 

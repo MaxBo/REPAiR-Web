@@ -23,6 +23,7 @@ import time
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
+from repair.apps.utils.utils import get_annotated_fractionflows
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow, Scheme,
@@ -33,7 +34,8 @@ from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 
 
 class Formula:
-    def __init__(self, a=1, b=0, q=0, is_absolute=False):
+
+    def __init__(self, a=1, b=0, q=0):
         '''
         linear change calculation
 
@@ -53,18 +55,24 @@ class Formula:
            quantity (user input), by default 0
         b: float, optional
            by default 0
-        is_absolute: bool, optional
-           absolute change, by default False
         '''
         self.a = a
         self.b = b
         self.q = q
-        self.is_absolute = is_absolute
+
+    @property
+    def is_absolute(self) -> bool:
+        """return True if is instance of AbsoluteFormula"""
+        return isinstance(self, AbsoluteFormula)
 
     @classmethod
     def from_implementation(self, solution_part, implementation):
         question = solution_part.question
         is_absolute = solution_part.is_absolute
+        if is_absolute:
+            cls = AbsoluteFormula
+        else:
+            cls = RelativeFormula
         if solution_part.scheme == Scheme.NEW and not is_absolute:
             raise ValueError('new flows without reference can only be defined '
                              'as absolute changes')
@@ -80,25 +88,25 @@ class Formula:
             is_absolute = question.is_absolute
             q = quantity.value
 
-        formula = Formula(a=a, b=b, q=q, is_absolute=is_absolute)
+        formula = cls(a=a, b=b, q=q)
 
         return formula
 
-    def calculate(self, v):
-        '''
-        Parameters
-        ----------
-        v: float,
-           value to apply formula to
+class AbsoluteFormula(Formula):
 
-        Returns
-        -------
-        v': float
-            calculated value
-        '''
-        return self.calculate_delta(v) + v
+    def __init__(self, a=1, b=0, q=0):
+        super().__init__(a, b, q)
+        self.total = 0
+        self.n_flows = 0
 
-    def calculate_delta(self, v=None):
+    def set_total(self, flows):
+        self.total = sum(flows.values_list('strategy_amount', flat=True))
+        self.n_flows = len(flows)
+
+    def set_n_flows(self, n_flows: int):
+        self.n_flows = n_flows
+
+    def calculate_delta(self, v: float=None):
         '''
         Parameters
         ----------
@@ -110,34 +118,35 @@ class Formula:
         delta: float
            signed delta
         '''
-        if self.is_absolute:
-            delta = self.a * self.q + self.b
+        if not self.n_flows:
+            return 0
+            #raise ValueError('No Flows defined')
+        delta = self.a * self.q + self.b
+        total = getattr(self, 'total', 0)
+        if total and v is not None:
+            delta *= v / total
         else:
-            if v is None:
-                raise ValueError('Value needed for calculation the delta for '
-                                 'relative changes')
-            delta = v * self.calculate_factor(v) - v
+            delta /= self.n_flows
         return delta
 
-    def calculate_factor(self, v):
+
+class RelativeFormula(Formula):
+
+    def calculate_delta(self, v):
         '''
         Parameters
         ----------
-        v: float, optional
-           needed for calculation of a
+        v: float,
+           value to apply formula to
 
         Returns
         -------
-        factor: float
-            calculated factor
+        delta: float
+           signed delta
         '''
-        if self.is_absolute:
-            delta = self.calculate_delta()
-            v_ = v + delta
-            factor = v_ / v
-        else:
-            factor = self.a * self.q + self.b
-        return factor
+        factor = self.a * self.q + self.b
+        delta = v * factor
+        return delta
 
 
 class BaseGraph:
@@ -343,22 +352,28 @@ class StrategyGraph(BaseGraph):
         self.graph = gt.load_graph(self.filename)
         return self.graph
 
-    def _modify_flows(self, flows, formula, new_material=None, new_process=None,
+    def _modify_flows(self, flows, formula: Formula, new_material=None, new_process=None,
                       new_waste=-1, new_hazardous=-1):
         '''
         modify flows with formula
         '''
         deltas = []
+        if formula.is_absolute:
+            formula.set_total(flows)
         if (new_material or new_process or
             new_waste >= 0 or new_hazardous >= 0):
             edges = self._get_edges(flows)
         for i, flow in enumerate(flows):
-            delta = formula.calculate_delta(flow.amount)
+            delta = formula.calculate_delta(flow.strategy_amount)
             if formula.is_absolute:
-                # ToDo: equal distribution or distribution depending on
-                # previous share on total amount?
-                delta /= len(flows)
-                # alternatively sth like that: delta *= flow.amount / total
+                # cut the delta to avoid negative flow amounts
+                delta = max(-flow.strategy_amount, delta)
+            # if we have a relative change (*1.5),
+            # then the delta is +0.5*strategy_amount
+            #  so we have to substract the original amount
+            else:
+                delta -= flow.strategy_amount
+
             deltas.append(delta)
             if new_material:
                 self.graph.ep.material[edges[i]] = new_material.id
@@ -374,6 +389,8 @@ class StrategyGraph(BaseGraph):
         '''
         create flows between all origin and destination actors
         '''
+        if not formula.is_absolute:
+            raise ValueError('Formula for CreateFlows must be absolute')
         total = formula.calculate_delta()
         flow_count = len(origins) * len(destinations)
 
@@ -382,9 +399,10 @@ class StrategyGraph(BaseGraph):
             print('WARNING: No orgins and/or destinations found '
                   'while creating new flows')
             return new_flows, np.empty((0, ))
+        formula.set_n_flows(flow_count)
         # equal distribution
-        amount = total / flow_count
-        deltas = np.full((flow_count), amount)
+        amount_per_flow = formula.calculate_delta()
+        deltas = np.full((flow_count), amount_per_flow)
         for origin, destination in itertools.product(origins, destinations):
             new_flow = FractionFlow(
                 origin=origin, destination=destination,
@@ -437,6 +455,8 @@ class StrategyGraph(BaseGraph):
         # actors in possible new targets that are closest
         closest_dict = self.find_closest_actor(actors_kept,
                                                possible_new_targets)
+        if formula.is_absolute:
+            formula.set_total(referenced_flows)
 
         # create new flows and add corresponding edges
         for flow in referenced_flows:
@@ -452,13 +472,8 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.s_amount)
-            # ToDo: distribute total change to changes on edges
-            # depending on share of total or distribute equally?
-            if formula.is_absolute:
-                # equally
-                delta /= len(referenced_flows)
-            delta = flow.s_amount + delta
+            delta = formula.calculate_delta(flow.strategy_amount)
+            delta = min(delta, flow.strategy_amount)
 
             # the edge corresponding to the referenced flow
             # (the one to be shifted)
@@ -538,6 +553,10 @@ class StrategyGraph(BaseGraph):
 
         ToDo: almost the same as shift_flows(), generalize!
         '''
+        if formula.is_absolute:
+            raise ValueError(
+                'Formula for PrependFlow and AppendFlow must be relative')
+
         new_flows = []
         deltas = []
 
@@ -562,12 +581,7 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.s_amount)
-            # ToDo: distribute total change to changes on edges
-            # depending on share of total or distribute equally?
-            if formula.is_absolute:
-                # equally
-                delta /= len(referenced_flows)
+            delta = formula.calculate_delta(flow.strategy_amount)
 
             # the edge corresponding to the referenced flow
             edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
@@ -624,7 +638,7 @@ class StrategyGraph(BaseGraph):
             self.graph.ep.hazardous[new_edge] = new_flow.hazardous
 
             new_flows.append(new_flow)
-            deltas.append(flow.s_amount + delta)
+            deltas.append(delta)
 
         return new_flows, deltas
 
@@ -671,23 +685,24 @@ class StrategyGraph(BaseGraph):
         and implementation areas
         '''
         origins, destinations = self._get_actors(flow_reference, implementation)
-        flows = FractionFlow.objects.filter(
+        flows = get_annotated_fractionflows(self.strategy.keyflow.id,
+                                            self.strategy.id)
+        flows = flows.filter(
             origin__in=origins,
             destination__in=destinations
         )
-        flows = self._annotate(flows)
         if flow_reference.include_child_materials:
             impl_materials = Material.objects.filter(id__in=descend_materials(
                 [flow_reference.material]))
             kwargs = {
-                's_material__in': impl_materials
+                'strategy_material__in': impl_materials
             }
         else:
             kwargs = {
-                's_material': flow_reference.material.id
+                'strategy_material': flow_reference.material.id
             }
         if flow_reference.process:
-            kwargs['s_process'] = flow_reference.process.id
+            kwargs['strategy_process'] = flow_reference.process.id
         reference_flows = flows.filter(**kwargs)
         return reference_flows
 
@@ -703,31 +718,19 @@ class StrategyGraph(BaseGraph):
         aff_flows = FractionFlow.objects.none()
         for af in affectedflows:
             #materials = descend_materials([af.material])
-            flows = FractionFlow.objects.filter(
+            flows = get_annotated_fractionflows(self.strategy.keyflow.id,
+                                                self.strategy.id)
+            flows = flows.filter(
                 origin__activity = af.origin_activity,
                 destination__activity = af.destination_activity
             )
-            flows = self._annotate(flows)
             kwargs = {
-                's_material': af.material.id
+                'strategy_material': af.material.id
             }
             if af.process:
-                kwargs['s_process': af.process]
+                kwargs['strategy_process': af.process]
             aff_flows = aff_flows | flows.filter(**kwargs)
         return aff_flows
-
-    def _annotate(self, flows):
-        ''' annotate flows with strategy attributes (trailing "s_") '''
-        annotated = flows.annotate(
-            s_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
-            s_material=Coalesce('f_strategyfractionflow__material', 'material'),
-            s_waste=Coalesce('f_strategyfractionflow__waste', 'waste'),
-            s_hazardous=Coalesce('f_strategyfractionflow__hazardous',
-                                 'hazardous'),
-            s_process=Coalesce('f_strategyfractionflow__process',
-                               'process')
-        )
-        return annotated
 
     def _include(self, flows, do_include=True):
         '''
