@@ -118,6 +118,7 @@ var ModifiedFlowsView = BaseView.extend(
             filter: filter,
             strategy: this.strategy
         });
+        this.flowsView.loader = this.loader;
         this.draw();
     },
 

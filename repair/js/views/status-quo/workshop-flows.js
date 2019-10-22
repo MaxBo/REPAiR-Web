@@ -95,6 +95,7 @@ var FlowsWorkshopView = BaseView.extend(
             materials: this.materials,
             filter: filter
         });
+        this.flowsView.loader = this.loader;
         this.draw();
     },
 

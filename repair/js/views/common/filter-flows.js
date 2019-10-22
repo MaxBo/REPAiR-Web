@@ -179,6 +179,7 @@ var FilterFlowsView = BaseView.extend(
             displayWarnings: true,
             filter: filter
         });
+        this.flowsView.loader = this.loader;
         var displayLevel = this.displayLevelSelect.value;
         this.flowsView.draw(displayLevel);
     },
