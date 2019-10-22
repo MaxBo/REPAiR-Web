@@ -1251,6 +1251,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
         strat_digest_factor = strat_out_digester_sum / strat_in_digester_sum
 
         self.assertAlmostEqual(sq_digest_factor, strat_digest_factor,
+                               places=1,
                                msg=f'the factor at actor {biodigester} in '
                                'strategy is not the same as in status quo')
 
@@ -1281,7 +1282,7 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
                 sf_out = out_flows.aggregate(amount=Sum('strategy_amount'))['amount']
                 sq_factor = (sq_out / sq_in) if sq_out and sq_in else 1
                 sf_factor = (sf_out / sf_in) if sf_out and sf_in else 1
-                self.assertAlmostEqual(sq_factor, sf_factor,
+                self.assertAlmostEqual(sq_factor, sf_factor, 1,
                                        msg='the balance factor at actor '
                                        f'{actor} in strategy is not the '
                                        'same as in status quo')
