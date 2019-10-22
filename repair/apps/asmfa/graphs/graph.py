@@ -722,7 +722,8 @@ class StrategyGraph(BaseGraph):
                 origin__activity = af.origin_activity,
                 destination__activity = af.destination_activity
             )
-            flows = self._annotate(flows)
+            flows = get_annotated_fractionflows(self.strategy.keyflow.id,
+                                                self.strategy.id)
             kwargs = {
                 'strategy_material': af.material.id
             }
