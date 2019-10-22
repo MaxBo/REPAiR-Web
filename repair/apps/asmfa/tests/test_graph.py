@@ -221,9 +221,9 @@ class GraphTest(LoginTestCase, APITestCase):
                                          activitygroup=self.activitygroup1)
         self.activity2 = ActivityFactory(nace='NACE2',
                                          activitygroup=self.activitygroup1)
-        self.activity3 = ActivityFactory(nace='NACE1',
+        self.activity3 = ActivityFactory(nace='NACE3',
                                          activitygroup=self.activitygroup1)
-        self.activity4 = ActivityFactory(nace='NACE3',
+        self.activity4 = ActivityFactory(nace='NACE4',
                                          activitygroup=self.activitygroup2)
 
     def test_graph(self):
