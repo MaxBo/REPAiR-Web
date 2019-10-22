@@ -50,8 +50,13 @@ var BaseView = Backbone.View.extend(
     },
 
     /** format a number to currently set language **/
-    format: function(value){
-        return value.toLocaleString(this.language);
+    format: function(value, forceSignum){
+        var formatted = value.toLocaleString(this.language);
+        if (this.forceSignum){
+            if (value > 0) formatted = '+' + formatted;
+            if (value == 0) formatted = '+-0';
+        }
+        return formatted;
     },
 
     /**
