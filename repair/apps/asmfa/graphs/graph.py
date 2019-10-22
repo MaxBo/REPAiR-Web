@@ -23,6 +23,7 @@ import time
 from repair.apps.asmfa.models import (Actor2Actor, FractionFlow, Actor,
                                       ActorStock, Material,
                                       StrategyFractionFlow)
+from repair.apps.utils.utils import get_annotated_fractionflows
 from repair.apps.changes.models import (SolutionInStrategy,
                                         ImplementationQuantity,
                                         AffectedFlow, Scheme,
@@ -99,7 +100,7 @@ class AbsoluteFormula(Formula):
         self.n_flows = 0
 
     def set_total(self, flows):
-        self.total = sum(flows.values_list('s_amount', flat=True))
+        self.total = sum(flows.values_list('strategy_amount', flat=True))
         self.n_flows = len(flows)
 
     def set_n_flows(self, n_flows: int):
@@ -363,15 +364,15 @@ class StrategyGraph(BaseGraph):
             new_waste >= 0 or new_hazardous >= 0):
             edges = self._get_edges(flows)
         for i, flow in enumerate(flows):
-            delta = formula.calculate_delta(flow.s_amount)
+            delta = formula.calculate_delta(flow.strategy_amount)
             if formula.is_absolute:
                 # cut the delta to avoid negative flow amounts
-                delta = max(-flow.s_amount, delta)
+                delta = max(-flow.strategy_amount, delta)
             # if we have a relative change (*1.5),
-            # then the delta is +0.5*s_amout
+            # then the delta is +0.5*strategy_amount
             #  so we have to substract the original amount
             else:
-                delta -= flow.s_amount
+                delta -= flow.strategy_amount
 
             deltas.append(delta)
             if new_material:
@@ -456,7 +457,7 @@ class StrategyGraph(BaseGraph):
                                                possible_new_targets)
         if formula.is_absolute:
             formula.set_total(referenced_flows)
-            
+
         # create new flows and add corresponding edges
         for flow in referenced_flows:
             kept_id = flow.destination_id if shift_origin \
@@ -471,8 +472,8 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.s_amount)
-            delta = min(delta, flow.s_amount)
+            delta = formula.calculate_delta(flow.strategy_amount)
+            delta = min(delta, flow.strategy_amount)
 
             # the edge corresponding to the referenced flow
             # (the one to be shifted)
@@ -580,7 +581,7 @@ class StrategyGraph(BaseGraph):
 
             new_vertex = self._get_vertex(new_id)
 
-            delta = formula.calculate_delta(flow.s_amount)
+            delta = formula.calculate_delta(flow.strategy_amount)
 
             # the edge corresponding to the referenced flow
             edges = util.find_edge(self.graph, self.graph.ep['id'], flow.id)
@@ -684,23 +685,24 @@ class StrategyGraph(BaseGraph):
         and implementation areas
         '''
         origins, destinations = self._get_actors(flow_reference, implementation)
-        flows = FractionFlow.objects.filter(
+        flows = get_annotated_fractionflows(self.strategy.keyflow.id,
+                                            self.strategy.id)
+        flows = flows.filter(
             origin__in=origins,
             destination__in=destinations
         )
-        flows = self._annotate(flows)
         if flow_reference.include_child_materials:
             impl_materials = Material.objects.filter(id__in=descend_materials(
                 [flow_reference.material]))
             kwargs = {
-                's_material__in': impl_materials
+                'strategy_material__in': impl_materials
             }
         else:
             kwargs = {
-                's_material': flow_reference.material.id
+                'strategy_material': flow_reference.material.id
             }
         if flow_reference.process:
-            kwargs['s_process'] = flow_reference.process.id
+            kwargs['strategy_process'] = flow_reference.process.id
         reference_flows = flows.filter(**kwargs)
         return reference_flows
 
@@ -722,25 +724,12 @@ class StrategyGraph(BaseGraph):
             )
             flows = self._annotate(flows)
             kwargs = {
-                's_material': af.material.id
+                'strategy_material': af.material.id
             }
             if af.process:
-                kwargs['s_process': af.process]
+                kwargs['strategy_process': af.process]
             aff_flows = aff_flows | flows.filter(**kwargs)
         return aff_flows
-
-    def _annotate(self, flows):
-        ''' annotate flows with strategy attributes (trailing "s_") '''
-        annotated = flows.annotate(
-            s_amount=Coalesce('f_strategyfractionflow__amount', 'amount'),
-            s_material=Coalesce('f_strategyfractionflow__material', 'material'),
-            s_waste=Coalesce('f_strategyfractionflow__waste', 'waste'),
-            s_hazardous=Coalesce('f_strategyfractionflow__hazardous',
-                                 'hazardous'),
-            s_process=Coalesce('f_strategyfractionflow__process',
-                               'process')
-        )
-        return annotated
 
     def _include(self, flows, do_include=True):
         '''
