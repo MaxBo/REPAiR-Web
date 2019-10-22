@@ -718,11 +718,13 @@ class StrategyGraph(BaseGraph):
         aff_flows = FractionFlow.objects.none()
         for af in affectedflows:
             #materials = descend_materials([af.material])
-            flows = FractionFlow.objects.filter(
+            flows = get_annotated_fractionflows(self.strategy.keyflow.id,
+                                                self.strategy.id)
+            flows = flows.filter(
                 origin__activity = af.origin_activity,
                 destination__activity = af.destination_activity
             )
-            flows = self._annotate(flows)
+
             kwargs = {
                 'strategy_material': af.material.id
             }

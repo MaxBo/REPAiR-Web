@@ -92,21 +92,25 @@ def traverse_graph(g, edge, delta, upstream=True):
     Edge ProperyMap (float)
         The signed change on the edges
     """
+    plot = False
 
     amount = g.ep.amount
     change = g.new_edge_property("float", val=0.0)
     total_change = g.new_edge_property("float", val=0.0)
 
-
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     MAX_ITERATIONS = 20
     balance_factor = g.vp.downstream_balance_factor.a
-    from repair.apps.asmfa.tests import flowmodeltestdata
     node_visitor = NodeVisitor(g.vp["id"], amount, change,
                                balance_factor)
     node_visitor2 = NodeVisitorBalanceDeltas(g.vp["id"], amount, change,
                                balance_factor)
+
+    if plot:
+        # prepare plotting of intermediate results
+        from repair.apps.asmfa.tests import flowmodeltestdata
+        g.ep.change = change
 
     # make a first run with the given changes to the implementation edge
 
@@ -127,17 +131,19 @@ def traverse_graph(g, edge, delta, upstream=True):
     search.bfs_search(g, node, node_visitor)
     change[edge] = new_delta
 
-    ## Plot changes after forward run
-    g.ep.change.a[:] = change.a
-    flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+    if plot:
+        ## Plot changes after forward run
+        g.ep.change.a[:] = change.a
+        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
     node = reverse_graph(g, node_visitor, node_visitor2, edge)
     search.bfs_search(g, node, node_visitor)
     change[edge] = new_delta
 
-    ## Plot changes after backward run
-    g.ep.change.a[:] = change.a
-    flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+    if plot:
+        ## Plot changes after backward run
+        g.ep.change.a[:] = change.a
+        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
     # balance out the changes
     search.bfs_search(g, node, node_visitor2)
@@ -146,9 +152,10 @@ def traverse_graph(g, edge, delta, upstream=True):
     # add up the total changes
     total_change.a += change.a
 
-    ## Plot total changes
-    g.ep.change.a[:] = total_change.a
-    flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
+    if plot:
+        ## Plot total changes
+        g.ep.change.a[:] = total_change.a
+        flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
 
     node = reverse_graph(g, node_visitor, node_visitor2, edge)
 
@@ -176,9 +183,10 @@ def traverse_graph(g, edge, delta, upstream=True):
         search.bfs_search(g, node, node_visitor)
         change[edge] = 0
 
-        ## Plot changes after forward run
-        g.ep.change.a[:] = change.a
-        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+        if plot:
+            ## Plot changes after forward run
+            g.ep.change.a[:] = change.a
+            flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
 
         # now go downstream, if we started upstream
@@ -192,31 +200,32 @@ def traverse_graph(g, edge, delta, upstream=True):
                 node.in_degree(weight=change)
         new_delta = delta - sum_f
         change[edge] = new_delta
-
         search.bfs_search(g, node, node_visitor)
-        #change[edge] = 0
 
-        ## Plot changes after backward run
-        g.ep.change.a[:] = change.a
-        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+
+        if plot:
+            ## Plot changes after backward run
+            g.ep.change.a[:] = change.a
+            flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
         # balance out the changes
-        #change[edge] = new_delta
         search.bfs_search(g, node, node_visitor2)
         change[edge] = 0
 
-        ## Plot changes after balancing
-        g.ep.change.a[:] = change.a
-        flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
+        if plot:
+            ## Plot changes after balancing
+            g.ep.change.a[:] = change.a
+            flowmodeltestdata.plot_amounts(g,'plastic_deltas.png', 'change')
 
         # add up the total changes
         total_change.a += change.a
 
         node = reverse_graph(g, node_visitor, node_visitor2, edge)
 
-        ## Plot total changes
-        g.ep.change.a[:] = total_change.a
-        flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
+        if plot:
+            ## Plot total changes
+            g.ep.change.a[:] = total_change.a
+            flowmodeltestdata.plot_amounts(g,f'plastic_deltas_{i}.png', 'change')
 
         if upstream:
             if node.in_degree():
