@@ -34,9 +34,9 @@ class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
                                          activitygroup=self.activitygroup1)
         self.activity2 = ActivityFactory(nace='NACE2',
                                          activitygroup=self.activitygroup1)
-        self.activity3 = ActivityFactory(nace='NACE1',
+        self.activity3 = ActivityFactory(nace='NACE3',
                                          activitygroup=self.activitygroup1)
-        self.activity4 = ActivityFactory(nace='NACE3',
+        self.activity4 = ActivityFactory(nace='NACE4',
                                          activitygroup=self.activitygroup2)
 
     def test_nace_codes(self):
@@ -46,8 +46,8 @@ class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
         """
 
         self.assertSetEqual(set(self.activitygroup1.nace_codes),
-                            {'NACE1', 'NACE2'})
-        self.assertSetEqual(set(self.activitygroup2.nace_codes), {'NACE3'})
+                            {'NACE1', 'NACE2', 'NACE3'})
+        self.assertSetEqual(set(self.activitygroup2.nace_codes), {'NACE4'})
 
     def test_nace_code_serializer(self):
         """
@@ -58,8 +58,8 @@ class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
         kwargs={**self.url_pks, 'pk': self.activitygroup1.pk,}
         response = self.get_check_200(url, **kwargs)
         self.assertSetEqual(set(response.data['nace']),
-                            {'NACE1', 'NACE2'})
+                            {'NACE1', 'NACE2', 'NACE3'})
 
         kwargs={**self.url_pks, 'pk': self.activitygroup2.pk,}
         response = self.get_check_200(url, **kwargs)
-        self.assertSetEqual(set(response.data['nace']), {'NACE3'})
+        self.assertSetEqual(set(response.data['nace']), {'NACE4'})

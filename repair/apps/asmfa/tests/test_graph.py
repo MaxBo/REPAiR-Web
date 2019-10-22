@@ -67,33 +67,31 @@ class GraphWalkerTest(TestCase):
         """Reduce plastic between Packaging->Consumption
 
         Results (change in tons):
-            Packaging --> Consumption -0.6017
-            Oil rig --> Oil refinery -0.6017
-            Oil refinery --> Production -0.48136
-            Production --> Packaging -0.6017
-            Consumption --> Burn -0.36102
-            Consumption --> Recycling -0.24068
-            Recycling --> Production -0.12034
+            Packaging --> Consumption -0.3
+            Oil rig --> Oil refinery -0.3
+            Oil refinery --> Production -0.24
+            Production --> Packaging -0.3
+            Consumption --> Burn -0.18
+            Consumption --> Recycling -0.12
+            Recycling --> Production -0.06
         """
         return
         plastic = flowmodeltestdata.plastic_package_graph()
         gw = GraphWalker(plastic)
         change = gw.graph.new_edge_property('float')
         gw.graph.edge_properties['change'] = change
-        changed = gw.graph.new_edge_property('bool',
-                                             vals=[False for e in range(gw.graph.num_edges())])
+        changed = gw.graph.new_edge_property('bool', val=False)
         gw.graph.edge_properties['changed'] = changed
         include = gw.graph.new_edge_property('bool')
         gw.graph.edge_properties['include'] = include
-        bf = gw.graph.new_vertex_property('float',
-                                          vals=[1.0 for v in range(gw.graph.num_vertices())])
+        bf = gw.graph.new_vertex_property('float', val=1.0)
         gw.graph.vertex_properties['downstream_balance_factor'] = bf
         pe = gw.graph.edge(gw.graph.vertex(1), gw.graph.vertex(6),
                            all_edges=True)  # the 3 edges between Packaging and Cosumption
         implementation_edges = [e for e in pe
                                 if gw.graph.ep.material[e] == 'plastic']
         # reduce the Plastic by 0.3 tons on the implementation_edge
-        deltas = [-0.6017]
+        deltas = [-0.3]
         # select affected flows
         for i, e in enumerate(gw.graph.edges()):
             # flows of 'plastic' or 'crude oil' are affected by the solution
@@ -107,38 +105,38 @@ class GraphWalkerTest(TestCase):
             if result.vp.id[e.source()] == 'Packaging' \
                     and result.vp.id[e.target()] == 'Consumption' \
                     and result.ep.material[e] == 'plastic':
-                expected = 5.0 - 0.6017
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 5.0 - 0.3
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Packaging->Consumption')
             elif result.vp.id[e.source()] == 'Oil rig' \
                     and result.vp.id[e.target()] == 'Oil refinery' \
                     and result.ep.material[e] == 'crude oil':
-                expected = 20.0 - 0.6017
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 20.0 - 0.3
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Oil rig->Oil refinery')
             elif result.vp.id[e.source()] == 'Oil refinery' \
                     and result.vp.id[e.target()] == 'Production' \
                     and result.ep.material[e] == 'plastic':
-                expected = 4.0 - 0.48136
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 4.0 - 0.24
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Oil refinery->Production')
             elif result.vp.id[e.source()] == 'Production' \
                     and result.vp.id[e.target()] == 'Packaging' \
                     and result.ep.material[e] == 'plastic':
-                expected = 5.0 - 0.6017
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 5.0 - 0.3
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Production->Packaging')
             elif result.vp.id[e.source()] == 'Consumption' \
                     and result.vp.id[e.target()] == 'Burn' \
                     and result.ep.material[e] == 'plastic':
-                expected = 3.0 - 0.36102
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 3.0 - 0.18
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Consumption->Burn')
             elif result.vp.id[e.source()] == 'Consumption' \
                     and result.vp.id[e.target()] == 'Recycling' \
                     and result.ep.material[e] == 'plastic':
-                expected = 2.0 - 0.24068
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 2.0 - 0.12
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Consumption->Recycling')
             elif result.vp.id[e.source()] == 'Recycling' \
                     and result.vp.id[e.target()] == 'Production' \
                     and result.ep.material[e] == 'plastic':
-                expected = 1.0 - 0.12034
-                self.assertAlmostEqual(result.ep.amount[e], expected, 2)
+                expected = 1.0 - 0.06
+                self.assertAlmostEqual(result.ep.amount[e], expected, 2, 'Recycling->Production')
             else:
                 self.assertAlmostEqual(result.ep.amount[e],
                                        gw.graph.ep.amount[e], places=2)
@@ -221,9 +219,9 @@ class GraphTest(LoginTestCase, APITestCase):
                                          activitygroup=self.activitygroup1)
         self.activity2 = ActivityFactory(nace='NACE2',
                                          activitygroup=self.activitygroup1)
-        self.activity3 = ActivityFactory(nace='NACE1',
+        self.activity3 = ActivityFactory(nace='NACE3',
                                          activitygroup=self.activitygroup1)
-        self.activity4 = ActivityFactory(nace='NACE3',
+        self.activity4 = ActivityFactory(nace='NACE4',
                                          activitygroup=self.activitygroup2)
 
     def test_graph(self):
