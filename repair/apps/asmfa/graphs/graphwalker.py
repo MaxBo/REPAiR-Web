@@ -42,7 +42,7 @@ class NodeVisitor(BFSVisitor):
         for e_out in edges_out:
             if not (self.visited[e_out] and self.visited[e]):
                 self.change[e_out] += self.amount[e_out] * amount_factor
-            self.visited[e] = True
+            self.visited[e_out] = True
 
 
 def traverse_graph(g, edge, delta, upstream=True):
