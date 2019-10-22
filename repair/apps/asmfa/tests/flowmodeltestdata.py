@@ -106,8 +106,7 @@ def plastic_package_graph():
     G.vp.id[10] = 'Stock 2'
     G.vp.id[11] = 'Waste 2'
     flow = G.new_edge_property("object")
-    eid = G.new_edge_property(
-        "int")  # need a persistent edge id, because graph-tool can reindex the edges
+    eid = G.new_edge_property("int")  # need a persistent edge id, because graph-tool can reindex the edges
     G.edge_properties["flow"] = flow
     G.edge_properties["eid"] = eid
     e = G.add_edge(G.vertex(0), G.vertex(1))
@@ -153,12 +152,23 @@ def plastic_package_graph():
     return split
 
 
-def plot_amounts(g, file=None):
-    """Plots the graph with the 'amount' property on the edges into a file"""
+def plot_amounts(g, file=None, prop='amount'):
+    """
+    Plots the graph with the property defined by `prop`
+    on the edges into a file
+
+    Parameters
+    ----------
+    g : graph_tool.Graph
+    file : str
+    prop : str, optional (default='amount')
+
+    """
+    quantities = g.ep[prop]
     vertex_ids = [f'{int(v)}' for v in g.vertices()]
     vertex_text = g.new_vertex_property("string", vals=vertex_ids)
     mass_text = g.new_edge_property("string",
-                                    vals=[str(round(i, 2))for i in g.ep.amount])
+                                    vals=[str(round(i, 3)) for i in quantities])
     gt.draw.graph_draw(g, vertex_size=20, vertex_text=vertex_text,
                        vprops={"text_position": -1,
                                "font_size": 10},
