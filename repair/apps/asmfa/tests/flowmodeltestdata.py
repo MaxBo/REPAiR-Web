@@ -168,7 +168,7 @@ def plot_amounts(g, file=None, prop='amount'):
     vertex_ids = [f'{int(v)}' for v in g.vertices()]
     vertex_text = g.new_vertex_property("string", vals=vertex_ids)
     mass_text = g.new_edge_property("string",
-                                    vals=[str(round(i, 3))for i in quantities])
+                                    vals=[str(round(i, 3)) for i in quantities])
     gt.draw.graph_draw(g, vertex_size=20, vertex_text=vertex_text,
                        vprops={"text_position": -1,
                                "font_size": 10},

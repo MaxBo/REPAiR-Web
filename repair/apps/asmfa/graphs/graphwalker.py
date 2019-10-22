@@ -61,11 +61,11 @@ class NodeVisitorBalanceDeltas(BFSVisitor):
 
         sum_in_deltas = u.in_degree(self.change)
         sum_out_deltas = u.out_degree(self.change)
-        delta = sum_in_deltas - sum_out_deltas
-        if not delta:
-            return
         bf = self.balance_factor[vertex_id]
-        balanced_delta = delta * bf
+        balanced_out_deltas = sum_out_deltas / bf
+        balanced_delta = sum_in_deltas - balanced_out_deltas
+        if abs(balanced_delta) < 0.0000001:
+            return
         sum_out_f = u.out_degree(weight=self.amount)
         if sum_out_f:
             amount_factor = balanced_delta / sum_out_f
@@ -98,19 +98,17 @@ def traverse_graph(g, edge, delta, upstream=True):
     change = g.new_edge_property("float", val=0.0)
     total_change = g.new_edge_property("float", val=0.0)
 
+    if plot:
+        # prepare plotting of intermediate results
+        from repair.apps.asmfa.tests import flowmodeltestdata
+        flowmodeltestdata.plot_materials(g, file='materials.png')
+        flowmodeltestdata.plot_amounts(g,'amounts.png', 'amount')
+        g.ep.change = change
+
     # We are only interested in the edges that define the solution
     g.set_edge_filter(g.ep.include)
     MAX_ITERATIONS = 20
     balance_factor = g.vp.downstream_balance_factor.a
-    node_visitor = NodeVisitor(g.vp["id"], amount, change,
-                               balance_factor)
-    node_visitor2 = NodeVisitorBalanceDeltas(g.vp["id"], amount, change,
-                               balance_factor)
-
-    if plot:
-        # prepare plotting of intermediate results
-        from repair.apps.asmfa.tests import flowmodeltestdata
-        g.ep.change = change
 
     # make a first run with the given changes to the implementation edge
 
@@ -118,9 +116,16 @@ def traverse_graph(g, edge, delta, upstream=True):
     if upstream:
         node = edge.source()
         g.set_reversed(True)
+        balance_factor = 1 / balance_factor
     else:
         node = edge.target()
         g.set_reversed(False)
+
+    # initialize the node-visitors
+    node_visitor = NodeVisitor(g.vp["id"], amount, change,
+                               balance_factor)
+    node_visitor2 = NodeVisitorBalanceDeltas(g.vp["id"], amount, change,
+                               balance_factor)
 
     node_visitor.forward = True
     total_change.a[:] = 0
