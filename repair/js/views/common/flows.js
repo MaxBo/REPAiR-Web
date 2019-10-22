@@ -229,7 +229,6 @@ var FlowsView = BaseView.extend(
             apiTag: 'flows',
             apiIds: [ this.caseStudy.id, this.keyflowId]
         });
-
         this.loader.activate();
         var data = {};
         if (options.strategy)

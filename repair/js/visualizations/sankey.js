@@ -39,12 +39,18 @@ class Sankey{
             .size([this.width * this.stretchFactor, this.height])
             .align(alignment);
         this.selectable = options.selectable;
+        this.forceSignum = options.forceSignum;
         this.gradient = options.gradient;
         this.selectOnDoubleClick = options.selectOnDoubleClick || false;
     }
 
     format(d) {
-        return d.toLocaleString(this.language);
+        var formatted = d.toLocaleString(this.language);
+        if (this.forceSignum){
+            if (d > 0) formatted = '+' + formatted;
+            if (d == 0) formatted = '+-0';
+        }
+        return formatted;
     }
 
     align(alignment){
@@ -175,6 +181,7 @@ class Sankey{
                 outSum += parseInt(link.amount || link.value);
                 if (!outUnits) outUnits = link.units;
             }
+
             var ins = "in: " + _this.format(inSum) + " " + (inUnits || ""),
                 out = "out: " + _this.format(outSum) + " " + (outUnits || "");
             var text = (d.text) ? d.text + '<br>': '';
