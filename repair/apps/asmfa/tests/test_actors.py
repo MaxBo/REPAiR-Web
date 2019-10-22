@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 from test_plus import APITestCase
 from rest_framework import status
 from repair.tests.test import BasicModelPermissionTest, LoginTestCase
@@ -10,6 +11,7 @@ from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActorFactory,
                                          ReasonFactory,
                                          )
+from repair.apps.asmfa.models import ActivityGroup, Activity
 
 
 class TestActor(LoginTestCase, APITestCase):
@@ -146,6 +148,27 @@ class ActivityInCaseStudyTest(BasicModelPermissionTest, APITestCase):
             activitygroup__keyflow__casestudy=self.uic.casestudy,
             activitygroup__keyflow=self.kic,
             activitygroup__id=self.activitygroup)
+
+    def test_unique_nacecode(self):
+        """Test if the nace-code number is unique"""
+        ag = ActivityGroup.objects.get(pk=self.activitygroup)
+        ag2 = ActivityGroupFactory(keyflow__id=44)
+        activity1 = Activity(activitygroup=ag, nace='E-01234', name='A1')
+        activity2 = Activity(activitygroup=ag, nace='E-01235', name='A2')
+        activity3 = Activity(activitygroup=ag, nace='V-01234', name='A3')
+        activity1.save()
+        activity2.save()
+        # saving activity3 should raise the Validation error, because
+        # the number 01234 already exists in nacecode E-01234
+        with self.assertRaises(ValidationError):
+            activity3.save()
+        # in another keyflow, there may exist the same number once
+        activity4 = Activity(activitygroup=ag2, nace='V-01234', name='A3')
+        activity4.save()
+        # but not twice
+        activity5 = Activity(activitygroup=ag2, nace='G-01234', name='A3')
+        with self.assertRaises(ValidationError):
+            activity5.save()
 
 
 class ActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):

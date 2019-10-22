@@ -213,10 +213,10 @@ class SolutionInStrategySerializer(serializers.ModelSerializer):
             quantity.save()
         for a in areas:
             # quantities are created automatically, no need to delete them
-            area = ImplementationArea.objects.get(
+            area = ImplementationArea.objects.get_or_create(
                 possible_implementation_area=a['possible_implementation_area'],
-                implementation=instance)
-            area.geom = a['geom'];
+                implementation=instance)[0]
+            area.geom = a['geom']
             area.save()
         return instance
 

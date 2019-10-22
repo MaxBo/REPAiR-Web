@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
+import re
+
 from django.db import models
 from django.utils.timezone import now
 from djmoney.models.fields import MoneyField
+from django.core.exceptions import ValidationError
 
 from repair.apps.login.models import GDSEModel
 from repair.apps.asmfa.models.keyflows import KeyflowInCasestudy
@@ -62,6 +65,39 @@ class Activity(Node):
     name = models.CharField(max_length=255)
     activitygroup = models.ForeignKey(ActivityGroup,
                                       on_delete=PROTECT_CASCADE)
+
+    @property
+    def nace_number(self) -> str:
+        """
+        only the digits in the nace number, that have to be unique
+        within a keyflow
+        """
+        regex='\d+'
+        match = re.findall(regex, self.nace)
+        nace_number = ''.join(match)
+        return nace_number
+
+    def validate_unique(self, exclude=None):
+        super().validate_unique(exclude=exclude)
+
+        # test if the number in the nace is unique
+        qs = self.__class__._default_manager.filter(
+            activitygroup__keyflow=self.activitygroup.keyflow)
+
+        for row in qs:
+            if self.nace_number == row.nace_number:
+
+                raise ValidationError(
+                    f'Cannot create Actor with nace-code {self.nace}, '
+                    'because there exists already an activity with the same '
+                    f'number {self.nace_number} in nace code {row.nace}'
+                )
+
+    def save(self, *args, **kwargs):
+        """Call :meth:`full_clean` before saving."""
+        if self.pk is None:
+            self.full_clean()
+        super().save(*args, **kwargs)
 
 
 class Reason(models.Model):

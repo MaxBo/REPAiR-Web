@@ -8,7 +8,6 @@ from django_filters.rest_framework import (
     DjangoFilterBackend, Filter, FilterSet, MultipleChoiceFilter)
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import action
-
 from rest_framework.response import Response
 import json
 

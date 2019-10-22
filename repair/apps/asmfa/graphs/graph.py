@@ -252,6 +252,8 @@ class BaseGraph:
                     self.graph.vertex(v0), self.graph.vertex(v1))
                 self.graph.ep.id[e] = flow.id
                 self.graph.ep.material[e] = flow.material_id
+                self.graph.ep.waste[e] = flow.waste
+                self.graph.ep.hazardous[e] = flow.hazardous
                 self.graph.ep.process[e] = \
                     flow.process_id if flow.process_id is not None else - 1
                 self.graph.ep.amount[e] = flow.amount
@@ -451,10 +453,10 @@ class StrategyGraph(BaseGraph):
 
         # actors in possible new targets that are closest
         closest_dict = self.find_closest_actor(actors_kept,
-                                             possible_new_targets)
+                                               possible_new_targets)
         if formula.is_absolute:
             formula.set_total(referenced_flows)
-
+            
         # create new flows and add corresponding edges
         for flow in referenced_flows:
             kept_id = flow.destination_id if shift_origin \
@@ -681,17 +683,22 @@ class StrategyGraph(BaseGraph):
         return flows on actor level filtered by flow_reference attributes
         and implementation areas
         '''
-        #impl_materials = descend_materials(
-            #[flow_reference.material])
         origins, destinations = self._get_actors(flow_reference, implementation)
         flows = FractionFlow.objects.filter(
             origin__in=origins,
             destination__in=destinations
         )
         flows = self._annotate(flows)
-        kwargs = {
-            's_material': flow_reference.material.id
-        }
+        if flow_reference.include_child_materials:
+            impl_materials = Material.objects.filter(id__in=descend_materials(
+                [flow_reference.material]))
+            kwargs = {
+                's_material__in': impl_materials
+            }
+        else:
+            kwargs = {
+                's_material': flow_reference.material.id
+            }
         if flow_reference.process:
             kwargs['s_process'] = flow_reference.process.id
         reference_flows = flows.filter(**kwargs)
@@ -1020,7 +1027,7 @@ class StrategyGraph(BaseGraph):
                         'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
                         '"asmfa_administrativelocation"."geom"')
 
-                querytext_target_actors,  params_target_actors = \
+                querytext_target_actors, params_target_actors = \
                     query_target_actors.sql_with_params()
                 querytext_target_actors = querytext_target_actors.replace(
                     'CAST (AsEWKB("asmfa_administrativelocation"."geom") AS BLOB)',
@@ -1096,14 +1103,14 @@ class StrategyGraph(BaseGraph):
                 WHERE a.rn = 1
                 '''
 
-                params = ()
+                params = None
 
             else:
                 raise ConnectionError(f'unknown backend: {backend}')
 
 
             with connection.cursor() as cursor:
-                cursor.execute(query,  params)
+                cursor.execute(query, params)
                 rows = cursor.fetchall()
 
             target_actors.update(dict(rows))

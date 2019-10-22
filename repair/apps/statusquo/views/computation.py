@@ -12,7 +12,6 @@ from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.asmfa.views import get_fractionflows
 
-
 def filter_actors_by_area(actors, geom):
     '''
     get actors in a polygon (by administrative location)
@@ -61,7 +60,7 @@ class ComputeIndicator(metaclass=ABCMeta):
             flows = flows.filter(strategy_hazardous=is_hazardous)
         if avoidable != 'BOTH':
             is_avoidable = True if avoidable == 'YES' else False
-            flows = flows.filter(strategy_avoidable=is_avoidable)
+            flows = flows.filter(avoidable=is_avoidable)
 
         # filter flows by processes
         process_ids = indicator_flow.process_ids
@@ -73,7 +72,7 @@ class ComputeIndicator(metaclass=ABCMeta):
         if materials:
             mats = descend_materials(list(materials))
             mats = Material.objects.filter(id__in=mats)
-            flows = flows.filter(strategy_process__in=mats)
+            flows = flows.filter(strategy_material__in=mats)
 
         # ToDo: implement new filter attribute sinks and sources only
         #destinations_to_exclude = flows.exclude(destination__isnull=True).values('destination__id').distinct()

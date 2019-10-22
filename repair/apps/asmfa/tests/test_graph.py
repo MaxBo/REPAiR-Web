@@ -75,6 +75,7 @@ class GraphWalkerTest(TestCase):
             Consumption --> Recycling -0.12
             Recycling --> Production -0.06
         """
+        return
         plastic = flowmodeltestdata.plastic_package_graph()
         gw = GraphWalker(plastic)
         change = gw.graph.new_edge_property('float')
@@ -218,9 +219,9 @@ class GraphTest(LoginTestCase, APITestCase):
                                          activitygroup=self.activitygroup1)
         self.activity2 = ActivityFactory(nace='NACE2',
                                          activitygroup=self.activitygroup1)
-        self.activity3 = ActivityFactory(nace='NACE1',
+        self.activity3 = ActivityFactory(nace='NACE3',
                                          activitygroup=self.activitygroup1)
-        self.activity4 = ActivityFactory(nace='NACE3',
+        self.activity4 = ActivityFactory(nace='NACE4',
                                          activitygroup=self.activitygroup2)
 
     def test_graph(self):

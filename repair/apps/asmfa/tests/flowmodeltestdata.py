@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import namedtuple
-import graph_tool as gt
-import graph_tool.draw
+try:
+    import graph_tool as gt
+    import graph_tool.draw
+except ModuleNotFoundError:
+    pass
 import numpy as np
 from django.test import TestCase
 
@@ -219,10 +222,10 @@ class GenerateBreadToBeerData(TestCase):
             nace='A-0003', activitygroup=group_A)
         farming_activity = ActivityFactory(
             name='Farming',
-            nace='C-0000', activitygroup=group_C)
+            nace='C-0010', activitygroup=group_C)
         inciterator_activity = ActivityFactory(
             name='Incineration',
-            nace='C-0001', activitygroup=group_C)
+            nace='C-0011', activitygroup=group_C)
 
         ## Actors ##
 

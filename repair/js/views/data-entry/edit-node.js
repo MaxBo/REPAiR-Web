@@ -468,9 +468,9 @@ var EditNodeView = BaseView.extend(
         sourceButton.style.maxWidth = '200px';
         var btnClass = (currentId) ? 'btn-primary': 'btn-warning';
         sourceButton.classList.add('btn', 'inverted', 'square', btnClass);
-        if (currentId){
-            var publication = this.publications.get(currentId)
-            var title = publication.get('title');
+        if (currentId && this.publications.get(currentId)){
+            var publication = this.publications.get(currentId),
+                title = publication.get('title');
             sourceButton.innerHTML = title;
             sourceButton.setAttribute('data-publication-id', currentId)
         }

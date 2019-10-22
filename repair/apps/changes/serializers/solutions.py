@@ -212,8 +212,8 @@ class FlowReferenceSerializer(serializers.ModelSerializer):
     class Meta:
         model = FlowReference
         fields = ('origin_activity', 'destination_activity',
-                  'material', 'process', 'origin_area',
-                  'destination_area', 'waste', 'hazardous')
+                  'material', 'include_child_materials', 'process',
+                  'origin_area', 'destination_area', 'waste', 'hazardous')
         extra_kwargs = {
             'waste': {'required': False},
             'hazardous': {'required': False}

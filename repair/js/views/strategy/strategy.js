@@ -291,6 +291,7 @@ var StrategyView = BaseView.extend(
         this.areaSelect = this.solutionModal.querySelector('select[name="implementation-areas"]');
         this.areaSelect.addEventListener('change', function(){
             _this.setupArea(solutionImpl);
+            _this.mapEl.classList.remove('disabled');
         });
 
         var stakeholderSelect = this.solutionModal.querySelector('#strategy-stakeholders'),
@@ -301,14 +302,19 @@ var StrategyView = BaseView.extend(
             }
         }
         $(stakeholderSelect).selectpicker();
-
+        this.mapEl = document.getElementById('editor-map');
         if (this.editorMapView) this.editorMapView.close();
+        var loader = new utils.Loader(this.areaSelect.parentElement, {disable: true});
+        loader.activate();
         this.editorMapView = new BaseMapView({
             template: 'base-maps-template',
-            el: document.getElementById('editor-map'),
+            el: this.mapEl,
             caseStudy: this.caseStudy,
             onReady: function(){
                 _this.setupEditor(solutionImpl);
+                _this.areaSelect.parentElement.classList.remove('disabled');
+                loader.deactivate();
+                _this.editorMapView.map.labelZoom = 13;
             }
         });
 
@@ -342,7 +348,6 @@ var StrategyView = BaseView.extend(
                     var multi = new ol.geom.MultiPolygon();
                     features.forEach(function(feature) {
                         var geom = feature.getGeometry().transform(_this.editorMap.mapProjection, _this.projection);
-                        console.log(geom.getType())
                         if (geom.getType() == 'MultiPolygon'){
                             geom.getPolygons().forEach(function(poly){
                                 multi.appendPolygon(poly);
@@ -520,8 +525,6 @@ var StrategyView = BaseView.extend(
                 });
                 _this.editorMap.enableDragBox('drawing');
             }
-            // seperate dragbox tool disabled, doesn't work with touch
-            //if (type === 'DragBox') useDragBox = true;
             _this.editorMap.enableSelect('drawing', selectable);
             _this.editorMap.enableDragBox('drawing', useDragBox);
             removeBtn.style.display = (removeActive) ? 'block' : 'none';
@@ -572,7 +575,10 @@ var StrategyView = BaseView.extend(
             });
         this.editorMap.centerOnPolygon(area, { projection: this.projection });
 
-        if (implArea.geom){
+        if (this.drawings[areaId]){
+            this.editorMap.addFeatures('drawing', this.drawings[areaId])
+        }
+        else if (implArea && implArea.geom){
             _this.editorMap.addGeometry(implArea.geom.coordinates, {
                 projection: _this.projection, layername: 'drawing',
                 type: implArea.geom.type
@@ -592,12 +598,12 @@ var StrategyView = BaseView.extend(
         var promises = [];
         if (actorIds.length > 0){
             this.loader.activate();
-            promises.push(actors.fetch({
-                data: {id__in: actorIds.join(',')},
+            promises.push(actors.postfetch({
+                body: {id: actorIds.join(',')},
                 error: _this.onError
             }));
-            promises.push(locations.fetch({
-                data: {actor__id__in: actorIds.join(',')},
+            promises.push(locations.postfetch({
+                body: {actor__in: actorIds.join(',')},
                 error: _this.onError
             }));
         }

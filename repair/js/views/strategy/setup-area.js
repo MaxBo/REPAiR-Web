@@ -1,9 +1,9 @@
 
 define(['views/common/baseview', 'underscore', 'collections/gdsecollection',
-        'models/gdsemodel', 'visualizations/map', 'app-config', 'utils/utils', 'bootstrap',
-        'bootstrap-select'],
+        'models/gdsemodel', 'visualizations/map', 'app-config', 'utils/utils',
+        'openlayers', 'bootstrap', 'bootstrap-select'],
 
-function(BaseView, _, GDSECollection, GDSEModel, Map, config, utils){
+function(BaseView, _, GDSECollection, GDSEModel, Map, config, utils, ol){
 /**
 *
 * @author Christoph Franke
@@ -106,6 +106,23 @@ var PossibleImplementationAreaView = BaseView.extend(
         this.areaMap.centerOnPolygon(poly, { projection: this.projection });
     },
 
+    convertFeatureCollection: function(json){
+        var geoJSON = new ol.format.GeoJSON(),
+            features = geoJSON.readFeatures(json),
+            multipoly = new ol.geom.MultiPolygon();
+        features.forEach(function(feature){
+            var geom = feature.getGeometry()
+            if (geom.getType() == 'MultiPolygon'){
+                geom.getPolygons().forEach(function(poly){
+                    multipoly.appendPolygon(poly);
+                })
+            } else
+                multipoly.appendPolygon(geom);
+        })
+        var geoJSONText = geoJSON.writeGeometry(multipoly);
+        return JSON.parse(geoJSONText);
+    },
+
     checkGeoJSON: function(geoJSONTxt){
         try {
             var geoJSON = JSON.parse(geoJSONTxt);
@@ -114,10 +131,15 @@ var PossibleImplementationAreaView = BaseView.extend(
             this.alert(err);
             return;
         }
-        if (!geoJSON.coordinates && !geoJSON.type) {
-            this.alert(gettext('GeoJSON needs attributes "type" and "coordinates"'));
+
+        if (geoJSON.type.toLowerCase() == 'featurecollection'){
+            geoJSON = this.convertFeatureCollection(geoJSON);
+            console.log(geoJSON)
         }
-        if (!['multipolygon', 'polygon'].includes(geoJSON.type.toLowerCase())){
+        //if (!geoJSON.coordinates && !geoJSON.type) {
+            //this.alert(gettext('GeoJSON needs attributes "type" and "coordinates"'));
+        //}
+        else if (!['multipolygon', 'polygon'].includes(geoJSON.type.toLowerCase())){
             this.alert(gettext('type has to be MultiPolygon or Polygon'));
             return;
         }

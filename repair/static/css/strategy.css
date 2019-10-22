@@ -73,3 +73,9 @@
 .viewer-backdrop img {
     background-color: white;
 }
+
+.count-label {
+    float: left;
+    padding: 3px;
+    margin-right: 20px;
+}

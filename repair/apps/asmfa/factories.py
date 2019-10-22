@@ -63,8 +63,8 @@ class ActivityGroupFactory(NodeFactory):
 class ActivityFactory(NodeFactory):
     class Meta:
         model = models.Activity
-    name = factory.Sequence(lambda n: "Activity #%s" % n)
-    nace = '52.Retail'
+    name = factory.Sequence(lambda n: f'Activity #{n}')
+    nace = factory.Sequence(lambda n: f'E-{n}')
     activitygroup = factory.SubFactory(ActivityGroupFactory)
 
 
@@ -218,4 +218,3 @@ class FractionFlowFactory(FlowFactory):
     composition_name = factory.Sequence(lambda n: "Composition #%s" % n)
     nace = '52.Retail'
     amount = 0.0
-    
