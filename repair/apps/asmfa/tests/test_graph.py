@@ -99,6 +99,10 @@ class GraphWalkerTest(TestCase):
             else:
                 gw.graph.ep.include[e] = False
         result = gw.calculate(implementation_edges, deltas)
+
+        # for each flow, test if the results are approximately
+        # the expected value, taking some delta due to the balancing
+        # into account
         for i, e in enumerate(result.edges()):
             print(f"{result.vp.id[e.source()]} --> {result.vp.id[e.target()]} "
                   f"/ {result.ep.material[e]}: {result.ep.amount[e]}")
@@ -156,6 +160,25 @@ class GraphWalkerTest(TestCase):
                                        gw.graph.ep.amount[e],
                                        delta=result.ep.amount[e]/10)
 
+        # test if the changes in all nodes are balanced
+        result.ep.change.a = result.ep.amount.a - gw.graph.ep.amount.a
+
+        for u in result.vertices():
+            #  dangling nodes with no in- or outflows can be ignored
+            if not (u.in_degree() and u.out_degree()):
+                continue
+            #  for the rest, the sum of the in-deltas should equal to the
+            #  sum of the out-deltas, adjusted with the balancing factor
+            sum_in_deltas = u.in_degree(result.ep.change)
+            sum_out_deltas = u.out_degree(result.ep.change)
+            balanced_out_deltas = sum_out_deltas / bf[u]
+            balanced_delta = sum_in_deltas - balanced_out_deltas
+            self.assertAlmostEqual(
+                balanced_delta, 0, places=4,
+                msg=f'Node {int(u)} not balanced, deltas in: {sum_in_deltas}, '
+                f'deltas out: {sum_out_deltas}, bf: {bf[u]}, '
+                f'balanced deltas out: {balanced_out_deltas}'
+            )
 
     def test_milk_production(self):
         """Reduce milk production between Farm->Packaging
