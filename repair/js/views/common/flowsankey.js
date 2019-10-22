@@ -108,7 +108,8 @@ var FlowSankeyView = BaseView.extend(
             selectable: true,
             gradient: false,
             stretchFactor: (this.stretchInput) ? this.stretchInput.value: 1,
-            selectOnDoubleClick: (dblclkCheck) ? dblclkCheck.checked : false
+            selectOnDoubleClick: (dblclkCheck) ? dblclkCheck.checked : false,
+            forceSignum: this.forceSignum
         })
 
         // redirect the event with same properties
@@ -213,14 +214,12 @@ var FlowSankeyView = BaseView.extend(
             fractions.forEach(function(material){
                 var amount = (material.value != null) ? material.value: material.amount;
                 if (amount == 0) return;
-                if (_this.forceSignum && amount >= 0)
-                    text += '+';
                 if (_this.showRelativeComposition){
                     fraction = amount / totalAmount,
                     value = Math.round(fraction * 100000) / 1000;
-                    text += _this.format(value) + '%';
+                    text += _this.format(value, _this.forceSignum) + '%';
                 } else {
-                    text += _this.format(amount) + ' ' + gettext('t/year');
+                    text += _this.format(amount, _this.forceSignum) + ' ' + gettext('t/year');
                 }
                 text += ' ' + material.name
                 if (material.avoidable) text += ' <i>' + gettext('avoidable') +'</i>';
@@ -263,9 +262,6 @@ var FlowSankeyView = BaseView.extend(
             var crepr = compositionRepr(flow),
                 amount = flow.get('amount'),
                 value = (norm === 'log')? normalize(amount): Math.round(amount);
-
-            if (_this.forceSignum && amount >= 0)
-                amount = '+' + amount.toLocaleString(this.language);
             links.push({
                 id: flow.id,
                 originalData: flow,
@@ -340,11 +336,9 @@ var FlowSankeyView = BaseView.extend(
                 destination = link.target,
                 originName = origin.name,
                 destinationName = (!link.isStock) ? destination.name : gettext('Stock'),
-                amount = _this.format(link.amount) + ' ' + link.units,
+                amount = _this.format(link.amount, _this.forceSignum) + ' ' + link.units,
                 composition = link.composition;
 
-            if (_this.forceSignum && amount >= 0)
-                amount = '-' + amount;
             var originCode = origin.code,
                 destinationCode = (destination) ? destination.code: '',
                 originWkt = '',
