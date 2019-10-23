@@ -724,6 +724,7 @@ class StrategyGraph(BaseGraph):
                 origin__activity = af.origin_activity,
                 destination__activity = af.destination_activity
             )
+
             kwargs = {
                 'strategy_material': af.material.id
             }
