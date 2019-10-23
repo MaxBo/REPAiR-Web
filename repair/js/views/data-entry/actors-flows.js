@@ -191,6 +191,9 @@ var FlowsEditView = BaseView.extend(
             plugins: ["wholerow", "ui", "types", "themes"]
         });
         $(this.dataTree).on("select_node.jstree", this.nodeSelected);
+        $(this.dataTree).bind("hover_node.jstree", function (e, data) {
+            $("#" + data.node.id).prop('title', data.node.text);
+        })
         this.filterSelect = this.el.querySelector('#included-filter-select');
         this.actorsTable = $('#actors-table').DataTable();
         $('#actors-table tbody').on('click', 'tr', function () {
