@@ -18,7 +18,7 @@
           <div class="row">
             <div class="col-md-2 bordered">
               <span class="fa fa-cubes"></span>  {% trans "Activity Groups" %} / <span class="fa fa-cube"></span> {% trans "Activities" %}
-              <div id="data-tree" style="overflow-x: auto; overflow-y:hidden; font-size: 0.9em;"></div>
+              <div id="data-tree" style="overflow-x: auto; overflow-y:auto; max-height: 500px; font-size: 0.9em;"></div>
             </div>
             <h3 id="select-activities-tip" class="row"><span class="glyphicon glyphicon-arrow-left"></span>  {% trans "Select an activity by clicking its row to show the related actors." %}</h3>
             <div class="col-md-3 bordered" id='actors-col'>
@@ -69,7 +69,7 @@
       </div>
     </div>
   </div>
-  <div id="actor-select-modal" class="modal fade" role="dialog">
+  <div id="actor-select-modal" data-backdrop="static" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="width: 80%;">
       <div class="modal-content col-md-12">
         <div class="modal-header">
@@ -162,7 +162,7 @@
       </button>
     </div>
   </div>
-  <div id="datasource-modal" class="modal fade" role="dialog" style='z-index: 1101;'> <!-- has to be infront of composition modal -->
+  <div id="datasource-modal" data-backdrop="static" class="modal fade" role="dialog" style='z-index: 1101;'> <!-- has to be infront of composition modal -->
     <div class="modal-dialog modal-lg" style="width: 80%;">
       <!-- Modal content-->
       <div class="modal-content col-md-12">
@@ -202,7 +202,7 @@
       </div>
     </div>
   </div>
-  <div id="flow-nodes-modal" class="modal fade" role="dialog">
+  <div id="flow-nodes-modal" data-backdrop="static" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" style="width: 80%;">
       <div class="modal-content col-md-12">
         <div class="modal-header">
@@ -220,7 +220,7 @@
       </div>
     </div>
   </div>
-  <div id="fractions-modal" class="modal fade" role="dialog" style='z-index: 1100;'> <!-- has to behind datasource modal -->
+  <div id="fractions-modal" data-backdrop="static" class="modal fade" role="dialog" style='z-index: 1100;'> <!-- has to behind datasource modal -->
   </div>
 </script>
 
@@ -486,7 +486,7 @@
         </button>
       </div>
     </div>
-    <div id="location-modal" class="modal fade" role="dialog">
+    <div id="location-modal" data-backdrop="static" class="modal fade" role="dialog">
       <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content col-md-12">
