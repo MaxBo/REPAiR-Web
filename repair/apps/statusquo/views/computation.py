@@ -49,8 +49,10 @@ class ComputeIndicator(metaclass=ABCMeta):
         hazardous = indicator_flow.hazardous.name
         avoidable = indicator_flow.avoidable.name
 
+        strategy_id = getattr(self.strategy, 'id', None)
+
         flows = get_annotated_fractionflows(self.keyflow_pk,
-                                            strategy_id=self.strategy.id)
+                                            strategy_id=strategy_id)
 
         # filter flows by type (waste/product/both)
         if flow_type != 'BOTH':
