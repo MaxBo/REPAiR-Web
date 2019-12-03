@@ -81,7 +81,7 @@ function(_, BaseView, GDSECollection, Muuri){
             this.users.forEach(function(user){
                 var name = user.get('alias') || user.get('name'),
                     th = document.createElement('th');
-                userColumns.push(user.id);
+                userColumns.push(user);
                 th.innerHTML = name;
                 header.appendChild(th);
                 var userObjectives = objectives.filterBy({'user': user.get('user')});
@@ -122,11 +122,14 @@ function(_, BaseView, GDSECollection, Muuri){
                     item = _this.createAimItem(aim, i);
                 row.insertCell(0).appendChild(item);
                 var aimRank = rankingMap[aim.id];
-                userColumns.forEach(function(userId){
+                userColumns.forEach(function(user){
                     var cell = row.insertCell(-1),
-                        rank = aimRank[userId];
+                        rank = aimRank[user.id],
+                        name = user.get('alias') || user.get('name');
                     if (rank) {
-                        var item = _this.panelItem('#' + rank);
+                        var item = _this.panelItem('#' + rank, {
+                            popoverText: name + ' ' + gettext('ranked') + ' <b>' + aim.get('text') + '</b> #' + rank
+                        });
                         item.style.width = '50px';
                         item.style.backgroundImage = 'none';
                         cell.appendChild(item);
@@ -141,10 +144,11 @@ function(_, BaseView, GDSECollection, Muuri){
         },
 
         createAimItem: function(aim, rank){
-            var desc = aim.get('description') || '';
+            var desc = aim.get('description') || '',
+                title = aim.get('text');
 
-            var panelItem = this.panelItem(aim.get('text'), {
-                popoverText: desc.replace(/\n/g, "<br/>"),
+            var panelItem = this.panelItem(title, {
+                popoverText: '<b>' + title + '</b><br>' + desc.replace(/\n/g, "<br/>"),
                 overlayText: '#' + rank
             })
             panelItem.style.maxWidth = '500px';

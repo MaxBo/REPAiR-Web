@@ -383,7 +383,10 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
                 var row = table.insertRow(-1),
                     text = solution.get('name'),
                     questions = _this.questions[solution.id];
-                var solItem = _this.panelItem(text, { overlayText: '0x' });
+                var solItem = _this.panelItem(text, {
+                        overlayText: '0x',
+                        popoverText: text
+                    });
                 solItem.style.maxWidth = '600px';
                 row.insertCell(0).appendChild(solItem);
                 _this.users.forEach(function(user){
@@ -452,7 +455,10 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             function addRow(table, node, userSet, totalCount){
                 var row = table.insertRow(-1),
                     text = node.get('name');
-                var panelItem = _this.panelItem(text, { overlayText: totalCount + 'x' });
+                var panelItem = _this.panelItem(text, {
+                        overlayText: totalCount + 'x',
+                        popoverText: text
+                    });
                 panelItem.style.width = '500px';
                 row.insertCell(0).appendChild(panelItem);
                 _this.users.forEach(function(user){
@@ -553,7 +559,7 @@ function(_, BaseView, GDSECollection, Map, ol, chroma){
             stakeholders.forEach(function(stakeholder){
                 var row = table.insertRow(-1),
                     text = stakeholder.get('name');
-                var panelItem = _this.panelItem(text);
+                var panelItem = _this.panelItem(text, {popoverText: text});
                 panelItem.style.maxWidth = '500px';
                 row.insertCell(0).appendChild(panelItem);
 
