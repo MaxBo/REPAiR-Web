@@ -33,7 +33,7 @@ class MakeValid(GeoFunc):
 
 
 class BulkValidationError(Exception):
-    def __init__(self, message, path=''):
+    def __init__(self, message='error', path=''):
         super().__init__(message)
         self.message = message
         self.path = path
