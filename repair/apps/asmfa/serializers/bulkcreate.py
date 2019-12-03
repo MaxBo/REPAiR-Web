@@ -141,6 +141,7 @@ class Actor2ActorCreateSerializer(BulkSerializerMixin,
                     file_type=self.input_file_ext.replace('.', ''),
                     encoding=self.encoding
                 )
+                error_mask.add_message(message)
                 raise ValidationError(
                     error_mask.messages, url
                 )

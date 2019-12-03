@@ -255,7 +255,9 @@ var FlowSankeyView = BaseView.extend(
                 return;
             }
             function normalize(v){
-                return Math.log2(1 + v * normFactor);
+                var normed = Math.log2(1 + Math.abs(v) * normFactor);
+                if (v < 0) normed *= -1;
+                return normed;
             }
             var source = mapNode(origin),
                 target = (!isStock) ? mapNode(destination) : addStock();

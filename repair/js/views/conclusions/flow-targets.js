@@ -99,7 +99,7 @@ function(_, BaseView, GDSECollection, Muuri){
 
             var indicatorColumns = [];
             this.indicators.forEach(function(indicator){
-                indicatorColumns.push(indicator.id)
+                indicatorColumns.push(indicator)
                 var th = document.createElement('th');
                 th.innerHTML = indicator.get('name');
                 header.appendChild(th);
@@ -109,18 +109,21 @@ function(_, BaseView, GDSECollection, Muuri){
 
             this.aims.forEach(function(aim){
                 var row = table.insertRow(-1),
-                    desc = aim.get('description') || '';
-                var panelItem = _this.panelItem(aim.get('text'), {
-                    popoverText: desc.replace(/\n/g, "<br/>")
+                    desc = aim.get('description') || '',
+                    title = aim.get('text');
+                var panelItem = _this.panelItem(title, {
+                    popoverText: '<b>' + title + '</b><br>' + desc.replace(/\n/g, "<br/>"),
                 })
                 panelItem.style.maxWidth = '500px';
                 row.insertCell(0).appendChild(panelItem);
                 var indicatorCount = _this.indicatorCountPerAim[aim.id];
-                indicatorColumns.forEach(function(indicatorId){
-                    var count = indicatorCount[indicatorId],
+                indicatorColumns.forEach(function(indicator){
+                    var count = indicatorCount[indicator.id],
                         cell = row.insertCell(-1);
                     if (count){
-                        var item = _this.panelItem(count + ' x');
+                        var item = _this.panelItem(count + ' x', {
+                                popoverText: '<b>' + indicator.get('name') + '</b> ' + gettext('used') + ' ' + count + ' x ' + 'in' + ' <b>' + aim.get('text') + '</b>'
+                            });
                         item.style.backgroundImage = 'none';
                         item.style.width = '50px';
                         cell.appendChild(item);
@@ -145,7 +148,7 @@ function(_, BaseView, GDSECollection, Muuri){
 
             var userColumns = [];
             this.users.forEach(function(user){
-                userColumns.push(user.id);
+                userColumns.push(user);
                 var name = user.get('alias') || user.get('name'),
                     th = document.createElement('th');
                 th.innerHTML = name;
@@ -154,18 +157,24 @@ function(_, BaseView, GDSECollection, Muuri){
             this.indicators.forEach(function(indicator){
                 var row = table.insertRow(-1),
                     text = indicator.get('name') + ' (' + indicator.get('spatial_reference').toLowerCase() + ')';
-                var panelItem = _this.panelItem(text)
+                var panelItem = _this.panelItem(text, {
+                    popoverText: text
+                })
                 panelItem.style.maxWidth = '500px';
                 row.insertCell(0).appendChild(panelItem);
                 var userTargets = _this.userTargetsPerIndicator[indicator.id];
                 if (!userTargets) return;
-                userColumns.forEach(function(userId){
-                    var target = userTargets[userId],
-                        cell = row.insertCell(-1);
+                userColumns.forEach(function(user){
+                    var target = userTargets[user.id],
+                        cell = row.insertCell(-1),
+                        name = user.get('alias') || user.get('name');
                     if (target != null){
                         var targetValue = _this.targetValues.get(target.get('target_value')),
                             amount = targetValue.get('number'),
-                            item = _this.panelItem(targetValue.get('text'));
+                            targetText = targetValue.get('text'),
+                            item = _this.panelItem(targetText, {
+                                popoverText: '<b>' + name + '</b><br>' + text + '<br>' + targetText
+                            });
                         cell.appendChild(item);
                         var hue = (amount >= 0) ? 90 : 0, // green or red
                             sat = 100 - 70 * Math.abs(Math.min(amount, 1)),

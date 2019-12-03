@@ -249,7 +249,7 @@ var BulkUploadView = BaseView.extend(
                     dismissible: true
                 })
                 alertDiv.querySelector('.close').style.top = '-20px';
-                _this.log('<p style="color:' + color + ';">' + msg + '</p>')
+                _this.log('<p style="color:' + color + ';">' + msg + '</p><br>')
                 _this.loader.deactivate();
                 _this.refreshStatus();
             }
