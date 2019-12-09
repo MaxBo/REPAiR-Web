@@ -85,8 +85,7 @@ def trigger_implementationquantity_sii(sender, instance,
         solution = Solution.objects.get(pk=sii.solution.id)
         for question in solution.question.all():
             new, is_created = ImplementationQuantity.objects.\
-                get_or_create(implementation=sii, question=question,
-                              value=0)
+                get_or_create(implementation=sii, question=question, value=0)
             if is_created:
                 new.save()
 
@@ -102,8 +101,7 @@ def trigger_implementationarea_sii(sender, instance,
         for area in solution.possible_implementation_area.all():
             new, is_created = ImplementationArea.objects.\
                 get_or_create(implementation=sii,
-                              possible_implementation_area=area,
-                              geom=None)
+                              possible_implementation_area=area)
             if is_created:
                 new.save()
 

@@ -411,6 +411,7 @@ var SolutionPartView = BaseView.extend(
         this.hasQuestion = (question != null);
         question = this.questions.get(question);
         this.isAbsolute = (this.hasQuestion) ? question.get('is_absolute'): this.model.get('is_absolute');
+        if (this.scheme.toLowerCase() == 'new') this.isAbsolute = true;
 
         var questValue = (this.hasQuestion) ? 'true': 'false';
         this.hasQuestionRadios.forEach(function(radio){

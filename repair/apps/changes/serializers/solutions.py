@@ -9,6 +9,8 @@ from repair.apps.asmfa.models import Activity, Actor
 from repair.apps.changes.models import (SolutionCategory,
                                         Solution,
                                         ImplementationQuestion,
+                                        SolutionInStrategy,
+                                        ImplementationQuantity,
                                         SolutionPart,
                                         AffectedFlow,
                                         PossibleImplementationArea,
@@ -338,6 +340,7 @@ class SolutionPartSerializer(serializers.ModelSerializer):
         affected_flows = validated_data.pop('affected_flows', None)
         flow_reference = validated_data.pop('flow_reference', None)
         flow_changes = validated_data.pop('flow_changes', None)
+        question = validated_data.pop('question', None)
         instance = super().update(instance, validated_data)
         if flow_reference:
             if instance.flow_reference:
@@ -356,6 +359,24 @@ class SolutionPartSerializer(serializers.ModelSerializer):
             for f in affected_flows:
                 flow = AffectedFlow(solution_part=instance, **f)
                 flow.save()
+        if question:
+            implementations = SolutionInStrategy.objects.filter(
+                solution=instance.solution)
+            for implementation in implementations:
+                ex = ImplementationQuantity.objects.filter(
+                    implementation=implementation, question=question)
+                # create if not existing (in case questions were added after
+                # creation the implementation by user)
+                if len(ex) != 1:
+                    # workaround: old code produced duplicate quantities,
+                    # remove duplicates
+                    ex.delete()
+                    new = ImplementationQuantity(
+                        implementation=implementation,
+                        question=question,
+                        value=0
+                    )
+                    new.save()
         instance.save()
         return instance
 
