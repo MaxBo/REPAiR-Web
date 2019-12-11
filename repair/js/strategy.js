@@ -123,7 +123,7 @@ require(['models/casestudy', 'models/gdsemodel', 'collections/gdsecollection',
         var btn = document.getElementById('build-graph'),
             note = document.getElementById('graph-note'),
             clone = btn.cloneNode(true);
-        note.innerHTML = keyflow.get('graph_build') || '-';
+        note.innerHTML = keyflow.get('graph_date') || '-';
         btn.parentNode.replaceChild(clone, btn);
         clone.addEventListener('click', function(){
             loader.activate();
