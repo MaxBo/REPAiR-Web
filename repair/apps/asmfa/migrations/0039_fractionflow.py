@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 import repair.apps.login.models.bases
 import repair.apps.utils.protect_cascade
-from repair.apps.asmfa.management.commands.translate import translate
 
 
 class Migration(migrations.Migration):
@@ -44,5 +43,4 @@ class Migration(migrations.Migration):
             },
             bases=(repair.apps.login.models.bases.GDSEModelMixin, models.Model),
         ),
-        migrations.RunPython(translate, migrations.RunPython.noop)
     ]
