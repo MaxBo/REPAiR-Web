@@ -202,8 +202,8 @@ class BaseGraph:
             Q(id__in=actorflows.values('origin_id')) |
             Q(id__in=actorflows.values('destination_id')) |
             Q(id__in=stockflows.values('origin_id'))
-        )
-        flows = list(chain(actorflows, stockflows))
+        ).values()
+        flows = list(chain(actorflows.values(), stockflows.values()))
 
         self.graph = gt.Graph(directed=True)
 
@@ -220,10 +220,11 @@ class BaseGraph:
 
         actorids = {}
         for i in range(len(actors)):
-            self.graph.vp.id[i] = actors[i].id
-            self.graph.vp.bvdid[i] = actors[i].BvDid
-            self.graph.vp.name[i] = actors[i].name
-            actorids[actors[i].id] = i
+            actor_id = actors[i]['id']
+            self.graph.vp.id[i] = actors[i]['id']
+            self.graph.vp.bvdid[i] = actors[i]['BvDid']
+            self.graph.vp.name[i] = actors[i]['name']
+            actorids[actor_id] = i
 
         # Add the flows to the graph
         # need a persistent edge id, because graph-tool can reindex the edges
@@ -242,22 +243,23 @@ class BaseGraph:
         for i in range(len(flows)):
             # get the start and and actor id's
             flow = flows[i]
-            v0 = actorids.get(flow.origin.id)
-            if not flow.to_stock:
-                v1 = actorids.get(flow.destination.id)
+            v0 = actorids.get(flow['origin_id'])
+            if not flow['to_stock']:
+                v1 = actorids.get(flow['destination_id'])
             else:
                 v1 = v0
 
             if (v0 != None and v1 != None):
                 e = self.graph.add_edge(
                     self.graph.vertex(v0), self.graph.vertex(v1))
-                self.graph.ep.id[e] = flow.id
-                self.graph.ep.material[e] = flow.material_id
-                self.graph.ep.waste[e] = flow.waste
-                self.graph.ep.hazardous[e] = flow.hazardous
-                self.graph.ep.process[e] = \
-                    flow.process_id if flow.process_id is not None else - 1
-                self.graph.ep.amount[e] = flow.amount
+                self.graph.ep.id[e] = flow['id']
+                self.graph.ep.material[e] = flow['material_id']
+                self.graph.ep.waste[e] = flow['waste']
+                self.graph.ep.hazardous[e] = flow['hazardous']
+                process_id = flow['process_id']
+                self.graph.ep.process[e] = process_id\
+                     if process_id is not None else - 1
+                self.graph.ep.amount[e] = flow['amount']
 
         #  get the original order of the vertices and edges in the graph
         edge_index = np.fromiter(self.graph.edge_index,  dtype=int)
