@@ -2,6 +2,7 @@
 
 from django.db import migrations, models
 import repair.apps.utils.protect_cascade
+from repair.apps.asmfa.management.commands.translate import translate
 
 
 class Migration(migrations.Migration):
@@ -16,4 +17,5 @@ class Migration(migrations.Migration):
             name='process',
             field=models.ForeignKey(null=True, on_delete=repair.apps.utils.protect_cascade.PROTECT_CASCADE, related_name='f_strategyfractionflowprocesses', to='asmfa.Process'),
         ),
+        migrations.RunPython(translate, migrations.RunPython.noop)
     ]

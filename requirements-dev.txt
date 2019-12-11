@@ -1,6 +1,6 @@
 -e .
 
-django>=2.2.1
+django>=2.2.1,<3
 django-webpack-loader>=0.5
 djangorestframework==3.9.3
 djangorestframework-gis>=0.12
