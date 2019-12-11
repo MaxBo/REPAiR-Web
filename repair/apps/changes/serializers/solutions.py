@@ -340,7 +340,7 @@ class SolutionPartSerializer(serializers.ModelSerializer):
         affected_flows = validated_data.pop('affected_flows', None)
         flow_reference = validated_data.pop('flow_reference', None)
         flow_changes = validated_data.pop('flow_changes', None)
-        question = validated_data.pop('question', None)
+        question = validated_data.get('question', None)
         instance = super().update(instance, validated_data)
         if flow_reference:
             if instance.flow_reference:
