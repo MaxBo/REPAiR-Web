@@ -45,6 +45,7 @@ module.exports = {
         new webpack.ProvidePlugin({
             _: 'loadash',
             d3: 'd3',
+            THREE: 'three',
             $: "jquery",
             jQuery: "jquery"
         }),
@@ -60,6 +61,14 @@ module.exports = {
             {
                 test: require.resolve("jquery"),
                 loader: 'expose-loader?jQuery!expose-loader?$'
+            },
+            {
+                test: require.resolve("pdfjs-dist"),
+                loader: 'expose-loader?PDFJS!expose-loader?$'
+            },
+            {
+                test: require.resolve("three"),
+                loader: 'expose-loader?THREE!expose-loader?$'
             },
             {
                 test: /\.css$/,

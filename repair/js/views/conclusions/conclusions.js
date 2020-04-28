@@ -1,5 +1,6 @@
 define(['underscore','views/common/baseview', 'collections/gdsecollection',
-        'models/gdsemodel', 'html2canvas', 'muuri', 'viewerjs', 'viewerjs/dist/viewer.css'],
+        'models/gdsemodel', 'html2canvas', 'muuri', 'viewerjs',
+        'viewerjs/dist/viewer.css'],
 
 function(_, BaseView, GDSECollection, GDSEModel, html2canvas, Muuri, Viewer){
 

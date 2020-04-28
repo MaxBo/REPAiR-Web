@@ -59,12 +59,6 @@
       </div>
     </div>
     <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
-      <select name="keyflow" class="form-control" style="max-width: 500px;" disabled>
-        <option disabled selected> {% trans "Select" %} </option>
-        {% for keyflow in keyflows %}
-          <option value="{{ keyflow.id }}"> {{ keyflow.keyflow.name }}</option>
-        {% endfor %}
-      </select>
       <div id="sustainability-content">
       </div>
     </div>
@@ -72,7 +66,47 @@
   {% render_bundle 'Recommendations' %}
 {% endif %}
 
-{% include "statusquo/sustainability.html" %}
+<script type="text/template" id="sustainability-template">
+  <div class="row">
+    <button title="Add report" id="add-report" class="btn btn-primary">
+      <span class="glyphicon glyphicon-plus"></span>
+      {% trans "Add" %}
+    </button>
+  </div>
+  <div id="report-previews" class="row overflow bordered" style="overflow-y: hidden; margin-top: 10px; background-color: #fafafa; box-shadow: inset 0 0 5px #d5d5d5;"></div>
+
+  <div id="report-content"></div>
+  <div class="bordered sunken" id="canvas-wrapper" style='background-color: white; text-align: center; display: none; overflow: auto;'>
+    <div class="row">
+      <div style="float: left;">
+        <h4 id="page-status" style="float: left; margin: 5px 10px 0px 0px;"></h4>
+        <button class="btn btn-primary square" id="prev">{% trans "Previous" %}</button>
+        <button class="btn btn-primary square" id="next">{% trans "Next" %}</button>
+      </div>
+      <div style="float: right;">
+        <button class="fullscreen-toggle fas fa-expand btn btn-primary"></button>
+      </div>
+    </div>
+    <canvas></canvas>
+  </div>
+</script>
+
+<script type="text/template" id="report-preview-item-template">
+<div class="item-content shaded bordered">
+  <div class="row">
+    <button class="btn btn-warning square remove" title="Remove solution" style="float: right;">
+      <span class="glyphicon glyphicon-minus"></span>
+    </button>
+    <button class="btn btn-primary square edit" title="Edit solution" style="float: right; margin-right: 5px;">
+      <span class="glyphicon glyphicon-pencil"></span>
+    </button>
+    <h5 class='title' title="<%= report.get('name') %>"> <%= report.get('name') %> </h5>
+  </div>
+  <div class="row">
+    <img src="<%= report.get('thumbnail') %>" alt='-' style="height: 200px;">
+  </div>
+</div>
+</script>
 
 {% endblock %}
 
