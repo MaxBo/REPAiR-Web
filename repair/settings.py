@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'webpack_loader',
     'django_filters',
     'wms_client',
+    'sorl.thumbnail'
 ]
 
 ADD_REVERSION_ADMIN=True

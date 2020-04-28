@@ -31,7 +31,7 @@ function(_, BaseView, GDSECollection, GDSEModel, html2canvas, Muuri, Viewer){
         {
 
         /**
-        * render setup view on challenges and aims
+        * render workshop view on challenges and aims
         *
         * @param {Object} options
         * @param {HTMLElement} options.el                          element the view will be rendered in

@@ -70,7 +70,8 @@ from repair.apps.statusquo.views import (
 )
 
 from repair.apps.conclusions.views import (ConclusionViewSet, SectionViewSet,
-                                           ConsensusViewSet)
+                                           ConsensusViewSet,
+                                           ConclusionReportViewSet)
 
 from repair.apps.utils.views import PublicationView
 from repair.apps.publications.views import (PublicationInCasestudyViewSet,)
@@ -117,6 +118,7 @@ cs_router.register(r'challenges', ChallengeViewSet)
 cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 cs_router.register(r'sections', SectionViewSet)
 cs_router.register(r'consensuslevels', ConsensusViewSet)
+cs_router.register(r'conclusionreports', ConclusionReportViewSet)
 
 # /casestudies/*/userobjectives/...
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',

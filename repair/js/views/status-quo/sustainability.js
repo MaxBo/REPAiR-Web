@@ -80,7 +80,7 @@ var SustainabilityView = BaseView.extend(
                 _this.loader.deactivate();
             });
         } else {
-            this.status.innerHTML = gettext('There is no report not set tup yet.');
+            this.status.innerHTML = gettext('There is no report not set up yet.');
         }
     },
 
