@@ -66,24 +66,6 @@ var SustainabilityView = BaseView.extend(
         this.el.appendChild(this.status);
 
         this.reports.forEach(this.renderPreview);
-
-        //this.canvas = this.el.querySelector("canvas");
-        //this.canvasWrapper = this.el.querySelector('#canvas-wrapper');
-        //this.pageStatus = this.el.querySelector('#page-status');
-        //this.pdfInput =  this.el.querySelector('#sustainability-file-input');
-        //this.status = document.createElement('h3');
-        //this.el.appendChild(this.status);
-        //if (url) {
-            //this.loader.activate();
-            //PDFJS.getDocument({url: url}).then(function(pdf) {
-                //_this.pdfDocument = pdf;
-                //_this.pageNumber = 1;
-                //_this.renderPage(_this.pageNumber);
-                //_this.loader.deactivate();
-            //});
-        //} else {
-            //this.status.innerHTML = gettext('There is no report not set up yet.');
-        //}
     },
 
     renderPreview: function(report){
@@ -101,14 +83,8 @@ var SustainabilityView = BaseView.extend(
         previews.appendChild(el);
 
         var img = el.querySelector('img');
-        img.addEventListener('click', function(){
+        img.parentElement.addEventListener('click', function(){
             _this.renderReport(report);
-            //PDFJS.getDocument({url: report.get('report')}).then(function(pdf) {
-                //_this.pdfDocument = pdf;
-                //_this.pageNumber = 1;
-                //_this.renderPage(_this.pageNumber);
-                //_this.loader.deactivate();
-            //});
         })
 
         //editBtn.addEventListener('click', function(){
@@ -131,6 +107,14 @@ var SustainabilityView = BaseView.extend(
     },
 
     renderReport: function(report){
+        var url = report.get('report'),
+            iframe = document.createElement('iframe');
+            content = this.el.querySelector('#report-content');
+        content.innerHTML = '';
+        iframe.src = '/pdfviewer/?file=' + url;
+        content.appendChild(iframe);
+        iframe.width = '100%';
+        iframe.height = '800px';
     },
 
     showFilePreview: function(event){

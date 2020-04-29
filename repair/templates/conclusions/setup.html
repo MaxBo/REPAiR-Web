@@ -76,19 +76,6 @@
   <div id="report-previews" class="row overflow bordered" style="overflow-y: hidden; margin-top: 10px; background-color: #fafafa; box-shadow: inset 0 0 5px #d5d5d5;"></div>
 
   <div id="report-content"></div>
-  <div class="bordered sunken" id="canvas-wrapper" style='background-color: white; text-align: center; display: none; overflow: auto;'>
-    <div class="row">
-      <div style="float: left;">
-        <h4 id="page-status" style="float: left; margin: 5px 10px 0px 0px;"></h4>
-        <button class="btn btn-primary square" id="prev">{% trans "Previous" %}</button>
-        <button class="btn btn-primary square" id="next">{% trans "Next" %}</button>
-      </div>
-      <div style="float: right;">
-        <button class="fullscreen-toggle fas fa-expand btn btn-primary"></button>
-      </div>
-    </div>
-    <canvas></canvas>
-  </div>
 </script>
 
 <script type="text/template" id="report-preview-item-template">
@@ -103,7 +90,7 @@
     <h5 class='title' title="<%= report.get('name') %>"> <%= report.get('name') %> </h5>
   </div>
   <div class="row">
-    <img src="<%= report.get('thumbnail') %>" alt='-' style="height: 200px;">
+    <img src="<%= report.get('thumbnail') %>" alt='-' style="height: 10em;">
   </div>
 </div>
 </script>
