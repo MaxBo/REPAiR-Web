@@ -75,8 +75,7 @@ INSTALLED_APPS = [
     'publications_bootstrap',
     'webpack_loader',
     'django_filters',
-    'wms_client',
-    'sorl.thumbnail'
+    'wms_client'
 ]
 
 ADD_REVERSION_ADMIN=True

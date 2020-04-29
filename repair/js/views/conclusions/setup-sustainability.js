@@ -131,14 +131,44 @@ var SustainabilityView = BaseView.extend(
     },
 
     renderReport: function(report){
-        $('#report-content').FlipBook({
-            pdf: report.get('report'),
-            propertiesCallback: function(props) {
-              props.page.depth *= 0.7;
-              props.cover.padding = 0.002;
-              return props;
-            }
-        });
+        //$('#report-content').FlipBook({
+            //pdf: report.get('report'),
+            //propertiesCallback: function(props) {
+              //props.page.depth *= 0.7;
+              //props.cover.padding = 0.002;
+              //return props;
+            //}
+        //});
+          $('#report-content').FlipBook({
+
+            controlsProps: { actions: {cmdSinglePage: {active: true}} },
+
+               pdf: report.get('report'),
+
+              propertiesCallback: function(props) {
+
+                 props.page.depth /= 2.5;
+                 props.cover.padding = 0.002;
+
+                 return props;
+               },
+               template: {
+                 html: '/static/css/flip-book/default-book-view.html',
+                 styles:
+
+                [
+               '/static/css/flip-book/short-black-book-view.css'
+                 ],
+                 links: [
+                  {
+                     rel: 'stylesheet',
+                     href: 'css/font-awesome.min.css'
+                   }
+                 ],
+                 script: '/static/css/flip-book/default-book-view.js'
+             }
+             });
+
     },
 
     showFilePreview: function(event){
