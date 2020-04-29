@@ -43,12 +43,7 @@ var SustainabilityView = BaseView.extend(
     * dom events (managed by jquery)
     */
     events: {
-        'change #sustainability-file-input': 'showFilePreview',
-        'click #prev': 'prevPage',
-        'click #next': 'nextPage',
-        'click .fullscreen-toggle': 'toggleFullscreen',
-        'click #upload-sustainability-file': 'uploadFile',
-        'click #remove-sustainability-file': 'removeFile'
+        'click #add-report': 'addReport'
     },
 
     /*
@@ -70,43 +65,100 @@ var SustainabilityView = BaseView.extend(
 
     renderPreview: function(report){
         var html = document.getElementById('report-preview-item-template').innerHTML,
-            el = document.createElement('div'),
+            item = document.createElement('div'),
             template = _.template(html),
             previews = this.el.querySelector('#report-previews'),
             _this = this;
 
-        el.innerHTML = template({ report: report });
+        item.classList.add('preview-item','shaded','bordered');
+        item.innerHTML = template({ report: report });
 
-        var editBtn = el.querySelector('.edit'),
-            removeBtn = el.querySelector('.remove');
+        var editBtn = item.querySelector('.edit'),
+            removeBtn = item.querySelector('.remove');
 
-        previews.appendChild(el);
+        previews.appendChild(item);
 
-        var img = el.querySelector('img');
+        var img = item.querySelector('img');
         img.parentElement.addEventListener('click', function(){
+            previews.querySelectorAll('.preview-item').forEach(function(item){
+                item.classList.remove('selected');
+            });
+            item.classList.add('selected');
             _this.renderReport(report);
         })
 
-        //editBtn.addEventListener('click', function(){
-            //_this.editSolution(solutionInStrategy, el);
-        //})
-        //el.classList.add('item', 'large');
-        //this.strategyGrid.add(el, {});
-        //removeBtn.addEventListener('click', function(){
-            //var message = gettext('Do you really want to delete your solution?');
-            //_this.confirm({ message: message, onConfirm: function(){
-                //solutionInStrategy.destroy({
-                    //success: function() { _this.strategyGrid.remove(el, { removeElements: true }); },
-                    //error: _this.onError,
-                    //wait: true
-                //})
-            //}});
-        //})
-        //this.renderSolutionPreviewMap(solutionInStrategy, el);
-        return el;
+        editBtn.addEventListener('click', function(){
+            _this.getName({
+                name: report.get('name'),
+                onConfirm: function(name){
+                    report.save({ name: name }, {
+                        patch: true,
+                        success: function(){
+                            item.querySelector('.title').innerHTML = name;
+                        },
+                        error: _this.onError
+                    })
+                }
+            })
+        })
+        removeBtn.addEventListener('click', function(){
+            var message = gettext('Do you really want to delete the report?');
+            _this.confirm({ message: message, onConfirm: function(){
+                if (report == _this.openedReport)
+                    _this.el.querySelector('#report-content').innerHTML = '';
+                report.destroy({
+                    success: function() {
+                        previews.removeChild(item);
+                    },
+                    error: _this.onError,
+                    wait: true
+                })
+            }});
+        })
+        return item;
+    },
+
+    addReport: function(){
+        var _this = this;
+        this.getInputs({
+            title: gettext('Add report'),
+            inputs: {
+                name: {
+                    type: 'text',
+                    label: gettext('Name')
+                },
+                pdf: {
+                    type: 'file',
+                    label: gettext('PDF File'),
+                    accept: 'application/pdf'
+                }
+            },
+            onConfirm: function(obj){
+                if (obj.pdf[0]){
+                    var pdf = obj.pdf[0],
+                        data = {};
+                    var report = new GDSEModel( {}, {
+                        apiTag: 'conclusionReports',
+                        apiIds: [ _this.caseStudy.id ]}
+                    );
+                    //this.keyflow.set('sustainability_conclusions', pdf);
+                    report.save({ report: pdf, name: obj.name }, {
+                        success: function (report) {
+                            _this.alert(gettext('Upload successful'), gettext('Success'));
+                            _this.renderPreview(report);
+                        },
+                        error: _this.onError
+                    });
+                }
+                else {
+                    _this.alert(gettext('No file selected. Canceling upload...'))
+                }
+            }
+        })
     },
 
     renderReport: function(report){
+        this.openedReport = report;
         var url = report.get('report'),
             iframe = document.createElement('iframe');
             content = this.el.querySelector('#report-content');
@@ -114,127 +166,8 @@ var SustainabilityView = BaseView.extend(
         iframe.src = '/pdfviewer/?file=' + url;
         content.appendChild(iframe);
         iframe.width = '100%';
-        iframe.height = '800px';
+        iframe.height = 0.6 * window.outerHeight;
     },
-
-    showFilePreview: function(event){
-        var input = event.target,
-            _this = this;
-        this.status.innerHTML = '';
-        if (input.files && input.files[0]){
-            var reader = new FileReader();
-            reader.onload = function (e) {
-                _this.pageNumber = 1;
-                var typedarray = new Uint8Array(e.target.result);
-                _this.pdfDocument = null;
-                PDFJS.getDocument(typedarray).then(function(pdf) {
-                    _this.pdfDocument = pdf;
-                    _this.renderPage(_this.pageNumber);
-                });
-            };
-            reader.readAsArrayBuffer(input.files[0]);
-        }
-    },
-
-    renderPage: function(number){
-        this.canvasWrapper.style.display = 'block';
-        if (!this.pdfDocument) return;
-        var _this = this;
-        this.pageRendering = true;
-        this.pdfDocument.getPage(number).then(function(page) {
-            var viewport = page.getViewport(_this.scale),
-                ctx = _this.canvas.getContext('2d');
-            _this.canvas.height = viewport.height;
-            _this.canvas.width = viewport.width;
-
-            var renderTask = page.render({
-                canvasContext: _this.canvas.getContext('2d'),
-                viewport: viewport
-            });
-
-            // wait for rendering to finish
-            renderTask.promise.then(function() {
-                _this.pageRendering = false;
-                _this.pageStatus.innerHTML = number + '/' + _this.pdfDocument.numPages;
-
-                if (_this.pageNumPending != null) {
-                    _this.renderPage(_this.pageNumPending);
-                    _this.pageNumPending = null;
-                }
-            });
-        });
-    },
-
-    queueRenderPage: function(number) {
-        if (this.pageRendering) {
-            this.pageNumPending = number;
-        } else {
-            this.renderPage(number);
-        }
-    },
-
-    prevPage: function() {
-        if (this.pageNumber <= 1) return;
-        this.pageNumber--;
-        this.queueRenderPage(this.pageNumber);
-    },
-
-    nextPage: function() {
-        if (this.pageNumber >= this.pdfDocument.numPages) return;
-        this.pageNumber++;
-        this.queueRenderPage(this.pageNumber);
-    },
-
-    toggleFullscreen: function(){
-        this.canvasWrapper.classList.toggle('fullscreen');
-        this.scale = this.canvasWrapper.classList.contains('fullscreen') ? 1.5 : 1;
-        this.renderPage(this.pageNumber);
-    },
-
-    uploadFile: function(){
-        var _this = this;
-
-        if (this.pdfInput.files && this.pdfInput.files[0]){
-            var pdf = this.pdfInput.files[0],
-                data = {};
-            data[this.fileAttr] = pdf;
-            //this.keyflow.set('sustainability_conclusions', pdf);
-            this.keyflow.save(data, {
-                success: function () {
-                    _this.alert(gettext('Upload successful'), gettext('Success'));
-                },
-                error: _this.onError,
-                patch: true
-            });
-        }
-
-        else {
-            this.alert(gettext('No file selected. Canceling upload...'))
-        }
-    },
-
-    removeFile: function(){
-        if (!this.keyflow.get(this.fileAttr)) {
-            //this.canvasWrapper.style.display = 'none';
-            return;
-        }
-        var data = {},
-            _this = this;
-        data[this.fileAttr] = null;
-        this.confirm({
-            message: gettext('Do you want to remove the currently uploaded report from the keyflow?'),
-            onConfirm: function(){
-                _this.keyflow.save(data, {
-                    success: function () {
-                        _this.status.innerHTML = gettext('There is no report not set tup yet.');
-                        _this.canvasWrapper.style.display = 'none';
-                    },
-                    error: _this.onError,
-                    patch: true
-                });
-            }
-        })
-    }
 
 });
 return SustainabilityView;

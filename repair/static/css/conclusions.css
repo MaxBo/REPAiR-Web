@@ -44,3 +44,7 @@
     vertical-align: middle;
     padding-right: 10px;
 }
+
+.preview-item.selected{
+    box-shadow: 0px 1px 6px 0px #aad400;
+}
