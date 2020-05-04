@@ -1,13 +1,13 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets', 'views/conclusions/strategies',
-         'views/conclusions/modified-flows', 'views/conclusions/setup-sustainability',
+         'views/conclusions/modified-flows', 'views/conclusions/reports',
          'views/conclusions/conclusions',
          'models/indicator', 'collections/gdsecollection', 'app-config', 'utils/utils',
          'underscore', 'base'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
              EvalFlowTargetsView, EvalStrategiesView, EvalModifiedFlowsView,
-             SetupSustainabilityView, ConclusionsView, Indicator, GDSECollection,
+             ReportsView, ConclusionsView, Indicator, GDSECollection,
              appConfig, utils, _) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
@@ -17,7 +17,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      */
 
     var consensusLevels, sections, objectivesView, flowTargetsView,
-        strategiesView, modifiedFlowsView, sustainabilityView, keyflowSelect,
+        strategiesView, modifiedFlowsView, reportsView, keyflowSelect,
         keyflows;
 
     renderSetup = function(caseStudy){
@@ -31,10 +31,11 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             consensusLevels: consensusLevels,
             sections: sections
         });
-        var sustainabilityView = new SetupSustainabilityView({
+        reportsView = new ReportsView({
             caseStudy: caseStudy,
-            el: document.getElementById('sustainability-content'),
-            template: 'sustainability-template'
+            el: document.getElementById('reports'),
+            template: 'reports-template',
+            setupMode: true
         });
     };
 
@@ -88,13 +89,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             strategies: strategies,
             objectives: objectives
         })
-        if (sustainabilityView) sustainabilityView.close();
-        sustainabilityView = new SustainabilityView({
+        if (reportsView) reportsView.close();
+        reportsView = new ReportsView({
             caseStudy: caseStudy,
-            el: document.getElementById('sustainability'),
-            template: 'sustainability-template',
-            keyflowId: keyflow.id,
-            fileAttr: 'sustainability_conclusions'
+            el: document.getElementById('reports'),
+            template: 'reports-template',
+            setupMode: false
         })
     };
 

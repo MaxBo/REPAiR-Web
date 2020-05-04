@@ -5,11 +5,11 @@ function(BaseView, _, PDFJS, GDSECollection, GDSEModel){
 /**
 *
 * @author Christoph Franke
-* @name module:views/SustainabilityView
+* @name module:views/ReportsView
 * @augments module:views/BaseView
 */
-var SustainabilityView = BaseView.extend(
-    /** @lends module:views/SustainabilityView.prototype */
+var ReportsView = BaseView.extend(
+    /** @lends module:views/ReportsView.prototype */
     {
 
     /**
@@ -25,7 +25,7 @@ var SustainabilityView = BaseView.extend(
     * @see http://backbonejs.org/#View
     */
     initialize: function(options){
-        SustainabilityView.__super__.initialize.apply(this, [options]);
+        ReportsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderPreview');
         this.caseStudy = options.caseStudy;
         this.reports = new GDSECollection([], {
@@ -33,6 +33,7 @@ var SustainabilityView = BaseView.extend(
             apiIds: [ this.caseStudy.id ]
         });
         this.scale = 1;
+        this.setupMode = options.setupMode;
 
         this.reports.fetch({
             success: this.render
@@ -50,7 +51,7 @@ var SustainabilityView = BaseView.extend(
     * render the view
     */
     render: function(){
-        SustainabilityView.__super__.render.call(this);
+        ReportsView.__super__.render.call(this);
         var _this = this;
 
         this.canvas = this.el.querySelector("canvas");
@@ -73,9 +74,6 @@ var SustainabilityView = BaseView.extend(
         item.classList.add('preview-item','shaded','bordered');
         item.innerHTML = template({ report: report });
 
-        var editBtn = item.querySelector('.edit'),
-            removeBtn = item.querySelector('.remove');
-
         previews.appendChild(item);
 
         var img = item.querySelector('img');
@@ -87,39 +85,44 @@ var SustainabilityView = BaseView.extend(
             _this.renderReport(report);
         })
 
-        editBtn.addEventListener('click', function(){
-            _this.getName({
-                name: report.get('name'),
-                onConfirm: function(name){
-                    report.save({ name: name }, {
-                        patch: true,
-                        success: function(){
-                            item.querySelector('.title').innerHTML = name;
+        if (this.setupMode) {
+            var editBtn = item.querySelector('.edit'),
+                removeBtn = item.querySelector('.remove');
+            editBtn.addEventListener('click', function(){
+                _this.getName({
+                    name: report.get('name'),
+                    onConfirm: function(name){
+                        report.save({ name: name }, {
+                            patch: true,
+                            success: function(){
+                                item.querySelector('.title').innerHTML = name;
+                            },
+                            error: _this.onError,
+                            patch: true
+                        })
+                    }
+                })
+            })
+            removeBtn.addEventListener('click', function(){
+                var message = gettext('Do you really want to delete the report?');
+                _this.confirm({ message: message, onConfirm: function(){
+                    if (report == _this.openedReport)
+                        _this.el.querySelector('#pdf-viewer-content').innerHTML = '';
+                    report.destroy({
+                        success: function() {
+                            previews.removeChild(item);
                         },
                         error: _this.onError,
-                        patch: true
+                        wait: true
                     })
-                }
+                }});
             })
-        })
-        removeBtn.addEventListener('click', function(){
-            var message = gettext('Do you really want to delete the report?');
-            _this.confirm({ message: message, onConfirm: function(){
-                if (report == _this.openedReport)
-                    _this.el.querySelector('#report-content').innerHTML = '';
-                report.destroy({
-                    success: function() {
-                        previews.removeChild(item);
-                    },
-                    error: _this.onError,
-                    wait: true
-                })
-            }});
-        })
+        }
         return item;
     },
 
     addReport: function(){
+        if (!this.setupMode) return;
         var _this = this;
         this.getInputs({
             title: gettext('Add report'),
@@ -162,7 +165,7 @@ var SustainabilityView = BaseView.extend(
         this.openedReport = report;
         var url = report.get('report'),
             iframe = document.createElement('iframe');
-            content = this.el.querySelector('#report-content');
+            content = this.el.querySelector('#pdf-viewer-content');
         content.innerHTML = '';
         iframe.src = '/pdfviewer/?file=' + url;
         content.appendChild(iframe);
@@ -171,6 +174,6 @@ var SustainabilityView = BaseView.extend(
     },
 
 });
-return SustainabilityView;
+return ReportsView;
 }
 );

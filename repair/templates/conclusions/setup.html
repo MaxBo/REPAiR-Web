@@ -11,7 +11,7 @@
   <ul class="nav nav-pills nav-stacked" id="sidebar">
     <li class="active"><a href="#users" data-toggle="pill">{% trans "Users" %} <span class="sub-icon fas fa-users"></span></a></li>
     <li><a href="#notepad" data-toggle="pill">{% trans "Notepad" %} <span class="sub-icon far fa-comments"></span></a></li>
-    <li><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
+    <li><a href="#reports" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
   </ul>
 {% endblock %}
 
@@ -59,40 +59,13 @@
         </div>
       </div>
     </div>
-    <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
-      <div id="sustainability-content">
-      </div>
+    <div class="tab-pane fade" id="reports">
     </div>
   </div>
   {% render_bundle 'Recommendations' %}
 {% endif %}
 
-<script type="text/template" id="sustainability-template">
-  <div class="row">
-    <button title="Add report" id="add-report" class="btn btn-primary">
-      <span class="glyphicon glyphicon-plus"></span>
-      {% trans "Add" %}
-    </button>
-  </div>
-  <div id="report-previews" class="row overflow bordered" style="overflow-y: hidden; margin-top: 10px; background-color: #fafafa; box-shadow: inset 0 0 5px #d5d5d5;"></div>
-
-  <div id="report-content"></div>
-</script>
-
-<script type="text/template" id="report-preview-item-template">
-<div class="row">
-  <button class="btn btn-warning square remove" title="Remove report" style="float: right;">
-    <span class="glyphicon glyphicon-minus"></span>
-  </button>
-  <button class="btn btn-primary square edit" title="Rename report" style="float: right; margin-right: 5px;">
-    <span class="glyphicon glyphicon-pencil"></span>
-  </button>
-  <label class='title' title="<%= report.get('name') %>"> <%= report.get('name') %> </label>
-</div>
-<div class="row">
-  <img src="<%= report.get('thumbnail') %>" alt='-' style="height: 10em;">
-</div>
-</script>
+{% include 'conclusions/reports.html' %}
 
 {% endblock %}
 
