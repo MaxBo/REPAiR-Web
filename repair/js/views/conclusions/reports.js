@@ -26,7 +26,7 @@ var ReportsView = BaseView.extend(
     */
     initialize: function(options){
         ReportsView.__super__.initialize.apply(this, [options]);
-        _.bindAll(this, 'renderPreview');
+        _.bindAll(this, 'renderPreviewItem');
         this.caseStudy = options.caseStudy;
         this.reports = new GDSECollection([], {
             apiTag: 'conclusionReports',
@@ -61,16 +61,17 @@ var ReportsView = BaseView.extend(
         this.status = document.createElement('h3');
         this.el.appendChild(this.status);
 
-        this.reports.forEach(this.renderPreview);
+        this.reports.forEach(this.renderPreviewItem);
     },
 
-    renderPreview: function(report){
+    renderPreviewItem: function(report){
         var html = document.getElementById('report-preview-item-template').innerHTML,
             item = document.createElement('div'),
             template = _.template(html),
             previews = this.el.querySelector('#report-previews'),
             _this = this;
 
+        previews.style.maxHeight = 0.8 * window.outerHeight + 'px';
         item.classList.add('preview-item','shaded','bordered');
         item.innerHTML = template({ report: report });
 
@@ -88,12 +89,12 @@ var ReportsView = BaseView.extend(
         if (this.setupMode) {
             var editBtn = item.querySelector('.edit'),
                 removeBtn = item.querySelector('.remove');
+            console.log(report)
             editBtn.addEventListener('click', function(){
                 _this.getName({
                     name: report.get('name'),
                     onConfirm: function(name){
                         report.save({ name: name }, {
-                            patch: true,
                             success: function(){
                                 item.querySelector('.title').innerHTML = name;
                             },
@@ -145,11 +146,10 @@ var ReportsView = BaseView.extend(
                         apiTag: 'conclusionReports',
                         apiIds: [ _this.caseStudy.id ]}
                     );
-                    //this.keyflow.set('sustainability_conclusions', pdf);
                     report.save({ report: pdf, name: obj.name }, {
                         success: function (report) {
                             _this.alert(gettext('Upload successful'), gettext('Success'));
-                            _this.renderPreview(report);
+                            _this.renderPreviewItem(report);
                         },
                         error: _this.onError
                     });
@@ -170,7 +170,7 @@ var ReportsView = BaseView.extend(
         iframe.src = '/pdfviewer/?file=' + url;
         content.appendChild(iframe);
         iframe.width = '100%';
-        iframe.height = 0.6 * window.outerHeight;
+        iframe.height = 0.8 * window.outerHeight;
     },
 
 });

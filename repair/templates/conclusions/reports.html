@@ -1,16 +1,20 @@
 {% load i18n %}
 
 <script type="text/template" id="reports-template">
-  {% if request.session.mode == 1 %}
-  <div class="row">
-    <button title="Add report" id="add-report" class="btn btn-primary">
-      <span class="glyphicon glyphicon-plus"></span>
-      {% trans "Add" %}
-    </button>
+  <div class="col-md-2" style="max-width: 300px;">
+    {% if request.session.mode == 1 %}
+    <div class="row">
+      <button title="Add report" id="add-report" class="btn btn-primary">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "Add" %}
+      </button>
+    </div>
+    {% endif %}
+    <div id="report-previews" class="row bordered" style="margin-top: 10px; background-color: #fafafa; box-shadow: inset 0 0 5px #d5d5d5; overflow-y: auto;"></div>
   </div>
-  {% endif %}
-  <div id="report-previews" class="row overflow bordered" style="overflow-y: hidden; margin-top: 10px; background-color: #fafafa; box-shadow: inset 0 0 5px #d5d5d5;"></div>
-  <div id="pdf-viewer-content"></div>
+  <div class="col-md-10">
+    <div id="pdf-viewer-content"></div>
+  </div>
 </script>
 
 <script type="text/template" id="report-preview-item-template">

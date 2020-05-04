@@ -46,8 +46,8 @@
 }
 
 .preview-item{
-    margin-right: 10px;
-    max-width: 250px;
+    margin-bottom: 10px;
+    width: 100%;
 }
 
 .preview-item.selected{

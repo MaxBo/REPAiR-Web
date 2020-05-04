@@ -143,21 +143,6 @@ function(_, BaseView, GDSECollection, GDSEModel, html2canvas, Muuri, Viewer){
                 consensusLevels: this.consensusLevels
             });
             _this.grids = {};
-            //this.level1Select = this.el.querySelector('select[name="sort-level-1"]');
-            //this.level2Select = this.el.querySelector('select[name="sort-level-2"]');
-            //this.level3Select = this.el.querySelector('select[name="sort-level-3"]');
-            //function fillSort(select, i){
-                //var labels = ['keyflow', 'consensus level', 'section', 'GDSE step'];
-                //labels.forEach(function(label){
-                    //var option = document.createElement('option');
-                    //option.innerHTML = label;
-                    //select.appendChild(option);
-                //})
-                //select.selectedIndex = i;
-            //}
-            //fillSort(this.level1Select, 0);
-            //fillSort(this.level2Select, 1);
-            //fillSort(this.level3Select, 2);
             this.keyflows.forEach(function(keyflow){
                 var keyflowPanel = _this.el.querySelector('#keyflow-' + keyflow.id),
                     conclusions = _this.conclusionsInCasestudy[keyflow.id];

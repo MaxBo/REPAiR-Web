@@ -61,7 +61,7 @@ class ConclusionReportUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConclusionReport
-        fields = ('name', 'report', 'thumbnail')
+        fields = ('id', 'name', 'report', 'thumbnail')
         extra_kwargs = {
             'thumbnail': {'required': False, 'allow_null': True},
             'report': {'required': False, 'allow_null': True}
