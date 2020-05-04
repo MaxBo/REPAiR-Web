@@ -61,19 +61,18 @@ class ConclusionReportUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConclusionReport
-        fields = ('name', )
-
-
-class ConclusionReportCreateSerializer(serializers.ModelSerializer):
-    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
-
-    class Meta:
-        model = ConclusionReport
-        fields = ('name', 'report')
+        fields = ('name', 'report', 'thumbnail')
+        extra_kwargs = {
+            'thumbnail': {'required': False, 'allow_null': True},
+            'report': {'required': False, 'allow_null': True}
+        }
 
     def create(self, validated_data):
         instance = super().create(validated_data)
         instance.save()
+        if instance.thumbnail.readable():
+            return instance
+        # create thumbnail if none posted
         pdf = Image(filename=instance.report.file.name)
         image = Image(
             width=pdf.width,

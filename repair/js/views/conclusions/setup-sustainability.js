@@ -96,7 +96,8 @@ var SustainabilityView = BaseView.extend(
                         success: function(){
                             item.querySelector('.title').innerHTML = name;
                         },
-                        error: _this.onError
+                        error: _this.onError,
+                        patch: true
                     })
                 }
             })

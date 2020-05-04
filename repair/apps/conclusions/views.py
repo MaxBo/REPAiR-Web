@@ -9,8 +9,7 @@ from repair.apps.conclusions.models import (Conclusion, ConsensusLevel,
                                             Section, ConclusionReport)
 from repair.apps.conclusions.serializers import (
     ConclusionSerializer, ConsensusSerializer, SectionSerializer,
-    ConclusionReportSerializer, ConclusionReportUpdateSerializer,
-    ConclusionReportCreateSerializer)
+    ConclusionReportSerializer, ConclusionReportUpdateSerializer)
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
 
@@ -52,7 +51,7 @@ class SectionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
 class ConclusionReportViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = ConclusionReport.objects.all()
     serializer_class = ConclusionReportSerializer
-    serializers = {'create': ConclusionReportCreateSerializer,
+    serializers = {'create': ConclusionReportUpdateSerializer,
                    'update': ConclusionReportUpdateSerializer}
 
 
