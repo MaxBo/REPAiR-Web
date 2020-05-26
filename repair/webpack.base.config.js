@@ -12,6 +12,7 @@ var entryPoints = {
     Recommendations:  './js/conclusions',
     Welcome:   './js/welcome',
     Base:      './js/base',
+    //PDFViewer: './js/pdfviewer'
 };
 
 module.exports = {
@@ -69,6 +70,10 @@ module.exports = {
                 })
                 //use: ["style-loader", "css-loader"]
             },
+            //{
+                //test: require.resolve("pdfjs-dist"),
+                //loader: 'expose-loader?PDFJS!expose-loader?$'
+            //},
             {
                 test: /\.(png|woff|woff2|eot|ttf|svg|gif)$/,
                 loader: 'url-loader?limit=100000'

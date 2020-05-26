@@ -402,13 +402,17 @@ var BaseView = Backbone.View.extend(
             row.appendChild(label);
             row.appendChild(input);
             inputs[key] = input
+
+            if (obj.type === 'file' && obj.accept)
+                input.accept = obj.accept;
         })
 
         el.querySelector('.confirm').addEventListener('click', function(){
             if (options.onConfirm) {
                 var ret = {};
                 Object.keys(inputs).forEach(function(key){
-                    ret[key] = inputs[key].value;
+                    var input = inputs[key];
+                    ret[key] = input.type === 'file' ? input.files : input.value;
                 })
                 options.onConfirm(ret);
             }

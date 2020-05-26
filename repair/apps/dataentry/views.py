@@ -1,13 +1,4 @@
-from django.http import HttpResponse
-from django.template import loader
-from django.views.generic import TemplateView
-from plotly.offline import iplot
-import urllib
-import json
 from django.shortcuts import render
-from plotly import offline
-from plotly.graph_objs import Figure, Data, Layout
-from repair.apps.login.models import CaseStudy
 from repair.apps.asmfa.models import KeyflowInCasestudy, Keyflow
 from repair.views import BaseView
 from django.contrib.auth.mixins import LoginRequiredMixin

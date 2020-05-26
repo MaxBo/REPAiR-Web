@@ -1,0 +1,36 @@
+{% load i18n %}
+
+<script type="text/template" id="reports-template">
+  <div class="col-md-2" style="max-width: 300px;">
+    {% if request.session.mode == 1 %}
+    <div class="row">
+      <button title="Add report" id="add-report" class="btn btn-primary">
+        <span class="glyphicon glyphicon-plus"></span>
+        {% trans "Add" %}
+      </button>
+    </div>
+    {% endif %}
+    <div id="report-previews" class="row bordered" style="margin-top: 10px; background-color: #fafafa; box-shadow: inset 0 0 5px #d5d5d5; overflow-y: auto;"></div>
+  </div>
+  <div class="col-md-10">
+    <div id="pdf-viewer-content"></div>
+  </div>
+</script>
+
+<script type="text/template" id="report-preview-item-template">
+<div class="row">
+  {% if request.session.mode == 1 %}
+  <button class="btn btn-warning square remove" title="Remove report" style="float: right;">
+    <span class="glyphicon glyphicon-minus"></span>
+  </button>
+  <button class="btn btn-primary square edit" title="Rename report" style="float: right; margin-right: 5px;">
+    <span class="glyphicon glyphicon-pencil"></span>
+  </button>
+  {% endif %}
+  <label class='title' title="<%= report.get('name') %>"> <%= report.get('name') %> </label>
+</div>
+<div class="row">
+  <img src="<%= report.get('thumbnail') %>" alt='-' style="height: 10em;">
+</div>
+
+</script>

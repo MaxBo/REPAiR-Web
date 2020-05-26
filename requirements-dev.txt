@@ -6,6 +6,8 @@ djangorestframework==3.9.3
 djangorestframework-gis>=0.12
 djangorestframework-datatables>=0.3
 django-filter>=2.1
+wand>=0.5
+
 django-test-plus
 django-enumfields
 django-money

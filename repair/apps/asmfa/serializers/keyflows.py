@@ -43,8 +43,7 @@ class KeyflowSerializer(NestedHyperlinkedModelSerializer):
 
     class Meta:
         model = Keyflow
-        fields = ('url', 'id', 'code', 'name', 'casestudies',
-                  )
+        fields = ('url', 'id', 'code', 'name', 'casestudies')
 
     def update(self, instance, validated_data):
         """update the user-attributes, including profile information"""
@@ -156,9 +155,7 @@ class KeyflowInCasestudySerializer(NestedHyperlinkedModelSerializer):
                   'actors',
                   'administrative_locations',
                   'operational_locations',
-                  'graph_date',
-                  'sustainability_statusquo',
-                  'sustainability_conclusions'
+                  'graph_date'
                   )
 
     def get_graph_date(self, obj):
@@ -174,17 +171,7 @@ class KeyflowInCasestudyPostSerializer(InCasestudySerializerMixin,
 
     class Meta:
         model = KeyflowInCasestudy
-        fields = ('keyflow',
-                  'note',
-                  'sustainability_statusquo',
-                  'sustainability_conclusions'
-                  )
-        extra_kwargs = {
-            'sustainability_statusquo': {'required': False, 'allow_null': True},
-            'sustainability_conclusions': {
-                'required': False, 'allow_null': True
-            },
-        }
+        fields = ('keyflow', 'note')
 
 
 class KeyflowInCasestudyDetailCreateMixin:
@@ -266,7 +253,8 @@ class CompositionSerializer(NestedHyperlinkedModelSerializer):
             product_fractions = ProductFraction.objects.filter(
                 composition=composition)
             # delete existing rows not needed any more
-            ids = [fraction.get('id') for fraction in new_fractions if fraction.get('id') is not None]
+            ids = [fraction.get('id') for fraction in new_fractions
+                   if fraction.get('id') is not None]
             to_delete = product_fractions.exclude(id__in=ids)
             to_delete.delete()
             # add or update new fractions

@@ -1,13 +1,13 @@
 require(['models/casestudy', 'views/conclusions/setup-users',
          'views/conclusions/manage-notepad', 'views/conclusions/objectives',
          'views/conclusions/flow-targets', 'views/conclusions/strategies',
-         'views/conclusions/modified-flows', 'views/status-quo/sustainability',
+         'views/conclusions/modified-flows', 'views/conclusions/reports',
          'views/conclusions/conclusions',
          'models/indicator', 'collections/gdsecollection', 'app-config', 'utils/utils',
          'underscore', 'base'
 ], function (CaseStudy, SetupUsersView, SetupNotepadView, EvalObjectivesView,
              EvalFlowTargetsView, EvalStrategiesView, EvalModifiedFlowsView,
-             SustainabilityView, ConclusionsView, Indicator, GDSECollection,
+             ReportsView, ConclusionsView, Indicator, GDSECollection,
              appConfig, utils, _) {
     /**
      * entry point for views on subpages of "Conclusions" menu item
@@ -17,35 +17,26 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      */
 
     var consensusLevels, sections, objectivesView, flowTargetsView,
-        strategiesView, modifiedFlowsView, sustainabilityView, keyflowSelect,
+        strategiesView, modifiedFlowsView, reportsView, keyflowSelect,
         keyflows;
 
     renderSetup = function(caseStudy){
         var usersView = new SetupUsersView({
             caseStudy: caseStudy,
             el: document.getElementById('users')
-        })
+        });
         var setupNotepadView = new SetupNotepadView({
             caseStudy: caseStudy,
             el: document.getElementById('notepad'),
             consensusLevels: consensusLevels,
             sections: sections
-        })
-        var sustainabilityView,
-            el = document.getElementById('sustainability-content');
-        keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
-        keyflowSelect.disabled = false;
-        keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
-        keyflowSelect.addEventListener('change', function(){
-            if (sustainabilityView) sustainabilityView.close();
-            sustainabilityView = new SustainabilityView({
-                caseStudy: caseStudy,
-                el: el,
-                template: 'sustainability-template',
-                keyflowId: keyflowSelect.value,
-                fileAttr: 'sustainability_conclusions'
-            })
-        })
+        });
+        reportsView = new ReportsView({
+            caseStudy: caseStudy,
+            el: document.getElementById('reports'),
+            template: 'reports-template',
+            setupMode: true
+        });
     };
 
     renderWorkshop = function(caseStudy, keyflow, objectives,
@@ -98,13 +89,12 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             strategies: strategies,
             objectives: objectives
         })
-        if (sustainabilityView) sustainabilityView.close();
-        sustainabilityView = new SustainabilityView({
+        if (reportsView) reportsView.close();
+        reportsView = new ReportsView({
             caseStudy: caseStudy,
-            el: document.getElementById('sustainability'),
-            template: 'sustainability-template',
-            keyflowId: keyflow.id,
-            fileAttr: 'sustainability_conclusions'
+            el: document.getElementById('reports'),
+            template: 'reports-template',
+            setupMode: false
         })
     };
 
