@@ -1,14 +1,14 @@
 require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
     'views/status-quo/setup-flows',
-    'views/status-quo/objectives', 'views/status-quo/sustainability',
-    'views/status-quo/setup-flow-assessment',
+    'views/status-quo/objectives', 'views/status-quo/setup-flow-assessment',
     'views/study-area/workshop-maps', 'views/study-area/setup-maps',
-    'views/status-quo/workshop-flow-assessment',
-    'app-config', 'utils/overrides', 'base',
+    'views/status-quo/workshop-flow-assessment', 'views/conclusions/reports',
+    'collections/gdsecollection', 'app-config', 'utils/overrides', 'base',
     'static/css/status-quo.css'
 ], function (d3, CaseStudy, FlowsWorkshopView, FlowsSetupView,
-    ChallengesAimsView, SustainabilityView, FlowAssessmentSetupView, BaseMapView,
-    SetupMapView, FlowAssessmentWorkshopView, appConfig) {
+    ChallengesAimsView, FlowAssessmentSetupView, BaseMapView,
+    SetupMapView, FlowAssessmentWorkshopView, ReportsView, GDSECollection,
+    appConfig) {
 
     /**
      * entry point for views on subpages of "StatusQuo" menu item
@@ -16,6 +16,24 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
      * @author Christoph Franke
      * @module StatusQuo
      */
+
+    renderReports = function(caseStudy, reports, mode){
+        var reports_li = document.querySelector('a[href="#reports"]').parentNode,
+            setupMode = Number(mode) == 1;
+        if (setupMode || reports.length > 0){
+            var reportsView = new ReportsView({
+                caseStudy: caseStudy,
+                el: document.getElementById('reports'),
+                template: 'reports-template',
+                setupMode: setupMode,
+                reports: reports
+            });
+            reports_li.style.display = 'block';
+        }
+        if (!setupMode && reports.length == 0) {
+            reports_li.style.display = 'none';
+        }
+    }
 
     renderFlowsView = function(caseStudy, View, template){
         var flowsView,
@@ -94,6 +112,14 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
                 caseStudy = new CaseStudy({id: caseStudyId});
 
             caseStudy.fetch({success: function(){
+                var reports = new GDSECollection([], {
+                    apiTag: 'statusQuoReports',
+                    apiIds: [ caseStudy.id ]
+                });
+                reports.fetch({
+                    success: function(){renderReports(caseStudy, reports, mode)},
+                    error: alert
+                })
                 if (Number(mode) == 1) {
                     renderSetup(caseStudy);
                 }
@@ -101,21 +127,6 @@ require(['d3', 'models/casestudy', 'views/status-quo/workshop-flows',
                     renderWorkshop(caseStudy);
                 }
 
-                var sustainabilityView,
-                    el = document.getElementById('sustainability-content');
-                keyflowSelect = el.parentElement.querySelector('select[name="keyflow"]');
-                keyflowSelect.disabled = false;
-                keyflowSelect.selectedIndex = 0; // Mozilla does not reset selects on reload
-                keyflowSelect.addEventListener('change', function(){
-                    if (sustainabilityView) sustainabilityView.close();
-                    sustainabilityView = new SustainabilityView({
-                        caseStudy: caseStudy,
-                        el: el,
-                        template: 'sustainability-template',
-                        keyflowId: keyflowSelect.value,
-                        fileAttr: 'sustainability_statusquo'
-                    })
-                })
             }});
         }
     });

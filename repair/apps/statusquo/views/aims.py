@@ -15,8 +15,11 @@ from repair.apps.utils.views import (CasestudyViewSetMixin,
 from repair.apps.statusquo.serializers import (AimSerializer,
                                                AimPostSerializer,
                                                UserObjectiveSerializer,
-                                               AreaOfProtectionSerializer)
-from repair.apps.statusquo.models import Aim, UserObjective, AreaOfProtection
+                                               AreaOfProtectionSerializer,
+                                               StatusQuoReportSerializer,
+                                               StatusQuoReportUpdateSerializer)
+from repair.apps.statusquo.models import (Aim, UserObjective, AreaOfProtection,
+                                          StatusQuoReport)
 
 
 class AreaOfProtectionViewSet(ModelPermissionViewSet):
@@ -89,3 +92,10 @@ class UserObjectiveViewSet(CasestudyViewSetMixin,
                 elif keyflow is not None:
                     objectives = objectives.filter(aim__keyflow__id=keyflow)
         return objectives
+
+
+class StatusQuoReportViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    queryset = StatusQuoReport.objects.all()
+    serializer_class = StatusQuoReportSerializer
+    serializers = {'create': StatusQuoReportUpdateSerializer,
+                   'update': StatusQuoReportUpdateSerializer}

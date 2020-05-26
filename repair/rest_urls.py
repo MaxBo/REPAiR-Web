@@ -66,7 +66,8 @@ from repair.apps.statusquo.views import (
     TargetValueViewSet,
     TargetSpatialReferenceViewSet,
     FlowIndicatorViewSet,
-    FlowFilterViewSet
+    FlowFilterViewSet,
+    StatusQuoReportViewSet
 )
 
 from repair.apps.conclusions.views import (ConclusionViewSet, SectionViewSet,
@@ -119,6 +120,7 @@ cs_router.register(r'wmsresources', WMSResourceInCasestudyViewSet)
 cs_router.register(r'sections', SectionViewSet)
 cs_router.register(r'consensuslevels', ConsensusViewSet)
 cs_router.register(r'conclusionreports', ConclusionReportViewSet)
+cs_router.register(r'statusquoreports', StatusQuoReportViewSet)
 
 # /casestudies/*/userobjectives/...
 uo_router = NestedSimpleRouter(cs_router, r'userobjectives',

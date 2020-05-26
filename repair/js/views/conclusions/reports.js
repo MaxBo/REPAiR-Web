@@ -28,16 +28,11 @@ var ReportsView = BaseView.extend(
         ReportsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderPreviewItem');
         this.caseStudy = options.caseStudy;
-        this.reports = new GDSECollection([], {
-            apiTag: 'conclusionReports',
-            apiIds: [ this.caseStudy.id ]
-        });
         this.scale = 1;
         this.setupMode = options.setupMode;
-
-        this.reports.fetch({
-            success: this.render
-        })
+        this.reports = options.reports;
+        this.apiTag = this.reports.apiTag;
+        this.render();
     },
 
     /*
@@ -143,7 +138,7 @@ var ReportsView = BaseView.extend(
                     var pdf = obj.pdf[0],
                         data = {};
                     var report = new GDSEModel( {}, {
-                        apiTag: 'conclusionReports',
+                        apiTag: _this.apiTag,
                         apiIds: [ _this.caseStudy.id ]}
                     );
                     report.save({ report: pdf, name: obj.name }, {
