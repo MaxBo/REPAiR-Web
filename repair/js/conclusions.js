@@ -17,10 +17,28 @@ require(['models/casestudy', 'views/conclusions/setup-users',
      */
 
     var consensusLevels, sections, objectivesView, flowTargetsView,
-        strategiesView, modifiedFlowsView, reportsView, keyflowSelect,
+        strategiesView, modifiedFlowsView, keyflowSelect,
         keyflows;
 
-    renderSetup = function(caseStudy){
+    renderReports = function(caseStudy, reports, mode){
+        var reports_li = document.querySelector('a[href="#reports"]').parentNode,
+            setupMode = Number(mode) == 1;
+        if (setupMode || reports.length > 0){
+            var reportsView = new ReportsView({
+                caseStudy: caseStudy,
+                el: document.getElementById('reports'),
+                template: 'reports-template',
+                setupMode: setupMode,
+                reports: reports
+            });
+            reports_li.style.display = 'block';
+        }
+        if (!setupMode && reports.length == 0) {
+            reports_li.style.display = 'none';
+        }
+    }
+
+    renderSetup = function(caseStudy, reports){
         var usersView = new SetupUsersView({
             caseStudy: caseStudy,
             el: document.getElementById('users')
@@ -30,12 +48,6 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             el: document.getElementById('notepad'),
             consensusLevels: consensusLevels,
             sections: sections
-        });
-        reportsView = new ReportsView({
-            caseStudy: caseStudy,
-            el: document.getElementById('reports'),
-            template: 'reports-template',
-            setupMode: true
         });
     };
 
@@ -89,22 +101,22 @@ require(['models/casestudy', 'views/conclusions/setup-users',
             strategies: strategies,
             objectives: objectives
         })
-        if (reportsView) reportsView.close();
-        reportsView = new ReportsView({
-            caseStudy: caseStudy,
-            el: document.getElementById('reports'),
-            template: 'reports-template',
-            setupMode: false
-        })
     };
 
     function render(caseStudy, mode){
+        var reports = new GDSECollection([], {
+            apiTag: 'conclusionReports',
+            apiIds: [ caseStudy.id ]
+        });
+        reports.fetch({
+            success: function(){renderReports(caseStudy, reports, mode)},
+            error: alert
+        })
         // setup view has no keyflow selection
         if (Number(mode) == 1){
             renderSetup(caseStudy);
             return;
         }
-
         // the workshop view does have one
         keyflowSelect = document.getElementById('keyflow-select');
         var session = appConfig.session;
@@ -163,6 +175,7 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                         error: alert
                     }));
                 }
+                promises.push(reports.fetch({error: alert}));
                 Promise.all(promises).then(function(){
                     var promises = [];
                     objectives.sort();
@@ -181,7 +194,8 @@ require(['models/casestudy', 'views/conclusions/setup-users',
                     });
                     Promise.all(promises).then(function(){
                         renderWorkshop(caseStudy, keyflow, objectives,
-                                       participants, indicators, strategies, aims);
+                                       participants, indicators, strategies,
+                                       aims);
                         keyflowSelect.disabled = false;
                     });
                 })

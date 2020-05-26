@@ -28,16 +28,10 @@ var ReportsView = BaseView.extend(
         ReportsView.__super__.initialize.apply(this, [options]);
         _.bindAll(this, 'renderPreviewItem');
         this.caseStudy = options.caseStudy;
-        this.reports = new GDSECollection([], {
-            apiTag: 'conclusionReports',
-            apiIds: [ this.caseStudy.id ]
-        });
         this.scale = 1;
         this.setupMode = options.setupMode;
-
-        this.reports.fetch({
-            success: this.render
-        })
+        this.reports = options.reports;
+        this.render();
     },
 
     /*
