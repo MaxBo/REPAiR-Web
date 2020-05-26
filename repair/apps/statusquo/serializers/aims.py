@@ -1,5 +1,10 @@
 from rest_framework import serializers
 from django.utils.translation import ugettext_lazy as _
+from wand.image import Image
+from django.core.files.base import File
+import io
+import os
+
 from repair.apps.login.models import CaseStudy, User
 from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            InCasestudySerializerMixin,
@@ -11,7 +16,8 @@ from repair.apps.login.serializers import (NestedHyperlinkedModelSerializer,
                                            UserInCasestudyField)
 from rest_framework.serializers import HyperlinkedModelSerializer
 from repair.apps.statusquo.models import (Aim, UserObjective,
-                                          AreaOfProtection, FlowTarget)
+                                          AreaOfProtection, FlowTarget,
+                                          StatusQuoReport)
 
 
 class AreaOfProtectionSerializer(NestedHyperlinkedModelSerializer):
@@ -82,3 +88,45 @@ class UserObjectiveSerializer(InCasestudySerializerMixin,
                   'target_areas',
                   #'flow_targets'
                   )
+
+
+class StatusQuoReportSerializer(serializers.ModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+    class Meta:
+        model = StatusQuoReport
+        fields = ('id',
+                  'name',
+                  'report',
+                  'thumbnail')
+
+
+class StatusQuoReportUpdateSerializer(serializers.ModelSerializer):
+    parent_lookup_kwargs = {'casestudy_pk': 'casestudy__id'}
+
+    class Meta:
+        model = StatusQuoReport
+        fields = ('id', 'name', 'report', 'thumbnail')
+        extra_kwargs = {
+            'thumbnail': {'required': False, 'allow_null': True},
+            'report': {'required': False, 'allow_null': True}
+        }
+
+    def create(self, validated_data):
+        instance = super().create(validated_data)
+        instance.save()
+        if instance.thumbnail.readable():
+            return instance
+        # create thumbnail if none posted
+        pdf = Image(filename=instance.report.file.name)
+        image = Image(
+            width=pdf.width,
+            height=pdf.height
+        )
+        image.composite(pdf.sequence[0])
+        blob = image.make_blob('png')
+        with io.BytesIO(blob) as stream:
+            file = File(stream)
+            fn = f'{os.path.split(instance.report.name)[-1]}.thumbnail.png'
+            instance.thumbnail.save(fn, file)
+        return instance

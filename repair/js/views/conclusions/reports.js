@@ -31,6 +31,7 @@ var ReportsView = BaseView.extend(
         this.scale = 1;
         this.setupMode = options.setupMode;
         this.reports = options.reports;
+        this.apiTag = this.reports.apiTag;
         this.render();
     },
 
@@ -137,7 +138,7 @@ var ReportsView = BaseView.extend(
                     var pdf = obj.pdf[0],
                         data = {};
                     var report = new GDSEModel( {}, {
-                        apiTag: 'conclusionReports',
+                        apiTag: _this.apiTag,
                         apiIds: [ _this.caseStudy.id ]}
                     );
                     report.save({ report: pdf, name: obj.name }, {
