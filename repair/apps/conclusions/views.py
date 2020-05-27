@@ -5,11 +5,11 @@ from django.views.generic import TemplateView
 from repair.views import ModeView
 from django.shortcuts import render
 
-from repair.apps.conclusions.models import Conclusion, ConsensusLevel, Section
-from repair.apps.conclusions.serializers import (ConclusionSerializer,
-                                                 ConsensusSerializer,
-                                                 SectionSerializer)
-
+from repair.apps.conclusions.models import (Conclusion, ConsensusLevel,
+                                            Section, ConclusionReport)
+from repair.apps.conclusions.serializers import (
+    ConclusionSerializer, ConsensusSerializer, SectionSerializer,
+    ConclusionReportSerializer, ConclusionReportUpdateSerializer)
 from repair.apps.utils.views import (CasestudyViewSetMixin,
                                      ModelPermissionViewSet)
 
@@ -46,6 +46,13 @@ class ConsensusViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
 class SectionViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
     queryset = Section.objects.all()
     serializer_class = SectionSerializer
+
+
+class ConclusionReportViewSet(CasestudyViewSetMixin, ModelPermissionViewSet):
+    queryset = ConclusionReport.objects.all()
+    serializer_class = ConclusionReportSerializer
+    serializers = {'create': ConclusionReportUpdateSerializer,
+                   'update': ConclusionReportUpdateSerializer}
 
 
 

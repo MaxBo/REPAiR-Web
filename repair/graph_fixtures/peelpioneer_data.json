@@ -130,9 +130,7 @@
         "fields": {
             "casestudy": 7,
             "keyflow": 3,
-            "note": "",
-            "sustainability_conclusions": "",
-            "sustainability_statusquo": ""
+            "note": ""
         },
         "model": "asmfa.keyflowincasestudy",
         "pk": 32

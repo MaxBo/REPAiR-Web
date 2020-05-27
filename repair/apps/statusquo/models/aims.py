@@ -39,3 +39,16 @@ class UserObjective(GDSEModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     priority = models.IntegerField(default=-1)
     target_areas = models.ManyToManyField(AreaOfProtection)
+
+
+class StatusQuoReport(GDSEModel):
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    name = models.TextField()
+    report = models.FileField(upload_to='statusquo')
+    thumbnail = models.ImageField(
+        upload_to='statusquo', blank=True, null=True)
+
+    def delete(self, **kwargs):
+        self.report.delete(save=False)
+        self.thumbnail.delete(save=False)
+        return super().delete()

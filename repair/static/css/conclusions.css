@@ -44,3 +44,18 @@
     vertical-align: middle;
     padding-right: 10px;
 }
+
+.preview-item{
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+.preview-item.selected{
+    box-shadow: 0px 1px 6px 0px #aad400;
+}
+
+.preview-item label{
+    word-wrap: break-word;
+    white-space: normal;
+    max-width: 250px;
+}

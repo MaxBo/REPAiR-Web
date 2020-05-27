@@ -27,3 +27,18 @@ class Conclusion(GDSEModel):
                                         on_delete=PROTECT_CASCADE)
     section = models.ForeignKey(Section, on_delete=PROTECT_CASCADE)
     step = models.CharField(max_length=20, default='None')
+
+
+class ConclusionReport(GDSEModel):
+    casestudy = models.ForeignKey(CaseStudy, on_delete=models.CASCADE)
+    name = models.TextField()
+    report = models.FileField(upload_to='conclusions')
+    thumbnail = models.ImageField(
+        upload_to='conclusions', blank=True, null=True)
+
+    def delete(self, **kwargs):
+        self.report.delete(save=False)
+        self.thumbnail.delete(save=False)
+        return super().delete()
+
+

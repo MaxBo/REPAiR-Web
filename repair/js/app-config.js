@@ -44,6 +44,8 @@ function (Session) {
         charts:                 '/api/casestudies/{0}/chartcategories/{1}/charts/',
         stakeholderCategories:  '/api/casestudies/{0}/stakeholdercategories/',
         stakeholders:           '/api/casestudies/{0}/stakeholdercategories/{1}/stakeholders/',
+        conclusionReports:      '/api/casestudies/{0}/conclusionreports/',
+        statusQuoReports:       '/api/casestudies/{0}/statusquoreports/',
         solutions:              '/api/casestudies/{0}/keyflows/{1}/solutions/',
         solutionparts:          '/api/casestudies/{0}/keyflows/{1}/solutions/{2}/parts',
         questions:              '/api/casestudies/{0}/keyflows/{1}/solutions/{2}/questions',

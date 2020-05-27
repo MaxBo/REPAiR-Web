@@ -22,7 +22,7 @@
   <li><a href="#flow-targets" data-toggle="pill">{% trans "Flow Targets" %} <span class="sub-icon fas fa-bullseye"></span></a></li>
   <li><a href="#strategies" data-toggle="pill">{% trans "Strategies" %} <span class="sub-icon fas fa-chess-board"></span></a></li>
   <li><a href="#modified-flows" data-toggle="pill">{% trans "Modified Flows" %} <span class="sub-icon fas fa-recycle"></span></a></li>
-  <li style="border-bottom: solid 1px #e6e6e6;"><a href="#sustainability" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
+  <li style="border-bottom: solid 1px #e6e6e6;"><a href="#reports" data-toggle="pill">{% trans "Sustainability" %} <span class="sub-icon fas fa-leaf"></span></a></li>
   <li><a href="#conclusions" data-toggle="pill" style="margin-right: 5px;">{% trans "Conclusions" %} <span class="sub-icon far fa-lightbulb"></span></a></li>
 </ul>
 {% endblock %}
@@ -46,7 +46,7 @@
     </div>
     <div class="tab-pane fade" id="modified-flows" data-step="Modified Flows">
     </div>
-    <div class="tab-pane fade" id="sustainability" data-step="Sustainability">
+    <div class="tab-pane fade" id="reports" data-step="Sustainability">
     </div>
     <div class="tab-pane fade" id="conclusions">
     </div>
@@ -338,6 +338,6 @@
 </div>
 </script>
 
-{% include "statusquo/sustainability.html" %}
+{% include 'conclusions/reports.html' %}
 
 {% endblock %}
