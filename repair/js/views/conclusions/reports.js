@@ -68,6 +68,7 @@ var ReportsView = BaseView.extend(
 
         previews.style.maxHeight = 0.8 * window.outerHeight + 'px';
         item.classList.add('preview-item','shaded','bordered');
+        item.style.marginBottom = '10px';
         item.innerHTML = template({ report: report });
 
         previews.appendChild(item);
