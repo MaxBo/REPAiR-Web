@@ -68,18 +68,21 @@ var ReportsView = BaseView.extend(
 
         previews.style.maxHeight = 0.8 * window.outerHeight + 'px';
         item.classList.add('preview-item','shaded','bordered');
+        item.style.marginBottom = '10px';
         item.innerHTML = template({ report: report });
 
         previews.appendChild(item);
 
-        var img = item.querySelector('img');
-        img.parentElement.addEventListener('click', function(){
+        var img = item.querySelector('img'),
+            entry = (this.setupMode) ? img.parentElement : item;
+        entry.addEventListener('click', function(){
             previews.querySelectorAll('.preview-item').forEach(function(item){
                 item.classList.remove('selected');
             });
             item.classList.add('selected');
             _this.renderReport(report);
         })
+        entry.style.cursor = 'pointer';
 
         if (this.setupMode) {
             var editBtn = item.querySelector('.edit'),
