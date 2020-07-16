@@ -173,12 +173,13 @@ class Sankey{
             var inUnits, outUnits;
             for (var i = 0; i < d.targetLinks.length; i++) {
                 var link = d.targetLinks[i];
-                inSum += parseInt(link.amount || link.value);
+                inSum += parseFloat(link.amount || link.value);
                 if (!inUnits) inUnits = link.units; // in fact take first occuring unit, ToDo: can there be different units in the future?
             }
+
             for (var i = 0; i < d.sourceLinks.length; i++) {
                 var link = d.sourceLinks[i];
-                outSum += parseInt(link.amount || link.value);
+                outSum += parseFloat(link.amount || link.value);
                 if (!outUnits) outUnits = link.units;
             }
 
