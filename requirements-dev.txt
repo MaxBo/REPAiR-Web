@@ -44,7 +44,7 @@ pytest-cov
 pytest-django
 pytest-splinter
 pytest-xdist
-codecov
+codecov>2.1
 gitpython
 
 pycairo
