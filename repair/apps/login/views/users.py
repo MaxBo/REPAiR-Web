@@ -10,7 +10,8 @@ from rest_framework.response import Response
 from reversion.views import RevisionMixin
 from django.contrib.auth import views as auth_views, logout
 from django.views import View
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import (HttpResponse, HttpResponseRedirect, JsonResponse,
+                         HttpResponseBadRequest)
 import json
 
 from repair.apps.login.models import CaseStudy, UserInCasestudy
@@ -60,8 +61,8 @@ class CaseStudyViewSet(RevisionMixin,
     def list(self, request, **kwargs):
         queryset = CaseStudy.objects.all() if request.query_params.get('all') \
             else self.get_queryset()
-        serializer = self.serializer_class(queryset, many=True,
-                                           context={'request': request, })
+        serializer = CaseStudyListSerializer(queryset, many=True,
+                                             context={'request': request})
         return Response(serializer.data)
 
     def get_queryset(self):

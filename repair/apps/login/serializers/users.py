@@ -110,7 +110,6 @@ class UserSerializer(NestedHyperlinkedModelSerializer):
 
 
 class CaseStudySerializer(ForceMultiMixin,
-                          GeoFeatureModelSerializer,
                           NestedHyperlinkedModelSerializer):
     parent_lookup_kwargs = {}
     userincasestudy_set = InCasestudyListField(
@@ -153,9 +152,24 @@ class CaseStudySerializer(ForceMultiMixin,
         return super().update(instance, validated_data)
 
 
-class CaseStudyListSerializer(GeoFeatureModelListSerializer,
-                              CaseStudySerializer):
+class CaseStudyListSerializer(CaseStudySerializer):
     """Coasestudies as FeatureCollection"""
+
+    class Meta:
+        model = CaseStudy
+        geo_field = 'geom'
+        fields = ('url', 'id', 'name', 'userincasestudy_set',
+                  'stakeholder_categories',
+                  'keyflows',
+                  'levels',
+                  'publications',
+                  'aims',
+                  'challenges',
+                  'description',
+                  #'default_area_level',
+                  'show_on_welcome_map',
+                  'target_year'
+                  )
 
 
 class CasestudyField(NestedHyperlinkedRelatedField):

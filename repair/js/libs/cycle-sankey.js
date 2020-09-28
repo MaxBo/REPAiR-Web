@@ -1,3 +1,7 @@
+/*
+derived from https://gist.github.com/cfergus/3956043
+*/
+
 var d3 = require('d3');
 d3.sankey = function() {
   var sankey = {},

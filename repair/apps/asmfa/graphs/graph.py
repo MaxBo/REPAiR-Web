@@ -92,6 +92,7 @@ class Formula:
 
         return formula
 
+
 class AbsoluteFormula(Formula):
 
     def __init__(self, a=1, b=0, q=0):
@@ -711,7 +712,6 @@ class StrategyGraph(BaseGraph):
     def _get_affected_flows(self, solution_part):
         '''
         filters flows by definitions in solution part
-        return tuple (implementation flows, affected flows)
         '''
         # set the AffectedFlow include property to true
         affectedflows = AffectedFlow.objects.filter(
@@ -741,12 +741,10 @@ class StrategyGraph(BaseGraph):
         set do_include=False to exclude
         graph is changed in place
         '''
-        start = time.time()
         # include affected edges
         edges = self._get_edges(flows)
         for edge in edges:
             self.graph.ep.include[edge] = do_include
-        end = time.time()
 
     def _reset_include(self, do_include=True):
         # exclude all

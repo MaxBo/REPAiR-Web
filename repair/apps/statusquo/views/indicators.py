@@ -63,7 +63,7 @@ class FlowIndicatorViewSet(RevisionMixin, CasestudyViewSetMixin,
             areas = areas.split(',')
             areas = Area.objects.filter(id__in=areas)
         values = compute.calculate(indicator, areas=areas or [], geom=geom,
-                                  aggregate=aggregate)
+                                   aggregate=aggregate)
         return Response(values)
 
     def get_queryset(self):

@@ -138,8 +138,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 ....
             ],
 
-            filter_link: and/or, # logical linking of filters, defaults to 'or'
-
             # filter/aggregate by given material
             materials: {
                 ids: [...], # ids of materials to filter, only flows with those materials and their children will be returned, other materials will be ignored
@@ -147,9 +145,6 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
                 aggregate: true / false, # if true the children of the given materials will be aggregated, aggregates to top level materials if no ids were given
             },
 
-            anonymize: true/false, # anonymize the actor names
-
-            # exclusive to spatial_level
             aggregation_level: {
                 origin: 'activity' or 'activitygroup', defaults to actor level
                 destination: 'activity' or 'activitygroup', defaults to actor level

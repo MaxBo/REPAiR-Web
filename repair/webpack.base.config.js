@@ -92,7 +92,6 @@ module.exports = {
         modules : ['js', 'node_modules', 'bower_components'],
         alias: {
             'static': path.resolve('./repair/static'),
-            'spatialsankey': 'libs/spatialsankey',
             'cyclesankey': 'libs/cycle-sankey',
             jquery: "jquery/src/jquery"
         }
