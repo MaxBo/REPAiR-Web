@@ -49,3 +49,4 @@ gitpython
 
 pycairo
 ipython
+owslib>=0.19
