@@ -11,6 +11,7 @@ from repair.apps.asmfa.models import (Actor, FractionFlow, Process,
                                       AdministrativeLocation, Material)
 from repair.apps.asmfa.serializers import Actor2ActorSerializer
 from repair.apps.utils.utils import get_annotated_fractionflows
+from repair.apps.studyarea.models import AdminLevels
 
 def filter_actors_by_area(actors, geom):
     '''
@@ -285,10 +286,14 @@ class IndicatorInhabitants(IndicatorAB):
             inh = area.inhabitants
             total_inhabitants += inh
             area_inhabitants[area.id] = inh
-        # ToDo: how to calc for geometries?
-        #       inhabitant data is attached to the areas only
-        area_inhabitants['geom'] = 0
-        area_inhabitants[-1] = total_inhabitants
+
+        if geom:
+            levels = AdminLevels.objects.filter(
+                casestudy=indicator.keyflow.casestudy).order_by('level')
+            finest_level = levels.last()
+            areas_in_geom = finest_level.area_set.filter(geom__intersects=geom)
+            area_inhabitants['geom'] = sum(areas_in_geom.values_list(
+                'inhabitants', flat=True))
 
         results = []
 
