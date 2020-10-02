@@ -120,7 +120,7 @@ class CaseStudySerializer(ForceMultiMixin,
     keyflows = InCasestudyListField(view_name='keyflowincasestudy-list')
     levels = InCasestudyListField(view_name='adminlevels-list')
     publications = InCasestudyListField(source='publicationincasestury_set',
-        view_name='publicationincasestudy-list')
+                                        view_name='publicationincasestudy-list')
     aims = InCasestudyListField(view_name='aim-list')
     challenges = InCasestudyListField(view_name='challenge-list')
     #default_area_level = IDRelatedField(required=False, allow_null=True)

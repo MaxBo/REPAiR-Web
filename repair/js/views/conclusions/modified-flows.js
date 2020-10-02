@@ -64,15 +64,16 @@ function(_, BaseView, GDSECollection, BarChart){
                                 strategy: strategy.id
                             },
                             success: function(data){
-                                var data = data[0],
-                                    strategyValue = data.value;
+                                var data = data[0];
+                                if (!data) return;
+                                var strategyValue = data.value;
                                     deltaValue = data.delta || 0,
                                     isAbs = indicator.get('is_absolute'),
                                     statusquoValue = strategyValue - deltaValue;
                                 // ToDo: what if no status quo?
                                 if (!statusquoValue) return;
                                 _this.indicatorValues[indicator.id][user.id] = data;
-                                data.deltaPerc = (isAbs) ? deltaValue: deltaValue / statusquoValue * 100;
+                                data.deltaPerc = (isAbs) ? deltaValue / statusquoValue * 100 : deltaValue;
                             },
                             error: _this.onError
                         })

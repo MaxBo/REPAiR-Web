@@ -4,12 +4,13 @@ services:
 
   web:
     env_file: .env
-    image: maxboh/repair-web:latest
-
-    command: bash -c "cd /home/circleci/repairweb && echo $PWD && git pull && git checkout stable && pip install -r requirements-dev.txt && yarn install && node_modules/.bin/webpack --config repair/webpack.prod.config.js && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool_stretch
+    command: bash -c "cd /home/circleci/repairweb && echo $PWD && git pull && git checkout stable && pip install -r requirements-dev.txt && yarn install && node_modules/.bin/webpack --config repair/webpack.prod.config.js && python manage.py collectstatic --noinput && python manage.py migrate && python manage.py compilemessages && python manage.py runserver 0.0.0.0:8000"
     ports:
       - "${REPAIRPORT}:8000"
 
     volumes:
       - ./static:/home/circleci/repairweb/repair/public/static
+      - ./media:/home/circleci/repairweb/repair/public/media
+
     restart: always

@@ -20,7 +20,7 @@ define([
         * @param {string} options.el                           the HTMLElement to render the map into
         * @param {boolean} [options.renderOSM=true]            render default background map
         * @param {boolean} [options.showControls=true]         show zoom and fullscreen controls as overlay
-        * @param {boolean} [options.enableZoom=true]   enable zoom interactions
+        * @param {boolean} [options.enableZoom=true]           enable zoom interactions
         * @param {string} [options.projection='EPSG:3857']     projection of the map
         * @param {Array.<number>} [options.center=[13.4, 52.5]]  the map will be centered on this point (x, y), defaults to Berlin
         *
