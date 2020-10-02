@@ -164,7 +164,7 @@ class SolutionSerializer(CreateWithUserInCasestudyMixin,
         }
 
     def get_implementation_count(self, obj):
-        return obj.strategy_set.count()
+        return obj.strategy_set.filter(user__gets_evaluated=True).count()
 
     def get_affected_activities(self, obj):
         parts = SolutionPart.objects.filter(solution=obj)
