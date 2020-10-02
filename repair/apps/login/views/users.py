@@ -61,8 +61,8 @@ class CaseStudyViewSet(RevisionMixin,
     def list(self, request, **kwargs):
         queryset = CaseStudy.objects.all() if request.query_params.get('all') \
             else self.get_queryset()
-        serializer = CaseStudyListSerializer(queryset, many=True,
-                                             context={'request': request})
+        serializer = self.serializer_class(queryset, many=True,
+                                           context={'request': request})
         return Response(serializer.data)
 
     def get_queryset(self):
