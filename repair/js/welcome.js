@@ -12,9 +12,8 @@ require(['d3', 'underscore', 'models/casestudy', 'collections/geolocations',
             //}),
             new ol.layer.Tile({
                 source: new ol.source.XYZ({
-                    url: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+                    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     attributions: [
-                        '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use" target="_blank">Wikimedia maps</a> | Map data © ',
                         ol.source.OSM.ATTRIBUTION
                     ],
                 })
