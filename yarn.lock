@@ -517,11 +517,9 @@ boom@5.x.x:
   dependencies:
     hoek "4.x.x"
 
-bootstrap-select@^1.12.4:
-  version "1.12.4"
-  resolved "https://registry.yarnpkg.com/bootstrap-select/-/bootstrap-select-1.12.4.tgz#7f15d3c0ce978868d9c09c70f96624f55fa02ee1"
-  dependencies:
-    jquery ">=1.8"
+bootstrap-select@^1.13.6:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/bootstrap-select/-/bootstrap-select-1.13.6.tgz#dc41f8a7385ab4e385562b400d4cf2422f5ef852"
 
 bootstrap-slider@^10.6.0:
   version "10.6.1"
@@ -3005,7 +3003,7 @@ jasmine@^2.9.0:
     glob "^7.0.6"
     jasmine-core "~2.9.0"
 
-"jquery@>= 2.1.x", jquery@>=1.7, jquery@>=1.8, jquery@>=1.9.1, jquery@^3.0.0:
+"jquery@>= 2.1.x", jquery@>=1.7, jquery@>=1.9.1, jquery@^3.0.0:
   version "3.3.1"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.3.1.tgz#958ce29e81c9790f31be7792df5d4d95fc57fbca"
 
