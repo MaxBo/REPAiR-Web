@@ -2501,9 +2501,9 @@ hierarchy-select@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/hierarchy-select/-/hierarchy-select-1.0.1.tgz#2c54cf4a4053808dd1e797f10c87b8cbb15ffd69"
 
-highcharts@^6.1.1:
-  version "6.1.2"
-  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-6.1.2.tgz#5df3664436a2a6b9de75b074b5bfbae36ccd565d"
+highcharts@^9.0.0:
+  version "9.0.0"
+  resolved "https://registry.yarnpkg.com/highcharts/-/highcharts-9.0.0.tgz#2e5d382481f71c50ac7f086e7bdead394fab71d4"
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
