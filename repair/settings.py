@@ -12,9 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
-import django
-
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +39,8 @@ ALLOWED_HOSTS = ['geodesignhub.h2020repair.bk.tudelft.nl',
                  'staging.h2020repair.bk.tudelft.nl',
                  "localhost",
                  "127.0.0.1"]
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # Application definition
 
