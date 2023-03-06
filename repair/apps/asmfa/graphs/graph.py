@@ -1,10 +1,11 @@
+graph_tools_failed = False
 try:
     import graph_tool as gt
     from graph_tool import stats as gt_stats
     from graph_tool import draw, util
     import cairo
 except ModuleNotFoundError:
-    pass
+    graph_tools_failed = True
 
 from django.db.models import Q, Sum, F
 from django.db.models.functions import Coalesce

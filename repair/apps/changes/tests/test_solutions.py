@@ -26,11 +26,13 @@ class SolutioncategoryInKeyflowTest(BasicModelPermissionTest, APITestCase):
         cls.post_data = dict(name='posttestname')
         cls.put_data = cls.post_data
 
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionCategoryFactory(id=self.solutioncategory,
-                                           keyflow=self.kic
-                                           )
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = SolutionCategoryFactory(
+            id=cls.solutioncategory,
+            keyflow=cls.kic_obj
+        )
 
     def test_protection_of_deletion(self):
         """
@@ -94,10 +96,11 @@ class SolutionInKeyflowTest(BasicModelPermissionTest,
         cls.put_data = cls.post_data
         cls.patch_data = dict(name="test name")
 
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionFactory(
-            id=self.solution,
-            solution_category__id=self.solutioncategory,
-            solution_category__keyflow=self.kic
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = SolutionFactory(
+            id=cls.solution,
+            solution_category__id=cls.solutioncategory,
+            solution_category__keyflow=cls.kic_obj
         )

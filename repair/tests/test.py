@@ -10,9 +10,7 @@ from repair.apps.login.factories import UserInCasestudyFactory
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from django.contrib.auth.models import Permission
 from repair.apps.login.models import User
-from django.test import Client
 from django.test.client import Client as FormClient
-from wms_client.models import WMSResource
 
 
 class CompareAbsURIMixin:
@@ -47,19 +45,21 @@ class LoginTestCase:
 
     casestudy = None
     keyflow = None
+    keyflowincasestudy = None
     userincasestudy = 26
     user = 99
     permissions = Permission.objects.all()
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
         cls.uic = UserInCasestudyFactory(id=cls.userincasestudy,
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
                                          casestudy__id=cls.casestudy)
-        cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
-                                            casestudy=cls.uic.casestudy)
+        cls.kic_obj = KeyflowInCasestudyFactory(id=cls.keyflowincasestudy,
+                                                casestudy=cls.uic.casestudy,
+                                                keyflow__id=cls.keyflow)
 
     def setUp(self):
         self.client.force_login(user=self.uic.user.user)

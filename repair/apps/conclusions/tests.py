@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.urls import reverse
 from test_plus import APITestCase
-from rest_framework import status
 import factory
 from factory.django import DjangoModelFactory
 from repair.apps.login.factories import CaseStudyFactory
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 
-from repair.tests.test import BasicModelPermissionTest, LoginTestCase
+from repair.tests.test import BasicModelPermissionTest
 from repair.apps.conclusions.models import Conclusion, ConsensusLevel, Section
 
 
@@ -55,10 +53,11 @@ class ConsensusLevelTest(BasicModelPermissionTest, APITestCase):
         cls.put_data = cls.post_data
         cls.patch_data = cls.post_data
 
-    def setUp(self):
-        super().setUp()
-        self.obj = ConsensusLevelFactory(casestudy=self.uic.casestudy,
-                                         id=self.level)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = ConsensusLevelFactory(casestudy=cls.uic.casestudy,
+                                        id=cls.level)
 
 
 class SectionTest(BasicModelPermissionTest, APITestCase):
@@ -76,10 +75,11 @@ class SectionTest(BasicModelPermissionTest, APITestCase):
         cls.put_data = cls.post_data
         cls.patch_data = cls.post_data
 
-    def setUp(self):
-        super().setUp()
-        self.obj = SectionFactory(casestudy=self.uic.casestudy,
-                                  id=self.section)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = SectionFactory(casestudy=cls.uic.casestudy,
+                                 id=cls.section)
 
 
 class ConclusionTest(BasicModelPermissionTest, APITestCase):
@@ -91,7 +91,7 @@ class ConclusionTest(BasicModelPermissionTest, APITestCase):
         super().setUpClass()
         cls.url_key = "conclusion"
         cls.url_pks = dict(casestudy_pk=cls.uic.casestudy.id,
-                           keyflow_pk=cls.kic.id)
+                           keyflow_pk=cls.kic_obj.id)
         cls.url_pk = dict(pk=cls.conclusion)
 
         consensus = ConsensusLevelFactory(name='whatever',
@@ -105,7 +105,8 @@ class ConclusionTest(BasicModelPermissionTest, APITestCase):
         cls.put_data = cls.post_data
         cls.patch_data = cls.post_data
 
-    def setUp(self):
-        super().setUp()
-        self.obj = ConclusionFactory(keyflow=self.kic,
-                                     id=self.conclusion)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = ConclusionFactory(keyflow=cls.kic_obj,
+                                    id=cls.conclusion)

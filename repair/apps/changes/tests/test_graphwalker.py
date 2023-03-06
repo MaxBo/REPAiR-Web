@@ -5,7 +5,6 @@ from django.db.models import Count, Sum
 from repair.apps.asmfa.models import (Actor, Activity, Actor2Actor,
                                       ActorStock, AdministrativeLocation,
                                       FractionFlow, Material)
-from repair.apps.changes.models import Solution, Strategy
 from repair.apps.asmfa.graphs.graph import StrategyGraph
 
 
@@ -205,6 +204,7 @@ class MultiplyTestDataMixin:
                         year=flow.year,
                     )
                     new_flows.append(new_flow)
+                    new_flow.save()
 
                     for fraction_flow_material in fraction_flow_materials:
                         material = Material.objects.get(
@@ -225,7 +225,7 @@ class MultiplyTestDataMixin:
                         )
                         new_fraction_flows.append(new_fraction_flow)
 
-        Actor2Actor.objects.bulk_create(new_flows)
+        #Actor2Actor.objects.bulk_create(new_flows)
         FractionFlow.objects.bulk_create(new_fraction_flows)
 
 

@@ -435,9 +435,9 @@ class StrategyFractionFlowTest(TestCase):
     actor1id = 12
     actor2id = 20
     actor3id = 30
-    flowid1 = 1
-    flowid2 = 2
-    flowid3 = 3
+    flowid1 = 4
+    flowid2 = 5
+    flowid3 = 6
     new_amount1 = 2.0
     new_amount2 = 4.0
 
@@ -445,71 +445,84 @@ class StrategyFractionFlowTest(TestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-    def setUp(self):
-        super().setUp()
-        self.casestudy = CaseStudyFactory(name=self.csname)
-        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                                 casestudy=self.casestudy,
-                                                 keyflow__id=self.keyflow_id)
-        self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
-        self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
-        self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
-        self.activitygroup2 = ActivityGroupFactory(keyflow=self.kic_obj)
-        self.activity2 = ActivityFactory(activitygroup=self.activitygroup2)
-        self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
-        self.activitygroup3 = ActivityGroupFactory(keyflow=self.kic_obj)
-        self.activity3 = ActivityFactory(activitygroup=self.activitygroup3)
-        self.actor3 = ActorFactory(id=self.actor3id, activity=self.activity3)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.casestudy = CaseStudyFactory(name=cls.csname)
+        cls.kic_obj = KeyflowInCasestudyFactory(id=cls.keyflowincasestudy,
+                                                casestudy=cls.casestudy,
+                                                keyflow__id=cls.keyflow_id)
+        cls.activitygroup1 = ActivityGroupFactory(keyflow=cls.kic_obj)
+        cls.activity1 = ActivityFactory(activitygroup=cls.activitygroup1)
+        cls.actor1 = ActorFactory(id=cls.actor1id, activity=cls.activity1)
+        cls.activitygroup2 = ActivityGroupFactory(keyflow=cls.kic_obj)
+        cls.activity2 = ActivityFactory(activitygroup=cls.activitygroup2)
+        cls.actor2 = ActorFactory(id=cls.actor2id, activity=cls.activity2)
+        cls.activitygroup3 = ActivityGroupFactory(keyflow=cls.kic_obj)
+        cls.activity3 = ActivityFactory(activitygroup=cls.activitygroup3)
+        cls.actor3 = ActorFactory(id=cls.actor3id, activity=cls.activity3)
 
-        self.comp1 = CompositionFactory(name='composition1',
+        cls.comp1 = CompositionFactory(name='composition1',
                                         nace='nace1')
-        self.comp2 = CompositionFactory(name='composition2',
+        cls.comp2 = CompositionFactory(name='composition2',
                                         nace='nace2')
-        self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                         keyflow=self.kic_obj,
+        cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
+                                         keyflow=cls.kic_obj,
                                          parent=None)
-        self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                         keyflow=self.kic_obj,
-                                         parent=self.mat_obj_1)
-        self.publicationic = PublicationInCasestudyFactory()
+        cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
+                                         keyflow=cls.kic_obj,
+                                         parent=cls.mat_obj_1)
+        cls.publicationic = PublicationInCasestudyFactory()
+        cls.flow1 = Actor2ActorFactory(id=cls.flowid1,
+                                       keyflow=cls.kic_obj,
+                                       origin=cls.actor1,
+                                       destination=cls.actor2)
+        cls.flow2 = Actor2ActorFactory(id=cls.flowid2,
+                                       keyflow=cls.kic_obj,
+                                       origin=cls.actor2,
+                                       destination=cls.actor3)
+        cls.flow3 = Actor2ActorFactory(id=cls.flowid3,
+                                       keyflow=cls.kic_obj,
+                                       origin=cls.actor2,
+                                       destination=cls.actor3)
 
         # flow attributes
-        #self.process = ProcessFactory(name='test-process')
+        #cls.process = ProcessFactory(name='test-process')
 
-        self.fractionflow1 = FractionFlowFactory(flow_id=self.flowid1,
-                                                 #process=self.process,
-                                                 stock=None,
-                                                 to_stock=False,
-                                                 origin=self.actor1,
-                                                 destination=self.actor2,
-                                                 material=self.mat_obj_1,
-                                                 nace=self.comp1.nace,
-                                                 composition_name=self.comp1.name,
-                                                 publication=self.publicationic,
-                                                 keyflow=self.kic_obj,
-                                                 amount=1.0)
-        self.fractionflow2 = FractionFlowFactory(flow_id=self.flowid2,
-                                                 stock=None,
-                                                 to_stock=False,
-                                                 origin=self.actor2,
-                                                 destination=self.actor3,
-                                                 material=self.mat_obj_2,
-                                                 nace=self.comp1.nace,
-                                                 composition_name=self.comp1.name,
-                                                 publication=self.publicationic,
-                                                 keyflow=self.kic_obj,
-                                                 amount=1.0)
-        self.fractionflow3 = FractionFlowFactory(flow_id=self.flowid3,
-                                                 stock=None,
-                                                 to_stock=False,
-                                                 origin=self.actor2,
-                                                 destination=self.actor3,
-                                                 material=self.mat_obj_1,
-                                                 nace=self.comp2.nace,
-                                                 composition_name=self.comp2.name,
-                                                 publication=self.publicationic,
-                                                 keyflow=self.kic_obj,
-                                                 amount=1.0)
+        cls.fractionflow1 = FractionFlowFactory(flow=cls.flow1,
+                                                #process=cls.process,
+                                                stock=None,
+                                                to_stock=False,
+                                                origin=cls.actor1,
+                                                destination=cls.actor2,
+                                                material=cls.mat_obj_1,
+                                                nace=cls.comp1.nace,
+                                                composition_name=cls.comp1.name,
+                                                publication=cls.publicationic,
+                                                keyflow=cls.kic_obj,
+                                                amount=1.0)
+        cls.fractionflow2 = FractionFlowFactory(flow=cls.flow2,
+                                                stock=None,
+                                                to_stock=False,
+                                                origin=cls.actor2,
+                                                destination=cls.actor3,
+                                                material=cls.mat_obj_2,
+                                                nace=cls.comp1.nace,
+                                                composition_name=cls.comp1.name,
+                                                publication=cls.publicationic,
+                                                keyflow=cls.kic_obj,
+                                                amount=1.0)
+        cls.fractionflow3 = FractionFlowFactory(flow=cls.flow3,
+                                                stock=None,
+                                                to_stock=False,
+                                                origin=cls.actor2,
+                                                destination=cls.actor3,
+                                                material=cls.mat_obj_1,
+                                                nace=cls.comp2.nace,
+                                                composition_name=cls.comp2.name,
+                                                publication=cls.publicationic,
+                                                keyflow=cls.kic_obj,
+                                                amount=1.0)
 
 
     def test_strategyfractionflows(self):

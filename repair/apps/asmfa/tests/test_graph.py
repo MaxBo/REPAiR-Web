@@ -7,7 +7,8 @@ from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.db.models import Sum
 from django.test import TestCase
 
-from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
+from repair.apps.asmfa.graphs.graph import (BaseGraph, StrategyGraph,
+                                            graph_tools_failed)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
 from repair.tests.test import LoginTestCase, AdminAreaTest
 from repair.apps.asmfa.factories import (ActorFactory,
@@ -46,6 +47,11 @@ from repair.apps.asmfa.tests import flowmodeltestdata
 
 
 class GraphWalkerTest(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
 
     def test_data_creation(self):
         b2b = flowmodeltestdata.bread_to_beer_graph()
@@ -249,6 +255,8 @@ class GraphTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
         self.activitygroup1 = ActivityGroupFactory(name='MyGroup',
                                                    keyflow=self.kic)
         self.activitygroup2 = ActivityGroupFactory(name='AnotherGroup',
@@ -299,6 +307,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
         self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
 
         self.possible_impl_area = PossibleImplementationAreaFactory(
@@ -812,7 +822,6 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
         cls.casestudy = CaseStudy.objects.get(name='SandboxCity')
         cls.keyflow = KeyflowInCasestudy.objects.get(
             casestudy=cls.casestudy,
@@ -843,6 +852,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
         self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
 
         # create the implementation along with the strategy

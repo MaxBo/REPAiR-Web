@@ -598,13 +598,14 @@ class SolutionInStrategyInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.patch_data = dict(solution=cls.solution,
                               strategy=cls.strategy_url)
 
-    def setUp(self):
-        super().setUp()
-        self.obj = SolutionInStrategyFactory(
-            solution__id=self.solution,
-            strategy__user=self.uic,
-            strategy__id=self.strategy,
-            strategy__keyflow=self.kic,
-            solution__solution_category__id=self.solutioncategory,
-            solution__solution_category__keyflow=self.kic,
-            id=self.solution_strategy)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = SolutionInStrategyFactory(
+            solution__id=cls.solution,
+            strategy__user=cls.uic,
+            strategy__id=cls.strategy,
+            strategy__keyflow=cls.kic_obj,
+            solution__solution_category__id=cls.solutioncategory,
+            solution__solution_category__keyflow=cls.kic_obj,
+            id=cls.solution_strategy)

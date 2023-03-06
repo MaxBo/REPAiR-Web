@@ -58,21 +58,19 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCas
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
-    def setUp(self):
-        super().setUp()
-        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                            casestudy=self.uic.casestudy,
-                                            keyflow__id=self.keyflow)
-        self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=kic_obj)
-        self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=kic_obj)
-        self.obj = ActivityStockFactory(id=self.activitystock,
-                                        origin__id=self.origin,
-                                        origin__activitygroup__id=self.activitygroup,
-                                        origin__activitygroup__keyflow=kic_obj,
-                                        keyflow=kic_obj,
-                                        )
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
+                                        keyflow=cls.kic)
+        cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
+                                        keyflow=cls.kic)
+        cls.obj = ActivityStockFactory(id=cls.activitystock,
+                                       origin__id=cls.origin,
+                                       origin__activitygroup__id=cls.activitygroup,
+                                       origin__activitygroup__keyflow=cls.kic,
+                                       keyflow=cls.kic,
+                                       )
 
 
 class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
@@ -117,45 +115,43 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
-    def setUp(self):
-        super().setUp()
-        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                                 casestudy=self.uic.casestudy,
-                                                 keyflow__id=self.keyflow)
-        self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                         keyflow=self.kic_obj)
-        self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                         keyflow=self.kic_obj)
-        self.comp1 = CompositionFactory(name='composition1',
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
+                                         keyflow=cls.kic)
+        cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
+                                         keyflow=cls.kic)
+        cls.comp1 = CompositionFactory(name='composition1',
                                         nace='nace1')
-        self.comp2 = CompositionFactory(name='composition2',
+        cls.comp2 = CompositionFactory(name='composition2',
                                         nace='nace2')
-        self.activitygroup1 = ActivityGroupFactory(keyflow=self.kic_obj)
-        self.activity1 = ActivityFactory(activitygroup=self.activitygroup1)
-        self.actor1 = ActorFactory(id=self.actor1id, activity=self.activity1)
-        self.activitygroup2 = ActivityGroupFactory(keyflow=self.kic_obj)
-        self.activity2 = ActivityFactory(activitygroup=self.activitygroup2)
-        self.actor2 = ActorFactory(id=self.actor2id, activity=self.activity2)
-        self.actor3 = ActorFactory(activity=self.activity2)
-        self.act2act1 = Actor2ActorFactory(id=self.actor2actor1,
-                                           origin=self.actor1,
-                                           destination=self.actor2,
-                                           keyflow=self.kic_obj,
-                                           composition=self.comp1,
+        cls.activitygroup1 = ActivityGroupFactory(keyflow=cls.kic)
+        cls.activity1 = ActivityFactory(activitygroup=cls.activitygroup1)
+        cls.actor1 = ActorFactory(id=cls.actor1id, activity=cls.activity1)
+        cls.activitygroup2 = ActivityGroupFactory(keyflow=cls.kic)
+        cls.activity2 = ActivityFactory(activitygroup=cls.activitygroup2)
+        cls.actor2 = ActorFactory(id=cls.actor2id, activity=cls.activity2)
+        cls.actor3 = ActorFactory(activity=cls.activity2)
+        cls.act2act1 = Actor2ActorFactory(id=cls.actor2actor1,
+                                           origin=cls.actor1,
+                                           destination=cls.actor2,
+                                           keyflow=cls.kic,
+                                           composition=cls.comp1,
                                            )
-        self.act2act2 = Actor2ActorFactory(id=self.actor2actor2,
-                                           origin=self.actor2,
-                                           destination=self.actor3,
-                                           keyflow=self.kic_obj,
-                                           composition=self.comp2,
+        cls.act2act2 = Actor2ActorFactory(id=cls.actor2actor2,
+                                           origin=cls.actor2,
+                                           destination=cls.actor3,
+                                           keyflow=cls.kic,
+                                           composition=cls.comp2,
                                            )
-        self.actorstock1 = ActorStockFactory(id=self.actorstock,
-                                             keyflow=self.kic_obj,
-                                             origin=self.actor1)
-        self.actorstock2 = ActorStockFactory(id=self.actorstock2,
-                                             keyflow=self.kic_obj,
-                                             origin=self.actor2)
-        self.obj = self.actorstock1
+        cls.actorstock1 = ActorStockFactory(id=cls.actorstock,
+                                             keyflow=cls.kic,
+                                             origin=cls.actor1)
+        cls.actorstock2 = ActorStockFactory(id=cls.actorstock2,
+                                             keyflow=cls.kic,
+                                             origin=cls.actor2)
+        cls.obj = cls.actorstock1
 
     def test_post_get(self):
         """
@@ -235,17 +231,15 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
                               )
         #cls.sub_urls = ['keyflow', 'origin_url', 'destination_url']
 
-    def setUp(self):
-        super().setUp()
-        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                            casestudy=self.uic.casestudy,
-                                            keyflow__id=self.keyflow)
-        self.mat_obj_1 = MaterialFactory(id=self.material_1,
-                                             keyflow=kic_obj)
-        self.mat_obj_2 = MaterialFactory(id=self.material_2,
-                                             keyflow=kic_obj)
-        self.obj = GroupStockFactory(id=self.groupstock,
-                                     origin__id=self.origin,
-                                     origin__keyflow=kic_obj,
-                                     keyflow=kic_obj,
-                                     )
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
+                                        keyflow=cls.kic)
+        cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
+                                        keyflow=cls.kic)
+        cls.obj = GroupStockFactory(id=cls.groupstock,
+                                    origin__id=cls.origin,
+                                    origin__keyflow=cls.kic,
+                                    keyflow=cls.kic,
+                                    )
