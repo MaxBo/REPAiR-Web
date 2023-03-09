@@ -62,24 +62,26 @@ class ActorInCaseStudyTest(BasicModelPermissionTest, APITestCase):
                              year=2017,
                              turnover='1000.00',
                              employees=2,
-                             activity=1,
+                             activity=cls.activity_obj.id,
                              BvDid='141234',
                              reason=cls.reason1_id)
         cls.put_data = dict(name='posttestname',
                             year=2017,
                             turnover='1000.00',
                             employees=2,
-                            activity=1,
+                            activity=cls.activity_obj.id,
                             BvDid='141234',
                             reason=cls.reason2_id)
         cls.patch_data = dict(name='patchtestname')
 
-    def setUp(self):
-        super().setUp()
-        self.reason1 = ReasonFactory(id=self.reason1_id, reason='Reason 1')
-        self.reason2 = ReasonFactory(id=self.reason2_id, reason='Reason 2')
-        self.obj = ActorFactory(activity__activitygroup__keyflow=self.kic,
-                                reason=self.reason1)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.reason1 = ReasonFactory(id=cls.reason1_id, reason='Reason 1')
+        cls.reason2 = ReasonFactory(id=cls.reason2_id, reason='Reason 2')
+        cls.activity_obj = ActivityFactory(activitygroup__keyflow=cls.kic_obj)
+        cls.obj = ActorFactory(activity=cls.activity_obj,
+                               reason=cls.reason1)
 
     def test_reason(self):
         """Test reason for exclusion"""
@@ -142,12 +144,12 @@ class ActivityInCaseStudyTest(BasicModelPermissionTest, APITestCase):
                             activitygroup=cls.activitygroup)
         cls.patch_data = dict(name='Test Name')
 
-    def setUp(self):
-        super().setUp()
-        self.obj = ActivityFactory(
-            activitygroup__keyflow__casestudy=self.uic.casestudy,
-            activitygroup__keyflow=self.kic,
-            activitygroup__id=self.activitygroup)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = ActivityFactory(
+            activitygroup__keyflow=cls.kic_obj,
+            activitygroup__id=cls.activitygroup)
 
     def test_unique_nacecode(self):
         """Test if the nace-code number is unique"""
@@ -188,6 +190,7 @@ class ActivitygroupInCaseStudyTest(BasicModelPermissionTest, APITestCase):
         cls.put_data = dict(code="P1", name='Test Code')
         cls.patch_data = dict(name='P1')
 
-    def setUp(self):
-        super().setUp()
-        self.obj = ActivityGroupFactory(keyflow=self.kic)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = ActivityGroupFactory(keyflow=cls.kic_obj)

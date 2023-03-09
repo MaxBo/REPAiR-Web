@@ -6,7 +6,7 @@ from django.utils.encoding import force_text
 from rest_framework import status
 from django.urls import reverse
 
-from repair.apps.login.factories import UserInCasestudyFactory
+from repair.apps.login.factories import UserInCasestudyFactory, CaseStudyFactory
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from django.contrib.auth.models import Permission
 from repair.apps.login.models import User
@@ -45,7 +45,6 @@ class LoginTestCase:
 
     casestudy = None
     keyflow = None
-    keyflowincasestudy = None
     userincasestudy = 26
     user = 99
     permissions = Permission.objects.all()
@@ -53,13 +52,13 @@ class LoginTestCase:
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
+        cls.casestudy_obj = CaseStudyFactory(id=cls.casestudy)
         cls.uic = UserInCasestudyFactory(id=cls.userincasestudy,
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
-                                         casestudy__id=cls.casestudy)
-        cls.kic_obj = KeyflowInCasestudyFactory(id=cls.keyflowincasestudy,
-                                                casestudy=cls.uic.casestudy,
-                                                keyflow__id=cls.keyflow)
+                                         casestudy=cls.casestudy_obj)
+        cls.kic_obj = KeyflowInCasestudyFactory(id=cls.keyflow,
+                                                casestudy=cls.casestudy_obj)
 
     def setUp(self):
         self.client.force_login(user=self.uic.user.user)
@@ -74,10 +73,15 @@ class LoginTestCase:
     @classmethod
     def tearDownClass(cls):
         user = cls.uic.user.user
-        cs = cls.uic.casestudy
         user.delete()
-        cs.delete()
-        del cls.uic
+        cls.kic_obj.delete()
+        cls.uic.delete()
+        cls.casestudy_obj.delete()
+        if getattr(cls, 'obj', None):
+            try:
+                cls.obj.delete()
+            except:
+                pass
         super().tearDownClass()
 
 

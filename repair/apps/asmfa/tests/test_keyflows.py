@@ -64,10 +64,10 @@ class KeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_pk = dict(pk=cls.keyflow)
 
         cls.put_data = dict(note='new_put_note',
-                            keyflow=cls.keyflow,
+                            keyflow=cls.kic_obj.keyflow_id,
                             )
         cls.post_data = dict(note='new_note',
-                             keyflow=cls.keyflow,
+                             keyflow=cls.kic_obj.keyflow_id,
                              )
 
         cls.patch_data = dict(note='patchtestnote')

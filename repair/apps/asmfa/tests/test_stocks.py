@@ -29,7 +29,6 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCas
     origin = 20
     product = 16
     activitystock = 13
-    keyflowincasestudy = 45
     activitygroup = 76
     material_1 = 10
     material_2 = 11
@@ -45,7 +44,7 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCas
         super().setUpClass()
         cls.url_key = "activitystock"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           keyflow_pk=cls.keyflowincasestudy)
+                           keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.activitystock)
         cls.put_data = dict(origin=cls.origin,
                             composition=cls.comp_data,
@@ -62,14 +61,14 @@ class ActivitystockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCas
     def setUpTestData(cls):
         super().setUpTestData()
         cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
-                                        keyflow=cls.kic)
+                                        keyflow=cls.kic_obj)
         cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
-                                        keyflow=cls.kic)
+                                        keyflow=cls.kic_obj)
         cls.obj = ActivityStockFactory(id=cls.activitystock,
                                        origin__id=cls.origin,
                                        origin__activitygroup__id=cls.activitygroup,
-                                       origin__activitygroup__keyflow=cls.kic,
-                                       keyflow=cls.kic,
+                                       origin__activitygroup__keyflow=cls.kic_obj,
+                                       keyflow=cls.kic_obj,
                                        )
 
 
@@ -102,7 +101,7 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         super().setUpClass()
         cls.url_key = "actorstock"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           keyflow_pk=cls.keyflowincasestudy)
+                           keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.actorstock)
         cls.put_data = dict(origin=cls.origin,
                             composition=cls.comp_data,
@@ -119,37 +118,37 @@ class ActorstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
-                                         keyflow=cls.kic)
+                                         keyflow=cls.kic_obj)
         cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
-                                         keyflow=cls.kic)
+                                         keyflow=cls.kic_obj)
         cls.comp1 = CompositionFactory(name='composition1',
                                         nace='nace1')
         cls.comp2 = CompositionFactory(name='composition2',
                                         nace='nace2')
-        cls.activitygroup1 = ActivityGroupFactory(keyflow=cls.kic)
+        cls.activitygroup1 = ActivityGroupFactory(keyflow=cls.kic_obj)
         cls.activity1 = ActivityFactory(activitygroup=cls.activitygroup1)
         cls.actor1 = ActorFactory(id=cls.actor1id, activity=cls.activity1)
-        cls.activitygroup2 = ActivityGroupFactory(keyflow=cls.kic)
+        cls.activitygroup2 = ActivityGroupFactory(keyflow=cls.kic_obj)
         cls.activity2 = ActivityFactory(activitygroup=cls.activitygroup2)
         cls.actor2 = ActorFactory(id=cls.actor2id, activity=cls.activity2)
         cls.actor3 = ActorFactory(activity=cls.activity2)
         cls.act2act1 = Actor2ActorFactory(id=cls.actor2actor1,
                                            origin=cls.actor1,
                                            destination=cls.actor2,
-                                           keyflow=cls.kic,
+                                           keyflow=cls.kic_obj,
                                            composition=cls.comp1,
                                            )
         cls.act2act2 = Actor2ActorFactory(id=cls.actor2actor2,
                                            origin=cls.actor2,
                                            destination=cls.actor3,
-                                           keyflow=cls.kic,
+                                           keyflow=cls.kic_obj,
                                            composition=cls.comp2,
                                            )
         cls.actorstock1 = ActorStockFactory(id=cls.actorstock,
-                                             keyflow=cls.kic,
+                                             keyflow=cls.kic_obj,
                                              origin=cls.actor1)
         cls.actorstock2 = ActorStockFactory(id=cls.actorstock2,
-                                             keyflow=cls.kic,
+                                             keyflow=cls.kic_obj,
                                              origin=cls.actor2)
         cls.obj = cls.actorstock1
 
@@ -218,7 +217,7 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
         super().setUpClass()
         cls.url_key = "groupstock"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           keyflow_pk=cls.keyflowincasestudy)
+                           keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.groupstock)
         cls.put_data = dict(origin=cls.origin,
                             composition=cls.comp_data,
@@ -235,11 +234,11 @@ class GroupstockInKeyflowInCasestudyTest(BasicModelPermissionTest, APITestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.mat_obj_1 = MaterialFactory(id=cls.material_1,
-                                        keyflow=cls.kic)
+                                        keyflow=cls.kic_obj)
         cls.mat_obj_2 = MaterialFactory(id=cls.material_2,
-                                        keyflow=cls.kic)
+                                        keyflow=cls.kic_obj)
         cls.obj = GroupStockFactory(id=cls.groupstock,
                                     origin__id=cls.origin,
-                                    origin__keyflow=cls.kic,
-                                    keyflow=cls.kic,
+                                    origin__keyflow=cls.kic_obj,
+                                    keyflow=cls.kic_obj,
                                     )

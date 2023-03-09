@@ -14,16 +14,14 @@ import numpy as np
 from repair.apps.asmfa.factories import (ActivityFactory,
                                          ActivityGroupFactory,
                                          ActorFactory,
-                                         UserInCasestudyFactory,
                                          KeyflowInCasestudyFactory,
                                          CompositionFactory,
                                          Actor2ActorFactory,
                                          MaterialFactory,
                                          ProductFractionFactory,
-                                         KeyflowFactory
                                          )
 
-from repair.apps.asmfa.models import (ActivityGroup, Activity, Actor,
+from repair.apps.asmfa.models import (ActivityGroup, Activity,
                                       Material, ProductFraction,
                                       AdministrativeLocation, Actor2Actor,
                                       FractionFlow)
@@ -50,34 +48,32 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.keyflow = cls.kic
-        cls.casestudy = cls.uic.casestudy
-
         cls.ag_url = reverse('activitygroup-list',
-                             kwargs={'casestudy_pk': cls.casestudy.id,
-                                     'keyflow_pk': cls.keyflow.id})
+                              kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                      'keyflow_pk': cls.kic_obj.id})
         cls.ac_url = reverse('activity-list',
-                             kwargs={'casestudy_pk': cls.casestudy.id,
-                                     'keyflow_pk': cls.keyflow.id})
+                             kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                     'keyflow_pk': cls.kic_obj.id})
         cls.actor_url = reverse('actor-list',
-                                kwargs={'casestudy_pk': cls.casestudy.id,
-                                        'keyflow_pk': cls.keyflow.id})
+                                kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                        'keyflow_pk': cls.kic_obj.id})
         cls.location_url = reverse('administrativelocation-list',
-                                   kwargs={'casestudy_pk': cls.casestudy.id,
-                                           'keyflow_pk': cls.keyflow.id})
+                                   kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                           'keyflow_pk': cls.kic_obj.id})
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         # create another activitygroup
-        ag_f = ActivityGroupFactory(keyflow=self.keyflow,
+        ag_f = ActivityGroupFactory(keyflow=cls.kic_obj,
                                     name='Construction', code='F')
-        ActivityGroupFactory(keyflow=self.keyflow,
+        ActivityGroupFactory(keyflow=cls.kic_obj,
                              name='Some stuff, no idea', code='G')
-        ActivityGroupFactory(keyflow=self.keyflow,
+        ActivityGroupFactory(keyflow=cls.kic_obj,
                              name='Other', code='E')
-        ActivityGroupFactory(keyflow=self.keyflow,
+        ActivityGroupFactory(keyflow=cls.kic_obj,
                              name='Export', code='WE')
-        ActivityGroupFactory(keyflow=self.keyflow,
+        ActivityGroupFactory(keyflow=cls.kic_obj,
                              name='Import', code='R')
 
         af = ActivityFactory(activitygroup=ag_f, name='should_be_updated',
@@ -110,7 +106,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
                 'bulk_upload' : open(file_path_ag, 'rb'),
             }
 
-            existing_ags = ActivityGroup.objects.filter(keyflow=self.kic)
+            existing_ags = ActivityGroup.objects.filter(keyflow=self.kic_obj)
             existing_codes = list(existing_ags.values_list('code', flat=True))
 
             encoding = 'utf8'
@@ -127,12 +123,12 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             assert len(res_json['created']) == len(new_codes)
 
             # assert that the number of activities matches
-            all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic.id)
+            all_ag = ActivityGroup.objects.filter(keyflow_id=self.kic_obj.id)
             assert len(all_ag) == len(existing_codes) + len(new_codes)
 
             # assert that the Name matches in all values
             for row in df_file_ags.itertuples(index=False):
-                ag = ActivityGroup.objects.get(keyflow=self.keyflow,
+                ag = ActivityGroup.objects.get(keyflow=self.kic_obj,
                                                code=row.code)
                 assert ag.name == row.name
 
@@ -178,7 +174,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
             'bulk_upload' : open(file_path_ac, 'rb'),
         }
 
-        existing_acs = Activity.objects.filter(activitygroup__keyflow=self.kic)
+        existing_acs = Activity.objects.filter(activitygroup__keyflow=self.kic_obj)
         existing_nace = list(existing_acs.values_list('nace', flat=True))
 
         encoding = 'cp1252'
@@ -195,7 +191,7 @@ class BulkImportNodesTest(LoginTestCase, APITestCase):
         assert len(res_json['created']) == len(new_nace)
 
         # assert that the number of activities matches
-        all_ac = Activity.objects.filter(activitygroup__keyflow=self.kic)
+        all_ac = Activity.objects.filter(activitygroup__keyflow=self.kic_obj)
         assert len(all_ac) == len(existing_nace) + len(new_nace)
 
         # assert that the Name matches in all values
@@ -304,24 +300,22 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.keyflow = cls.kic
-        cls.casestudy = cls.uic.casestudy
-
         cls.a2a_url = reverse('actor2actor-list',
-                              kwargs={'casestudy_pk': cls.casestudy.id,
-                                      'keyflow_pk': cls.keyflow.id})
+                              kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                      'keyflow_pk': cls.kic_obj.id})
 
         cls.astock_url = reverse('actorstock-list',
-                                 kwargs={'casestudy_pk': cls.casestudy.id,
-                                         'keyflow_pk': cls.keyflow.id})
+                                 kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                         'keyflow_pk': cls.kic_obj.id})
         # workaround, don't want to tests any permissions here
         #cls.uic.user.user.is_superuser = True
         #cls.uic.user.user.save()
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         # create another activitygroup
-        ag = ActivityGroupFactory(keyflow=self.keyflow, name='A', code='A')
+        ag = ActivityGroupFactory(keyflow=cls.kic_obj, name='A', code='A')
         af = ActivityFactory(activitygroup=ag, name='B', nace='123')
 
         ac_1 = ActorFactory(activity=af, BvDid='WK036306')
@@ -330,20 +324,20 @@ class BulkImportFlowsTest(LoginTestCase, APITestCase):
         ActorFactory(activity=af, BvDid='WK036309')
         ac_3 = ActorFactory(activity=af, BvDid='NL59307803')
 
-        self.composition = CompositionFactory(name='RES @Urbanisation lvl 1')
+        cls.composition = CompositionFactory(name='RES @Urbanisation lvl 1')
         mat1 = MaterialFactory()
         mat2 = MaterialFactory()
-        ProductFractionFactory(composition=self.composition, material=mat1,
+        ProductFractionFactory(composition=cls.composition, material=mat1,
                                publication=None)
-        ProductFractionFactory(composition=self.composition, material=mat2,
+        ProductFractionFactory(composition=cls.composition, material=mat2,
                                publication=None)
 
         a = PublicationFactory(citekey='cbs2018', title='sth')
-        PublicationInCasestudyFactory(casestudy=self.casestudy,
+        PublicationInCasestudyFactory(casestudy=cls.casestudy_obj,
                                       publication=a)
 
-        Actor2ActorFactory(origin=ac_1, destination=ac_2, keyflow=self.keyflow)
-        Actor2ActorFactory(origin=ac_1, destination=ac_3, keyflow=self.keyflow)
+        Actor2ActorFactory(origin=ac_1, destination=ac_2, keyflow=cls.kic_obj)
+        Actor2ActorFactory(origin=ac_1, destination=ac_3, keyflow=cls.kic_obj)
 
     def test_bulk_flow(self):
         """Test file-based upload of actor2actor"""
@@ -415,37 +409,35 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.keyflow = cls.kic
-        cls.casestudy = cls.uic.casestudy
-
         cls.mat_url = reverse('material-list',
-                              kwargs={'casestudy_pk': cls.casestudy.id,
-                                      'keyflow_pk': cls.keyflow.id})
+                              kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                      'keyflow_pk': cls.kic_obj.id})
 
         cls.waste_url = reverse('waste-list',
-                                kwargs={'casestudy_pk': cls.casestudy.id,
-                                        'keyflow_pk': cls.keyflow.id})
+                                kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                        'keyflow_pk': cls.kic_obj.id})
 
         cls.product_url = reverse('product-list',
-                                kwargs={'casestudy_pk': cls.casestudy.id,
-                                        'keyflow_pk': cls.keyflow.id})
+                                  kwargs={'casestudy_pk': cls.casestudy_obj.id,
+                                          'keyflow_pk': cls.kic_obj.id})
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
         # create another keyflow
         keyflow2 = KeyflowInCasestudyFactory(keyflow__name='concurring')
         # create mats with same names, should not be picked while bulk creating
         MaterialFactory(name='a', keyflow=keyflow2)
         MaterialFactory(name='b', keyflow=keyflow2)
 
-        MaterialFactory(name='Mat 1', keyflow=self.keyflow)
+        MaterialFactory(name='Mat 1', keyflow=cls.kic_obj)
         # this one is a 'default' material without keyflow and duplicate
         # to one in the file, the keyflow related one should be preferred
-        MaterialFactory(name='a', keyflow=self.keyflow)
+        MaterialFactory(name='a', keyflow=cls.kic_obj)
         MaterialFactory(name='b')
 
         a = PublicationFactory(citekey='crem2017', title='sth')
-        PublicationInCasestudyFactory(casestudy=self.casestudy,
+        PublicationInCasestudyFactory(casestudy=cls.casestudy_obj,
                                       publication=a)
 
     def test_bulk_materials(self):
@@ -505,7 +497,7 @@ class BulkImportMaterialsTest(LoginTestCase, APITestCase):
         # (common mats) or the keyflow set to this test (set in url as well)
         for f in fractions:
             mat = f.material
-            assert mat.keyflow == None or mat.keyflow.id == self.keyflow.id
+            assert mat.keyflow == None or mat.keyflow.id == self.kic_obj.id
 
         avoidable = fractions.values_list('avoidable', flat=True)
         # avoidable is set (just checking that not everything is

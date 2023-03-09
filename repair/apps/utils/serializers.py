@@ -295,7 +295,7 @@ class ErrorMask:
             if not isinstance(data.index, pd.RangeIndex):
                 data.reset_index(inplace=True)
             if file_type == 'xlsx':
-                data = data.style.apply(highlight_errors, errors=errors)
+                data.style.apply(highlight_errors, errors=errors)
 
         def write(df):
             with TemporaryMediaFile() as f:

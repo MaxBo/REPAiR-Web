@@ -24,20 +24,21 @@ class ActivitygroupNaceCodeTest(LoginTestCase, APITestCase):
                            keyflow_pk=cls.keyflow)
         cls.url_pk = dict(pk=cls.activitygroup)
 
-    def setUp(self):
-        super().setUp()
-        self.activitygroup1 = ActivityGroupFactory(name='MyGroup',
-                                                   keyflow=self.kic)
-        self.activitygroup2 = ActivityGroupFactory(name='AnotherGroup',
-                                                   keyflow=self.kic)
-        self.activity1 = ActivityFactory(nace='NACE1',
-                                         activitygroup=self.activitygroup1)
-        self.activity2 = ActivityFactory(nace='NACE2',
-                                         activitygroup=self.activitygroup1)
-        self.activity3 = ActivityFactory(nace='NACE3',
-                                         activitygroup=self.activitygroup1)
-        self.activity4 = ActivityFactory(nace='NACE4',
-                                         activitygroup=self.activitygroup2)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.activitygroup1 = ActivityGroupFactory(name='MyGroup',
+                                                  keyflow=cls.kic_obj)
+        cls.activitygroup2 = ActivityGroupFactory(name='AnotherGroup',
+                                                  keyflow=cls.kic_obj)
+        cls.activity1 = ActivityFactory(nace='NACE1',
+                                        activitygroup=cls.activitygroup1)
+        cls.activity2 = ActivityFactory(nace='NACE2',
+                                        activitygroup=cls.activitygroup1)
+        cls.activity3 = ActivityFactory(nace='NACE3',
+                                        activitygroup=cls.activitygroup1)
+        cls.activity4 = ActivityFactory(nace='NACE4',
+                                        activitygroup=cls.activitygroup2)
 
     def test_nace_codes(self):
         """

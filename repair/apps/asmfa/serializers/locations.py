@@ -34,7 +34,7 @@ class AdministrativeLocationSerializer(PatchFields,
         'actor__activity__activitygroup__keyflow__casestudy__id',
         'keyflow_pk':
         'actor__activity__activitygroup__keyflow__id', }
-    actor = ActorIDField()
+    actor = ActorIDField(required=False)
     area = serializers.PrimaryKeyRelatedField(required=False, allow_null=True,
                                               queryset=Area.objects.all())
     level = serializers.PrimaryKeyRelatedField(

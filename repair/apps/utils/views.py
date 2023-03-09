@@ -300,15 +300,15 @@ class ModelWritePermissionMixin(CheckPermissionMixin):
             response = super().destroy(request, **kwargs)
         except ProtectedError as err:
             qs = err.protected_objects
-            show = 5
-            n_objects = qs.count()
+            n_show = 5
+            n_objects = len(qs)
             msg_n_referenced = '{} {}:'.format(n_objects,
                                                _('Referencing Object(s)')
                                                )
             msg = '<br/>'.join(list(err.args[:1]) +
                                [msg_n_referenced] +
-                               [repr(row).strip('<>') for row in qs[:show]] +
-                               ['...' if n_objects > show else '']
+                               [repr(row).strip('<>') for row in list(qs)[:n_show]] +
+                               ['...' if n_objects > n_show else '']
                                )
             return HttpResponseForbidden(content=msg)
         return response
