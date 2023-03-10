@@ -45,6 +45,5 @@ pytest-xdist
 codecov>2.1
 gitpython
 
-pycairo
 ipython
 owslib>=0.19
