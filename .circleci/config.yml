@@ -1,22 +1,39 @@
 version: 2
 machine:
   environment:
-    DJANGO_SETTINGS_MODULE: repair.settings4tests
+    DJANGO_SETTINGS_MODULE: repair.settings_circleci
 jobs:
   django testing:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool_stretch
+      - image: gertzgutscheruemenapp/repair-web
+      - image: circleci/postgres:13-postgis-ram
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: circle_test
+          POSTGRES_PASSWORD: postgres
     steps:
       - checkout
       - run: mkdir test-reports
+      - run: source activate repair
       - run:
           name: Install Python deps in a venv
           command: |
             pip install -r requirements-dev.txt
       - run:
+          name: Install dockerize
+          command: wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+      - run:
+          name: Wait for Router
+          command: dockerize -wait tcp://localhost:8001 -timeout 1m
+      - run:
+          name: Wait for Database
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
           name: Migrate Test Database
           command: |
-            python manage.py migrate --settings=repair.settings4tests
+            python manage.py migrate --settings=datentool.settings_circleci
       - store_artifacts:
           path: test-reports/
           destination: tr1
@@ -25,13 +42,13 @@ jobs:
       - run:
           name: codecov
           command: |
-            coverage run manage.py test --settings=repair.settings4tests
+            coverage run manage.py test --settings=repair.settings_circleci
             codecov
 
 
   selenium testing:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool_stretch
+      - image: gertzgutscheruemenapp/repair-web
     steps:
       - checkout
       - run:
@@ -72,28 +89,9 @@ jobs:
           path: repair/tests/artifacts
 
 
-  setup database:
-    docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool_stretch
-    steps:
-      - checkout
-      - run:
-          name: Install Python deps in a venv
-          command: |
-            pip install -r requirements-dev.txt
-      - run:
-          name: Migrate Test Database again
-          command: |
-            python manage.py migrate --run-syncdb --settings=repair.settings4tests
-      - run:
-          name: load fixtures to test database
-          command: |
-            python manage.py loaddata sandbox_data --settings=repair.settings4tests
-
-
   jasmine tests:
     docker:
-      - image: maxboh/docker-circleci-node-miniconda-gdal:graph_tool_stretch
+      - image: gertzgutscheruemenapp/repair-web
     steps:
       - checkout
       - run: mkdir test-reports
@@ -129,4 +127,3 @@ workflows:
   build-and-deploy:
     jobs:
       - django testing
-      - setup database
