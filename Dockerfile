@@ -14,20 +14,22 @@ RUN apt-get -y update \
     && apt-get install -y libpq-dev \
     && apt-get install -y gettext imagemagick ghostscript
 
-RUN mkdir /root/miniconda3
-RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /root/miniconda3/miniconda.sh
-RUN bash /root/miniconda3/miniconda.sh -b -u -p /root/miniconda3
-RUN /root/miniconda3/bin/conda create -n repair -c conda-forge graph-tool gdal python=3.10
+RUN npm install --global yarn
 
-RUN git clone https://github.com/MaxBo/REPAiR-Web.git /root/repairweb
-WORKDIR /root/repairweb
+RUN mkdir /miniconda3
+RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /miniconda3/miniconda.sh
+RUN bash /miniconda3/miniconda.sh -b -u -p /miniconda3
+RUN /miniconda3/bin/conda create -n repair -c conda-forge graph-tool gdal python=3.10
+
+RUN git clone https://github.com/MaxBo/REPAiR-Web.git /repairweb
+WORKDIR /repairweb
 RUN git pull
 RUN git checkout feature/update
 
-ENV PATH="${PATH}:/root/miniconda3/bin"
+ENV PATH="${PATH}:/miniconda3/bin"
 SHELL ["conda", "run", "-n", "repair", "/bin/bash", "-c"]
 
 RUN python -m pip install --upgrade pip
-RUN pip install -r /root/repairweb/requirements.txt
+RUN pip install -r /repairweb/requirements.txt
 
 
