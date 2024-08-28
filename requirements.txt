@@ -3,7 +3,7 @@ django-webpack-loader==0.7
 djangorestframework
 djangorestframework-gis>=0.12
 djangorestframework-datatables>=0.3
-django-filter>=2.1
+django-filter==22.1
 wand>=0.5
 
 django-test-plus
