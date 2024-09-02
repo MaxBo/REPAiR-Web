@@ -1,5 +1,5 @@
 FROM osgeo/gdal:ubuntu-small-latest
-RUN curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
+RUN curl -sL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
 RUN bash nodesource_setup.sh
 RUN apt-get -y update \
     && apt-get -y upgrade \
@@ -29,7 +29,7 @@ RUN git checkout feature/update
 ENV PATH="${PATH}:/miniconda3/bin"
 SHELL ["conda", "run", "-n", "repair", "/bin/bash", "-c"]
 
-RUN python -m pip install --upgrade pip
+RUN python -m pip install pip==22
 RUN pip install -r /repairweb/requirements.txt
 
 
