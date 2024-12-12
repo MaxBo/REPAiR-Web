@@ -102,9 +102,10 @@ class CasestudyTest(BasicModelPermissionTest, APITestCase):
         uic.save()
         response = self.get_check_200(url, pk=new_id, **self.url_pks)
 
-    def setUp(self):
-        super().setUp()
-        self.obj = self.kic.casestudy
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = cls.kic_obj.casestudy
 
     def test_session(self):
         casestudy_name = self.obj.name

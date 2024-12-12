@@ -18,9 +18,7 @@ from django.db.models.fields import (IntegerField, DecimalField,
 from django.contrib.gis.db.models.fields import (PointField, PolygonField,
                                                  MultiPolygonField)
 from django.contrib.gis.geos import GEOSGeometry, WKTWriter
-from django.db.models.query import QuerySet
 from django.conf import settings
-from copy import deepcopy
 from openpyxl import Workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
@@ -297,7 +295,7 @@ class ErrorMask:
             if not isinstance(data.index, pd.RangeIndex):
                 data.reset_index(inplace=True)
             if file_type == 'xlsx':
-                data = data.style.apply(highlight_errors, errors=errors)
+                data.style.apply(highlight_errors, errors=errors)
 
         def write(df):
             with TemporaryMediaFile() as f:

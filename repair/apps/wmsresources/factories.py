@@ -8,7 +8,7 @@ from wms_client.models import WMSLayer, LayerStyle
 
 class WMSResourceFactory(DjangoModelFactory):
     name = 'WMSResource1'
-    uri = 'https://www.wms.nrw.de/gd/bohrungen'
+    uri = 'https://monitor.ioer.de/cgi-bin/wms?MAP=O06RG_wms'
     description = 'A short Description'
     preview = ''
     zoom = 15

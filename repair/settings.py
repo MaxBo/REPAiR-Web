@@ -12,9 +12,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 import sys
-import django
-
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +39,8 @@ ALLOWED_HOSTS = ['geodesignhub.h2020repair.bk.tudelft.nl',
                  'staging.h2020repair.bk.tudelft.nl',
                  "localhost",
                  "127.0.0.1"]
+
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 # Application definition
 
@@ -169,19 +169,23 @@ LANGUAGES = (
     ('it', _('Italian')),
 )
 
+# Linux
 if sys.platform == 'linux':
-    # Linux
-    GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
-                                     'lib', 'libgdal.so')
-    GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,
-                                     'lib', 'libgeos_c.so')
+    lib_path = os.path.join(sys.exec_prefix, 'lib')
+    GDAL_LIBRARY_PATH = os.path.join(lib_path, 'libgdal.so')
+
+    GEOS_LIBRARY_PATH = os.path.join(lib_path, 'libgeos_c.so')
     if not os.path.exists(GEOS_LIBRARY_PATH):
-        GEOS_LIBRARY_PATH = os.path.join(
-            sys.exec_prefix, 'lib', 'x86_64-linux-gnu', 'libgeos_c.so')
+        GEOS_LIBRARY_PATH = os.path.join(lib_path, 'x86_64-linux-gnu',
+                                         'libgeos_c.so')
+
     PROJ4_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libproj.so')
+    if not os.path.exists(PROJ4_LIBRARY_PATH):
+        PROJ4_LIBRARY_PATH = os.path.join(lib_path, 'x86_64-linux-gnu',
+                                          'libproj.so')
+# Max OS
 elif sys.platform == 'darwin':
-    # Max OS
     GDAL_LIBRARY_PATH = os.path.join(sys.exec_prefix,
                                      'lib', 'libgdal.dylib')
     GEOS_LIBRARY_PATH = os.path.join(sys.exec_prefix,

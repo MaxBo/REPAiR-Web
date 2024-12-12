@@ -233,7 +233,7 @@ class FilterFlowViewSet(PostGetViewMixin, RevisionMixin,
         if query_params:
             query_params = query_params.copy()
             strategy = query_params.pop('strategy', None)
-            for key in query_params:
+            for key in list(query_params.keys()):
                 if (key.startswith('material') or
                     key.startswith('waste') or
                     key.startswith('hazardous') or

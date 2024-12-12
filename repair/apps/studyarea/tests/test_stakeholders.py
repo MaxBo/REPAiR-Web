@@ -70,7 +70,6 @@ class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
 
     casestudy = 17
     stakeholdercategory = 48
-    stakeholder = 21
     userincasestudy = 67
     user = 99
 
@@ -84,16 +83,16 @@ class StakeholderInCasestudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_key = "stakeholder"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
                            stakeholdercategory_pk=cls.stakeholdercategory)
-        cls.url_pk = dict(pk=cls.stakeholder)
+        cls.url_pk = dict(pk=cls.obj.id)
         cls.post_data = dict(name='posttestname',
                              stakeholder_category=cls.stakeholdercategory_url)
         cls.put_data = cls.post_data
         cls.patch_data = dict(name="test name")
 
-    def setUp(self):
-        super().setUp()
-        self.obj = StakeholderFactory(
-            id=self.stakeholder,
-            stakeholder_category__id=self.stakeholdercategory,
-            stakeholder_category__casestudy=self.uic.casestudy,
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = StakeholderFactory(
+            stakeholder_category__id=cls.stakeholdercategory,
+            stakeholder_category__casestudy=cls.uic.casestudy,
             )

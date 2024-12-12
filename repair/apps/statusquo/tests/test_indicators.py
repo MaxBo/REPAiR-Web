@@ -44,72 +44,73 @@ class FlowIndicatorTest(BasicModelPermissionTest, APITestCase):
         super().setUpClass()
         cls.url_key = "flowindicator"
         cls.url_pks = dict(casestudy_pk=cls.casestudy,
-                           keyflow_pk=cls.kic.id)
+                           keyflow_pk=cls.kic_obj.id)
         cls.url_pk = dict(pk=cls.flowindicator_id)
-
-    def setUp(self):
-        super().setUp()
-        self.area1 = AreaFactory(id=self.area_id1,
-                                 )
-        self.area2 = AreaFactory(id=self.area_id2,
-                                     )
-        self.actor1 = ActorFactory(id=self.actor_id1)
-        self.actor2 = ActorFactory(id=self.actor_id2)
-        self.actor3 = ActorFactory(id=self.actor_id3)
-        self.actor4 = ActorFactory(id=self.actor_id4)
-        self.actor5 = ActorFactory(id=self.actor_id5)
-        self.composition1 = CompositionFactory()
-        self.flow1 = Actor2ActorFactory(id=self.flow_id1,
-                                        keyflow=self.kic,
-                                        composition=self.composition1,
-                                        origin=self.actor1,
-                                        destination=self.actor2)
-        self.flow2 = Actor2ActorFactory(id=self.flow_id2,
-                                        keyflow=self.kic,
-                                        composition=self.composition1,
-                                        origin=self.actor2,
-                                        destination=self.actor3
-                                        )
-        self.flow3 = Actor2ActorFactory(id=self.flow_id3,
-                                        keyflow=self.kic,
-                                        composition=self.composition1,
-                                        origin=self.actor3,
-                                        destination=self.actor5)
-        self.flow4 = Actor2ActorFactory(id=self.flow_id4,
-                                        keyflow=self.kic,
-                                        composition=self.composition1,
-                                        origin=self.actor5,
-                                        destination=self.actor4)
-        self.flow5 = Actor2ActorFactory(id=self.flow_id5,
-                                        keyflow=self.kic,
-                                        composition=self.composition1,
-                                        origin=self.actor5,
-                                        destination=self.actor3)
-        self.flow6 = Actor2ActorFactory(id=self.flow_id6,
-                                        keyflow=self.kic,
-                                        composition=self.composition1,
-                                        origin=self.actor1,
-                                        destination=self.actor3)
-        self.material1 = MaterialFactory(keyflow=self.kic)
-        self.flow_a = IndicatorFlowFactory(origin_node_ids='1, 2, 3',
-                                           destination_node_ids='4, 5',
-                                           materials=[self.material1])
-        self.flow_b = IndicatorFlowFactory(origin_node_ids='1, 2',
-                                           destination_node_ids='3, 4, 5',
-                                           materials=[self.material1])
-        self.obj = FlowIndicatorFactory(flow_a=self.flow_a,
-                                        flow_b=self.flow_b,
-                                        keyflow=self.kic)
-        self.post_data = dict(
+        cls.post_data = dict(
             name = 'FlowIndicator',
             unit = 'Elmshorn',
             description = 'supernormal',
             indicator_type = 'A',
-            flow_a = [self.flow_a],
-            flow_b = [self.flow_b],
-            keyflow = self.keyflow_id1,)
-        self.put_data = self.post_data
-        self.patch_data = self.post_data
+            flow_a = [cls.flow_a],
+            flow_b = [cls.flow_b],
+            keyflow = cls.keyflow_id1,)
+        cls.put_data = cls.post_data
+        cls.patch_data = cls.post_data
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.area1 = AreaFactory(id=cls.area_id1,
+                                 )
+        cls.area2 = AreaFactory(id=cls.area_id2,
+                                     )
+        cls.actor1 = ActorFactory(id=cls.actor_id1)
+        cls.actor2 = ActorFactory(id=cls.actor_id2)
+        cls.actor3 = ActorFactory(id=cls.actor_id3)
+        cls.actor4 = ActorFactory(id=cls.actor_id4)
+        cls.actor5 = ActorFactory(id=cls.actor_id5)
+        cls.composition1 = CompositionFactory()
+        cls.flow1 = Actor2ActorFactory(id=cls.flow_id1,
+                                       keyflow=cls.kic_obj,
+                                       composition=cls.composition1,
+                                       origin=cls.actor1,
+                                       destination=cls.actor2)
+        cls.flow2 = Actor2ActorFactory(id=cls.flow_id2,
+                                       keyflow=cls.kic_obj,
+                                       composition=cls.composition1,
+                                       origin=cls.actor2,
+                                       destination=cls.actor3
+                                       )
+        cls.flow3 = Actor2ActorFactory(id=cls.flow_id3,
+                                       keyflow=cls.kic_obj,
+                                       composition=cls.composition1,
+                                       origin=cls.actor3,
+                                       destination=cls.actor5)
+        cls.flow4 = Actor2ActorFactory(id=cls.flow_id4,
+                                       keyflow=cls.kic_obj,
+                                       composition=cls.composition1,
+                                       origin=cls.actor5,
+                                       destination=cls.actor4)
+        cls.flow5 = Actor2ActorFactory(id=cls.flow_id5,
+                                       keyflow=cls.kic_obj,
+                                       composition=cls.composition1,
+                                       origin=cls.actor5,
+                                       destination=cls.actor3)
+        cls.flow6 = Actor2ActorFactory(id=cls.flow_id6,
+                                       keyflow=cls.kic_obj,
+                                       composition=cls.composition1,
+                                       origin=cls.actor1,
+                                       destination=cls.actor3)
+        cls.material1 = MaterialFactory(keyflow=cls.kic_obj)
+        cls.flow_a = IndicatorFlowFactory(origin_node_ids='1, 2, 3',
+                                          destination_node_ids='4, 5',
+                                          materials=[cls.material1])
+        cls.flow_b = IndicatorFlowFactory(origin_node_ids='1, 2',
+                                          destination_node_ids='3, 4, 5',
+                                          materials=[cls.material1])
+        cls.obj = FlowIndicatorFactory(flow_a=cls.flow_a,
+                                       flow_b=cls.flow_b,
+                                       keyflow=cls.kic_obj)
 
     def test_post(self):
         pass

@@ -1,25 +1,19 @@
 import os
 from test_plus import APITestCase
-from django.contrib.gis.geos import Polygon, Point, GeometryCollection
+from django.contrib.gis.geos import Polygon
 from django.db.models.functions import Coalesce
-from django.db.models import Case, When, Value, F
+from django.db.models import Case, When, F
 from django.contrib.gis.geos import Polygon, MultiPolygon
 from django.db.models import Sum
 from django.test import TestCase
 
-from repair.apps.asmfa.graphs.graph import BaseGraph, StrategyGraph
+from repair.apps.asmfa.graphs.graph import (BaseGraph, StrategyGraph,
+                                            graph_tools_failed)
 from repair.apps.asmfa.graphs.graphwalker import GraphWalker
-from repair.tests.test import LoginTestCase, AdminAreaTest
-from repair.apps.asmfa.factories import (ActorFactory,
-                                         ActivityFactory,
-                                         ActivityGroupFactory,
-                                         MaterialFactory,
-                                         FractionFlowFactory,
-                                         AdministrativeLocationFactory
-                                        )
-from repair.apps.changes.factories import (StrategyFactory,
-                                           SolutionInStrategyFactory,
-                                           SolutionCategoryFactory,
+from repair.tests.test import LoginTestCase
+from repair.apps.asmfa.factories import (ActivityFactory,
+                                         ActivityGroupFactory)
+from repair.apps.changes.factories import (SolutionInStrategyFactory,
                                            SolutionFactory,
                                            SolutionPartFactory,
                                            ImplementationQuestionFactory,
@@ -28,24 +22,24 @@ from repair.apps.changes.factories import (StrategyFactory,
                                            FlowReferenceFactory,
                                            ImplementationQuestionFactory,
                                            ImplementationQuantityFactory,
-                                           KeyflowInCasestudyFactory,
                                            PossibleImplementationAreaFactory
                                         )
 from repair.apps.asmfa.models import (Actor, FractionFlow, StrategyFractionFlow,
                                       Activity, Material, KeyflowInCasestudy,
                                       CaseStudy, Process)
-from repair.apps.changes.models import (Solution, Strategy,
-                                        ImplementationQuantity,
-                                        SolutionInStrategy, Scheme,
+from repair.apps.changes.models import (Scheme,
                                         ImplementationArea)
-from repair.apps.studyarea.factories import StakeholderFactory
-from repair.apps.login.factories import UserInCasestudyFactory
 
 from repair.apps.changes.tests.test_graphwalker import MultiplyTestDataMixin
 from repair.apps.asmfa.tests import flowmodeltestdata
 
 
 class GraphWalkerTest(TestCase):
+
+    def setUp(self):
+        super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
 
     def test_data_creation(self):
         b2b = flowmodeltestdata.bread_to_beer_graph()
@@ -249,6 +243,8 @@ class GraphTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
         self.activitygroup1 = ActivityGroupFactory(name='MyGroup',
                                                    keyflow=self.kic)
         self.activitygroup2 = ActivityGroupFactory(name='AnotherGroup',
@@ -287,9 +283,10 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
         cls.keyflow = KeyflowInCasestudy.objects.get(
             casestudy=cls.casestudy,
             keyflow__name='Food Waste')
-        cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
-        print('building basegraph')
-        cls.basegraph.build()
+        if not graph_tools_failed:
+            cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
+            print('building basegraph')
+            cls.basegraph.build()
 
         cls.households = Activity.objects.get(nace='V-0000')
         cls.collection = Activity.objects.get(nace='E-3811')
@@ -299,6 +296,8 @@ class StrategyGraphTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
         self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
 
         self.possible_impl_area = PossibleImplementationAreaFactory(
@@ -812,13 +811,13 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-
         cls.casestudy = CaseStudy.objects.get(name='SandboxCity')
         cls.keyflow = KeyflowInCasestudy.objects.get(
             casestudy=cls.casestudy,
             keyflow__name='Food Waste')
-        cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
-        cls.basegraph.build()
+        if not graph_tools_failed:
+            cls.basegraph = BaseGraph(cls.keyflow, tag='unittest')
+            cls.basegraph.build()
 
         cls.restaurants = Activity.objects.get(nace='I-5610')
         cls.retail_food = Activity.objects.get(nace='G-4711')
@@ -843,6 +842,8 @@ class PeelPioneerTest(LoginTestCase, APITestCase):
 
     def setUp(self):
         super().setUp()
+        if graph_tools_failed:
+            self.skipTest('no graph tools')
         self.solution = SolutionFactory(solution_category__keyflow=self.keyflow)
 
         # create the implementation along with the strategy

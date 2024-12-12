@@ -23,10 +23,7 @@ class ProductsTest(BasicModelPermissionTest, APITestCase):
         cls.post_data = cls.put_data
         cls.patch_data = dict(name="other name")
 
-    def setUp(self):
-        super().setUp()
-        kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                            casestudy=self.uic.casestudy,
-                                            keyflow__id=self.keyflow)
-        self.obj = ProductFactory(id=self.product,
-                                  )
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = ProductFactory(id=cls.product)

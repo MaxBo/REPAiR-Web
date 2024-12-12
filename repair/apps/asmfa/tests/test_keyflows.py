@@ -33,8 +33,9 @@ class KeyflowTest(BasicModelPermissionTest, APITestCase):
                             code='Food')
         cls.patch_data = dict(name='patchtestname')
 
-    def setUp(self):
-        super().setUp()
+    @classmethod
+    def setUpTestData(self):
+        super().setUpTestData()
         self.obj = KeyflowFactory()
 
 
@@ -63,18 +64,14 @@ class KeyflowInCaseStudyTest(BasicModelPermissionTest, APITestCase):
         cls.url_pk = dict(pk=cls.keyflow)
 
         cls.put_data = dict(note='new_put_note',
-                            keyflow=cls.keyflow,
+                            keyflow=cls.kic_obj.keyflow_id,
                             )
         cls.post_data = dict(note='new_note',
-                             keyflow=cls.keyflow,
+                             keyflow=cls.kic_obj.keyflow_id,
                              )
 
         cls.patch_data = dict(note='patchtestnote')
-
-    def setUp(self):
-        super().setUp()
-        self.obj = KeyflowInCasestudyFactory(casestudy=self.uic.casestudy,
-                                             keyflow__id=self.keyflow)
+        cls.obj = cls.kic_obj
 
     def test_post(self):
         url = reverse(self.url_key + '-list', kwargs=self.url_pks)
@@ -91,14 +88,10 @@ class ProductTest(BasicModelPermissionTest, APITestCase):
     casestudy = 4
     product = 2
 
-
-    def setUp(self):
-        super().setUp()
-        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                                 casestudy=self.uic.casestudy,
-                                                 keyflow__id=self.keyflow)
+    @classmethod
+    def setUpTestData(self):
+        super().setUpTestData()
         self.obj = ProductFactory(id=self.product)
-
 
     @classmethod
     def setUpClass(cls):
@@ -121,13 +114,10 @@ class WasteTest(BasicModelPermissionTest, APITestCase):
     casestudy = 4
     waste = 2
 
-    def setUp(self):
-        super().setUp()
-        self.kic_obj = KeyflowInCasestudyFactory(id=self.keyflowincasestudy,
-                                                 casestudy=self.uic.casestudy,
-                                                 keyflow__id=self.keyflow)
+    @classmethod
+    def setUpTestData(self):
+        super().setUpTestData()
         self.obj = WasteFactory(id=self.waste)
-
 
     @classmethod
     def setUpClass(cls):

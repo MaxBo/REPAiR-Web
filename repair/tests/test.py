@@ -6,13 +6,11 @@ from django.utils.encoding import force_text
 from rest_framework import status
 from django.urls import reverse
 
-from repair.apps.login.factories import UserInCasestudyFactory
+from repair.apps.login.factories import UserInCasestudyFactory, CaseStudyFactory
 from repair.apps.asmfa.factories import KeyflowInCasestudyFactory
 from django.contrib.auth.models import Permission
 from repair.apps.login.models import User
-from django.test import Client
 from django.test.client import Client as FormClient
-from wms_client.models import WMSResource
 
 
 class CompareAbsURIMixin:
@@ -52,14 +50,15 @@ class LoginTestCase:
     permissions = Permission.objects.all()
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.casestudy_obj = CaseStudyFactory(id=cls.casestudy)
         cls.uic = UserInCasestudyFactory(id=cls.userincasestudy,
                                          user__user__id=cls.user,
                                          user__user__username='Anonymus User',
-                                         casestudy__id=cls.casestudy)
-        cls.kic = KeyflowInCasestudyFactory(id=cls.keyflow,
-                                            casestudy=cls.uic.casestudy)
+                                         casestudy=cls.casestudy_obj)
+        cls.kic_obj = KeyflowInCasestudyFactory(id=cls.keyflow,
+                                                casestudy=cls.casestudy_obj)
 
     def setUp(self):
         self.client.force_login(user=self.uic.user.user)
@@ -74,10 +73,15 @@ class LoginTestCase:
     @classmethod
     def tearDownClass(cls):
         user = cls.uic.user.user
-        cs = cls.uic.casestudy
         user.delete()
-        cs.delete()
-        del cls.uic
+        cls.kic_obj.delete()
+        cls.uic.delete()
+        cls.casestudy_obj.delete()
+        if getattr(cls, 'obj', None):
+            try:
+                cls.obj.delete()
+            except:
+                pass
         super().tearDownClass()
 
 

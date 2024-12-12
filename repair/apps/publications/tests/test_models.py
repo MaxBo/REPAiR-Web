@@ -35,20 +35,21 @@ class PublicationInCaseStudyTest(BasicModelPermissionTest, APITestCase):
 
         cls.patch_data = dict(title='patchtest_title')
 
-    def setUp(self):
-        super().setUp()
-        self.obj = PublicationInCasestudyFactory(
-            casestudy=self.uic.casestudy,
-            publication__id=self.publication,
-            publication__type__title=self.pup_type)
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.obj = PublicationInCasestudyFactory(
+            casestudy=cls.uic.casestudy,
+            publication__id=cls.publication,
+            publication__type__title=cls.pup_type)
 
         # create a user with 2 casestudies
-        self.user = ProfileFactory(user__id=self.user_id,
-                                   user__username='User')
-        self.uic1 = UserInCasestudyFactory(user=self.user,
-                                           casestudy__id=self.casestudy1)
-        self.uic2 = UserInCasestudyFactory(user=self.user,
-                                           casestudy__id=self.casestudy2)
+        cls.user = ProfileFactory(user__id=cls.user_id,
+                                  user__username='User')
+        cls.uic1 = UserInCasestudyFactory(user=cls.user,
+                                          casestudy__id=cls.casestudy1)
+        cls.uic2 = UserInCasestudyFactory(user=cls.user,
+                                          casestudy__id=cls.casestudy2)
 
     def test_post_existing_publication(self):
         """Test post method for the detail-view"""
